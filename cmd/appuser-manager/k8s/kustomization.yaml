@@ -1,0 +1,8 @@
+commonLabels:
+  # app: appuser-middware
+
+resources:
+- 01-appuser-middware.yaml
+- 02-strip-prefix.yaml
+- 03-traefik-ingress.yaml
+- 04-traefik-vpn-ingress.yaml
