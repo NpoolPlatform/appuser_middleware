@@ -6,14 +6,14 @@ import (
 
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 
-	"github.com/NpoolPlatform/appuser-middware/pkg/db/ent"
+	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	"github.com/NpoolPlatform/go-service-framework/pkg/mysql"
 
 	// ent policy runtime
-	_ "github.com/NpoolPlatform/appuser-middware/pkg/db/ent/runtime"
+	_ "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/runtime"
 )
 
 func client() (*ent.Client, error) {
@@ -38,16 +38,17 @@ func Client() (*ent.Client, error) {
 }
 
 func WithTx(ctx context.Context, fn func(ctx context.Context, tx *ent.Tx) error) error {
-	succ := false
 	cli, err := Client()
 	if err != nil {
 		return err
 	}
+
 	tx, err := cli.Tx(ctx)
 	if err != nil {
 		return fmt.Errorf("fail get client transaction: %v", err)
 	}
 
+	succ := false
 	defer func() {
 		if !succ {
 			err := tx.Rollback()
@@ -57,12 +58,15 @@ func WithTx(ctx context.Context, fn func(ctx context.Context, tx *ent.Tx) error)
 			}
 		}
 	}()
+
 	if err := fn(ctx, tx); err != nil {
 		return err
 	}
+
 	if err := tx.Commit(); err != nil {
 		return fmt.Errorf("committing transaction: %v", err)
 	}
+
 	succ = true
 	return nil
 }

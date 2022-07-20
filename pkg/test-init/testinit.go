@@ -7,8 +7,8 @@ import (
 
 	"github.com/NpoolPlatform/go-service-framework/pkg/app"
 
-	"github.com/NpoolPlatform/appuser-middware/pkg/db"
-	servicename "github.com/NpoolPlatform/appuser-middware/pkg/service-name" //nolint
+	"github.com/NpoolPlatform/appuser-manager/pkg/db"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/service-name" //nolint
 
 	mysqlconst "github.com/NpoolPlatform/go-service-framework/pkg/mysql/const"
 	rabbitmqconst "github.com/NpoolPlatform/go-service-framework/pkg/rabbitmq/const"

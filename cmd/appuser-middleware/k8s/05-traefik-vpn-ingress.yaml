@@ -1,0 +1,95 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: appuser-middleware-traefik-vpn-ingress
+  namespace: kube-system
+  annotations:
+    k8s.kuboard.cn/displayName: appuser-middleware-traefik-vpn
+    k8s.kuboard.cn/workload: appuser-middleware-traefik-vpn
+    kubernetes.io/ingress.class: "traefik-internet-vpn"
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.middlewares: kube-system-strip-appuser-middleware-prefix@kubernetescrd,
+                                                      kube-system-common-headers@kubernetescrd,
+                                                      kube-system-headers-appid-to-body@kubernetescrd,
+                                                      kube-system-headers-userid-to-body@kubernetescrd,
+                                                      kube-system-headers-app-login-token-to-body@kubernetescrd,
+                                                      kube-system-app-rbac-auth@kubernetescrd
+
+spec:
+  rules:
+    - host: api.npool.top
+      http: &http_rules
+        paths:
+          - path: /api/appuser-middleware
+            backend:
+              serviceName: appuser-middleware
+              servicePort: 50320
+    - host: api.procyon.vip
+      http: *http_rules
+    - host: api.xpool.top
+      http: *http_rules
+    - host: api.internal-devops.development.xpool.top
+      http: *http_rules
+
+---
+
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: appuser-middleware-traefik-vpn-free-ingress
+  namespace: kube-system
+  annotations:
+    k8s.kuboard.cn/displayName: appuser-middleware-traefik-vpn-free
+    k8s.kuboard.cn/workload: appuser-middleware-traefik-vpn-free
+    kubernetes.io/ingress.class: "traefik-internet-vpn"
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.middlewares: kube-system-strip-appuser-middleware-prefix@kubernetescrd,
+                                                      kube-system-common-headers@kubernetescrd,
+                                                      kube-system-headers-appid-to-body@kubernetescrd,
+                                                      kube-system-headers-userid-to-body@kubernetescrd
+
+spec:
+  rules:
+    - host: api.npool.top
+      http: &http_rules
+        paths:
+          - path: /api/appuser-middleware/v1/create/genesis/role
+            backend:
+              serviceName: appuser-middleware
+              servicePort: 50320
+          - path: /api/appuser-middleware/v1/get/genesis/role
+            backend:
+              serviceName: appuser-middleware
+              servicePort: 50320
+          - path: /api/appuser-middleware/v1/get/genesis/app/role/users/by/other/app
+            backend:
+              serviceName: appuser-middleware
+              servicePort: 50320
+          - path: /api/appuser-middleware/v1/create/genesis/role/user
+            backend:
+              serviceName: appuser-middleware
+              servicePort: 50320
+          - path: /api/appuser-middleware/v1/get/admin/apps
+            backend:
+              serviceName: appuser-middleware
+              servicePort: 50320
+          - path: /api/appuser-middleware/v1/create/admin/apps
+            backend:
+              serviceName: appuser-middleware
+              servicePort: 50320
+          - path: /api/appuser-middleware/v1/get/app/role/users/by/app/role
+            backend:
+              serviceName: appuser-middleware
+              servicePort: 50320
+          - path: /api/appuser-middleware/v1/get/app/user
+            backend:
+              serviceName: appuser-middleware
+              servicePort: 50320
+    - host: api.procyon.vip
+      http: *http_rules
+    - host: api.xpool.top
+      http: *http_rules
+    - host: api.internal-devops.development.xpool.top
+      http: *http_rules
+
+

@@ -6,7 +6,7 @@ package api
 import (
 	"context"
 
-	"github.com/NpoolPlatform/appuser-middware/pkg/version"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/version"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool"
 	"google.golang.org/grpc/codes"
@@ -14,7 +14,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (s *Server) Version(ctx context.Context, in *emptypb.Empty) (*npool.VersionResponse, error) {
+func (s *AppService) Version(ctx context.Context, in *emptypb.Empty) (*npool.VersionResponse, error) {
 	resp, err := version.Version()
 	if err != nil {
 		logger.Sugar().Errorw("[Version] get service version error: %w", err)

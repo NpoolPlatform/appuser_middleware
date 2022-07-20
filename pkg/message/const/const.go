@@ -1,5 +1,5 @@
 package constant
 
 const (
-	ServiceName = "appuser-middware.npool.top" //nolint
+	ServiceName = "appuser-middleware.npool.top" //nolint
 )
