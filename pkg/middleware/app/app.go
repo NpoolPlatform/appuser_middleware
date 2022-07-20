@@ -39,7 +39,7 @@ func GetAppInfo(ctx context.Context, id uuid.UUID) (*Info, error) {
 	var err error
 	var resp []*Info
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetAppWithBanApp")
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetAppInfo")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -48,7 +48,7 @@ func GetAppInfo(ctx context.Context, id uuid.UUID) (*Info, error) {
 		}
 	}()
 
-	span.AddEvent("call crud Row")
+	span.AddEvent("call db query")
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		err = cli.Debug().App.Query().Select(
 			entapp.FieldID,
