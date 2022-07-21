@@ -93,3 +93,117 @@ func GetAppInfo(ctx context.Context, id uuid.UUID) (*Info, error) {
 	}
 	return resp[0], nil
 }
+
+func GetAppInfos(ctx context.Context, offset int32, limit int32) ([]*Info, error) {
+	var err error
+	var resp []*Info
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetAppInfo")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	span.AddEvent("call db query")
+	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
+		err = cli.Debug().App.Query().Select(
+			entapp.FieldID,
+			entapp.FieldName,
+			entapp.FieldLogo,
+			entapp.FieldCreatedBy,
+			entapp.FieldCreatedAt,
+			entapp.FieldDescription,
+		).
+			Limit(int(limit)).
+			Offset(int(offset)).
+			Modify(func(s *sql.Selector) {
+				b := sql.Table(entbanapp.Table)
+				c := sql.Table(entappcontrol.Table)
+				s.LeftJoin(b).
+					On(
+						s.C(entapp.FieldID),
+						b.C(entbanapp.FieldAppID),
+					).AppendSelect(
+					sql.As(b.C(entbanapp.FieldAppID), "ban_app_app_id"),
+					sql.As(b.C(entbanapp.FieldMessage), "ban_app_message"),
+				)
+				s.LeftJoin(c).On(
+					s.C(entapp.FieldID),
+					c.C(entappcontrol.FieldAppID),
+				).AppendSelect(
+					c.C(entappcontrol.FieldSignupMethods),
+					c.C(entappcontrol.FieldExternSigninMethods),
+					c.C(entappcontrol.FieldRecaptchaMethod),
+					c.C(entappcontrol.FieldKycEnable),
+					c.C(entappcontrol.FieldSigninVerifyEnable),
+					c.C(entappcontrol.FieldInvitationCodeMust),
+				)
+			}).Scan(ctx, &resp)
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func GetAppInfosByCreator(ctx context.Context, creatorID uuid.UUID, offset int32, limit int32) ([]*Info, error) {
+	var err error
+	var resp []*Info
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetAppInfo")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	span.AddEvent("call db query")
+	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
+		err = cli.Debug().App.Query().Select(
+			entapp.FieldID,
+			entapp.FieldName,
+			entapp.FieldLogo,
+			entapp.FieldCreatedBy,
+			entapp.FieldCreatedAt,
+			entapp.FieldDescription,
+		).Where(
+			entapp.CreatedBy(creatorID),
+		).
+			Limit(int(limit)).
+			Offset(int(offset)).
+			Modify(func(s *sql.Selector) {
+				b := sql.Table(entbanapp.Table)
+				c := sql.Table(entappcontrol.Table)
+				s.LeftJoin(b).
+					On(
+						s.C(entapp.FieldID),
+						b.C(entbanapp.FieldAppID),
+					).AppendSelect(
+					sql.As(b.C(entbanapp.FieldAppID), "ban_app_app_id"),
+					sql.As(b.C(entbanapp.FieldMessage), "ban_app_message"),
+				)
+				s.LeftJoin(c).On(
+					s.C(entapp.FieldID),
+					c.C(entappcontrol.FieldAppID),
+				).AppendSelect(
+					c.C(entappcontrol.FieldSignupMethods),
+					c.C(entappcontrol.FieldExternSigninMethods),
+					c.C(entappcontrol.FieldRecaptchaMethod),
+					c.C(entappcontrol.FieldKycEnable),
+					c.C(entappcontrol.FieldSigninVerifyEnable),
+					c.C(entappcontrol.FieldInvitationCodeMust),
+				)
+			}).Scan(ctx, &resp)
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
