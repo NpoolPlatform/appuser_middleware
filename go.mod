@@ -106,4 +106,4 @@ require (
 
 replace github.com/NpoolPlatform/message => ../message
 
-replace github.com/NpoolPlatform/appuser-manager => github.com/NpoolPlatform/appuser-manager v0.0.0-20220720112147-3559c420a5c2
+replace github.com/NpoolPlatform/appuser-manager => ../appuser-manager
