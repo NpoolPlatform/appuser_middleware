@@ -104,6 +104,6 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-replace github.com/NpoolPlatform/message => github.com/NpoolPlatform/message v0.0.0-20220726071515-721ed4de210a
+replace github.com/NpoolPlatform/message => github.com/NpoolPlatform/message v0.0.0-20220726084955-1a083f4eb348
 
-replace github.com/NpoolPlatform/appuser-manager => github.com/NpoolPlatform/appuser-manager v0.0.0-20220727035615-31c20ca9b693
+replace github.com/NpoolPlatform/appuser-manager => github.com/NpoolPlatform/appuser-manager v0.0.0-20220727050755-970afaac3faf
