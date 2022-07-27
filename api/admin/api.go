@@ -1,14 +1,14 @@
 package admin
 
 import (
-	"github.com/NpoolPlatform/message/npool/appusermw/app"
+	"github.com/NpoolPlatform/message/npool/appusermw/admin"
 	"google.golang.org/grpc"
 )
 
 type Service struct {
-	app.UnimplementedAppUserMiddlewareAppServer
+	admin.UnimplementedAppUserMiddlewareAdminServer
 }
 
 func Register(server grpc.ServiceRegistrar) {
-	app.RegisterAppUserMiddlewareAppServer(server, &Service{})
+	admin.RegisterAppUserMiddlewareAdminServer(server, &Service{})
 }

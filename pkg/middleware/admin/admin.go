@@ -10,6 +10,7 @@ import (
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 	bconst "github.com/NpoolPlatform/appuser-middleware/pkg/const"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	"github.com/NpoolPlatform/message/npool"
 	"github.com/NpoolPlatform/message/npool/appusermgrv2/approle"
@@ -25,7 +26,7 @@ func CreateGenesisRoleUser(ctx context.Context, in *admin.CreateGenesisRoleUserR
 	var err error
 	var userInfo *ent.AppUser
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUserInfo")
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "CreateGenesisRoleUser")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -45,6 +46,7 @@ func CreateGenesisRoleUser(ctx context.Context, in *admin.CreateGenesisRoleUserR
 		},
 	})
 	if err != nil {
+		logger.Sugar().Error("fail get role:%v", err)
 		return nil, nil, err
 	}
 
@@ -60,8 +62,10 @@ func CreateGenesisRoleUser(ctx context.Context, in *admin.CreateGenesisRoleUserR
 	})
 	if err != nil {
 		if ent.IsNotFound(err) {
+			logger.Sugar().Error("genesis user already exist")
 			return nil, nil, fmt.Errorf("genesis user already exist")
 		}
+		logger.Sugar().Error("fail get role user:%v", err)
 		return nil, nil, err
 	}
 
@@ -77,6 +81,7 @@ func CreateGenesisRoleUser(ctx context.Context, in *admin.CreateGenesisRoleUserR
 	})
 	if err != nil {
 		if !ent.IsNotFound(err) {
+			logger.Sugar().Error("fail get user:%v", err)
 			return nil, nil, err
 		}
 	}
@@ -98,6 +103,7 @@ func CreateGenesisRoleUser(ctx context.Context, in *admin.CreateGenesisRoleUserR
 			userTx.SetPhoneNo(in.GetUser().GetPhoneNo())
 			userInfo, err = userTx.Save(ctx)
 			if err != nil {
+				logger.Sugar().Error("fail create user:%v", err)
 				return err
 			}
 
@@ -109,6 +115,7 @@ func CreateGenesisRoleUser(ctx context.Context, in *admin.CreateGenesisRoleUserR
 			secretTx.SetSalt(in.GetSecret().GetSalt())
 			_, err = secretTx.Save(ctx)
 			if err != nil {
+				logger.Sugar().Error("fail create secret:%v", err)
 				return err
 			}
 		}
@@ -118,10 +125,15 @@ func CreateGenesisRoleUser(ctx context.Context, in *admin.CreateGenesisRoleUserR
 		roleUserTx.SetRoleID(role.ID)
 		_, err = roleUserTx.Save(ctx)
 		if err != nil {
+			logger.Sugar().Error("fail create role user:%v", err)
 			return err
 		}
 		return nil
 	})
+	if err != nil {
+		logger.Sugar().Error("transaction fail :%v", err)
+		return nil, nil, err
+	}
 
 	return &appuser.AppUser{
 			PhoneNo:       user.PhoneNo,

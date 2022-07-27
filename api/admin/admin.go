@@ -18,7 +18,7 @@ import (
 func (s *Service) CreateGenesisRoleUser(ctx context.Context, in *admin.CreateGenesisRoleUserRequest) (*admin.CreateGenesisRoleUserResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetAppInfo")
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "CreateGenesisRoleUser")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -36,7 +36,7 @@ func (s *Service) CreateGenesisRoleUser(ctx context.Context, in *admin.CreateGen
 		return nil, status.Error(codes.InvalidArgument, "invalid app id for genesis role user")
 	}
 
-	span.AddEvent("call middleware GetAppInfo")
+	span.AddEvent("call middleware CreateGenesisRoleUser")
 	user, roleUser, err := mw.CreateGenesisRoleUser(ctx, in)
 	if err != nil {
 		logger.Sugar().Errorw("fail get app info: %v", err)
