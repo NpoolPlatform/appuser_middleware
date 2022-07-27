@@ -1,6 +1,12 @@
-FROM jrei/systemd-centos:7
+FROM uhub.service.ucloud.cn/entropypool/alpine:3.16
 
-COPY AppUserMiddleware.viper.yaml /etc/AppUserMiddleware/AppUserMiddleware.viper.yaml
-COPY appuser-middleware /usr/local/bin/appuser-middleware
+WORKDIR /app
 
-CMD ["appuser-middleware", "run"]
+COPY appuser-middleware /app
+
+ENTRYPOINT ["/app/appuser-middleware"]
+
+EXPOSE 50330 50331 50332 50333
+
+CMD ["run"]
+

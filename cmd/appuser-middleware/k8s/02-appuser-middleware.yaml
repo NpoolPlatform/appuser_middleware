@@ -3,8 +3,10 @@ kind: Deployment
 metadata:
   name: appuser-middleware
   namespace: kube-system
+  annotations:
+    "sidecar.jaegertracing.io/inject": "true"
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: appuser-middleware
@@ -14,39 +16,39 @@ spec:
         app: appuser-middleware
     spec:
       containers:
-      - name: appuser-middleware
-        image: uhub.service.ucloud.cn/entropypool/appuser-middleware:latest
-        imagePullPolicy: Never
-        volumeMounts:
-          - name: service-config
-            mountPath: /app
-        env:
-        - name: ENV_ENVIRONMENT_TARGET
-          valueFrom:
-            configMapKeyRef:
-              name: system-environment
-              key: environment.target
-        - name: ENV_CONSUL_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: system-environment
-              key: environment.consul_host
-        - name: ENV_CONSUL_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: system-environment
-              key: environment.consul_port
-        - name: ENV_CLUSTER_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
+        - name: appuser-middleware
+          image: uhub.service.ucloud.cn/entropypool/appuser-middleware:latest
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: service-config
+              mountPath: /etc/AppUserMiddleware
+          env:
+            - name: ENV_ENVIRONMENT_TARGET
+              valueFrom:
+                configMapKeyRef:
+                  name: system-environment
+                  key: environment.target
+            - name: ENV_CONSUL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: system-environment
+                  key: environment.consul_host
+            - name: ENV_CONSUL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: system-environment
+                  key: environment.consul_port
+            - name: ENV_CLUSTER_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
       volumes:
         - name: service-config
           configMap:
             name: appuser-middleware-config
             items:
               - key: service-conf
-                path: AppUserManager.viper.yaml
+                path: AppUserMiddleware.viper.yaml
 ---
 apiVersion: v1
 kind: Service
@@ -55,14 +57,17 @@ metadata:
   namespace: kube-system
 spec:
   ports:
-  - name: http
-    port: 50320
-    targetPort: 50320
-  - name: grpc
-    port: 50321
-    targetPort: 50321
-  - name: prometheus
-    port: 50322
-    targetPort: 50322
+    - name: http
+      port: 50320
+      targetPort: 50320
+    - name: grpc
+      port: 50321
+      targetPort: 50321
+    - name: healthz
+      port: 50322
+      targetPort: 50322
+    - name: prometheus
+      port: 50323
+      targetPort: 50323
   selector:
     app: appuser-middleware
