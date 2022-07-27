@@ -2,8 +2,10 @@ package user
 
 import (
 	"context"
-	"entgo.io/ent/dialect/sql"
 	"fmt"
+
+	"entgo.io/ent/dialect/sql"
+
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 	entapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
@@ -16,6 +18,7 @@ import (
 	entbanappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banappuser"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/predicate"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/google/uuid"
 	"go.opentelemetry.io/otel"
 	scodes "go.opentelemetry.io/otel/codes"
@@ -90,15 +93,18 @@ func GetUserInfo(ctx context.Context, appID, userID uuid.UUID) (*Info, error) {
 		return err
 	})
 	if err != nil {
+		logger.Sugar().Errorw("fail get user info: %v", err)
 		return nil, err
 	}
 
 	if len(userInfo) == 0 {
+		logger.Sugar().Errorw("user not found")
 		return nil, fmt.Errorf("user not found")
 	}
 
 	appRole, err := GetRoles(ctx, entapproleuser.UserID(userID))
 	if err != nil {
+		logger.Sugar().Errorw("fail get roles :%v", err)
 		return nil, err
 	}
 
@@ -110,7 +116,7 @@ func GetUserInfos(ctx context.Context, appID uuid.UUID, offset, limit int32) ([]
 	var err error
 	var userInfos []*Info
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUserInfo")
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUserInfos")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -141,17 +147,16 @@ func GetUserInfos(ctx context.Context, appID uuid.UUID, offset, limit int32) ([]
 		return err
 	})
 	if err != nil {
+		logger.Sugar().Errorw("fail get user infos:%v", err)
 		return nil, err
 	}
 
-	if len(userInfos) == 0 {
-		return nil, fmt.Errorf("user not found")
-	}
+	userIDs := []uuid.UUID{}
 
-	var userIDs []uuid.UUID
 	for _, val := range userInfos {
 		userID, err := uuid.Parse(val.ID)
 		if err != nil {
+			logger.Sugar().Errorw("userID string to uuid type fail :%v", err)
 			return nil, err
 		}
 		userIDs = append(userIDs, userID)
@@ -159,6 +164,7 @@ func GetUserInfos(ctx context.Context, appID uuid.UUID, offset, limit int32) ([]
 
 	roles, err := GetRoles(ctx, entapproleuser.UserIDIn(userIDs...))
 	if err != nil {
+		logger.Sugar().Errorw("fail get roles:%v", err)
 		return nil, err
 	}
 
@@ -176,6 +182,7 @@ func GetUserInfos(ctx context.Context, appID uuid.UUID, offset, limit int32) ([]
 func GetRoles(ctx context.Context, ps predicate.AppRoleUser) ([]*AppRole, error) {
 	var appRole []*AppRole
 	var err error
+
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		err = cli.Debug().AppRoleUser.Query().
 			Select(
@@ -201,10 +208,14 @@ func GetRoles(ctx context.Context, ps predicate.AppRoleUser) ([]*AppRole, error)
 			}).Scan(ctx, &appRole)
 		return err
 	})
-	return appRole, err
+	if err != nil {
+		logger.Sugar().Errorw("fail query roles:%v", err)
+		return nil, err
+	}
+	return appRole, nil
 }
 
-func leftExtra(s *sql.Selector) *sql.Selector {
+func leftExtra(s *sql.Selector) {
 	extra := sql.Table(entextra.Table)
 	s.LeftJoin(extra).
 		On(
@@ -227,10 +238,9 @@ func leftExtra(s *sql.Selector) *sql.Selector {
 			builder.Ident(extra.C(entextra.FieldDeletedAt)).WriteOp(sql.OpEQ).Arg(0)
 		}),
 	)
-	return s
 }
 
-func leftControl(s *sql.Selector) *sql.Selector {
+func leftControl(s *sql.Selector) {
 	control := sql.Table(entappusercontrol.Table)
 	s.LeftJoin(control).
 		On(
@@ -244,10 +254,9 @@ func leftControl(s *sql.Selector) *sql.Selector {
 			builder.Ident(control.C(entappusercontrol.FieldDeletedAt)).WriteOp(sql.OpEQ).Arg(0)
 		}),
 	)
-	return s
 }
 
-func leftBanApp(s *sql.Selector) *sql.Selector {
+func leftBanApp(s *sql.Selector) {
 	ban := sql.Table(entbanappuser.Table)
 	s.LeftJoin(ban).
 		On(
@@ -260,10 +269,9 @@ func leftBanApp(s *sql.Selector) *sql.Selector {
 			builder.Ident(ban.C(entbanappuser.FieldDeletedAt)).WriteOp(sql.OpEQ).Arg(0)
 		}),
 	)
-	return s
 }
 
-func leftSecret(s *sql.Selector) *sql.Selector {
+func leftSecret(s *sql.Selector) {
 	secret := sql.Table(entsecret.Table)
 	s.LeftJoin(secret).
 		On(
@@ -276,5 +284,4 @@ func leftSecret(s *sql.Selector) *sql.Selector {
 			builder.Ident(secret.C(entsecret.FieldDeletedAt)).WriteOp(sql.OpEQ).Arg(0)
 		}),
 	)
-	return s
 }

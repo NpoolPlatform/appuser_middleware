@@ -3,6 +3,7 @@ package admin
 import (
 	"context"
 	"fmt"
+
 	approleusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/approleuserv2"
 	approlecrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/approlev2"
 	appusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuserv2"
@@ -35,58 +36,28 @@ func CreateGenesisRoleUser(ctx context.Context, in *admin.CreateGenesisRoleUserR
 		}
 	}()
 
-	role, err := approlecrud.RowOnly(ctx, &approle.Conds{
-		AppID: &npool.StringVal{
-			Value: uuid.UUID{}.String(),
-			Op:    cruder.EQ,
-		},
-		Role: &npool.StringVal{
-			Value: bconst.GenesisRole,
-			Op:    cruder.EQ,
-		},
-	})
+	role, err := getRole(ctx)
 	if err != nil {
 		logger.Sugar().Error("fail get role:%v", err)
 		return nil, nil, err
 	}
 
-	roleUser, err := approleusercrud.RowOnly(ctx, &approleuser.Conds{
-		AppID: &npool.StringVal{
-			Value: in.GetUser().GetAppID(),
-			Op:    cruder.EQ,
-		},
-		RoleID: &npool.StringVal{
-			Value: role.ID.String(),
-			Op:    cruder.EQ,
-		},
-	})
+	roleUser, err := getRoleUser(ctx, in.GetUser().GetAppID(), role.ID.String())
 	if err != nil {
-		if ent.IsNotFound(err) {
-			logger.Sugar().Error("genesis user already exist")
-			return nil, nil, fmt.Errorf("genesis user already exist")
-		}
 		logger.Sugar().Error("fail get role user:%v", err)
 		return nil, nil, err
 	}
 
-	user, err := appusercrud.RowOnly(ctx, &appuser.Conds{
-		AppID: &npool.StringVal{
-			Value: in.GetUser().GetAppID(),
-			Op:    cruder.EQ,
-		},
-		EmailAddress: &npool.StringVal{
-			Value: in.GetUser().GetEmailAddress(),
-			Op:    cruder.EQ,
-		},
-	})
+	userInfo, err = getUser(ctx, in.GetUser().GetAppID(), in.GetUser().GetEmailAddress())
 	if err != nil {
-		if !ent.IsNotFound(err) {
-			logger.Sugar().Error("fail get user:%v", err)
-			return nil, nil, err
-		}
+		logger.Sugar().Error("fail get user:%v", err)
+		return nil, nil, err
 	}
 
-	userId := uuid.New()
+	userID := uuid.New()
+	if userInfo != nil {
+		userID = userInfo.ID
+	}
 
 	importFromApp := uuid.UUID{}
 	if in.GetUser().GetImportFromApp() != "" {
@@ -94,9 +65,9 @@ func CreateGenesisRoleUser(ctx context.Context, in *admin.CreateGenesisRoleUserR
 	}
 
 	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
-		if user == nil {
+		if userInfo == nil {
 			userTx := tx.AppUser.Create()
-			userTx.SetID(userId)
+			userTx.SetID(userID)
 			userTx.SetAppID(uuid.MustParse(in.GetUser().GetAppID()))
 			userTx.SetImportFromApp(importFromApp)
 			userTx.SetEmailAddress(in.GetUser().GetEmailAddress())
@@ -109,7 +80,7 @@ func CreateGenesisRoleUser(ctx context.Context, in *admin.CreateGenesisRoleUserR
 
 			secretTx := tx.AppUserSecret.Create()
 			secretTx.SetAppID(uuid.MustParse(in.GetUser().GetAppID()))
-			secretTx.SetUserID(userId)
+			secretTx.SetUserID(userID)
 			secretTx.SetGoogleSecret(in.GetSecret().GetGoogleSecret())
 			secretTx.SetPasswordHash(in.GetSecret().GetPasswordHash())
 			secretTx.SetSalt(in.GetSecret().GetSalt())
@@ -121,7 +92,7 @@ func CreateGenesisRoleUser(ctx context.Context, in *admin.CreateGenesisRoleUserR
 		}
 		roleUserTx := tx.AppRoleUser.Create()
 		roleUserTx.SetAppID(uuid.MustParse(in.GetUser().GetAppID()))
-		roleUserTx.SetUserID(userId)
+		roleUserTx.SetUserID(userID)
 		roleUserTx.SetRoleID(role.ID)
 		_, err = roleUserTx.Save(ctx)
 		if err != nil {
@@ -130,21 +101,82 @@ func CreateGenesisRoleUser(ctx context.Context, in *admin.CreateGenesisRoleUserR
 		}
 		return nil
 	})
+
 	if err != nil {
 		logger.Sugar().Error("transaction fail :%v", err)
 		return nil, nil, err
 	}
 
 	return &appuser.AppUser{
-			PhoneNo:       user.PhoneNo,
-			ImportFromApp: user.ImportFromApp.String(),
-			ID:            user.ID.String(),
-			AppID:         user.AppID.String(),
-			EmailAddress:  user.EmailAddress,
+			PhoneNo:       userInfo.PhoneNo,
+			ImportFromApp: userInfo.ImportFromApp.String(),
+			ID:            userInfo.ID.String(),
+			AppID:         userInfo.AppID.String(),
+			EmailAddress:  userInfo.EmailAddress,
 		}, &approleuser.AppRoleUser{
 			UserID: roleUser.UserID.String(),
 			ID:     roleUser.ID.String(),
 			AppID:  roleUser.AppID.String(),
 			RoleID: roleUser.RoleID.String(),
 		}, nil
+}
+
+func getRole(ctx context.Context) (*ent.AppRole, error) {
+	roleInfo, err := approlecrud.RowOnly(ctx, &approle.Conds{
+		AppID: &npool.StringVal{
+			Value: uuid.UUID{}.String(),
+			Op:    cruder.EQ,
+		},
+		Role: &npool.StringVal{
+			Value: bconst.GenesisRole,
+			Op:    cruder.EQ,
+		},
+	})
+	if err != nil {
+		logger.Sugar().Error("fail get role:%v", err)
+		return nil, err
+	}
+	return roleInfo, nil
+}
+
+func getRoleUser(ctx context.Context, appID, roleID string) (*ent.AppRoleUser, error) {
+	roleUser, err := approleusercrud.RowOnly(ctx, &approleuser.Conds{
+		AppID: &npool.StringVal{
+			Value: appID,
+			Op:    cruder.EQ,
+		},
+		RoleID: &npool.StringVal{
+			Value: roleID,
+			Op:    cruder.EQ,
+		},
+	})
+	if err != nil {
+		if ent.IsNotFound(err) {
+			logger.Sugar().Error("genesis user already exist")
+			return nil, fmt.Errorf("genesis user already exist")
+		}
+		logger.Sugar().Error("fail get role user:%v", err)
+		return nil, err
+	}
+	return roleUser, nil
+}
+
+func getUser(ctx context.Context, appID, emailAddress string) (*ent.AppUser, error) {
+	userInfo, err := appusercrud.RowOnly(ctx, &appuser.Conds{
+		AppID: &npool.StringVal{
+			Value: appID,
+			Op:    cruder.EQ,
+		},
+		EmailAddress: &npool.StringVal{
+			Value: emailAddress,
+			Op:    cruder.EQ,
+		},
+	})
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			logger.Sugar().Error("fail get user:%v", err)
+			return nil, err
+		}
+	}
+	return userInfo, nil
 }

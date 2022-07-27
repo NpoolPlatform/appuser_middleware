@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/json"
+
 	mw "github.com/NpoolPlatform/appuser-middleware/pkg/middleware/user"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/message/npool/appusermgrv2/approle"
@@ -40,7 +41,7 @@ func InfoRowToObject(row *mw.Info) (*user.AppUserInfo, error) {
 		hasGoogleSecret = true
 	}
 
-	var roles []*approle.AppRole
+	roles := []*approle.AppRole{}
 	for _, val := range row.Role {
 		isDefault := false
 		if val.Default == 1 {

@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	"github.com/google/uuid"
 
@@ -111,6 +112,7 @@ func (s *Service) GetAppInfosByCreator(ctx context.Context, in *app.GetAppInfosB
 	for _, val := range infos {
 		info, err := appInfoRowToObject(val)
 		if err != nil {
+			logger.Sugar().Errorw("fail info to object: %v", err)
 			return nil, err
 		}
 		resp = append(resp, info)

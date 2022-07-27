@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
+
 	"entgo.io/ent/dialect/sql"
 
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
@@ -86,19 +88,23 @@ func GetAppInfo(ctx context.Context, id uuid.UUID) (*Info, error) {
 		return err
 	})
 	if err != nil {
+		logger.Sugar().Errorw("fail get app info: %v", err)
 		return nil, err
 	}
+
 	if len(resp) == 0 {
-		return nil, fmt.Errorf("not found app")
+		logger.Sugar().Errorw("app not found")
+		return nil, fmt.Errorf("app not found")
 	}
+
 	return resp[0], nil
 }
 
-func GetAppInfos(ctx context.Context, offset int32, limit int32) ([]*Info, error) {
+func GetAppInfos(ctx context.Context, offset, limit int32) ([]*Info, error) {
 	var err error
 	var resp []*Info
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetAppInfo")
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetAppInfos")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -144,17 +150,20 @@ func GetAppInfos(ctx context.Context, offset int32, limit int32) ([]*Info, error
 			}).Scan(ctx, &resp)
 		return err
 	})
+
 	if err != nil {
+		logger.Sugar().Errorw("fail get app infos: %v", err)
 		return nil, err
 	}
+
 	return resp, nil
 }
 
-func GetAppInfosByCreator(ctx context.Context, creatorID uuid.UUID, offset int32, limit int32) ([]*Info, error) {
+func GetAppInfosByCreator(ctx context.Context, creatorID uuid.UUID, offset, limit int32) ([]*Info, error) {
 	var err error
 	var resp []*Info
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetAppInfo")
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetAppInfosByCreator")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -203,6 +212,7 @@ func GetAppInfosByCreator(ctx context.Context, creatorID uuid.UUID, offset int32
 		return err
 	})
 	if err != nil {
+		logger.Sugar().Errorw("fail get app infos: %v", err)
 		return nil, err
 	}
 	return resp, nil

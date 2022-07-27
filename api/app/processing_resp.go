@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+
 	appmw "github.com/NpoolPlatform/appuser-middleware/pkg/middleware/app"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/message/npool/appusermw/app"

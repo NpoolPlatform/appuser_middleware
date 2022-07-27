@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	grpc "github.com/NpoolPlatform/appuser-manager/pkg/client"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
@@ -29,7 +30,7 @@ func appUserRowToObject(row *ent.AppUser) *appuser.AppUser {
 func (s *Service) CreateUserWithSecret(ctx context.Context, in *user.CreateUserWithSecretRequest) (*user.CreateUserWithSecretResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUserInfo")
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "CreateUserWithSecret")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -40,11 +41,12 @@ func (s *Service) CreateUserWithSecret(ctx context.Context, in *user.CreateUserW
 
 	err = validateUserSecret(in)
 	if err != nil {
+		logger.Sugar().Errorw("fail validate user secret : %v", err)
 		return nil, err
 	}
 
 	if in.GetUser().GetID() != "" {
-		span.AddEvent("call grpc ExistAppUserCondsV2")
+		span.AddEvent("call grpc ExistAppUserV2")
 		exist, err := grpc.ExistAppUserV2(ctx, in.GetUser().GetID())
 		if err != nil {
 			logger.Sugar().Errorw("fail check ban app: %v", err)
@@ -61,7 +63,7 @@ func (s *Service) CreateUserWithSecret(ctx context.Context, in *user.CreateUserW
 	}
 
 	span.AddEvent("call middleware GetUserInfos")
-	info, err := mw.CreateUserWithSecret(ctx, in, true)
+	info, err := mw.CreateUserWithSecret(ctx, in)
 	if err != nil {
 		logger.Sugar().Errorw("fail get app infos: %v", err)
 		return &user.CreateUserWithSecretResponse{}, status.Error(codes.Internal, err.Error())
@@ -70,8 +72,8 @@ func (s *Service) CreateUserWithSecret(ctx context.Context, in *user.CreateUserW
 	return &user.CreateUserWithSecretResponse{
 		Info: appUserRowToObject(info),
 	}, nil
-
 }
+
 func (s *Service) CreateUserWithThirdParty(ctx context.Context, in *user.CreateUserWithThirdPartyRequest) (*user.CreateUserWithThirdPartyResponse, error) {
 	var err error
 
@@ -86,14 +88,15 @@ func (s *Service) CreateUserWithThirdParty(ctx context.Context, in *user.CreateU
 
 	err = validateUserThirdParty(in)
 	if err != nil {
+		logger.Sugar().Errorw("fail validate user third party : %v", err)
 		return nil, err
 	}
 
 	if in.GetUser().GetID() != "" {
-		span.AddEvent("call grpc ExistAppUserCondsV2")
+		span.AddEvent("call grpc ExistAppUserV2")
 		exist, err := grpc.ExistAppUserV2(ctx, in.GetUser().GetID())
 		if err != nil {
-			logger.Sugar().Errorw("fail check ban app: %v", err)
+			logger.Sugar().Errorw("fail check app user : %v", err)
 			return &user.CreateUserWithThirdPartyResponse{}, status.Error(codes.Internal, err.Error())
 		}
 
@@ -103,11 +106,12 @@ func (s *Service) CreateUserWithThirdParty(ctx context.Context, in *user.CreateU
 	}
 
 	if _, err := uuid.Parse(in.GetUser().GetAppID()); err != nil {
+		logger.Sugar().Error("AppID is invalid")
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	span.AddEvent("call middleware GetUserInfos")
-	info, err := mw.CreateUserWithThirdParty(ctx, in, true)
+	span.AddEvent("call middleware CreateUserWithThirdParty")
+	info, err := mw.CreateUserWithThirdParty(ctx, in)
 	if err != nil {
 		logger.Sugar().Errorw("fail get app infos: %v", err)
 		return &user.CreateUserWithThirdPartyResponse{}, status.Error(codes.Internal, err.Error())
@@ -116,5 +120,4 @@ func (s *Service) CreateUserWithThirdParty(ctx context.Context, in *user.CreateU
 	return &user.CreateUserWithThirdPartyResponse{
 		Info: appUserRowToObject(info),
 	}, nil
-
 }

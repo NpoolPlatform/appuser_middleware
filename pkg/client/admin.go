@@ -4,9 +4,10 @@ package client
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/NpoolPlatform/message/npool/appusermgrv2/appuser"
 	"github.com/NpoolPlatform/message/npool/appusermgrv2/appusersecret"
-	"time"
 
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
 
