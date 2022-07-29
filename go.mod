@@ -6,7 +6,7 @@ require (
 	entgo.io/ent v0.11.1
 	github.com/NpoolPlatform/api-manager v0.0.0-20220328101926-8907b2f76c6d
 	github.com/NpoolPlatform/go-service-framework v0.0.0-20220722111225-08c2156ac8bf
-	github.com/NpoolPlatform/message v0.0.0-20220729122712-e4b9039d292a
+	github.com/NpoolPlatform/message v0.0.0-20220729080034-e88957ae2700
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
@@ -99,9 +99,4 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
-)
-
-replace (
-	github.com/NpoolPlatform/message => ../message
-	github.com/NpoolPlatform/appuser-manager => ../appuser-manager
 )

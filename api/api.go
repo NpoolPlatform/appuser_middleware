@@ -1,6 +1,8 @@
 package api
 
 import (
+	"context"
+
 	"github.com/NpoolPlatform/appuser-middleware/api/admin"
 	"github.com/NpoolPlatform/appuser-middleware/api/app"
 	"github.com/NpoolPlatform/appuser-middleware/api/user"
@@ -23,5 +25,8 @@ func Register(server grpc.ServiceRegistrar) {
 }
 
 func RegisterGateway(mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) error {
+	if err := appusermw.RegisterMiddlewareHandlerFromEndpoint(context.Background(), mux, endpoint, opts); err != nil {
+		return err
+	}
 	return nil
 }
