@@ -162,7 +162,7 @@ pipeline {
           revlist=`git rev-list --tags --max-count=1`
           rc=$?
           set -e
-          if [ 0 -eq $rc ]; then
+          if [ 0 -eq $rc -a x"$revlist" != x ]; then
             tag=`git describe --tags $revlist`
 
             major=`echo $tag | awk -F '.' '{ print $1 }'`
@@ -195,7 +195,7 @@ pipeline {
           revlist=`git rev-list --tags --max-count=1`
           rc=$?
           set -e
-          if [ 0 -eq $rc ]; then
+          if [ 0 -eq $rc -a x"$revlist" != x ]; then
             tag=`git describe --tags $revlist`
 
             major=`echo $tag | awk -F '.' '{ print $1 }'`
@@ -225,10 +225,15 @@ pipeline {
       }
       steps {
         sh(returnStdout: true, script: '''
+          set +e
           revlist=`git rev-list --tags --max-count=1`
-          tag=`git describe --tags $revlist`
-          git reset --hard
-          git checkout $tag
+          rc=$?
+          set -e
+          if [ 0 -eq $rc -a x"$revlist" != x ]; then
+            tag=`git describe --tags $revlist`
+            git reset --hard
+            git checkout $tag
+          fi
         '''.stripIndent())
         sh 'make verify-build'
         sh 'DEVELOPMENT=other DOCKER_REGISTRY=$DOCKER_REGISTRY make generate-docker-images'
