@@ -20,7 +20,7 @@ require (
 	google.golang.org/protobuf v1.28.0
 )
 
-require github.com/NpoolPlatform/appuser-manager v0.0.0-20220729073104-e90f3ef937d8
+require github.com/NpoolPlatform/appuser-manager v0.0.0-20220729080749-dc97b42d06b7
 
 require (
 	ariga.io/atlas v0.5.0 // indirect
