@@ -21,7 +21,6 @@ func GetApp(ctx context.Context, id string) (*App, error) {
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		return cli.
-			Debug().
 			App.
 			Query().
 			Select(
