@@ -4,10 +4,29 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
+
+	mapp "github.com/NpoolPlatform/appuser-middleware/pkg/app"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
+	"github.com/google/uuid"
 )
 
 func (s *Server) GetApp(ctx context.Context, in *npool.GetAppRequest) (*npool.GetAppResponse, error) {
+	if _, err := uuid.Parse(in.GetAppID()); err != nil {
+		logger.Sugar().Errorw("GetApp", "error", err)
+		return &npool.GetAppResponse{}, status.Error(codes.InvalidArgument, "AppID is invalid")
+	}
+
+	_, err := mapp.GetApp(ctx, in.GetAppID())
+	if err != nil {
+		logger.Sugar().Errorw("GetApp", "error", err)
+		return &npool.GetAppResponse{}, status.Error(codes.Internal, "fail create app")
+	}
+
 	return nil, fmt.Errorf("NOT IMPLEMENTED")
 }
 

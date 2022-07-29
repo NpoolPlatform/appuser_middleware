@@ -3,12 +3,12 @@ module github.com/NpoolPlatform/appuser-middleware
 go 1.17
 
 require (
-	entgo.io/ent v0.11.1 // indirect
+	entgo.io/ent v0.11.1
 	github.com/NpoolPlatform/api-manager v0.0.0-20220328101926-8907b2f76c6d
 	github.com/NpoolPlatform/go-service-framework v0.0.0-20220722111225-08c2156ac8bf
 	github.com/NpoolPlatform/message v0.0.0-20220729080034-e88957ae2700
 	github.com/go-resty/resty/v2 v2.7.0
-	github.com/google/uuid v1.3.0 // indirect
+	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.7.1
@@ -20,7 +20,7 @@ require (
 	google.golang.org/protobuf v1.28.0
 )
 
-require github.com/NpoolPlatform/appuser-manager v0.0.0-20220729080749-dc97b42d06b7
+require github.com/NpoolPlatform/appuser-manager v0.0.0-20220729092128-7bbee4e1eba8
 
 require (
 	ariga.io/atlas v0.5.0 // indirect
