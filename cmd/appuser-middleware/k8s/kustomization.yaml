@@ -2,7 +2,7 @@ commonLabels:
   # app: appuser-middleware
 
 resources:
-- 01-appuser-middleware.yaml
-- 02-strip-prefix.yaml
-- 03-traefik-ingress.yaml
-- 04-traefik-vpn-ingress.yaml
+- 01-appuser-middleware.viper.yaml
+- 02-appuser-middleware.yaml
+- 03-strip-prefix.yaml
+- 04-service-monitor.yaml

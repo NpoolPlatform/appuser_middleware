@@ -1,14 +1,14 @@
 package user
 
 import (
-	"github.com/NpoolPlatform/message/npool/appusermw/user"
+	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	"google.golang.org/grpc"
 )
 
 type Service struct {
-	user.UnimplementedAppUserMiddlewareUserServer
+	user.UnimplementedUserMwServer
 }
 
 func Register(server grpc.ServiceRegistrar) {
-	user.RegisterAppUserMiddlewareUserServer(server, &Service{})
+	user.RegisterUserMwServer(server, &Service{})
 }

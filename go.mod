@@ -3,13 +3,12 @@ module github.com/NpoolPlatform/appuser-middleware
 go 1.17
 
 require (
-	entgo.io/ent v0.11.1
+	entgo.io/ent v0.11.1 // indirect
 	github.com/NpoolPlatform/api-manager v0.0.0-20220328101926-8907b2f76c6d
-	github.com/NpoolPlatform/appuser-manager v1.28.0
 	github.com/NpoolPlatform/go-service-framework v0.0.0-20220404143809-82c40930388a
-	github.com/NpoolPlatform/message v0.0.0-20220530011435-281c2b6aedd4
+	github.com/NpoolPlatform/message v0.0.0-20220729041438-ec5f0d0bd13b
 	github.com/go-resty/resty/v2 v2.7.0
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.7.1
@@ -21,10 +20,7 @@ require (
 	google.golang.org/protobuf v1.28.0
 )
 
-require (
-	github.com/NpoolPlatform/libent-cruder v0.0.0-20220621110548-8f3f8049ecc5
-	go.opentelemetry.io/otel v1.8.0
-)
+require github.com/NpoolPlatform/appuser-manager v0.0.0-20220714064935-d34565004989
 
 require (
 	ariga.io/atlas v0.5.0 // indirect
@@ -44,8 +40,6 @@ require (
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/go-chassis/go-archaius v1.5.3 // indirect
 	github.com/go-chassis/openlog v1.1.3 // indirect
-	github.com/go-logr/logr v1.2.3 // indirect
-	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
 	github.com/go-redis/redis/v8 v8.11.4 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
@@ -88,7 +82,6 @@ require (
 	github.com/spf13/viper v1.11.0 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/zclconf/go-cty v1.8.0 // indirect
-	go.opentelemetry.io/otel/trace v1.8.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/ratelimit v0.1.0 // indirect
@@ -103,7 +96,3 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
-
-replace github.com/NpoolPlatform/message => github.com/NpoolPlatform/message v0.0.0-20220726084955-1a083f4eb348
-
-replace github.com/NpoolPlatform/appuser-manager => github.com/NpoolPlatform/appuser-manager v0.0.0-20220727050755-970afaac3faf
