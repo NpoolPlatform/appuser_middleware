@@ -5,10 +5,10 @@ import (
 	"google.golang.org/grpc"
 )
 
-type Service struct {
+type Server struct {
 	user.UnimplementedUserMwServer
 }
 
 func Register(server grpc.ServiceRegistrar) {
-	user.RegisterUserMwServer(server, &Service{})
+	user.RegisterUserMwServer(server, &Server{})
 }

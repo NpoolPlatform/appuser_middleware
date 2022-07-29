@@ -3,6 +3,8 @@ package app
 import (
 	"context"
 	"fmt"
+	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	"go.opentelemetry.io/otel"
 
 	"entgo.io/ent/dialect/sql"
 
@@ -11,13 +13,23 @@ import (
 	entapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
 	ctrl "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appcontrol"
 	banapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banapp"
+	"go.opentelemetry.io/otel/codes"
 
 	"github.com/google/uuid"
 )
 
-func GetApp(ctx context.Context, id string) (*App, error) {
+func GetApp(ctx context.Context, id string) (*AppQueryResp, error) {
 	var err error
-	infos := []*App{}
+	infos := []*AppQueryResp{}
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetApp")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		return cli.

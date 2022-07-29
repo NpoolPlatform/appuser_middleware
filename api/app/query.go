@@ -28,7 +28,7 @@ func (s *Server) GetApp(ctx context.Context, in *npool.GetAppRequest) (*npool.Ge
 		return &npool.GetAppResponse{}, status.Error(codes.Internal, "fail create app")
 	}
 
-	ginfo, err := capp.Ent2Grpc(info)
+	ginfo, err := capp.QueryEnt2Grpc(info)
 	if err != nil {
 		logger.Sugar().Errorw("GetApp", "error", err)
 		return &npool.GetAppResponse{}, status.Error(codes.Internal, "invalid value")

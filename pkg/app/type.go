@@ -1,10 +1,17 @@
 package app
 
 import (
+	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 	"github.com/google/uuid"
 )
 
-type App struct {
+type AppCreateResp struct {
+	App        *ent.App
+	BanApp     *ent.BanApp
+	AppControl *ent.AppControl
+}
+
+type AppQueryResp struct {
 	ID                 uuid.UUID `json:"id"`
 	CreatedBy          uuid.UUID `sql:"created_by"`
 	Name               string    `sql:"name"`
