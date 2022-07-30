@@ -4,37 +4,19 @@ import (
 	"encoding/json"
 
 	mapp "github.com/NpoolPlatform/appuser-middleware/pkg/user"
-	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
-
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
-func QueryEnt2Grpc(row *mapp.UseQueryrResp) (*npool.User, error) {
-	var addressFields []string
-	if row.AddressFields != "" {
-		err := json.Unmarshal([]byte(row.AddressFields), &addressFields)
-		if err != nil {
-			logger.Sugar().Errorw("fail json unmarshal addressFields: %v", err)
-			return nil, status.Error(codes.Internal, err.Error())
-		}
+func Ent2Grpc(row *mapp.User) *npool.User {
+	if row == nil {
+		return nil
 	}
 
-	banned := false
-	if row.BanAppUserID != "" {
-		banned = true
-	}
-
-	hasGoogleSecret := false
-	if row.HasGoogleSecret != "" {
-		hasGoogleSecret = true
-	}
-
+	addressFields := []string{}
 	roles := []string{}
-	for _, val := range row.Role {
-		roles = append(roles, val.Role)
-	}
+
+	_ = json.Unmarshal([]byte(row.AddressFields), &addressFields)
+	_ = json.Unmarshal([]byte(row.Roles), &roles)
 
 	return &npool.User{
 		ID:                                 row.ID,
@@ -58,9 +40,9 @@ func QueryEnt2Grpc(row *mapp.UseQueryrResp) (*npool.User, error) {
 		IDNumber:                           row.IDNumber,
 		SigninVerifyByGoogleAuthentication: row.SigninVerifyByGoogleAuthentication != 0,
 		GoogleAuthenticationVerified:       row.GoogleAuthenticationVerified != 0,
-		Banned:                             banned,
+		Banned:                             row.BanAppUserID != "",
 		BanMessage:                         row.BanAppUserMessage,
-		HasGoogleSecret:                    hasGoogleSecret,
+		HasGoogleSecret:                    row.HasGoogleSecret != "",
 		Roles:                              roles,
 		Logined:                            false,
 		LoginAccount:                       "",
@@ -69,5 +51,13 @@ func QueryEnt2Grpc(row *mapp.UseQueryrResp) (*npool.User, error) {
 		LoginClientIP:                      "",
 		LoginClientUserAgent:               "",
 		CreateAt:                           row.CreatedAt,
-	}, nil
+	}
+}
+
+func Ent2GrpcMany(rows []*mapp.User) []*npool.User {
+	users := []*npool.User{}
+	for _, row := range rows {
+		users = append(users, Ent2Grpc(row))
+	}
+	return users
 }

@@ -1,24 +1,6 @@
 package user
 
-import (
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
-)
-
-type CreateAppResp struct {
-	App        *ent.App
-	BanApp     *ent.BanApp
-	AppControl *ent.AppControl
-}
-
-type AppRole struct {
-	UserID      string `json:"user_id"`
-	Role        string `json:"role"`
-	CreatedBy   string `json:"created_by"`
-	Description string `json:"description"`
-	Default     int32  `json:"default"`
-}
-
-type UseQueryrResp struct {
+type User struct {
 	ID                                 string `json:"id"`
 	AppID                              string `json:"app_id"`
 	EmailAddress                       string `json:"email_address"`
@@ -41,5 +23,5 @@ type UseQueryrResp struct {
 	BanAppUserID                       string `json:"ban_app_user_id"`
 	BanAppUserMessage                  string `json:"ban_app_user_message"`
 	HasGoogleSecret                    string `json:"has_google_secret"`
-	Role                               []*AppRole
+	Roles                              string `json:"roles"`
 }

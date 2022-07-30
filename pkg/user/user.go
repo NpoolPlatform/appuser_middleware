@@ -8,240 +8,178 @@ import (
 
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
+
+	// entapprole "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approle"
+	// entapproleuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approleuser"
+
 	entapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
-	entapprole "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approle"
-	entapproleuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approleuser"
 	entuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
 	entappusercontrol "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusercontrol"
 	entextra "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserextra"
-	entsecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
-	entbanappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banappuser"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/predicate"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
-	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
+
+	// entsecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
+	// entbanappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banappuser"
+
 	"github.com/google/uuid"
-	"go.opentelemetry.io/otel"
-	scodes "go.opentelemetry.io/otel/codes"
 )
 
-func GetUser(ctx context.Context, appID, userID string) (*UseQueryrResp, error) {
-	info, err := GetUsersRealization(ctx, appID, userID, nil, 0, 1)
-	if err != nil {
-		return nil, err
-	}
-	if len(info) == 0 {
-		logger.Sugar().Errorw("user not found")
-		return nil, fmt.Errorf("user not found")
-	}
-	return info[0], err
-}
-
-func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*UseQueryrResp, error) {
-	info, err := GetUsersRealization(ctx, appID, "", nil, offset, limit)
-	if err != nil {
-		return nil, err
-	}
-
-	return info, err
-}
-
-func GetManyUsers(ctx context.Context, userIDs []string) ([]*UseQueryrResp, error) {
-	info, err := GetUsersRealization(ctx, "", "", userIDs, 0, 0)
-	if err != nil {
-		return nil, err
-	}
-
-	return info, err
-}
-
-func GetUsersRealization(ctx context.Context, appID, userID string, userIDs []string, offset, limit int32) ([]*UseQueryrResp, error) {
+func GetUser(ctx context.Context, appID, userID string) (*User, error) {
 	var err error
-	var userInfos []*UseQueryrResp
+	var infos []*User
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUserInfos")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
-
-	span.AddEvent("call db query")
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
-		q := cli.Debug().AppUser.Query().
-			Select(
-				entuser.FieldID,
-				entuser.FieldCreatedAt,
-				entuser.FieldAppID,
-				entuser.FieldEmailAddress,
-				entuser.FieldPhoneNo,
-				entuser.FieldImportFromApp,
-			)
-
-		if appID != "" {
-			q.Where(
-				entuser.AppID(uuid.MustParse(appID)),
-			)
-		}
-
-		if userID != "" {
-			q.Where(
+		stm := cli.
+			AppUser.
+			Query().
+			Where(
 				entuser.ID(uuid.MustParse(userID)),
-			)
-		}
+				entuser.AppID(uuid.MustParse(appID)),
+			).
+			Limit(1)
 
-		if userIDs != nil {
-			q.Where(
-				entuser.IDIn(uuid.MustParse(userID)),
-			)
-		}
-
-		err = q.Offset(int(offset)).Limit(int(limit)).
-			Modify(func(s *sql.Selector) {
-				leftExtra(s)
-				leftControl(s)
-				leftBanApp(s)
-				leftSecret(s)
-			}).Scan(ctx, &userInfos)
-		return err
+		return join(stm).
+			Scan(ctx, &infos)
 	})
 	if err != nil {
-		logger.Sugar().Errorw("fail get user infos:%v", err)
 		return nil, err
 	}
-
-	respUserIDs := []uuid.UUID{}
-
-	for _, val := range userInfos {
-		respUserID, err := uuid.Parse(val.ID)
-		if err != nil {
-			logger.Sugar().Errorw("userID string to uuid type fail :%v", err)
-			return nil, err
-		}
-		respUserIDs = append(respUserIDs, respUserID)
+	if len(infos) == 0 {
+		return nil, nil
+	}
+	if len(infos) > 1 {
+		return nil, fmt.Errorf("too many records")
 	}
 
-	roles, err := GetRoles(ctx, entapproleuser.UserIDIn(respUserIDs...))
+	infos, err = expand(ctx, []string{userID}, infos)
 	if err != nil {
-		logger.Sugar().Errorw("fail get roles:%v", err)
 		return nil, err
 	}
 
-	for key, userInfo := range userInfos {
-		for _, role := range roles {
-			if userInfo.ID == role.UserID {
-				userInfos[key].Role = roles
-			}
-		}
-	}
-
-	return userInfos, nil
+	return infos[0], nil
 }
 
-func GetRoles(ctx context.Context, ps predicate.AppRoleUser) ([]*AppRole, error) {
-	var appRole []*AppRole
+func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*User, error) {
 	var err error
+	var infos []*User
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
-		err = cli.Debug().AppRoleUser.Query().
-			Select(
-				entapproleuser.FieldUserID,
+		stm := cli.
+			AppUser.
+			Query().
+			Where(
+				entuser.AppID(uuid.MustParse(appID)),
 			).
-			Where(ps).
-			Modify(func(s *sql.Selector) {
-				role := sql.Table(entapprole.Table)
-				s.LeftJoin(role).
-					On(
-						s.C(entapproleuser.FieldRoleID),
-						role.C(entapprole.FieldID),
-					).AppendSelect(
-					role.C(entapprole.FieldRole),
-					role.C(entapprole.FieldCreatedBy),
-					role.C(entapprole.FieldDescription),
-					role.C(entapprole.FieldDefault),
-				).OnP(
-					sql.P(func(builder *sql.Builder) {
-						builder.Ident(role.C(entapprole.FieldDeletedAt)).WriteOp(sql.OpEQ).Arg(0)
-					}),
-				)
-			}).Scan(ctx, &appRole)
-		return err
+			Offset(int(offset)).
+			Limit(int(limit))
+
+		return join(stm).
+			Scan(ctx, &infos)
 	})
 	if err != nil {
-		logger.Sugar().Errorw("fail query roles:%v", err)
 		return nil, err
 	}
-	return appRole, nil
+
+	users := []string{}
+	for _, info := range infos {
+		users = append(users, info.ID)
+	}
+
+	infos, err = expand(ctx, users, infos)
+	if err != nil {
+		return nil, err
+	}
+
+	return infos, nil
 }
 
-func leftExtra(s *sql.Selector) {
-	extra := sql.Table(entextra.Table)
-	s.LeftJoin(extra).
-		On(
-			s.C(entapp.FieldID),
-			extra.C(entextra.FieldUserID),
-		).AppendSelect(
-		extra.C(entextra.FieldUsername),
-		extra.C(entextra.FieldFirstName),
-		extra.C(entextra.FieldLastName),
-		extra.C(entextra.FieldAddressFields),
-		extra.C(entextra.FieldGender),
-		extra.C(entextra.FieldPostalCode),
-		extra.C(entextra.FieldAge),
-		extra.C(entextra.FieldBirthday),
-		extra.C(entextra.FieldAvatar),
-		extra.C(entextra.FieldOrganization),
-		extra.C(entextra.FieldIDNumber),
-	).OnP(
-		sql.P(func(builder *sql.Builder) {
-			builder.Ident(extra.C(entextra.FieldDeletedAt)).WriteOp(sql.OpEQ).Arg(0)
-		}),
-	)
+func GetManyUsers(ctx context.Context, userIDs []string) ([]*User, error) {
+	var err error
+	var infos []*User
+
+	users := []uuid.UUID{}
+	for _, user := range userIDs {
+		users = append(users, uuid.MustParse(user))
+	}
+
+	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
+		stm := cli.
+			AppUser.
+			Query().
+			Where(
+				entuser.IDIn(users...),
+			)
+
+		return join(stm).
+			Scan(ctx, &infos)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	infos, err = expand(ctx, userIDs, infos)
+	if err != nil {
+		return nil, err
+	}
+
+	return infos, nil
 }
 
-func leftControl(s *sql.Selector) {
-	control := sql.Table(entappusercontrol.Table)
-	s.LeftJoin(control).
-		On(
-			s.C(entapp.FieldID),
-			control.C(entappusercontrol.FieldUserID),
-		).AppendSelect(
-		control.C(entappusercontrol.FieldSigninVerifyByGoogleAuthentication),
-		control.C(entappusercontrol.FieldGoogleAuthenticationVerified),
-	).OnP(
-		sql.P(func(builder *sql.Builder) {
-			builder.Ident(control.C(entappusercontrol.FieldDeletedAt)).WriteOp(sql.OpEQ).Arg(0)
-		}),
-	)
+func expand(ctx context.Context, userIDs []string, users []*User) ([]*User, error) {
+	// TODO: fill secret map, control, role
+	return users, nil
 }
 
-func leftBanApp(s *sql.Selector) {
-	ban := sql.Table(entbanappuser.Table)
-	s.LeftJoin(ban).
-		On(
-			s.C(entapp.FieldID),
-			ban.C(entbanappuser.FieldUserID),
-		).AppendSelect(
-		sql.As(ban.C(entbanappuser.FieldUserID), "ban_app_user_id"),
-	).OnP(
-		sql.P(func(builder *sql.Builder) {
-			builder.Ident(ban.C(entbanappuser.FieldDeletedAt)).WriteOp(sql.OpEQ).Arg(0)
-		}),
-	)
-}
+func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
+	return stm.
+		Select(
+			entuser.FieldID,
+			entuser.FieldEmailAddress,
+			entuser.FieldPhoneNo,
+			entuser.FieldImportFromApp,
+			entuser.FieldCreatedAt,
+		).
+		Modify(func(s *sql.Selector) {
+			t1 := sql.Table(entextra.Table)
+			s.
+				LeftJoin(t1).
+				On(
+					s.C(entuser.FieldID),
+					t1.C(entextra.FieldUserID),
+				).
+				AppendSelect(
+					sql.As(t1.C(entextra.FieldUsername), "username"),
+					sql.As(t1.C(entextra.FieldFirstName), "first_name"),
+					sql.As(t1.C(entextra.FieldLastName), "last_name"),
+					sql.As(t1.C(entextra.FieldAddressFields), "address_fields"),
+					sql.As(t1.C(entextra.FieldGender), "gender"),
+					sql.As(t1.C(entextra.FieldPostalCode), "postal_code"),
+					sql.As(t1.C(entextra.FieldAge), "age"),
+					sql.As(t1.C(entextra.FieldBirthday), "birthday"),
+					sql.As(t1.C(entextra.FieldAvatar), "avatar"),
+					sql.As(t1.C(entextra.FieldOrganization), "organization"),
+					sql.As(t1.C(entextra.FieldIDNumber), "id_number"),
+				)
 
-func leftSecret(s *sql.Selector) {
-	secret := sql.Table(entsecret.Table)
-	s.LeftJoin(secret).
-		On(
-			s.C(entapp.FieldID),
-			secret.C(entsecret.FieldUserID),
-		).AppendSelect(
-		sql.As(secret.C(entsecret.FieldGoogleSecret), "has_google_secret"),
-	).OnP(
-		sql.P(func(builder *sql.Builder) {
-			builder.Ident(secret.C(entsecret.FieldDeletedAt)).WriteOp(sql.OpEQ).Arg(0)
-		}),
-	)
+			t2 := sql.Table(entappusercontrol.Table)
+			s.
+				LeftJoin(t2).
+				On(
+					s.C(entuser.FieldID),
+					t2.C(entextra.FieldUserID),
+				).
+				AppendSelect(
+				// TODO: add expression
+				)
+
+			t3 := sql.Table(entapp.Table)
+			s.
+				LeftJoin(t3).
+				On(
+					s.C(entuser.FieldImportFromApp),
+					t2.C(entextra.FieldID),
+				).
+				AppendSelect(
+				// TODO: add expression
+				)
+		})
 }
