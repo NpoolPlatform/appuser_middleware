@@ -6,7 +6,7 @@ require (
 	entgo.io/ent v0.11.1
 	github.com/NpoolPlatform/api-manager v0.0.0-20220328101926-8907b2f76c6d
 	github.com/NpoolPlatform/go-service-framework v0.0.0-20220722111225-08c2156ac8bf
-	github.com/NpoolPlatform/message v0.0.0-20220729080034-e88957ae2700
+	github.com/NpoolPlatform/message v0.0.0-20220729155904-4e2cda0b026f
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
@@ -20,12 +20,16 @@ require (
 	google.golang.org/protobuf v1.28.0
 )
 
-require github.com/NpoolPlatform/appuser-manager v0.0.0-20220729092128-7bbee4e1eba8
+require (
+	github.com/NpoolPlatform/appuser-manager v0.0.0-20220730162912-a271958d30d9
+	github.com/NpoolPlatform/ledger-manager v0.0.0-20220727114744-a028b0ff1bbf
+	go.opentelemetry.io/otel v1.8.0
+	go.opentelemetry.io/otel/trace v1.8.0
+)
 
 require (
 	ariga.io/atlas v0.5.0 // indirect
-	github.com/NpoolPlatform/ledger-manager v0.0.0-20220727114744-a028b0ff1bbf // indirect
-	github.com/NpoolPlatform/libent-cruder v0.0.0-20220729014715-4ded35b9f24d // indirect
+	github.com/NpoolPlatform/libent-cruder v0.0.0-20220729123015-41e5340448dd // indirect
 	github.com/Shonminh/apollo-client v0.4.0 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
@@ -84,8 +88,6 @@ require (
 	github.com/spf13/viper v1.11.0 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/zclconf/go-cty v1.8.0 // indirect
-	go.opentelemetry.io/otel v1.8.0 // indirect
-	go.opentelemetry.io/otel/trace v1.8.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/ratelimit v0.1.0 // indirect

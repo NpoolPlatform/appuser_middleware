@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 
 	cuser "github.com/NpoolPlatform/appuser-middleware/pkg/converter/user"

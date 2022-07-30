@@ -2,9 +2,11 @@ package user
 
 import (
 	"encoding/json"
+
 	mapp "github.com/NpoolPlatform/appuser-middleware/pkg/user"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
+
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
