@@ -145,7 +145,6 @@ func expand(ctx context.Context, userIDs []string, users []*User) ([]*User, erro
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		return cli.
-			Debug().
 			AppUserSecret.
 			Query().
 			Where(
