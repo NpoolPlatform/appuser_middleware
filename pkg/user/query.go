@@ -171,7 +171,7 @@ func expand(ctx context.Context, userIDs []string, users []*User) ([]*User, erro
 						t2.C(entapprole.FieldID),
 					).
 					AppendSelect(
-						sql.As(t1.C(entapproleuser.FieldID), "role_id"),
+						sql.As(t2.C(entapprole.FieldRole), "role_name"),
 					)
 			}).
 			Scan(ctx, &infos)
