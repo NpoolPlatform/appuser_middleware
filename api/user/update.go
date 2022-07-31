@@ -8,5 +8,5 @@ import (
 )
 
 func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*npool.UpdateUserResponse, error) {
-	return nil, fmt.Errorf("NOT IMPLEMENTED")
+	return &npool.UpdateUserResponse{}, status.Error(codes.Internal, err.Error())
 }
