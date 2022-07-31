@@ -5,7 +5,7 @@ import (
 )
 
 type App struct {
-	ID                 uuid.UUID `json:"id"`
+	ID                 uuid.UUID `sql:"id"`
 	CreatedBy          uuid.UUID `sql:"created_by"`
 	Name               string    `sql:"name"`
 	Logo               string    `sql:"logo"`

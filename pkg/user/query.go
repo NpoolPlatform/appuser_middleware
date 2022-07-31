@@ -81,7 +81,7 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*User, 
 
 	users := []string{}
 	for _, info := range infos {
-		users = append(users, info.ID)
+		users = append(users, info.ID.String())
 	}
 
 	infos, err = expand(ctx, users, infos)
@@ -168,7 +168,8 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 					t2.C(entextra.FieldUserID),
 				).
 				AppendSelect(
-				// TODO: add expression
+					sql.As(t1.C(entappusercontrol.FieldSigninVerifyByGoogleAuthentication), "signin_verify_by_google_authentication"),
+					sql.As(t1.C(entappusercontrol.FieldGoogleAuthenticationVerified), "google_authentication_verified"),
 				)
 
 			t3 := sql.Table(entapp.Table)
@@ -179,7 +180,9 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 					t2.C(entextra.FieldID),
 				).
 				AppendSelect(
-				// TODO: add expression
+					sql.As(t1.C(entapp.FieldID), "imported_from_app_id"),
+					sql.As(t1.C(entapp.FieldName), "imported_from_app_name"),
+					sql.As(t1.C(entapp.FieldLogo), "imported_from_app_logo"),
 				)
 		})
 }

@@ -13,20 +13,17 @@ func Ent2Grpc(row *mapp.User) *npool.User {
 	}
 
 	addressFields := []string{}
-	roles := []string{}
-
 	_ = json.Unmarshal([]byte(row.AddressFields), &addressFields)
-	_ = json.Unmarshal([]byte(row.Roles), &roles)
 
 	return &npool.User{
-		ID:                                 row.ID,
-		AppID:                              row.AppID,
+		ID:                                 row.ID.String(),
+		AppID:                              row.AppID.String(),
 		EmailAddress:                       row.EmailAddress,
 		PhoneNO:                            row.PhoneNO,
-		ImportedFromAppID:                  "",
-		ImportedFromAppName:                "",
-		ImportedFromAppLogo:                "",
-		ImportedFromAppHome:                "",
+		ImportedFromAppID:                  row.ImportedFromAppID.String(),
+		ImportedFromAppName:                row.ImportedFromAppName,
+		ImportedFromAppLogo:                row.ImportedFromAppLogo,
+		ImportedFromAppHome:                row.ImportedFromAppHome,
 		Username:                           row.Username,
 		AddressFields:                      addressFields,
 		Gender:                             row.Gender,
@@ -40,10 +37,10 @@ func Ent2Grpc(row *mapp.User) *npool.User {
 		IDNumber:                           row.IDNumber,
 		SigninVerifyByGoogleAuthentication: row.SigninVerifyByGoogleAuthentication != 0,
 		GoogleAuthenticationVerified:       row.GoogleAuthenticationVerified != 0,
-		Banned:                             row.BanAppUserID != "",
+		Banned:                             row.Banned,
 		BanMessage:                         row.BanAppUserMessage,
-		HasGoogleSecret:                    row.HasGoogleSecret != "",
-		Roles:                              roles,
+		HasGoogleSecret:                    row.HasGoogleSecret,
+		Roles:                              row.Roles,
 		Logined:                            false,
 		LoginAccount:                       "",
 		LoginAccountType:                   "",
