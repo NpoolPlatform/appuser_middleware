@@ -38,7 +38,7 @@ func Ent2Grpc(row *mapp.User) *npool.User {
 		SigninVerifyByGoogleAuthentication: row.SigninVerifyByGoogleAuthentication != 0,
 		GoogleAuthenticationVerified:       row.GoogleAuthenticationVerified != 0,
 		Banned:                             row.Banned,
-		BanMessage:                         row.BanAppUserMessage,
+		BanMessage:                         row.BanMessage,
 		HasGoogleSecret:                    row.HasGoogleSecret,
 		Roles:                              row.Roles,
 		Logined:                            false,

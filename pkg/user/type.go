@@ -29,7 +29,7 @@ type User struct {
 	GoogleAuthenticationVerified       int       `json:"google_authentication_verified"`
 	Banned                             bool      `json:"banned"`
 	BanAppUserID                       uuid.UUID `json:"ban_app_user_id"`
-	BanAppUserMessage                  string    `json:"ban_app_user_message"`
+	BanMessage                         string    `json:"ban_message"`
 	HasGoogleSecret                    bool      `json:"has_google_secret"`
 	Roles                              []string  `json:"roles"`
 }

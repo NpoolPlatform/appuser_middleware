@@ -9,16 +9,16 @@ import (
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 
-	// entapprole "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approle"
-	// entapproleuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approleuser"
+	entapprole "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approle"
+	entapproleuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approleuser"
 
 	entapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
 	entuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
 	entappusercontrol "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusercontrol"
 	entextra "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserextra"
 
-	// entsecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
-	// entbanappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banappuser"
+	entsecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
+	entbanappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banappuser"
 
 	"github.com/google/uuid"
 )
@@ -116,6 +116,10 @@ func GetManyUsers(ctx context.Context, userIDs []string) ([]*User, error) {
 		return nil, err
 	}
 
+	for _, info := range infos {
+		info.Banned = info.BanAppUserID.String() != uuid.UUID{}.String()
+	}
+
 	infos, err = expand(ctx, userIDs, infos)
 	if err != nil {
 		return nil, err
@@ -125,7 +129,70 @@ func GetManyUsers(ctx context.Context, userIDs []string) ([]*User, error) {
 }
 
 func expand(ctx context.Context, userIDs []string, users []*User) ([]*User, error) {
-	// TODO: fill secret map, control, role
+	type extra struct {
+		UserID       uuid.UUID `json:"user_id"`
+		GoogleSecret string    `json:"google_secret"`
+		RoleName     string    `json:"role_name"`
+	}
+
+	var err error
+	var infos []*extra
+
+	uids := []uuid.UUID{}
+	for _, user := range userIDs {
+		uids = append(uids, uuid.MustParse(user))
+	}
+
+	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
+		return cli.
+			AppUserSecret.
+			Query().
+			Where(
+				entsecret.UserIDIn(uids...),
+			).
+			Select(
+				entsecret.FieldUserID,
+				entsecret.FieldGoogleSecret,
+			).
+			Modify(func(s *sql.Selector) {
+				t1 := sql.Table(entapproleuser.Table)
+				s.
+					LeftJoin(t1).
+					On(
+						s.C(entsecret.FieldUserID),
+						t1.C(entapproleuser.FieldUserID),
+					).
+					AppendSelect(
+						sql.As(t1.C(entapproleuser.FieldID), "role_id"),
+					)
+
+				t2 := sql.Table(entapprole.Table)
+				s.
+					LeftJoin(t2).
+					On(
+						s.C("role_id"),
+						t2.C(entapprole.FieldID),
+					).
+					AppendSelect(
+						sql.As(t2.C(entapprole.FieldRole), "role_name"),
+					)
+			}).
+			Scan(ctx, &infos)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, info := range infos {
+		for _, user := range users {
+			if info.UserID == user.ID {
+				user.HasGoogleSecret = info.GoogleSecret != ""
+				user.Roles = append(user.Roles, info.RoleName)
+				break
+			}
+		}
+	}
+
 	return users, nil
 }
 
@@ -183,6 +250,18 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 					sql.As(t1.C(entapp.FieldID), "imported_from_app_id"),
 					sql.As(t1.C(entapp.FieldName), "imported_from_app_name"),
 					sql.As(t1.C(entapp.FieldLogo), "imported_from_app_logo"),
+				)
+
+			t4 := sql.Table(entbanappuser.Table)
+			s.
+				LeftJoin(t4).
+				On(
+					s.C(entuser.FieldID),
+					t2.C(entbanappuser.FieldUserID),
+				).
+				AppendSelect(
+					sql.As(t1.C(entbanappuser.FieldID), "ban_app_user_id"),
+					sql.As(t1.C(entbanappuser.FieldMessage), "ban_message"),
 				)
 		})
 }
