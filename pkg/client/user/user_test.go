@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/NpoolPlatform/appuser-manager/pkg/testinit"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/testinit"
 )
 
 func init() {
