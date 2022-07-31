@@ -23,7 +23,7 @@ func (s *Server) CreateApp(ctx context.Context, in *npool.CreateAppRequest) (*np
 	info, err := mw.CreateApp(ctx, in.GetInfo())
 	if err != nil {
 		logger.Sugar().Errorw("CreateApp", "error", err)
-		return &npool.CreateAppResponse{}, err
+		return &npool.CreateAppResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
 	ginfo, err := capp.Ent2Grpc(info)
