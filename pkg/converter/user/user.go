@@ -4,47 +4,26 @@ import (
 	"encoding/json"
 
 	mapp "github.com/NpoolPlatform/appuser-middleware/pkg/user"
-	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
-
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
-func QueryEnt2Grpc(row *mapp.UseQueryrResp) (*npool.User, error) {
-	var addressFields []string
-	if row.AddressFields != "" {
-		err := json.Unmarshal([]byte(row.AddressFields), &addressFields)
-		if err != nil {
-			logger.Sugar().Errorw("fail json unmarshal addressFields: %v", err)
-			return nil, status.Error(codes.Internal, err.Error())
-		}
+func Ent2Grpc(row *mapp.User) *npool.User {
+	if row == nil {
+		return nil
 	}
 
-	banned := false
-	if row.BanAppUserID != "" {
-		banned = true
-	}
-
-	hasGoogleSecret := false
-	if row.HasGoogleSecret != "" {
-		hasGoogleSecret = true
-	}
-
-	roles := []string{}
-	for _, val := range row.Role {
-		roles = append(roles, val.Role)
-	}
+	addressFields := []string{}
+	_ = json.Unmarshal([]byte(row.AddressFields), &addressFields)
 
 	return &npool.User{
-		ID:                                 row.ID,
-		AppID:                              row.AppID,
+		ID:                                 row.ID.String(),
+		AppID:                              row.AppID.String(),
 		EmailAddress:                       row.EmailAddress,
 		PhoneNO:                            row.PhoneNO,
-		ImportedFromAppID:                  "",
-		ImportedFromAppName:                "",
-		ImportedFromAppLogo:                "",
-		ImportedFromAppHome:                "",
+		ImportedFromAppID:                  row.ImportedFromAppID.String(),
+		ImportedFromAppName:                row.ImportedFromAppName,
+		ImportedFromAppLogo:                row.ImportedFromAppLogo,
+		ImportedFromAppHome:                row.ImportedFromAppHome,
 		Username:                           row.Username,
 		AddressFields:                      addressFields,
 		Gender:                             row.Gender,
@@ -58,10 +37,10 @@ func QueryEnt2Grpc(row *mapp.UseQueryrResp) (*npool.User, error) {
 		IDNumber:                           row.IDNumber,
 		SigninVerifyByGoogleAuthentication: row.SigninVerifyByGoogleAuthentication != 0,
 		GoogleAuthenticationVerified:       row.GoogleAuthenticationVerified != 0,
-		Banned:                             banned,
-		BanMessage:                         row.BanAppUserMessage,
-		HasGoogleSecret:                    hasGoogleSecret,
-		Roles:                              roles,
+		Banned:                             row.Banned,
+		BanMessage:                         row.BanMessage,
+		HasGoogleSecret:                    row.HasGoogleSecret,
+		Roles:                              row.Roles,
 		Logined:                            false,
 		LoginAccount:                       "",
 		LoginAccountType:                   "",
@@ -69,5 +48,13 @@ func QueryEnt2Grpc(row *mapp.UseQueryrResp) (*npool.User, error) {
 		LoginClientIP:                      "",
 		LoginClientUserAgent:               "",
 		CreateAt:                           row.CreatedAt,
-	}, nil
+	}
+}
+
+func Ent2GrpcMany(rows []*mapp.User) []*npool.User {
+	users := []*npool.User{}
+	for _, row := range rows {
+		users = append(users, Ent2Grpc(row))
+	}
+	return users
 }

@@ -31,14 +31,8 @@ func (s *Server) GetUser(ctx context.Context, in *npool.GetUserRequest) (*npool.
 		return &npool.GetUserResponse{}, status.Error(codes.Internal, "fail get user")
 	}
 
-	ginfo, err := cuser.QueryEnt2Grpc(info)
-	if err != nil {
-		logger.Sugar().Errorw("GetUser", "error", err)
-		return &npool.GetUserResponse{}, status.Error(codes.Internal, "invalid value")
-	}
-
 	return &npool.GetUserResponse{
-		Info: ginfo,
+		Info: cuser.Ent2Grpc(info),
 	}, nil
 }
 
@@ -54,18 +48,8 @@ func (s *Server) GetUsers(ctx context.Context, in *npool.GetUsersRequest) (*npoo
 		return &npool.GetUsersResponse{}, status.Error(codes.Internal, "fail get users")
 	}
 
-	ginfos := []*npool.User{}
-	for _, val := range infos {
-		ginfo, err := cuser.QueryEnt2Grpc(val)
-		if err != nil {
-			logger.Sugar().Errorw("GetUsers", "error", err)
-			return &npool.GetUsersResponse{}, status.Error(codes.Internal, "invalid value")
-		}
-		ginfos = append(ginfos, ginfo)
-	}
-
 	return &npool.GetUsersResponse{
-		Infos: ginfos,
+		Infos: cuser.Ent2GrpcMany(infos),
 	}, nil
 }
 
@@ -75,23 +59,15 @@ func (s *Server) GetManyUsers(ctx context.Context, in *npool.GetManyUsersRequest
 		return &npool.GetManyUsersResponse{}, status.Error(codes.InvalidArgument, "ids empty")
 	}
 
-	infos, err := muser.GetManyUsers(ctx, in.IDs)
+	// TODO: parse id
+
+	infos, err := muser.GetManyUsers(ctx, in.GetIDs())
 	if err != nil {
 		logger.Sugar().Errorw("GetManyUsers", "error", err)
 		return &npool.GetManyUsersResponse{}, status.Error(codes.Internal, "fail get many users")
 	}
 
-	ginfos := []*npool.User{}
-	for _, val := range infos {
-		ginfo, err := cuser.QueryEnt2Grpc(val)
-		if err != nil {
-			logger.Sugar().Errorw("GetManyUsers", "error", err)
-			return &npool.GetManyUsersResponse{}, status.Error(codes.Internal, "invalid value")
-		}
-		ginfos = append(ginfos, ginfo)
-	}
-
 	return &npool.GetManyUsersResponse{
-		Infos: ginfos,
+		Infos: cuser.Ent2GrpcMany(infos),
 	}, nil
 }
