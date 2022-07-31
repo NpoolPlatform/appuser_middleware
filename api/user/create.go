@@ -8,5 +8,5 @@ import (
 )
 
 func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*npool.CreateUserResponse, error) {
-	return nil, fmt.Errorf("NOT IMPLEMENTED")
+	return &npool.CreateUserResponse{}, status.Error(codes.Internal, err.Error())
 }
