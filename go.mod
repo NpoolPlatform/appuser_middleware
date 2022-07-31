@@ -23,13 +23,13 @@ require (
 require (
 	github.com/NpoolPlatform/appuser-manager v0.0.0-20220730162912-a271958d30d9
 	github.com/NpoolPlatform/ledger-manager v0.0.0-20220727114744-a028b0ff1bbf
+	github.com/NpoolPlatform/libent-cruder v0.0.0-20220729123015-41e5340448dd
 	go.opentelemetry.io/otel v1.8.0
 	go.opentelemetry.io/otel/trace v1.8.0
 )
 
 require (
 	ariga.io/atlas v0.5.0 // indirect
-	github.com/NpoolPlatform/libent-cruder v0.0.0-20220729123015-41e5340448dd // indirect
 	github.com/Shonminh/apollo-client v0.4.0 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
