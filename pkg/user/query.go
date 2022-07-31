@@ -145,6 +145,7 @@ func expand(ctx context.Context, userIDs []string, users []*User) ([]*User, erro
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		return cli.
+			Debug().
 			AppUserSecret.
 			Query().
 			Where(
@@ -156,25 +157,21 @@ func expand(ctx context.Context, userIDs []string, users []*User) ([]*User, erro
 			).
 			Modify(func(s *sql.Selector) {
 				t1 := sql.Table(entapproleuser.Table)
+				t2 := sql.Table(entapprole.Table)
+
 				s.
 					LeftJoin(t1).
+					LeftJoin(t2).
 					On(
 						s.C(entsecret.FieldUserID),
 						t1.C(entapproleuser.FieldUserID),
 					).
-					AppendSelect(
-						sql.As(t1.C(entapproleuser.FieldID), "role_id"),
-					)
-
-				t2 := sql.Table(entapprole.Table)
-				s.
-					LeftJoin(t2).
 					On(
-						s.C("role_id"),
+						t1.C(entapproleuser.FieldRoleID),
 						t2.C(entapprole.FieldID),
 					).
 					AppendSelect(
-						sql.As(t2.C(entapprole.FieldRole), "role_name"),
+						sql.As(t1.C(entapproleuser.FieldID), "role_id"),
 					)
 			}).
 			Scan(ctx, &infos)
@@ -235,8 +232,8 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 					t2.C(entextra.FieldUserID),
 				).
 				AppendSelect(
-					sql.As(t1.C(entappusercontrol.FieldSigninVerifyByGoogleAuthentication), "signin_verify_by_google_authentication"),
-					sql.As(t1.C(entappusercontrol.FieldGoogleAuthenticationVerified), "google_authentication_verified"),
+					sql.As(t2.C(entappusercontrol.FieldSigninVerifyByGoogleAuthentication), "signin_verify_by_google_authentication"),
+					sql.As(t2.C(entappusercontrol.FieldGoogleAuthenticationVerified), "google_authentication_verified"),
 				)
 
 			t3 := sql.Table(entapp.Table)
@@ -247,9 +244,8 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 					t2.C(entextra.FieldID),
 				).
 				AppendSelect(
-					sql.As(t1.C(entapp.FieldID), "imported_from_app_id"),
-					sql.As(t1.C(entapp.FieldName), "imported_from_app_name"),
-					sql.As(t1.C(entapp.FieldLogo), "imported_from_app_logo"),
+					sql.As(t3.C(entapp.FieldName), "imported_from_app_name"),
+					sql.As(t3.C(entapp.FieldLogo), "imported_from_app_logo"),
 				)
 
 			t4 := sql.Table(entbanappuser.Table)
@@ -260,8 +256,8 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 					t2.C(entbanappuser.FieldUserID),
 				).
 				AppendSelect(
-					sql.As(t1.C(entbanappuser.FieldID), "ban_app_user_id"),
-					sql.As(t1.C(entbanappuser.FieldMessage), "ban_message"),
+					sql.As(t4.C(entbanappuser.FieldID), "ban_app_user_id"),
+					sql.As(t4.C(entbanappuser.FieldMessage), "ban_message"),
 				)
 		})
 }
