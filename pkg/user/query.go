@@ -161,11 +161,11 @@ func expand(ctx context.Context, userIDs []string, users []*User) ([]*User, erro
 
 				s.
 					LeftJoin(t1).
-					LeftJoin(t2).
 					On(
 						s.C(entsecret.FieldUserID),
 						t1.C(entapproleuser.FieldUserID),
 					).
+					LeftJoin(t2).
 					On(
 						t1.C(entapproleuser.FieldRoleID),
 						t2.C(entapprole.FieldID),
