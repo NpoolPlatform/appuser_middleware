@@ -6,6 +6,6 @@ config:
   healthz_port: 50322
   prometheus_port: 50323
   appid: "89089012783789789719823798127398"
-  serviceid: "db35fe48-24dc-4aeb-96b6-c870a90bec6e"
+  serviceid: "d7c09f58-117e-11ed-8c23-3bad3249f027"
   logdir: "./"
   apolloAccessKey: "0147fb70b815403790e8634b899fac07"
