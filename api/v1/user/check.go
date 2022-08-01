@@ -58,15 +58,9 @@ func validate(info *npool.UserReq) error {
 		return status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	err = appusercontrol.Validate(&mgrappusercontrol.AppUserControlReq{
-		AppID:                              info.AppID,
-		UserID:                             info.ID,
-		SigninVerifyByGoogleAuthentication: info.SigninVerifyByGoogleAuth,
-		GoogleAuthenticationVerified:       info.GoogleAuthenticationVerified,
-	})
-	if err != nil {
-		logger.Sugar().Errorw("validate", err.Error())
-		return status.Error(codes.InvalidArgument, err.Error())
+	if info.PasswordHash == nil && info.ThirdPartyID == nil {
+		logger.Sugar().Errorw("validate", "PasswordHash or ThirdPartyID must be one")
+		return status.Error(codes.InvalidArgument, "PasswordHash or ThirdPartyID must be one")
 	}
 
 	return nil

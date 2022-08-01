@@ -33,7 +33,7 @@ func GetUser(ctx context.Context, appID, userID string) (*User, error) {
 	var infos []*User
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUsers")
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUser")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -65,7 +65,7 @@ func GetUser(ctx context.Context, appID, userID string) (*User, error) {
 		return nil, nil
 	}
 	if len(infos) > 1 {
-		logger.Sugar().Errorw("get user", "err", "too many records")
+		logger.Sugar().Errorw("CreateUser", "err", "too many records")
 		return nil, fmt.Errorf("too many records")
 	}
 
@@ -108,7 +108,7 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*User, 
 			Scan(ctx, &infos)
 	})
 	if err != nil {
-		logger.Sugar().Errorw("get users", "err", err.Error())
+		logger.Sugar().Errorw("CreateUser", "err", err.Error())
 		return nil, err
 	}
 
@@ -159,7 +159,7 @@ func GetManyUsers(ctx context.Context, userIDs []string) ([]*User, error) {
 			Scan(ctx, &infos)
 	})
 	if err != nil {
-		logger.Sugar().Errorw("get many users", "err", err.Error())
+		logger.Sugar().Errorw("CreateUser", "err", err.Error())
 		return nil, err
 	}
 

@@ -27,7 +27,7 @@ func GetApp(ctx context.Context, id string) (*App, error) {
 	var err error
 	infos := []*App{}
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "CreateApp")
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetApp")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -52,14 +52,14 @@ func GetApp(ctx context.Context, id string) (*App, error) {
 			Scan(ctx, &infos)
 	})
 	if err != nil {
-		logger.Sugar().Errorw("get app", "error", err)
+		logger.Sugar().Errorw("GetApp", "error", err)
 		return nil, err
 	}
 	if len(infos) == 0 {
 		return nil, nil
 	}
 	if len(infos) > 1 {
-		logger.Sugar().Errorw("get app", "too many records")
+		logger.Sugar().Errorw("GetApp", "too many records")
 		return nil, fmt.Errorf("too many records")
 	}
 
@@ -94,7 +94,7 @@ func GetApps(ctx context.Context, offset, limit int32) ([]*App, error) {
 			Scan(ctx, &infos)
 	})
 	if err != nil {
-		logger.Sugar().Errorw("get apps", "error", err)
+		logger.Sugar().Errorw("GetApps", "error", err)
 		return nil, err
 	}
 
@@ -134,7 +134,7 @@ func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*Ap
 			Scan(ctx, &infos)
 	})
 	if err != nil {
-		logger.Sugar().Errorw("get user apps", "error", err)
+		logger.Sugar().Errorw("GetUserApps", "error", err)
 		return nil, err
 	}
 

@@ -58,7 +58,7 @@ func UpdateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
 			SigninVerifyEnable:  in.SigninVerifyEnable,
 			InvitationCodeMust:  in.InvitationCodeMust,
 		}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("update control", "error", err)
+			logger.Sugar().Errorw("UpdateApp", "error", err)
 			return err
 		}
 

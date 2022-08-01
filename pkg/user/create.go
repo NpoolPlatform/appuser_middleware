@@ -57,7 +57,7 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 			ImportFromApp: in.ImportedFromAppID,
 		}).Save(ctx)
 		if err != nil {
-			logger.Sugar().Errorw("app user create", "error", err)
+			logger.Sugar().Errorw("CreateUser", "error", err)
 			return err
 		}
 
@@ -79,7 +79,7 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 			IDNumber:      in.IDNumber,
 			AddressFields: in.AddressFields,
 		}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("app user extra create", "error", err)
+			logger.Sugar().Errorw("CreateUser", "error", err)
 			return err
 		}
 
@@ -89,7 +89,7 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 			SigninVerifyByGoogleAuthentication: in.SigninVerifyByGoogleAuth,
 			GoogleAuthenticationVerified:       in.GoogleAuthenticationVerified,
 		}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("app user control create", "error", err)
+			logger.Sugar().Errorw("CreateUser", "error", err)
 			return err
 		}
 
@@ -114,7 +114,7 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 			Salt:         salt,
 			GoogleSecret: in.GoogleSecret,
 		}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("app user secret create", "error", err)
+			logger.Sugar().Errorw("CreateUser", "error", err)
 			return err
 		}
 
@@ -126,7 +126,7 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 			ThirdPartyUsername:   in.ThirdPartyUsername,
 			ThirdPartyUserAvatar: in.ThirdPartyUserAvatar,
 		}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("app user third party create", "error", err)
+			logger.Sugar().Errorw("CreateUser", "error", err)
 			return err
 		}
 

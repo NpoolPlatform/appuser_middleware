@@ -48,7 +48,7 @@ func CreateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
 			Description: in.Description,
 		}).Save(ctx)
 		if err != nil {
-			logger.Sugar().Errorw("app create", "error", err)
+			logger.Sugar().Errorw("CreateApp", "error", err)
 			return err
 		}
 
@@ -63,7 +63,7 @@ func CreateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
 			SigninVerifyEnable:  in.SigninVerifyEnable,
 			InvitationCodeMust:  in.InvitationCodeMust,
 		}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("app control", "error", err)
+			logger.Sugar().Errorw("CreateApp", "error", err)
 			return err
 		}
 
