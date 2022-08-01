@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
+
 	"entgo.io/ent/dialect/sql"
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	"go.opentelemetry.io/otel/attribute"
@@ -50,12 +52,14 @@ func GetApp(ctx context.Context, id string) (*App, error) {
 			Scan(ctx, &infos)
 	})
 	if err != nil {
+		logger.Sugar().Errorw("get app", "error", err)
 		return nil, err
 	}
 	if len(infos) == 0 {
 		return nil, nil
 	}
 	if len(infos) > 1 {
+		logger.Sugar().Errorw("get app", "too many records")
 		return nil, fmt.Errorf("too many records")
 	}
 
@@ -90,6 +94,7 @@ func GetApps(ctx context.Context, offset, limit int32) ([]*App, error) {
 			Scan(ctx, &infos)
 	})
 	if err != nil {
+		logger.Sugar().Errorw("get apps", "error", err)
 		return nil, err
 	}
 
@@ -129,6 +134,7 @@ func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*Ap
 			Scan(ctx, &infos)
 	})
 	if err != nil {
+		logger.Sugar().Errorw("get user apps", "error", err)
 		return nil, err
 	}
 

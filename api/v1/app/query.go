@@ -16,7 +16,7 @@ import (
 	"github.com/NpoolPlatform/message/npool/appuser/mgr/v2/recaptcha"
 	"github.com/NpoolPlatform/message/npool/appuser/mgr/v2/signmethod"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
-
+	"go.opentelemetry.io/otel/attribute"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -108,6 +108,8 @@ func (s *Server) GetUserApps(ctx context.Context, in *npool.GetUserAppsRequest) 
 			span.RecordError(err)
 		}
 	}()
+
+	span.SetAttributes(attribute.String("UserID", in.GetUserID()))
 
 	if _, err := uuid.Parse(in.GetUserID()); err != nil {
 		logger.Sugar().Errorw("GetUserApps", "error", err)

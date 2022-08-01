@@ -3,6 +3,8 @@ package app
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/app"
 	"go.opentelemetry.io/otel"
@@ -31,6 +33,11 @@ func (s *Server) CreateApp(ctx context.Context, in *npool.CreateAppRequest) (*np
 	}()
 
 	span = tracer.Trace(span, in.GetInfo())
+
+	if in.Info.ID == nil {
+		id := uuid.NewString()
+		in.Info.ID = &id
+	}
 
 	if err := validate(in.GetInfo()); err != nil {
 		logger.Sugar().Errorw("CreateApp", "error", err)

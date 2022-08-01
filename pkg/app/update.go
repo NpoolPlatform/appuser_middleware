@@ -3,6 +3,8 @@ package app
 import (
 	"context"
 
+	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
+
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/app"
@@ -14,13 +16,10 @@ import (
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 
-	appmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/app"
-	appctrlmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appcontrol"
-	banappmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/banapp"
-
 	appmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/app"
 	appctrlmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appcontrol"
-	banappmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/banapp"
+	appmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/app"
+	appctrlmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appcontrol"
 )
 
 func UpdateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
@@ -47,6 +46,7 @@ func UpdateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
 			Description: in.Description,
 		}).Save(ctx)
 		if err != nil {
+			logger.Sugar().Errorw("update app", "error", err)
 			return err
 		}
 
@@ -58,25 +58,10 @@ func UpdateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
 			SigninVerifyEnable:  in.SigninVerifyEnable,
 			InvitationCodeMust:  in.InvitationCodeMust,
 		}).Save(ctx); err != nil {
+			logger.Sugar().Errorw("update control", "error", err)
 			return err
 		}
 
-		if _, err = appctrlmgrcrud.UpdateTx(tx, &appctrlmgrpb.AppControlReq{
-			SignupMethods:       in.SignupMethods,
-			ExternSigninMethods: in.ExtSigninMethods,
-			RecaptchaMethod:     in.RecaptchaMethod,
-			KycEnable:           in.KycEnable,
-			SigninVerifyEnable:  in.SigninVerifyEnable,
-			InvitationCodeMust:  in.InvitationCodeMust,
-		}).Save(ctx); err != nil {
-			return err
-		}
-
-		if _, err = banappmgrcrud.UpdateTx(tx, &banappmgrpb.BanAppReq{
-			Message: in.BanMessage,
-		}).Save(ctx); err != nil {
-			return err
-		}
 		return nil
 	})
 	if err != nil {
