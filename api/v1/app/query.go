@@ -1,7 +1,9 @@
+//nolint:nolintlint,dupl
 package app
 
 import (
 	"context"
+
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	"go.opentelemetry.io/otel"

@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/app"
 	"go.opentelemetry.io/otel"

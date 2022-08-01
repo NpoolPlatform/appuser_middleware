@@ -2,8 +2,9 @@ package app
 
 import (
 	"context"
-	"entgo.io/ent/dialect/sql"
 	"fmt"
+
+	"entgo.io/ent/dialect/sql"
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	"go.opentelemetry.io/otel/attribute"
 
@@ -16,7 +17,6 @@ import (
 	scodes "go.opentelemetry.io/otel/codes"
 
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/codes"
 
 	"github.com/google/uuid"
 )
@@ -70,12 +70,12 @@ func GetApps(ctx context.Context, offset, limit int32) ([]*App, error) {
 	defer span.End()
 	defer func() {
 		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
+			span.SetStatus(scodes.Error, err.Error())
 			span.RecordError(err)
 		}
 	}()
 
-	span = commontracer.TraceOffsetLimit(span, int(offset),int(limit))
+	span = commontracer.TraceOffsetLimit(span, int(offset), int(limit))
 
 	span = commontracer.TraceInvoker(span, "app", "db", "query join")
 
@@ -104,14 +104,14 @@ func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*Ap
 	defer span.End()
 	defer func() {
 		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
+			span.SetStatus(scodes.Error, err.Error())
 			span.RecordError(err)
 		}
 	}()
 
 	span.SetAttributes(attribute.String("UserID", userID))
 
-	span = commontracer.TraceOffsetLimit(span, int(offset),int(limit))
+	span = commontracer.TraceOffsetLimit(span, int(offset), int(limit))
 
 	span = commontracer.TraceInvoker(span, "app", "db", "query join")
 

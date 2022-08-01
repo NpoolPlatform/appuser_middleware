@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+
 	mw "github.com/NpoolPlatform/appuser-middleware/pkg/app"
 	capp "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/app"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
