@@ -16,16 +16,18 @@ import (
 
 	appmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/app"
 	appctrlmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appcontrol"
+	banappmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/banapp"
 
 	appmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/app"
 	appctrlmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appcontrol"
+	banappmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/banapp"
 )
 
-func CreateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
+func UpdateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
 	var id string
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "CreateApp")
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "UpdateApp")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -36,12 +38,10 @@ func CreateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
 
 	span = tracer.Trace(span, in)
 
-	span = commontracer.TraceInvoker(span, "app", "db", "CreateTx")
+	span = commontracer.TraceInvoker(span, "app", "db", "UpdateTx")
 
 	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
-		info, err := appmgrcrud.CreateTx(tx, &appmgrpb.AppReq{
-			ID:          in.ID,
-			CreatedBy:   in.CreatedBy,
+		_, err := appmgrcrud.UpdateTx(tx, &appmgrpb.AppReq{
 			Name:        in.Name,
 			Logo:        in.Logo,
 			Description: in.Description,
@@ -50,10 +50,7 @@ func CreateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
 			return err
 		}
 
-		id = info.ID.String()
-
-		if _, err := appctrlmgrcrud.CreateTx(tx, &appctrlmgrpb.AppControlReq{
-			AppID:               &id,
+		if _, err = appctrlmgrcrud.UpdateTx(tx, &appctrlmgrpb.AppControlReq{
 			SignupMethods:       in.SignupMethods,
 			ExternSigninMethods: in.ExtSigninMethods,
 			RecaptchaMethod:     in.RecaptchaMethod,
@@ -64,11 +61,26 @@ func CreateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
 			return err
 		}
 
+		if _, err = appctrlmgrcrud.UpdateTx(tx, &appctrlmgrpb.AppControlReq{
+			SignupMethods:       in.SignupMethods,
+			ExternSigninMethods: in.ExtSigninMethods,
+			RecaptchaMethod:     in.RecaptchaMethod,
+			KycEnable:           in.KycEnable,
+			SigninVerifyEnable:  in.SigninVerifyEnable,
+			InvitationCodeMust:  in.InvitationCodeMust,
+		}).Save(ctx); err != nil {
+			return err
+		}
+
+		if _, err = banappmgrcrud.UpdateTx(tx, &banappmgrpb.BanAppReq{
+			Message: in.BanMessage,
+		}).Save(ctx); err != nil {
+			return err
+		}
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
-
 	return GetApp(ctx, id)
 }

@@ -5,7 +5,7 @@ import (
 
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 
-	cuser "github.com/NpoolPlatform/appuser-middleware/pkg/converter/user"
+	cuser "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/user"
 	muser "github.com/NpoolPlatform/appuser-middleware/pkg/user"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
