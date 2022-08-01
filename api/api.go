@@ -3,9 +3,9 @@ package api
 import (
 	"context"
 
-	"github.com/NpoolPlatform/appuser-middleware/api/admin"
-	"github.com/NpoolPlatform/appuser-middleware/api/app"
-	"github.com/NpoolPlatform/appuser-middleware/api/user"
+	"github.com/NpoolPlatform/appuser-middleware/api/v1/admin"
+	"github.com/NpoolPlatform/appuser-middleware/api/v1/app"
+	"github.com/NpoolPlatform/appuser-middleware/api/v1/user"
 
 	appusermw "github.com/NpoolPlatform/message/npool/appuser/mw/v1"
 
