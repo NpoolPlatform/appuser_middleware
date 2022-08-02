@@ -108,7 +108,7 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*User, 
 			Scan(ctx, &infos)
 	})
 	if err != nil {
-		logger.Sugar().Errorw("CreateUser", "err", err.Error())
+		logger.Sugar().Errorw("GetUsers", "err", err.Error())
 		return nil, err
 	}
 
@@ -159,7 +159,7 @@ func GetManyUsers(ctx context.Context, userIDs []string) ([]*User, error) {
 			Scan(ctx, &infos)
 	})
 	if err != nil {
-		logger.Sugar().Errorw("CreateUser", "err", err.Error())
+		logger.Sugar().Errorw("GetManyUsers", "err", err.Error())
 		return nil, err
 	}
 

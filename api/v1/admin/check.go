@@ -17,6 +17,7 @@ func validate(ctx context.Context, info *admin.CreateGenesisUserRequest) error {
 	if info.GetAppID() != constant.GenesisAppID && info.GetAppID() != constant.ChurchAppID {
 		return status.Error(codes.PermissionDenied, "invalid app id for genesis user")
 	}
+
 	exist, err := appusergrpc.ExistAppUserConds(ctx, &appuserpb.Conds{
 		AppID: &npool.StringVal{
 			Op:    cruder.EQ,

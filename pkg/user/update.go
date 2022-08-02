@@ -54,7 +54,7 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 			ImportFromApp: in.ImportedFromAppID,
 		}).Save(ctx)
 		if err != nil {
-			logger.Sugar().Errorw("update app user", "err", err.Error())
+			logger.Sugar().Errorw("UpdateUser", "err", err.Error())
 			return err
 		}
 
@@ -83,7 +83,7 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 			SigninVerifyByGoogleAuthentication: in.SigninVerifyByGoogleAuth,
 			GoogleAuthenticationVerified:       in.GoogleAuthenticationVerified,
 		}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("update app user control", "err", err.Error())
+			logger.Sugar().Errorw("UpdateUser", "err", err.Error())
 			return err
 		}
 
@@ -96,7 +96,7 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 
 			passwordStr, err := encrypt.EncryptWithSalt(in.GetPasswordHash(), saltStr)
 			if err != nil {
-				logger.Sugar().Errorw("make password", "err", err.Error())
+				logger.Sugar().Errorw("UpdateUser", "err", err.Error())
 				return err
 			}
 			password = &passwordStr
@@ -107,7 +107,7 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 			Salt:         salt,
 			GoogleSecret: in.GoogleSecret,
 		}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("update app user secret", "err", err.Error())
+			logger.Sugar().Errorw("UpdateUser", "err", err.Error())
 			return err
 		}
 
@@ -117,7 +117,7 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 			ThirdPartyUsername:   in.ThirdPartyUsername,
 			ThirdPartyUserAvatar: in.ThirdPartyUserAvatar,
 		}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("update app user third party", "err", err.Error())
+			logger.Sugar().Errorw("UpdateUser", "err", err.Error())
 			return err
 		}
 

@@ -38,7 +38,7 @@ func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*
 		return &npool.CreateUserResponse{}, err
 	}
 
-	span = commontracer.TraceInvoker(span, "user", "middleware", "CreateApp")
+	span = commontracer.TraceInvoker(span, "user", "middleware", "CreateUser")
 
 	info, err := mw.CreateUser(ctx, in.GetInfo())
 	if err != nil {

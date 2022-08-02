@@ -46,7 +46,7 @@ func UpdateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
 			Description: in.Description,
 		}).Save(ctx)
 		if err != nil {
-			logger.Sugar().Errorw("update app", "error", err)
+			logger.Sugar().Errorw("UpdateApp", "error", err)
 			return err
 		}
 
