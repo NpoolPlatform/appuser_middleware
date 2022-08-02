@@ -21,7 +21,7 @@ require (
 )
 
 require (
-	github.com/NpoolPlatform/appuser-manager v0.0.0-20220801085907-766730170593
+	github.com/NpoolPlatform/appuser-manager v0.0.0-20220802080252-ac2563a86ed4
 	github.com/NpoolPlatform/ledger-manager v0.0.0-20220727114744-a028b0ff1bbf
 	github.com/NpoolPlatform/libent-cruder v0.0.0-20220801075201-cab5db8b6290
 	go.opentelemetry.io/otel v1.8.0
@@ -104,6 +104,4 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-replace (
-	github.com/NpoolPlatform/appuser-manager => ../appuser-manager
-)
+replace github.com/NpoolPlatform/appuser-manager => ../appuser-manager
