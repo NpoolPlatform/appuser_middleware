@@ -60,7 +60,7 @@ func UpdateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
 	return info.(*npool.App), nil
 }
 
-func GetApp(ctx context.Context, appID, userID string) (*npool.App, error) {
+func GetApp(ctx context.Context, appID string) (*npool.App, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.AppMwClient) (cruder.Any, error) {
 		resp, err := cli.GetApp(ctx, &npool.GetAppRequest{
 			AppID: appID,
