@@ -10,7 +10,7 @@ import (
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 
-	constant "github.com/NpoolPlatform/appuser-manager/pkg/message/const"
+	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 )
 
 func do(ctx context.Context, fn func(_ctx context.Context, cli npool.AppMwClient) (cruder.Any, error)) (cruder.Any, error) {
