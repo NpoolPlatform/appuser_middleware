@@ -21,9 +21,9 @@ require (
 )
 
 require (
-	github.com/NpoolPlatform/appuser-manager v0.0.0-20220801034839-5e771cf37b25
+	github.com/NpoolPlatform/appuser-manager v0.0.0-20220801085907-766730170593
 	github.com/NpoolPlatform/ledger-manager v0.0.0-20220727114744-a028b0ff1bbf
-	github.com/NpoolPlatform/libent-cruder v0.0.0-20220729123015-41e5340448dd
+	github.com/NpoolPlatform/libent-cruder v0.0.0-20220801075201-cab5db8b6290
 	go.opentelemetry.io/otel v1.8.0
 	go.opentelemetry.io/otel/trace v1.8.0
 )
@@ -92,6 +92,7 @@ require (
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/ratelimit v0.1.0 // indirect
 	go.uber.org/zap v1.19.1 // indirect
+	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
 	golang.org/x/net v0.0.0-20220412020605-290c469a71a5 // indirect
 	golang.org/x/sys v0.0.0-20220615213510-4f61da869c0c // indirect
 	golang.org/x/text v0.3.7 // indirect

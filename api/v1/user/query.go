@@ -3,7 +3,12 @@ package user
 import (
 	"context"
 
+	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
+	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	scodes "go.opentelemetry.io/otel/codes"
 
 	cuser "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/user"
 	muser "github.com/NpoolPlatform/appuser-middleware/pkg/user"
@@ -16,6 +21,21 @@ import (
 )
 
 func (s *Server) GetUser(ctx context.Context, in *npool.GetUserRequest) (*npool.GetUserResponse, error) {
+	var err error
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUser")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	commontracer.TraceID(span, in.GetUserID())
+
+	span.SetAttributes(attribute.String("AppID", in.GetAppID()))
+
 	if _, err := uuid.Parse(in.GetAppID()); err != nil {
 		logger.Sugar().Errorw("GetUser", "error", err)
 		return &npool.GetUserResponse{}, status.Error(codes.InvalidArgument, "AppID is invalid")
@@ -24,6 +44,8 @@ func (s *Server) GetUser(ctx context.Context, in *npool.GetUserRequest) (*npool.
 		logger.Sugar().Errorw("GetUser", "error", err)
 		return &npool.GetUserResponse{}, status.Error(codes.InvalidArgument, "UserID is invalid")
 	}
+
+	span = commontracer.TraceInvoker(span, "user", "middleware", "GetUser")
 
 	info, err := muser.GetUser(ctx, in.GetAppID(), in.GetUserID())
 	if err != nil {
@@ -37,10 +59,25 @@ func (s *Server) GetUser(ctx context.Context, in *npool.GetUserRequest) (*npool.
 }
 
 func (s *Server) GetUsers(ctx context.Context, in *npool.GetUsersRequest) (*npool.GetUsersResponse, error) {
+	var err error
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUsers")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	span.SetAttributes(attribute.String("AppID", in.GetAppID()))
+
 	if _, err := uuid.Parse(in.GetAppID()); err != nil {
 		logger.Sugar().Errorw("GetUsers", "error", err)
 		return &npool.GetUsersResponse{}, status.Error(codes.InvalidArgument, "AppID is invalid")
 	}
+
+	span = commontracer.TraceInvoker(span, "user", "middleware", "GetUsers")
 
 	infos, err := muser.GetUsers(ctx, in.GetAppID(), in.GetOffset(), in.GetLimit())
 	if err != nil {
@@ -54,12 +91,32 @@ func (s *Server) GetUsers(ctx context.Context, in *npool.GetUsersRequest) (*npoo
 }
 
 func (s *Server) GetManyUsers(ctx context.Context, in *npool.GetManyUsersRequest) (*npool.GetManyUsersResponse, error) {
+	var err error
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyUsers")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	span.SetAttributes(attribute.StringSlice("UserIDs", in.GetIDs()))
+
 	if len(in.IDs) == 0 {
 		logger.Sugar().Errorw("GetManyUsers", "ids empty")
 		return &npool.GetManyUsersResponse{}, status.Error(codes.InvalidArgument, "ids empty")
 	}
 
-	// TODO: parse id
+	for _, val := range in.GetIDs() {
+		if _, err := uuid.Parse(val); err != nil {
+			logger.Sugar().Errorw("GetManyUsers", "error", err)
+			return &npool.GetManyUsersResponse{}, status.Error(codes.InvalidArgument, "IDs is invalid")
+		}
+	}
+
+	span = commontracer.TraceInvoker(span, "user", "middleware", "GetManyUsers")
 
 	infos, err := muser.GetManyUsers(ctx, in.GetIDs())
 	if err != nil {

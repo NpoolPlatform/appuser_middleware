@@ -4,6 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
+	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
+	"go.opentelemetry.io/otel"
+	scodes "go.opentelemetry.io/otel/codes"
+
 	"entgo.io/ent/dialect/sql"
 
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
@@ -24,8 +30,19 @@ import (
 )
 
 func GetUser(ctx context.Context, appID, userID string) (*User, error) {
-	var err error
 	var infos []*User
+	var err error
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUser")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	span = commontracer.TraceInvoker(span, "user", "middleware", "query join")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		stm := cli.
@@ -41,14 +58,18 @@ func GetUser(ctx context.Context, appID, userID string) (*User, error) {
 			Scan(ctx, &infos)
 	})
 	if err != nil {
+		logger.Sugar().Errorw("get user", "err", err.Error())
 		return nil, err
 	}
 	if len(infos) == 0 {
 		return nil, nil
 	}
 	if len(infos) > 1 {
+		logger.Sugar().Errorw("CreateUser", "err", "too many records")
 		return nil, fmt.Errorf("too many records")
 	}
+
+	span = commontracer.TraceInvoker(span, "user", "method", "expand")
 
 	infos, err = expand(ctx, []string{userID}, infos)
 	if err != nil {
@@ -59,8 +80,19 @@ func GetUser(ctx context.Context, appID, userID string) (*User, error) {
 }
 
 func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*User, error) {
-	var err error
 	var infos []*User
+	var err error
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUsers")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	span = commontracer.TraceInvoker(span, "user", "db", "query join")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		stm := cli.
@@ -76,6 +108,7 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*User, 
 			Scan(ctx, &infos)
 	})
 	if err != nil {
+		logger.Sugar().Errorw("CreateUser", "err", err.Error())
 		return nil, err
 	}
 
@@ -83,6 +116,8 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*User, 
 	for _, info := range infos {
 		users = append(users, info.ID.String())
 	}
+
+	span = commontracer.TraceInvoker(span, "user", "method", "expand")
 
 	infos, err = expand(ctx, users, infos)
 	if err != nil {
@@ -93,13 +128,24 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*User, 
 }
 
 func GetManyUsers(ctx context.Context, userIDs []string) ([]*User, error) {
-	var err error
 	var infos []*User
+	var err error
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyUsers")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
 
 	users := []uuid.UUID{}
 	for _, user := range userIDs {
 		users = append(users, uuid.MustParse(user))
 	}
+
+	span = commontracer.TraceInvoker(span, "user", "db", "query join")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		stm := cli.
@@ -113,12 +159,15 @@ func GetManyUsers(ctx context.Context, userIDs []string) ([]*User, error) {
 			Scan(ctx, &infos)
 	})
 	if err != nil {
+		logger.Sugar().Errorw("CreateUser", "err", err.Error())
 		return nil, err
 	}
 
 	for _, info := range infos {
 		info.Banned = info.BanAppUserID.String() != uuid.UUID{}.String()
 	}
+
+	span = commontracer.TraceInvoker(span, "user", "method", "expand")
 
 	infos, err = expand(ctx, userIDs, infos)
 	if err != nil {
@@ -135,13 +184,24 @@ func expand(ctx context.Context, userIDs []string, users []*User) ([]*User, erro
 		RoleName     string    `json:"role_name"`
 	}
 
-	var err error
 	var infos []*extra
+	var err error
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "expand")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
 
 	uids := []uuid.UUID{}
 	for _, user := range userIDs {
 		uids = append(uids, uuid.MustParse(user))
 	}
+
+	span = commontracer.TraceInvoker(span, "user", "db", "query join")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		return cli.
@@ -176,6 +236,7 @@ func expand(ctx context.Context, userIDs []string, users []*User) ([]*User, erro
 			Scan(ctx, &infos)
 	})
 	if err != nil {
+		logger.Sugar().Errorw("expand", "err", err.Error())
 		return nil, err
 	}
 
@@ -228,7 +289,7 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 				LeftJoin(t2).
 				On(
 					s.C(entuser.FieldID),
-					t2.C(entextra.FieldUserID),
+					t2.C(entappusercontrol.FieldUserID),
 				).
 				AppendSelect(
 					sql.As(t2.C(entappusercontrol.FieldSigninVerifyByGoogleAuthentication), "signin_verify_by_google_authentication"),
@@ -240,7 +301,7 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 				LeftJoin(t3).
 				On(
 					s.C(entuser.FieldImportFromApp),
-					t2.C(entextra.FieldID),
+					t2.C(entapp.FieldID),
 				).
 				AppendSelect(
 					sql.As(t3.C(entapp.FieldName), "imported_from_app_name"),
