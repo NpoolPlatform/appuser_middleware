@@ -6,6 +6,7 @@ import (
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/app"
+	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"go.opentelemetry.io/otel"
 	scodes "go.opentelemetry.io/otel/codes"
 
@@ -47,6 +48,7 @@ func CreateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
 			Description: in.Description,
 		}).Save(ctx)
 		if err != nil {
+			logger.Sugar().Errorw("CreateApp", "error", err)
 			return err
 		}
 
@@ -61,6 +63,7 @@ func CreateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
 			SigninVerifyEnable:  in.SigninVerifyEnable,
 			InvitationCodeMust:  in.InvitationCodeMust,
 		}).Save(ctx); err != nil {
+			logger.Sugar().Errorw("CreateApp", "error", err)
 			return err
 		}
 
