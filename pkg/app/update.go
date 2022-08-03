@@ -23,7 +23,6 @@ import (
 )
 
 func UpdateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
-	var id string
 	var err error
 
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "UpdateApp")
@@ -41,6 +40,7 @@ func UpdateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
 
 	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
 		_, err := appmgrcrud.UpdateTx(tx, &appmgrpb.AppReq{
+			ID:          in.ID,
 			Name:        in.Name,
 			Logo:        in.Logo,
 			Description: in.Description,
@@ -51,6 +51,7 @@ func UpdateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
 		}
 
 		if _, err = appctrlmgrcrud.UpdateTx(tx, &appctrlmgrpb.AppControlReq{
+			AppID:               in.ID,
 			SignupMethods:       in.SignupMethods,
 			ExternSigninMethods: in.ExtSigninMethods,
 			RecaptchaMethod:     in.RecaptchaMethod,
@@ -67,5 +68,5 @@ func UpdateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
 	if err != nil {
 		return nil, err
 	}
-	return GetApp(ctx, id)
+	return GetApp(ctx, in.GetID())
 }

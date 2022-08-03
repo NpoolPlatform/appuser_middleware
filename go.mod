@@ -10,7 +10,6 @@ require (
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
-	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.7.1
 	github.com/urfave/cli/v2 v2.4.0
 	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
@@ -103,3 +102,5 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
+
+replace github.com/NpoolPlatform/appuser-manager => ../appuser-manager

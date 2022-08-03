@@ -49,6 +49,7 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 
 	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
 		info, err := appusercrud.UpdateTx(tx, &appusermgrpb.AppUserReq{
+			ID:            in.ID,
 			PhoneNo:       in.PhoneNO,
 			EmailAddress:  in.EmailAddress,
 			ImportFromApp: in.ImportedFromAppID,
@@ -62,6 +63,7 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 		appID = info.AppID.String()
 
 		if _, err = appuserextracrud.UpdateTx(tx, &appuserextramgrpb.AppUserExtraReq{
+			AppID:         in.ID,
 			FirstName:     in.FirstName,
 			Birthday:      in.Birthday,
 			LastName:      in.LastName,
@@ -103,6 +105,7 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 		}
 
 		if _, err = appusersecretcrud.UpdateTx(tx, &appusersecretamgrpb.AppUserSecretReq{
+			AppID:        in.AppID,
 			PasswordHash: password,
 			Salt:         salt,
 			GoogleSecret: in.GoogleSecret,
@@ -112,6 +115,7 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 		}
 
 		if _, err = appuserthirdpartycrud.UpdateTx(tx, &appuserthirdpartymgrpb.AppUserThirdPartyReq{
+			AppID:                in.AppID,
 			ThirdPartyID:         in.ThirdPartyID,
 			ThirdPartyUserID:     in.ThirdPartyUserID,
 			ThirdPartyUsername:   in.ThirdPartyUsername,

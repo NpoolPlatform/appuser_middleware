@@ -77,8 +77,6 @@ github.com/Masterminds/sprig v2.15.0+incompatible/go.mod h1:y6hNFY5UBTIWBxnzTeuN
 github.com/Masterminds/sprig v2.22.0+incompatible/go.mod h1:y6hNFY5UBTIWBxnzTeuNhlNS5hqE0NB0E6fgfo2Br3o=
 github.com/NpoolPlatform/api-manager v0.0.0-20220328101926-8907b2f76c6d h1:lbBWd/t79S1JIuGySCFDyRJnOMQ7oHSjzUk+5aCAMxI=
 github.com/NpoolPlatform/api-manager v0.0.0-20220328101926-8907b2f76c6d/go.mod h1:ubnvHuhc0o6drhdYrT+nM5DXZW/yEesObWky6oRsHoQ=
-github.com/NpoolPlatform/appuser-manager v0.0.0-20220802085442-bc72469c48d6 h1:S3kSVh86sBp5x2fJatE+fMd56BBvuuN/W64INYCHVvk=
-github.com/NpoolPlatform/appuser-manager v0.0.0-20220802085442-bc72469c48d6/go.mod h1:SqyX5dhKloyAwRa6aONgRovCmhR3gNgWDQVblBX+nJk=
 github.com/NpoolPlatform/go-service-framework v0.0.0-20220120091626-4e8035637592/go.mod h1:JqrktA7gNQe/Uprnr6DCs5UCFpheCZ30lDd0OkyRtC4=
 github.com/NpoolPlatform/go-service-framework v0.0.0-20220722111225-08c2156ac8bf h1:HX2tl99WkC7Q0x2MxGpfFYeaWk0PX+GdxEoFrWgZAxI=
 github.com/NpoolPlatform/go-service-framework v0.0.0-20220722111225-08c2156ac8bf/go.mod h1:o9I+ipazkngO2E5yC7LOdLTA6nlvf4uTUMOOZ2sRiRU=
@@ -598,7 +596,6 @@ github.com/spf13/viper v1.9.0/go.mod h1:+i6ajR7OX2XaiBkrcZJFK21htRk7eDeLg7+O6bhU
 github.com/spf13/viper v1.10.0/go.mod h1:SoyBPwAtKDzypXNDFKN5kzH7ppppbGZtls1UpIy5AsM=
 github.com/spf13/viper v1.11.0 h1:7OX/1FS6n7jHD1zGrZTM7WtY13ZELRyosK4k93oPr44=
 github.com/spf13/viper v1.11.0/go.mod h1:djo0X/bA5+tYVoCn+C7cAYJGcVn/qYLFTG8gdUsX7Zk=
-github.com/streadway/amqp v1.0.0 h1:kuuDrUJFZL1QYL9hUNuCxNObNzB0bV/ZG5jV3RWAQgo=
 github.com/streadway/amqp v1.0.0/go.mod h1:AZpEONHx3DKn8O/DFsRAY58/XVQiIPMTMB1SddzLXVw=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

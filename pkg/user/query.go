@@ -257,6 +257,7 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 	return stm.
 		Select(
 			entuser.FieldID,
+			entuser.FieldAppID,
 			entuser.FieldEmailAddress,
 			entuser.FieldPhoneNo,
 			entuser.FieldImportFromApp,

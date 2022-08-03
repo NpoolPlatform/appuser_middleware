@@ -145,6 +145,7 @@ func join(stm *ent.AppQuery) *ent.AppSelect {
 	return stm.Select(
 		entapp.FieldID,
 		entapp.FieldLogo,
+		entapp.FieldName,
 		entapp.FieldCreatedBy,
 		entapp.FieldCreatedAt,
 		entapp.FieldDescription,
