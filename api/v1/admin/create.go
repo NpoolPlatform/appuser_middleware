@@ -2,6 +2,7 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/admin"
@@ -48,4 +49,9 @@ func (s *Server) CreateGenesisUser(ctx context.Context, in *npool.CreateGenesisU
 	return &npool.CreateGenesisUserResponse{
 		Info: cuser.Ent2Grpc(info),
 	}, nil
+}
+
+func (s *Server) AuthorizeGenesis(ctx context.Context, in *npool.AuthorizeGenesisRequest) (*npool.AuthorizeGenesisResponse, error) {
+	// TODO: Wait for authing-gateway refactoring to complete the API
+	return &npool.AuthorizeGenesisResponse{}, status.Error(codes.Internal, fmt.Errorf("NOT IMPLEMENTED").Error())
 }

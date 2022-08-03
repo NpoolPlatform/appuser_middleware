@@ -24,7 +24,6 @@ import (
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
 	appusersecretmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appusersecret"
 	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/admin"
-	"github.com/google/uuid"
 	"go.opentelemetry.io/otel"
 	scodes "go.opentelemetry.io/otel/codes"
 )
@@ -47,7 +46,7 @@ func CreateGenesisUser(ctx context.Context, in *admin.CreateGenesisUserRequest) 
 
 	roleInfo, err := approlecrud.RowOnly(ctx, &approle.Conds{
 		AppID: &npool.StringVal{
-			Value: uuid.UUID{}.String(),
+			Value: in.GetAppID(),
 			Op:    cruder.EQ,
 		},
 		Role: &npool.StringVal{
