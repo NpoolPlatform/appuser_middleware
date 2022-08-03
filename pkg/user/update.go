@@ -29,6 +29,7 @@ import (
 	appuserextracrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appuserextra"
 )
 
+//nolint:funlen
 func UpdateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 	var id string
 	var appID string

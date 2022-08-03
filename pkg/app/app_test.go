@@ -1,15 +1,17 @@
+//nolint:dupl
 package app
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
-	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
-	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"strconv"
 	"testing"
+
+	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/testinit"
 )
