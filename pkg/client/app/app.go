@@ -36,7 +36,7 @@ func CreateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
 		if err != nil {
 			return nil, err
 		}
-		return resp.GetInfo(), nil
+		return resp.Info, nil
 	})
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func UpdateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
 		if err != nil {
 			return nil, err
 		}
-		return resp.GetInfo(), nil
+		return resp.Info, nil
 	})
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func GetApp(ctx context.Context, appID, userID string) (*npool.App, error) {
 		if err != nil {
 			return nil, err
 		}
-		return resp.GetInfo(), nil
+		return resp.Info, nil
 	})
 	if err != nil {
 		return nil, err
@@ -85,7 +85,7 @@ func GetApps(ctx context.Context, limit, offset int32) ([]*npool.App, error) {
 		if err != nil {
 			return nil, err
 		}
-		return resp.GetInfos(), nil
+		return resp.Infos, nil
 	})
 	if err != nil {
 		return nil, err
@@ -104,7 +104,7 @@ func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*np
 		if err != nil {
 			return nil, err
 		}
-		return resp.GetInfos(), nil
+		return resp.Infos, nil
 	})
 	if err != nil {
 		return nil, 0, err
@@ -119,7 +119,7 @@ func GetSignMethods(ctx context.Context) ([]*npool.App, uint32, error) {
 		if err != nil {
 			return nil, err
 		}
-		return resp.GetInfos(), nil
+		return resp.Infos, nil
 	})
 	if err != nil {
 		return nil, 0, err
@@ -134,7 +134,7 @@ func GetRecaptchas(ctx context.Context) ([]*npool.App, uint32, error) {
 		if err != nil {
 			return nil, err
 		}
-		return resp.GetInfos(), nil
+		return resp.Infos, nil
 	})
 	if err != nil {
 		return nil, 0, err
