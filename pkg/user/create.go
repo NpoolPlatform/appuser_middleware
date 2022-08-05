@@ -49,7 +49,7 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 	span = commontracer.TraceInvoker(span, "user", "db", "CreateTx")
 
 	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
-		info, err := appusercrud.CreateTx(tx, &appusermgrpb.AppUserReq{
+		info, err := appusercrud.CreateSet(tx.AppUser.Create(), &appusermgrpb.AppUserReq{
 			ID:            in.ID,
 			AppID:         in.AppID,
 			PhoneNo:       in.PhoneNO,
@@ -64,7 +64,7 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 		id = info.ID.String()
 		appID = info.AppID.String()
 
-		if _, err = appuserextracrud.CreateTx(tx, &appuserextramgrpb.AppUserExtraReq{
+		if _, err = appuserextracrud.CreateSet(tx.AppUserExtra.Create(), &appuserextramgrpb.AppUserExtraReq{
 			AppID:         in.AppID,
 			UserID:        in.ID,
 			FirstName:     in.FirstName,
@@ -83,7 +83,7 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 			return err
 		}
 
-		if _, err = appusercontrolcrud.CreateTx(tx, &appusercontrolmgrpb.AppUserControlReq{
+		if _, err = appusercontrolcrud.CreateSet(tx.AppUserControl.Create(), &appusercontrolmgrpb.AppUserControlReq{
 			AppID:                              in.AppID,
 			UserID:                             in.ID,
 			SigninVerifyByGoogleAuthentication: in.SigninVerifyByGoogleAuth,
@@ -107,7 +107,7 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 			password = &passwordStr
 		}
 
-		if _, err = appusersecretcrud.CreateTx(tx, &appusersecretamgrpb.AppUserSecretReq{
+		if _, err = appusersecretcrud.CreateSet(tx.AppUserSecret.Create(), &appusersecretamgrpb.AppUserSecretReq{
 			AppID:        in.AppID,
 			UserID:       in.ID,
 			PasswordHash: password,
@@ -118,7 +118,7 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 			return err
 		}
 
-		if _, err = appuserthirdpartycrud.CreateTx(tx, &appuserthirdpartymgrpb.AppUserThirdPartyReq{
+		if _, err = appuserthirdpartycrud.CreateSet(tx.AppUserThirdParty.Create(), &appuserthirdpartymgrpb.AppUserThirdPartyReq{
 			AppID:                in.AppID,
 			UserID:               in.ID,
 			ThirdPartyID:         in.ThirdPartyID,

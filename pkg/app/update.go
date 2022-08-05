@@ -3,16 +3,18 @@ package app
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 
+	"github.com/NpoolPlatform/appuser-manager/pkg/db"
+	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
+	entappcontrol "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appcontrol"
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/app"
 	"go.opentelemetry.io/otel"
 	scodes "go.opentelemetry.io/otel/codes"
-
-	"github.com/NpoolPlatform/appuser-manager/pkg/db"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 
@@ -39,26 +41,37 @@ func UpdateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
 	span = commontracer.TraceInvoker(span, "app", "db", "UpdateTx")
 
 	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
-		_, err := appmgrcrud.UpdateTx(tx, &appmgrpb.AppReq{
-			ID:          in.ID,
-			Name:        in.Name,
-			Logo:        in.Logo,
-			Description: in.Description,
-		}).Save(ctx)
+		_, err := appmgrcrud.UpdateSet(
+			tx.App.
+				UpdateOneID(
+					uuid.MustParse(in.GetID()),
+				),
+			&appmgrpb.AppReq{
+				ID:          in.ID,
+				Name:        in.Name,
+				Logo:        in.Logo,
+				Description: in.Description,
+			}).Save(ctx)
 		if err != nil {
 			logger.Sugar().Errorw("UpdateApp", "error", err)
 			return err
 		}
 
-		if _, err = appctrlmgrcrud.UpdateTx(tx, &appctrlmgrpb.AppControlReq{
-			AppID:               in.ID,
-			SignupMethods:       in.SignupMethods,
-			ExternSigninMethods: in.ExtSigninMethods,
-			RecaptchaMethod:     in.RecaptchaMethod,
-			KycEnable:           in.KycEnable,
-			SigninVerifyEnable:  in.SigninVerifyEnable,
-			InvitationCodeMust:  in.InvitationCodeMust,
-		}).Save(ctx); err != nil {
+		if _, err = appctrlmgrcrud.UpdateSet(
+			tx.AppControl.
+				Update().
+				Where(
+					entappcontrol.AppID(uuid.MustParse(in.GetID())),
+				),
+			&appctrlmgrpb.AppControlReq{
+				AppID:               in.ID,
+				SignupMethods:       in.SignupMethods,
+				ExternSigninMethods: in.ExtSigninMethods,
+				RecaptchaMethod:     in.RecaptchaMethod,
+				KycEnable:           in.KycEnable,
+				SigninVerifyEnable:  in.SigninVerifyEnable,
+				InvitationCodeMust:  in.InvitationCodeMust,
+			}).Save(ctx); err != nil {
 			logger.Sugar().Errorw("UpdateApp", "error", err)
 			return err
 		}

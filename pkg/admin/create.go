@@ -13,7 +13,6 @@ import (
 	appusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appuser"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
-	bconst "github.com/NpoolPlatform/appuser-middleware/pkg/const"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/admin"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
@@ -43,14 +42,13 @@ func CreateGenesisUser(ctx context.Context, in *admin.CreateGenesisUserRequest) 
 	span = tracer.Trace(span, in)
 
 	span = commontracer.TraceInvoker(span, "app", "db", "CreateGenesisUser")
-
 	roleInfo, err := approlecrud.RowOnly(ctx, &approle.Conds{
 		AppID: &npool.StringVal{
 			Value: in.GetAppID(),
 			Op:    cruder.EQ,
 		},
 		Role: &npool.StringVal{
-			Value: bconst.GenesisRole,
+			Value: in.GetRole(),
 			Op:    cruder.EQ,
 		},
 	})
@@ -62,12 +60,12 @@ func CreateGenesisUser(ctx context.Context, in *admin.CreateGenesisUserRequest) 
 	roleID := roleInfo.ID.String()
 
 	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
-		if _, err := appusercrud.CreateTx(tx, &appusermgrpb.AppUserReq{
+		if _, err := appusercrud.CreateSet(tx.AppUser.Create(), &appusermgrpb.AppUserReq{
 			ID:           in.UserID,
 			AppID:        in.AppID,
 			EmailAddress: in.EmailAddress,
 		}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("CreateUser", "error", err)
+			logger.Sugar().Errorw("CreateGenesisUser", "error", err)
 			return err
 		}
 
@@ -85,22 +83,22 @@ func CreateGenesisUser(ctx context.Context, in *admin.CreateGenesisUserRequest) 
 			password = &passwordStr
 		}
 
-		if _, err := appusersecretcrud.CreateTx(tx, &appusersecretmgrpb.AppUserSecretReq{
+		if _, err := appusersecretcrud.CreateSet(tx.AppUserSecret.Create(), &appusersecretmgrpb.AppUserSecretReq{
 			AppID:        in.AppID,
 			UserID:       in.UserID,
 			PasswordHash: password,
 			Salt:         salt,
 		}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("CreateUser", "error", err)
+			logger.Sugar().Errorw("CreateGenesisUser", "error", err)
 			return err
 		}
 
-		if _, err := approleusercrud.CreateTx(tx, &approleusermgrpb.AppRoleUserReq{
+		if _, err := approleusercrud.CreateSet(tx.AppRoleUser.Create(), &approleusermgrpb.AppRoleUserReq{
 			AppID:  in.AppID,
 			RoleID: &roleID,
 			UserID: in.UserID,
 		}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("CreateUser", "error", err)
+			logger.Sugar().Errorw("CreateGenesisUser", "error", err)
 			return err
 		}
 

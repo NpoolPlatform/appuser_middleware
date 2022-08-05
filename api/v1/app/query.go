@@ -13,8 +13,6 @@ import (
 
 	mapp "github.com/NpoolPlatform/appuser-middleware/pkg/app"
 	capp "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/app"
-	"github.com/NpoolPlatform/message/npool/appuser/mgr/v2/recaptcha"
-	"github.com/NpoolPlatform/message/npool/appuser/mgr/v2/signmethod"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 	"go.opentelemetry.io/otel/attribute"
 	"google.golang.org/grpc/codes"
@@ -137,51 +135,5 @@ func (s *Server) GetUserApps(ctx context.Context, in *npool.GetUserAppsRequest) 
 	return &npool.GetUserAppsResponse{
 		Infos: resp,
 		Total: uint32(len(resp)),
-	}, nil
-}
-
-func (s *Server) GetSignMethods(ctx context.Context, in *npool.GetSignMethodsRequest) (*npool.GetSignMethodsResponse, error) {
-	var err error
-
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetSignMethods")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
-
-	signMethods := []*signmethod.SignMethod{}
-	for _, val := range signmethod.SignMethodType_name {
-		signMethods = append(signMethods, &signmethod.SignMethod{
-			Method: val,
-		})
-	}
-	return &npool.GetSignMethodsResponse{
-		Infos: signMethods,
-	}, nil
-}
-
-func (s *Server) GetRecaptchas(ctx context.Context, in *npool.GetRecaptchasRequest) (*npool.GetRecaptchasResponse, error) {
-	var err error
-
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRecaptchas")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
-
-	recaptchas := []*recaptcha.Recaptcha{}
-	for _, val := range recaptcha.RecaptchaType_name {
-		recaptchas = append(recaptchas, &recaptcha.Recaptcha{
-			Recaptcha: val,
-		})
-	}
-	return &npool.GetRecaptchasResponse{
-		Infos: recaptchas,
 	}, nil
 }

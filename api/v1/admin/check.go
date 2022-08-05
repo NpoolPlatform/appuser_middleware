@@ -1,56 +1,48 @@
 package admin
 
 import (
-	"context"
-
+	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/google/uuid"
 
-	approlegrpc "github.com/NpoolPlatform/appuser-manager/pkg/client/approle"
-	approleusergrpc "github.com/NpoolPlatform/appuser-manager/pkg/client/approleuser"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/const"
-	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
-	"github.com/NpoolPlatform/message/npool"
-	approlepb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/approle"
-	approleuserpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/approleuser"
 	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/admin"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-func validate(ctx context.Context, info *admin.CreateGenesisUserRequest) error {
-	if info.GetAppID() != constant.GenesisAppID && info.GetAppID() != constant.ChurchAppID {
-		return status.Error(codes.PermissionDenied, "invalid app id for genesis user")
+func validate(info *admin.CreateGenesisUserRequest) error {
+	if info.AppID == nil {
+		logger.Sugar().Errorw("validate", "AppID", info.AppID)
+		return status.Error(codes.InvalidArgument, "AppID is empty")
 	}
 
-	resp, err := approlegrpc.GetAppRoleOnly(ctx, &approlepb.Conds{
-		AppID: &npool.StringVal{
-			Op:    cruder.EQ,
-			Value: uuid.UUID{}.String(),
-		},
-		Role: &npool.StringVal{
-			Op:    cruder.EQ,
-			Value: constant.GenesisRole,
-		},
-	})
-	if err != nil {
-		return status.Error(codes.Internal, err.Error())
+	if _, err := uuid.Parse(info.GetAppID()); err != nil {
+		logger.Sugar().Errorw("validate", "GetAppID", info.GetAppID(), "error", err)
+		return status.Error(codes.InvalidArgument, "AppID is invalid")
 	}
 
-	exist, err := approleusergrpc.ExistAppRoleUserConds(ctx, &approleuserpb.Conds{
-		AppID: &npool.StringVal{
-			Op:    cruder.EQ,
-			Value: uuid.UUID{}.String(),
-		},
-		RoleID: &npool.StringVal{
-			Op:    cruder.EQ,
-			Value: resp.ID,
-		},
-	})
-	if err != nil {
-		return status.Error(codes.Internal, err.Error())
+	if info.UserID == nil {
+		logger.Sugar().Errorw("validate", "UserID", info.UserID)
+		return status.Error(codes.InvalidArgument, "UserID is empty")
 	}
-	if exist {
-		return status.Error(codes.AlreadyExists, "genesis user already exists")
+
+	if _, err := uuid.Parse(info.GetUserID()); err != nil {
+		logger.Sugar().Errorw("validate", "UserID", info.GetUserID(), "error", err)
+		return status.Error(codes.InvalidArgument, "UserID is invalid")
+	}
+
+	if info.GetRole() == "" {
+		logger.Sugar().Errorw("validate", "GetRole", info.GetRole())
+		return status.Error(codes.InvalidArgument, "Role is empty")
+	}
+
+	if info.GetEmailAddress() == "" {
+		logger.Sugar().Errorw("validate", "GetEmailAddress", info.GetEmailAddress())
+		return status.Error(codes.InvalidArgument, "EmailAddress is empty")
+	}
+
+	if info.GetPasswordHash() == "" {
+		logger.Sugar().Errorw("validate", "GetPasswordHash", info.GetPasswordHash())
+		return status.Error(codes.InvalidArgument, "PasswordHash is empty")
 	}
 
 	return nil

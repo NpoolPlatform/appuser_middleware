@@ -35,7 +35,7 @@ func (s *Server) CreateGenesisUser(ctx context.Context, in *npool.CreateGenesisU
 
 	span = commontracer.TraceInvoker(span, "app", "middleware", "CreateGenesisUser")
 
-	if err := validate(ctx, in); err != nil {
+	if err := validate(in); err != nil {
 		logger.Sugar().Errorw("CreateGenesisUser", "error", err)
 		return &npool.CreateGenesisUserResponse{}, err
 	}

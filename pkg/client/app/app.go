@@ -60,7 +60,7 @@ func UpdateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
 	return info.(*npool.App), nil
 }
 
-func GetApp(ctx context.Context, appID, userID string) (*npool.App, error) {
+func GetApp(ctx context.Context, appID string) (*npool.App, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.AppMwClient) (cruder.Any, error) {
 		resp, err := cli.GetApp(ctx, &npool.GetAppRequest{
 			AppID: appID,
@@ -76,7 +76,8 @@ func GetApp(ctx context.Context, appID, userID string) (*npool.App, error) {
 	return info.(*npool.App), nil
 }
 
-func GetApps(ctx context.Context, limit, offset int32) ([]*npool.App, error) {
+func GetApps(ctx context.Context, limit, offset int32) ([]*npool.App, uint32, error) {
+	var total uint32
 	info, err := do(ctx, func(_ctx context.Context, cli npool.AppMwClient) (cruder.Any, error) {
 		resp, err := cli.GetApps(ctx, &npool.GetAppsRequest{
 			Offset: offset,
@@ -85,12 +86,15 @@ func GetApps(ctx context.Context, limit, offset int32) ([]*npool.App, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		total = uint32(len(resp.GetInfos()))
+
 		return resp.Infos, nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, total, err
 	}
-	return info.([]*npool.App), nil
+	return info.([]*npool.App), total, nil
 }
 
 func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*npool.App, uint32, error) {
@@ -101,36 +105,6 @@ func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*np
 			Offset: offset,
 			Limit:  limit,
 		})
-		if err != nil {
-			return nil, err
-		}
-		return resp.Infos, nil
-	})
-	if err != nil {
-		return nil, 0, err
-	}
-	return infos.([]*npool.App), total, nil
-}
-
-func GetSignMethods(ctx context.Context) ([]*npool.App, uint32, error) {
-	var total uint32
-	infos, err := do(ctx, func(_ctx context.Context, cli npool.AppMwClient) (cruder.Any, error) {
-		resp, err := cli.GetSignMethods(ctx, &npool.GetSignMethodsRequest{})
-		if err != nil {
-			return nil, err
-		}
-		return resp.Infos, nil
-	})
-	if err != nil {
-		return nil, 0, err
-	}
-	return infos.([]*npool.App), total, nil
-}
-
-func GetRecaptchas(ctx context.Context) ([]*npool.App, uint32, error) {
-	var total uint32
-	infos, err := do(ctx, func(_ctx context.Context, cli npool.AppMwClient) (cruder.Any, error) {
-		resp, err := cli.GetRecaptchas(ctx, &npool.GetRecaptchasRequest{})
 		if err != nil {
 			return nil, err
 		}

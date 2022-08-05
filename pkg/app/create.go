@@ -40,7 +40,7 @@ func CreateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
 	span = commontracer.TraceInvoker(span, "app", "db", "CreateTx")
 
 	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
-		info, err := appmgrcrud.CreateTx(tx, &appmgrpb.AppReq{
+		info, err := appmgrcrud.CreateSet(tx.App.Create(), &appmgrpb.AppReq{
 			ID:          in.ID,
 			CreatedBy:   in.CreatedBy,
 			Name:        in.Name,
@@ -54,7 +54,7 @@ func CreateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
 
 		id = info.ID.String()
 
-		if _, err := appctrlmgrcrud.CreateTx(tx, &appctrlmgrpb.AppControlReq{
+		if _, err := appctrlmgrcrud.CreateSet(tx.AppControl.Create(), &appctrlmgrpb.AppControlReq{
 			AppID:               &id,
 			SignupMethods:       in.SignupMethods,
 			ExternSigninMethods: in.ExtSigninMethods,
