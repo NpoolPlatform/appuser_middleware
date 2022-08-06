@@ -111,33 +111,3 @@ func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*np
 	}
 	return infos.([]*npool.App), total, nil
 }
-
-func GetSignMethods(ctx context.Context) ([]*npool.App, uint32, error) {
-	var total uint32
-	infos, err := do(ctx, func(_ctx context.Context, cli npool.AppMwClient) (cruder.Any, error) {
-		resp, err := cli.GetSignMethods(ctx, &npool.GetSignMethodsRequest{})
-		if err != nil {
-			return nil, err
-		}
-		return resp.GetInfos(), nil
-	})
-	if err != nil {
-		return nil, 0, err
-	}
-	return infos.([]*npool.App), total, nil
-}
-
-func GetRecaptchas(ctx context.Context) ([]*npool.App, uint32, error) {
-	var total uint32
-	infos, err := do(ctx, func(_ctx context.Context, cli npool.AppMwClient) (cruder.Any, error) {
-		resp, err := cli.GetRecaptchas(ctx, &npool.GetRecaptchasRequest{})
-		if err != nil {
-			return nil, err
-		}
-		return resp.GetInfos(), nil
-	})
-	if err != nil {
-		return nil, 0, err
-	}
-	return infos.([]*npool.App), total, nil
-}
