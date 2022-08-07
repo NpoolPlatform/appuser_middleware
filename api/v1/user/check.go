@@ -66,7 +66,7 @@ func validate(info *npool.UserReq) error {
 	return nil
 }
 
-//nolint:staticcheck
+//nolint:staticcheck,nolintlint
 func Validate(info *npool.UserReq) error {
 	return validate(info)
 }

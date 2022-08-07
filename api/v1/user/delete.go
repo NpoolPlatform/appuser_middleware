@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"fmt"
+
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	mw "github.com/NpoolPlatform/appuser-middleware/pkg/user"
@@ -31,13 +32,13 @@ func (s *Server) DeleteUser(ctx context.Context, in *npool.DeleteUserRequest) (*
 
 	span = commontracer.TraceInvoker(span, "user", "middleware", "DeleteUser")
 
-	userId, err := uuid.Parse(in.GetID())
+	userID, err := uuid.Parse(in.GetID())
 	if err != nil {
 		logger.Sugar().Errorw("DeleteUser", "error", err)
 		return &npool.DeleteUserResponse{}, fmt.Errorf("UserID is invalid")
 	}
 
-	err = mw.DeleteUser(ctx, userId)
+	err = mw.DeleteUser(ctx, userID)
 	if err != nil {
 		logger.Sugar().Errorw("DeleteUser", "error", err)
 		return &npool.DeleteUserResponse{}, status.Error(codes.Internal, err.Error())

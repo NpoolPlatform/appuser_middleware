@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approleuser"
