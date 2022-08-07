@@ -13,5 +13,5 @@ const (
 	DBTimeout = 5 * time.Second
 
 	CreateUser       = "CreateUser"
-	CreateUserRevert = "CreateUserRevert"
+	CreateUserRevert = "DeleteUser"
 )
