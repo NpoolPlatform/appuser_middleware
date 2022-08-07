@@ -16,12 +16,14 @@ import (
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
+	approleusermgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/approleuser"
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
 	appusercontrolmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appusercontrol"
 	appuserextramgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuserextra"
 	appusersecretamgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appusersecret"
 	appuserthirdpartymgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuserthirdparty"
 
+	approleusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/approleuser"
 	appusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appuser"
 	appusercontrolcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appusercontrol"
 	appuserextracrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appuserextra"
@@ -130,6 +132,11 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
 			return err
 		}
 
+		approleusercrud.CreateSet(tx.AppRoleUser.Create(), &approleusermgrpb.AppRoleUserReq{
+			AppID:  in.AppID,
+			RoleID: in.ID,
+			UserID: nil,
+		})
 		return nil
 	})
 	if err != nil {
