@@ -82,7 +82,7 @@ func validate(ctx context.Context, info *npool.UserReq) error {
 				return status.Error(codes.NotFound, "RoleID no found")
 			}
 			logger.Sugar().Errorw("validate", "RoleID", val, "error", err)
-			return err
+			return status.Error(codes.Internal, err.Error())
 		}
 	}
 	return nil
