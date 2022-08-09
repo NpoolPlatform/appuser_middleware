@@ -2,46 +2,35 @@ package app
 
 import (
 	"encoding/json"
-
-	mapp "github.com/NpoolPlatform/appuser-middleware/pkg/app"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 )
 
-func Ent2Grpc(row *mapp.App) (*npool.App, error) {
+func Ent2Grpc(row *npool.App) (*npool.App, error) {
 	if row == nil {
 		return nil, nil
 	}
 
 	methods := []string{}
-	if row.SignupMethods != "" {
-		err := json.Unmarshal([]byte(row.SignupMethods), &methods)
+	if row.SignupMethodsString != "" {
+		err := json.Unmarshal([]byte(row.SignupMethodsString), &methods)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	emethods := []string{}
-	if row.ExtSigninMethods != "" {
-		err := json.Unmarshal([]byte(row.ExtSigninMethods), &emethods)
+	if row.ExtSigninMethodsString != "" {
+		err := json.Unmarshal([]byte(row.ExtSigninMethodsString), &emethods)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return &npool.App{
-		ID:                 row.ID.String(),
-		CreatedBy:          row.CreatedBy.String(),
-		Name:               row.Name,
-		Logo:               row.Logo,
-		Description:        row.Description,
-		Banned:             row.Banned,
-		BanMessage:         row.BanMessage,
-		SignupMethods:      methods,
-		ExtSigninMethods:   emethods,
-		RecaptchaMethod:    row.RecaptchaMethod,
-		KycEnable:          row.KycEnable != 0,
-		SigninVerifyEnable: row.SigninVerifyEnable != 0,
-		InvitationCodeMust: row.InvitationCodeMust != 0,
-		CreatedAt:          row.CreatedAt,
-	}, nil
+	row.SignupMethods = methods
+	row.ExtSigninMethods = emethods
+	row.KycEnable = row.KycEnableInt != 0
+	row.SigninVerifyEnable = row.SigninVerifyEnableInt != 0
+	row.InvitationCodeMust = row.InvitationCodeMustInt != 0
+
+	return row, nil
 }

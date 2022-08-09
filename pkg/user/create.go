@@ -32,7 +32,7 @@ import (
 )
 
 //nolint:funlen
-func CreateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
+func CreateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 	var id string
 	var appID string
 	var err error

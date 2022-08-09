@@ -24,7 +24,7 @@ import (
 	appctrlmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appcontrol"
 )
 
-func UpdateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
+func UpdateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
 	var err error
 
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "UpdateApp")

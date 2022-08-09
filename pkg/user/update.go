@@ -36,7 +36,7 @@ import (
 )
 
 //nolint:funlen
-func UpdateUser(ctx context.Context, in *npool.UserReq) (*User, error) {
+func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 	var id string
 	var appID string
 	var err error

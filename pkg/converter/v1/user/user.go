@@ -3,55 +3,29 @@ package user
 import (
 	"encoding/json"
 
-	mapp "github.com/NpoolPlatform/appuser-middleware/pkg/user"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 )
 
-func Ent2Grpc(row *mapp.User) *npool.User {
+func Ent2Grpc(row *npool.User) *npool.User {
 	if row == nil {
 		return nil
 	}
 
 	addressFields := []string{}
-	_ = json.Unmarshal([]byte(row.AddressFields), &addressFields)
+	_ = json.Unmarshal([]byte(row.AddressFieldsString), &addressFields)
 
-	return &npool.User{
-		ID:                                 row.ID.String(),
-		AppID:                              row.AppID.String(),
-		EmailAddress:                       row.EmailAddress,
-		PhoneNO:                            row.PhoneNO,
-		ImportedFromAppID:                  row.ImportedFromAppID.String(),
-		ImportedFromAppName:                row.ImportedFromAppName,
-		ImportedFromAppLogo:                row.ImportedFromAppLogo,
-		ImportedFromAppHome:                row.ImportedFromAppHome,
-		Username:                           row.Username,
-		AddressFields:                      addressFields,
-		Gender:                             row.Gender,
-		PostalCode:                         row.PostalCode,
-		Age:                                row.Age,
-		Birthday:                           row.Birthday,
-		Avatar:                             row.Avatar,
-		Organization:                       row.Organization,
-		FirstName:                          row.FirstName,
-		LastName:                           row.LastName,
-		IDNumber:                           row.IDNumber,
-		SigninVerifyByGoogleAuthentication: row.SigninVerifyByGoogleAuthentication != 0,
-		GoogleAuthenticationVerified:       row.GoogleAuthenticationVerified != 0,
-		Banned:                             row.Banned,
-		BanMessage:                         row.BanMessage,
-		HasGoogleSecret:                    row.HasGoogleSecret,
-		Roles:                              row.Roles,
-		Logined:                            false,
-		LoginAccount:                       "",
-		LoginAccountType:                   "",
-		LoginToken:                         "",
-		LoginClientIP:                      "",
-		LoginClientUserAgent:               "",
-		CreateAt:                           row.CreatedAt,
+	row.AddressFields = addressFields
+	row.SigninVerifyByGoogleAuthentication = row.SigninVerifyByGoogleAuthenticationInt != 0
+	row.GoogleAuthenticationVerified = row.GoogleAuthenticationVerifiedInt != 0
+
+	row.Banned = false
+	if row.GetBanAppUserID() != "" {
+		row.Banned = true
 	}
+	return row
 }
 
-func Ent2GrpcMany(rows []*mapp.User) []*npool.User {
+func Ent2GrpcMany(rows []*npool.User) []*npool.User {
 	users := []*npool.User{}
 	for _, row := range rows {
 		users = append(users, Ent2Grpc(row))

@@ -21,11 +21,13 @@ import (
 	"go.opentelemetry.io/otel"
 
 	"github.com/google/uuid"
+
+	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 )
 
-func GetApp(ctx context.Context, id string) (*App, error) {
+func GetApp(ctx context.Context, id string) (*app.App, error) {
 	var err error
-	infos := []*App{}
+	infos := []*app.App{}
 
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetApp")
 	defer span.End()
@@ -66,9 +68,9 @@ func GetApp(ctx context.Context, id string) (*App, error) {
 	return infos[0], nil
 }
 
-func GetApps(ctx context.Context, offset, limit int32) ([]*App, error) {
+func GetApps(ctx context.Context, offset, limit int32) ([]*app.App, error) {
 	var err error
-	infos := []*App{}
+	infos := []*app.App{}
 
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetApps")
 	defer span.End()
@@ -101,9 +103,9 @@ func GetApps(ctx context.Context, offset, limit int32) ([]*App, error) {
 	return infos, nil
 }
 
-func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*App, error) {
+func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*app.App, error) {
 	var err error
-	infos := []*App{}
+	infos := []*app.App{}
 
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUserApps")
 	defer span.End()

@@ -5,7 +5,7 @@ import (
 	"context"
 
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	capp "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/user"
+	cuser "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/user"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/user"
 	mw "github.com/NpoolPlatform/appuser-middleware/pkg/user"
@@ -47,6 +47,6 @@ func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*
 	}
 
 	return &npool.CreateUserResponse{
-		Info: capp.Ent2Grpc(info),
+		Info: cuser.Ent2Grpc(info),
 	}, nil
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/NpoolPlatform/appuser-manager/pkg/middleware/encrypt"
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/user"
+	userpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
 	approlecrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/approle"
 	appusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appuser"
@@ -27,7 +28,7 @@ import (
 	scodes "go.opentelemetry.io/otel/codes"
 )
 
-func CreateGenesisUser(ctx context.Context, in *admin.CreateGenesisUserRequest) (*user.User, error) {
+func CreateGenesisUser(ctx context.Context, in *admin.CreateGenesisUserRequest) (*userpb.User, error) {
 	var err error
 
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "CreateGenesisUser")

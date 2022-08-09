@@ -25,12 +25,13 @@ import (
 
 	entsecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
 	entbanappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banappuser"
+	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
 	"github.com/google/uuid"
 )
 
-func GetUser(ctx context.Context, appID, userID string) (*User, error) {
-	var infos []*User
+func GetUser(ctx context.Context, appID, userID string) (*user.User, error) {
+	var infos []*user.User
 	var err error
 
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUser")
@@ -79,8 +80,8 @@ func GetUser(ctx context.Context, appID, userID string) (*User, error) {
 	return infos[0], nil
 }
 
-func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*User, error) {
-	var infos []*User
+func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*user.User, error) {
+	var infos []*user.User
 	var err error
 
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUsers")
@@ -114,7 +115,7 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*User, 
 
 	users := []string{}
 	for _, info := range infos {
-		users = append(users, info.ID.String())
+		users = append(users, info.ID)
 	}
 
 	span = commontracer.TraceInvoker(span, "user", "method", "expand")
@@ -127,8 +128,8 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*User, 
 	return infos, nil
 }
 
-func GetManyUsers(ctx context.Context, userIDs []string) ([]*User, error) {
-	var infos []*User
+func GetManyUsers(ctx context.Context, userIDs []string) ([]*user.User, error) {
+	var infos []*user.User
 	var err error
 
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyUsers")
@@ -164,7 +165,7 @@ func GetManyUsers(ctx context.Context, userIDs []string) ([]*User, error) {
 	}
 
 	for _, info := range infos {
-		info.Banned = info.BanAppUserID.String() != uuid.UUID{}.String()
+		info.Banned = info.BanAppUserID != uuid.UUID{}.String()
 	}
 
 	span = commontracer.TraceInvoker(span, "user", "method", "expand")
@@ -177,7 +178,7 @@ func GetManyUsers(ctx context.Context, userIDs []string) ([]*User, error) {
 	return infos, nil
 }
 
-func expand(ctx context.Context, userIDs []string, users []*User) ([]*User, error) {
+func expand(ctx context.Context, userIDs []string, users []*user.User) ([]*user.User, error) {
 	type extra struct {
 		UserID       uuid.UUID `json:"user_id"`
 		GoogleSecret string    `json:"google_secret"`
@@ -242,7 +243,7 @@ func expand(ctx context.Context, userIDs []string, users []*User) ([]*User, erro
 
 	for _, info := range infos {
 		for _, user := range users {
-			if info.UserID == user.ID {
+			if info.UserID.String() == user.ID {
 				user.HasGoogleSecret = info.GoogleSecret != ""
 				user.Roles = append(user.Roles, info.RoleName)
 				break

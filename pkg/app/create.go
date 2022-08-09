@@ -22,7 +22,7 @@ import (
 	appctrlmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appcontrol"
 )
 
-func CreateApp(ctx context.Context, in *npool.AppReq) (*App, error) {
+func CreateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
 	var id string
 	var err error
 
