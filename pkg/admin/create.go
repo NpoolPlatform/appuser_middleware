@@ -55,8 +55,8 @@ func CreateGenesisUser(ctx context.Context, in *admin.CreateGenesisUserRequest) 
 			Op:    cruder.EQ,
 		},
 	})
-	if err != nil {
-		logger.Sugar().Errorw("CreateGenesisUser", "error", err)
+	if err != nil || roleInfo == nil {
+		logger.Sugar().Errorw("CreateGenesisUser", "roleInfo", roleInfo, "error", err)
 		return nil, err
 	}
 
