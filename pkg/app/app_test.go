@@ -1,4 +1,3 @@
-//nolint:dupl
 package app
 
 import (
@@ -28,26 +27,26 @@ func init() {
 var (
 	uuidSlice     = []string{uuid.NewString()}
 	uuidSliceS, _ = json.Marshal(uuidSlice)
-	appInfo       = App{
-		ID:                 uuid.New(),
-		CreatedBy:          uuid.New(),
-		Name:               uuid.NewString(),
-		Logo:               uuid.NewString(),
-		Description:        uuid.NewString(),
-		Banned:             false,
-		SignupMethods:      string(uuidSliceS),
-		ExtSigninMethods:   string(uuidSliceS),
-		RecaptchaMethod:    uuid.NewString(),
-		KycEnable:          1,
-		SigninVerifyEnable: 1,
-		InvitationCodeMust: 1,
+	appInfo       = npool.App{
+		ID:                     uuid.NewString(),
+		CreatedBy:              uuid.NewString(),
+		Name:                   uuid.NewString(),
+		Logo:                   uuid.NewString(),
+		Description:            uuid.NewString(),
+		Banned:                 false,
+		SignupMethodsString:    string(uuidSliceS),
+		ExtSigninMethodsString: string(uuidSliceS),
+		RecaptchaMethod:        uuid.NewString(),
+		KycEnableInt:           1,
+		SigninVerifyEnableInt:  1,
+		InvitationCodeMustInt:  1,
 	}
 )
 
 func creatApp(t *testing.T) {
 	var (
-		id        = appInfo.ID.String()
-		createdBy = appInfo.CreatedBy.String()
+		id        = appInfo.ID
+		createdBy = appInfo.CreatedBy
 		boolVal   = true
 		appReq    = npool.AppReq{
 			ID:                 &id,
@@ -74,12 +73,10 @@ func creatApp(t *testing.T) {
 
 func updateApp(t *testing.T) {
 	var (
-		id        = appInfo.ID.String()
-		createdBy = appInfo.CreatedBy.String()
-		boolVal   = true
-		appReq    = npool.AppReq{
-			ID:                 &id,
-			CreatedBy:          &createdBy,
+		boolVal = true
+		appReq  = npool.AppReq{
+			ID:                 &appInfo.ID,
+			CreatedBy:          &appInfo.Name,
 			Name:               &appInfo.Name,
 			Logo:               &appInfo.Logo,
 			Description:        &appInfo.Description,
@@ -101,7 +98,7 @@ func updateApp(t *testing.T) {
 }
 
 func getApp(t *testing.T) {
-	info, err := GetApp(context.Background(), appInfo.ID.String())
+	info, err := GetApp(context.Background(), appInfo.ID)
 	if assert.Nil(t, err) {
 		info.CreatedAt = appInfo.CreatedAt
 		assert.Equal(t, info, &appInfo)
@@ -116,7 +113,7 @@ func getApps(t *testing.T) {
 }
 
 func getUserApps(t *testing.T) {
-	infos, err := GetUserApps(context.Background(), appInfo.CreatedBy.String(), 0, 1)
+	infos, err := GetUserApps(context.Background(), appInfo.CreatedBy, 0, 1)
 	if !assert.Nil(t, err) {
 		infos[0].CreatedAt = appInfo.CreatedAt
 		assert.Equal(t, infos[0], &appInfo)

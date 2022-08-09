@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 )
 

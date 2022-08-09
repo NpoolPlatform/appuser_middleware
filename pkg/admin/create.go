@@ -3,6 +3,8 @@ package admin
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	approleusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/approleuser"
 	appusersecretcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appusersecret"
 	"github.com/NpoolPlatform/appuser-manager/pkg/middleware/encrypt"
@@ -59,12 +61,14 @@ func CreateGenesisUser(ctx context.Context, in *admin.CreateGenesisUserRequest) 
 	}
 
 	roleID := roleInfo.ID.String()
+	importFromApp := uuid.NewString()
 
 	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
 		if _, err := appusercrud.CreateSet(tx.AppUser.Create(), &appusermgrpb.AppUserReq{
-			ID:           in.UserID,
-			AppID:        in.AppID,
-			EmailAddress: in.EmailAddress,
+			ID:            in.UserID,
+			AppID:         in.AppID,
+			EmailAddress:  in.EmailAddress,
+			ImportFromApp: &importFromApp,
 		}).Save(ctx); err != nil {
 			logger.Sugar().Errorw("CreateGenesisUser", "error", err)
 			return err

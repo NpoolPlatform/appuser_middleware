@@ -1,4 +1,3 @@
-//nolint:dupl
 package user
 
 import (
@@ -28,38 +27,35 @@ func init() {
 var (
 	uuidSlice     = []string{uuid.NewString()}
 	uuidSliceS, _ = json.Marshal(uuidSlice)
-	userInfo      = User{
-		ID:                                 uuid.New(),
-		AppID:                              uuid.New(),
-		EmailAddress:                       uuid.NewString(),
-		PhoneNO:                            uuid.NewString(),
-		ImportedFromAppID:                  uuid.New(),
-		CreatedAt:                          0,
-		Username:                           uuid.NewString(),
-		AddressFields:                      string(uuidSliceS),
-		Gender:                             uuid.NewString(),
-		PostalCode:                         uuid.NewString(),
-		Age:                                0,
-		Birthday:                           0,
-		Avatar:                             uuid.NewString(),
-		Organization:                       uuid.NewString(),
-		FirstName:                          uuid.NewString(),
-		LastName:                           uuid.NewString(),
-		IDNumber:                           uuid.NewString(),
-		SigninVerifyByGoogleAuthentication: 1,
-		GoogleAuthenticationVerified:       1,
-		Banned:                             false,
-		HasGoogleSecret:                    true,
-		Roles:                              []string{""},
+	userInfo      = npool.User{
+		ID:                                    uuid.NewString(),
+		AppID:                                 uuid.NewString(),
+		EmailAddress:                          uuid.NewString(),
+		PhoneNO:                               uuid.NewString(),
+		ImportedFromAppID:                     uuid.NewString(),
+		Username:                              uuid.NewString(),
+		AddressFieldsString:                   string(uuidSliceS),
+		Gender:                                uuid.NewString(),
+		PostalCode:                            uuid.NewString(),
+		Age:                                   0,
+		Birthday:                              0,
+		Avatar:                                uuid.NewString(),
+		Organization:                          uuid.NewString(),
+		FirstName:                             uuid.NewString(),
+		LastName:                              uuid.NewString(),
+		IDNumber:                              uuid.NewString(),
+		SigninVerifyByGoogleAuthenticationInt: 0,
+		GoogleAuthenticationVerifiedInt:       0,
+		HasGoogleSecret:                       true,
+		Roles:                                 []string{""},
 	}
 )
 
 func creatUser(t *testing.T) {
 	var (
-		id                = userInfo.ID.String()
-		appID             = userInfo.AppID.String()
-		importedFromAppID = userInfo.ImportedFromAppID.String()
-		boolVal           = true
+		id                = userInfo.ID
+		appID             = userInfo.AppID
+		importedFromAppID = userInfo.ImportedFromAppID
 		strVal            = "AAA"
 		userReq           = npool.UserReq{
 			ID:                           &id,
@@ -78,8 +74,8 @@ func creatUser(t *testing.T) {
 			FirstName:                    &userInfo.FirstName,
 			LastName:                     &userInfo.LastName,
 			IDNumber:                     &userInfo.IDNumber,
-			SigninVerifyByGoogleAuth:     &boolVal,
-			GoogleAuthenticationVerified: &boolVal,
+			SigninVerifyByGoogleAuth:     &userInfo.SigninVerifyByGoogleAuthentication,
+			GoogleAuthenticationVerified: &userInfo.GoogleAuthenticationVerified,
 			PasswordHash:                 &strVal,
 			GoogleSecret:                 &appID,
 			ThirdPartyID:                 &strVal,
@@ -92,24 +88,21 @@ func creatUser(t *testing.T) {
 	)
 	info, err := CreateUser(context.Background(), &userReq)
 	if assert.Nil(t, err) {
-		info.CreatedAt = userInfo.CreatedAt
+		userInfo.CreateAt = info.CreateAt
 		assert.Equal(t, info, &userInfo)
 	}
 }
 
 func updateUser(t *testing.T) {
 	var (
-		id                = userInfo.ID.String()
-		appID             = userInfo.AppID.String()
-		importedFromAppID = userInfo.ImportedFromAppID.String()
-		boolVal           = true
-		strVal            = "AAA"
-		userReq           = npool.UserReq{
-			ID:                           &id,
-			AppID:                        &appID,
+		appID   = userInfo.AppID
+		strVal  = "AAA"
+		userReq = npool.UserReq{
+			ID:                           &userInfo.ID,
+			AppID:                        &userInfo.AppID,
 			EmailAddress:                 &userInfo.EmailAddress,
 			PhoneNO:                      &userInfo.PhoneNO,
-			ImportedFromAppID:            &importedFromAppID,
+			ImportedFromAppID:            &userInfo.ImportedFromAppID,
 			Username:                     &userInfo.Username,
 			AddressFields:                uuidSlice,
 			Gender:                       &userInfo.Gender,
@@ -121,8 +114,8 @@ func updateUser(t *testing.T) {
 			FirstName:                    &userInfo.FirstName,
 			LastName:                     &userInfo.LastName,
 			IDNumber:                     &userInfo.IDNumber,
-			SigninVerifyByGoogleAuth:     &boolVal,
-			GoogleAuthenticationVerified: &boolVal,
+			SigninVerifyByGoogleAuth:     &userInfo.SigninVerifyByGoogleAuthentication,
+			GoogleAuthenticationVerified: &userInfo.GoogleAuthenticationVerified,
 			PasswordHash:                 &strVal,
 			GoogleSecret:                 &appID,
 			ThirdPartyID:                 &strVal,
@@ -135,31 +128,28 @@ func updateUser(t *testing.T) {
 	)
 	info, err := UpdateUser(context.Background(), &userReq)
 	if assert.Nil(t, err) {
-		info.CreatedAt = userInfo.CreatedAt
 		info.Roles = userInfo.Roles
 		assert.Equal(t, info, &userInfo)
 	}
 }
 
 func getUser(t *testing.T) {
-	info, err := GetUser(context.Background(), userInfo.AppID.String(), userInfo.ID.String())
+	info, err := GetUser(context.Background(), userInfo.AppID, userInfo.ID)
 	if assert.Nil(t, err) {
-		info.CreatedAt = userInfo.CreatedAt
 		assert.Equal(t, info, &userInfo)
 	}
 }
 
 func getUsers(t *testing.T) {
-	infos, err := GetUsers(context.Background(), userInfo.AppID.String(), 0, 1)
+	infos, err := GetUsers(context.Background(), userInfo.AppID, 0, 1)
 	if !assert.Nil(t, err) {
 		assert.NotEqual(t, len(infos), 0)
 	}
 }
 
 func getManyUsers(t *testing.T) {
-	infos, err := GetManyUsers(context.Background(), []string{userInfo.ID.String()})
+	infos, err := GetManyUsers(context.Background(), []string{userInfo.ID})
 	if !assert.Nil(t, err) {
-		infos[0].CreatedAt = userInfo.CreatedAt
 		assert.Equal(t, infos[0], &userInfo)
 	}
 }
