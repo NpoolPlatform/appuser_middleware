@@ -34,7 +34,7 @@ func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*
 
 	span = tracer.Trace(span, in.GetInfo())
 
-	if err := validate(in.GetInfo()); err != nil {
+	if err := validate(ctx, in.GetInfo()); err != nil {
 		logger.Sugar().Errorw("UpdateUser", "error", err)
 		return &npool.UpdateUserResponse{}, err
 	}

@@ -132,11 +132,19 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 			return err
 		}
 
-		approleusercrud.CreateSet(tx.AppRoleUser.Create(), &approleusermgrpb.AppRoleUserReq{
-			AppID:  in.AppID,
-			RoleID: in.ID,
-			UserID: nil,
-		})
+		bulk := make([]*ent.AppRoleUserCreate, len(in.RoleIDs))
+		for key := range in.RoleIDs {
+			bulk[key] = approleusercrud.CreateSet(tx.AppRoleUser.Create(), &approleusermgrpb.AppRoleUserReq{
+				AppID:  in.AppID,
+				RoleID: &in.RoleIDs[key],
+				UserID: in.ID,
+			})
+		}
+		if _, err := tx.AppRoleUser.CreateBulk(bulk...).Save(ctx); err != nil {
+			logger.Sugar().Errorw("CreateUser", "error", err)
+			return err
+		}
+
 		return nil
 	})
 	if err != nil {

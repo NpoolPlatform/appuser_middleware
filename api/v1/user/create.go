@@ -33,7 +33,7 @@ func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*
 
 	span = tracer.Trace(span, in.GetInfo())
 
-	if err := validate(in.GetInfo()); err != nil {
+	if err := validate(ctx, in.GetInfo()); err != nil {
 		logger.Sugar().Errorw("CreateUser", "error", err)
 		return &npool.CreateUserResponse{}, err
 	}
