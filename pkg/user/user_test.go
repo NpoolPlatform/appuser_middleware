@@ -7,13 +7,6 @@ import (
 	"os"
 	"strconv"
 	"testing"
-	"time"
-
-	"bou.ke/monkey"
-	"github.com/NpoolPlatform/go-service-framework/pkg/config"
-	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	"github.com/google/uuid"
@@ -42,20 +35,17 @@ var (
 		ImportedFromAppID:                     uuid.NewString(),
 		Username:                              uuid.NewString(),
 		AddressFieldsString:                   string(uuidSliceS),
-		AddressFields:                         uuidSlice,
 		Gender:                                uuid.NewString(),
 		PostalCode:                            uuid.NewString(),
-		Age:                                   100,
-		Birthday:                              uint32(time.Now().Unix()),
+		Age:                                   0,
+		Birthday:                              0,
 		Avatar:                                uuid.NewString(),
 		Organization:                          uuid.NewString(),
 		FirstName:                             uuid.NewString(),
 		LastName:                              uuid.NewString(),
 		IDNumber:                              uuid.NewString(),
-		SigninVerifyByGoogleAuthenticationInt: 1,
-		SigninVerifyByGoogleAuthentication:    true,
-		GoogleAuthenticationVerifiedInt:       1,
-		GoogleAuthenticationVerified:          true,
+		SigninVerifyByGoogleAuthenticationInt: 0,
+		GoogleAuthenticationVerifiedInt:       0,
 		HasGoogleSecret:                       true,
 		Roles:                                 []string{""},
 	}
@@ -168,13 +158,6 @@ func TestMainOrder(t *testing.T) {
 	if runByGithubAction, err := strconv.ParseBool(os.Getenv("RUN_BY_GITHUB_ACTION")); err == nil && runByGithubAction {
 		return
 	}
-
-	gport := config.GetIntValueWithNameSpace("", config.KeyGRPCPort)
-
-	monkey.Patch(grpc2.GetGRPCConn, func(service string, tags ...string) (*grpc.ClientConn, error) {
-		return grpc.Dial(fmt.Sprintf("localhost:%v", gport), grpc.WithTransportCredentials(insecure.NewCredentials()))
-	})
-
 	t.Run("creatUser", creatUser)
 	t.Run("updateUser", updateUser)
 	t.Run("getUser", getUser)

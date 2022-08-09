@@ -8,12 +8,6 @@ import (
 	"strconv"
 	"testing"
 
-	"bou.ke/monkey"
-	"github.com/NpoolPlatform/go-service-framework/pkg/config"
-	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -41,16 +35,11 @@ var (
 		Description:            uuid.NewString(),
 		Banned:                 false,
 		SignupMethodsString:    string(uuidSliceS),
-		SignupMethods:          uuidSlice,
 		ExtSigninMethodsString: string(uuidSliceS),
-		ExtSigninMethods:       uuidSlice,
 		RecaptchaMethod:        uuid.NewString(),
 		KycEnableInt:           1,
-		KycEnable:              true,
 		SigninVerifyEnableInt:  1,
-		SigninVerifyEnable:     true,
 		InvitationCodeMustInt:  1,
-		InvitationCodeMust:     true,
 	}
 )
 
@@ -117,14 +106,14 @@ func getApp(t *testing.T) {
 }
 
 func getApps(t *testing.T) {
-	infos, _, err := GetApps(context.Background(), 0, 1)
+	infos, err := GetApps(context.Background(), 0, 1)
 	if !assert.Nil(t, err) {
 		assert.NotEqual(t, len(infos), 0)
 	}
 }
 
 func getUserApps(t *testing.T) {
-	infos, _, err := GetUserApps(context.Background(), appInfo.CreatedBy, 0, 1)
+	infos, err := GetUserApps(context.Background(), appInfo.CreatedBy, 0, 1)
 	if !assert.Nil(t, err) {
 		infos[0].CreatedAt = appInfo.CreatedAt
 		assert.Equal(t, infos[0], &appInfo)
@@ -135,12 +124,6 @@ func TestMainOrder(t *testing.T) {
 	if runByGithubAction, err := strconv.ParseBool(os.Getenv("RUN_BY_GITHUB_ACTION")); err == nil && runByGithubAction {
 		return
 	}
-
-	gport := config.GetIntValueWithNameSpace("", config.KeyGRPCPort)
-
-	monkey.Patch(grpc2.GetGRPCConn, func(service string, tags ...string) (*grpc.ClientConn, error) {
-		return grpc.Dial(fmt.Sprintf("localhost:%v", gport), grpc.WithTransportCredentials(insecure.NewCredentials()))
-	})
 	t.Run("createApp", creatApp)
 	t.Run("updateApp", updateApp)
 	t.Run("getApp", getApp)

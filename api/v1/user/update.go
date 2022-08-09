@@ -4,7 +4,7 @@ package user
 import (
 	"context"
 
-	capp "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/user"
+	cuser "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/user"
 
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
@@ -34,7 +34,7 @@ func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*
 
 	span = tracer.Trace(span, in.GetInfo())
 
-	if err := validate(in.GetInfo()); err != nil {
+	if err := validate(ctx, in.GetInfo()); err != nil {
 		logger.Sugar().Errorw("UpdateUser", "error", err)
 		return &npool.UpdateUserResponse{}, err
 	}
@@ -48,6 +48,6 @@ func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*
 	}
 
 	return &npool.UpdateUserResponse{
-		Info: capp.Ent2Grpc(info),
+		Info: cuser.Ent2Grpc(info),
 	}, nil
 }

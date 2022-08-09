@@ -5,7 +5,7 @@ import (
 	"context"
 
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	capp "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/user"
+	cuser "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/user"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/user"
 	mw "github.com/NpoolPlatform/appuser-middleware/pkg/user"
@@ -33,12 +33,12 @@ func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*
 
 	span = tracer.Trace(span, in.GetInfo())
 
-	if err := validate(in.GetInfo()); err != nil {
+	if err := validate(ctx, in.GetInfo()); err != nil {
 		logger.Sugar().Errorw("CreateUser", "error", err)
 		return &npool.CreateUserResponse{}, err
 	}
 
-	span = commontracer.TraceInvoker(span, "user", "middleware", "CreateApp")
+	span = commontracer.TraceInvoker(span, "user", "middleware", "CreateUser")
 
 	info, err := mw.CreateUser(ctx, in.GetInfo())
 	if err != nil {
@@ -47,6 +47,6 @@ func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*
 	}
 
 	return &npool.CreateUserResponse{
-		Info: capp.Ent2Grpc(info),
+		Info: cuser.Ent2Grpc(info),
 	}, nil
 }

@@ -14,7 +14,6 @@ import (
 
 func validate(info *npool.AppReq) error {
 	err := app.Validate(&mgrapp.AppReq{
-		ID:          info.ID,
 		Description: info.Description,
 		CreatedBy:   info.CreatedBy,
 		Name:        info.Name,
@@ -26,13 +25,7 @@ func validate(info *npool.AppReq) error {
 	}
 
 	err = appcontrol.Validate(&mgrappcontrol.AppControlReq{
-		AppID:               info.ID,
-		SignupMethods:       info.SignupMethods,
-		ExternSigninMethods: info.ExtSigninMethods,
-		RecaptchaMethod:     info.RecaptchaMethod,
-		KycEnable:           info.KycEnable,
-		SigninVerifyEnable:  info.SigninVerifyEnable,
-		InvitationCodeMust:  info.InvitationCodeMust,
+		AppID: info.ID,
 	})
 	if err != nil {
 		logger.Sugar().Errorw("validate", err.Error())
@@ -40,4 +33,8 @@ func validate(info *npool.AppReq) error {
 	}
 
 	return nil
+}
+
+func Validate(info *npool.AppReq) error {
+	return validate(info)
 }
