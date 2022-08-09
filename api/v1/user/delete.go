@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	mw "github.com/NpoolPlatform/appuser-middleware/pkg/user"
