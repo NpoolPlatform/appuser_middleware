@@ -80,9 +80,10 @@ func GetUser(ctx context.Context, appID, userID string) (*user.User, error) {
 	return infos[0], nil
 }
 
-func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*user.User, error) {
+func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*user.User, int, error) {
 	var infos []*user.User
 	var err error
+	var total int
 
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUsers")
 	defer span.End()
@@ -101,7 +102,15 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*user.U
 			Query().
 			Where(
 				entuser.AppID(uuid.MustParse(appID)),
-			).
+			)
+
+		total, err = stm.Count(ctx)
+		if err != nil {
+			logger.Sugar().Errorw("GetUsers", "err", err.Error())
+			return err
+		}
+
+		stm.
 			Offset(int(offset)).
 			Limit(int(limit))
 
@@ -110,7 +119,7 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*user.U
 	})
 	if err != nil {
 		logger.Sugar().Errorw("GetUsers", "err", err.Error())
-		return nil, err
+		return nil, 0, err
 	}
 
 	users := []string{}
@@ -122,15 +131,16 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*user.U
 
 	infos, err = expand(ctx, users, infos)
 	if err != nil {
-		return nil, err
+		return nil, total, err
 	}
 
-	return infos, nil
+	return infos, total, nil
 }
 
-func GetManyUsers(ctx context.Context, userIDs []string) ([]*user.User, error) {
+func GetManyUsers(ctx context.Context, userIDs []string) ([]*user.User, int, error) {
 	var infos []*user.User
 	var err error
+	var total int
 
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyUsers")
 	defer span.End()
@@ -155,13 +165,18 @@ func GetManyUsers(ctx context.Context, userIDs []string) ([]*user.User, error) {
 			Where(
 				entuser.IDIn(users...),
 			)
+		total, err = stm.Count(ctx)
+		if err != nil {
+			logger.Sugar().Errorw("GetUsers", "err", err.Error())
+			return err
+		}
 
 		return join(stm).
 			Scan(ctx, &infos)
 	})
 	if err != nil {
 		logger.Sugar().Errorw("GetManyUsers", "err", err.Error())
-		return nil, err
+		return nil, 0, err
 	}
 
 	for _, info := range infos {
@@ -172,10 +187,10 @@ func GetManyUsers(ctx context.Context, userIDs []string) ([]*user.User, error) {
 
 	infos, err = expand(ctx, userIDs, infos)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return infos, nil
+	return infos, total, nil
 }
 
 func expand(ctx context.Context, userIDs []string, users []*user.User) ([]*user.User, error) {
@@ -303,7 +318,7 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 				LeftJoin(t3).
 				On(
 					s.C(entuser.FieldImportFromApp),
-					t2.C(entapp.FieldID),
+					t3.C(entapp.FieldID),
 				).
 				AppendSelect(
 					sql.As(t3.C(entapp.FieldName), "imported_from_app_name"),
@@ -315,7 +330,7 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 				LeftJoin(t4).
 				On(
 					s.C(entuser.FieldID),
-					t2.C(entbanappuser.FieldUserID),
+					t4.C(entbanappuser.FieldUserID),
 				).
 				AppendSelect(
 					sql.As(t4.C(entbanappuser.FieldID), "ban_app_user_id"),

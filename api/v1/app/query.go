@@ -116,7 +116,7 @@ func (s *Server) GetUserApps(ctx context.Context, in *npool.GetUserAppsRequest) 
 
 	span = commontracer.TraceInvoker(span, "app", "middleware", "GetUserApps")
 
-	infos, err := mapp.GetUserApps(ctx, in.GetUserID(), in.GetOffset(), in.GetLimit())
+	infos, total, err := mapp.GetUserApps(ctx, in.GetUserID(), in.GetOffset(), in.GetLimit())
 	if err != nil {
 		logger.Sugar().Errorw("GetUserApps", "error", err)
 		return &npool.GetUserAppsResponse{}, status.Error(codes.Internal, "fail get user apps")
@@ -134,6 +134,6 @@ func (s *Server) GetUserApps(ctx context.Context, in *npool.GetUserAppsRequest) 
 
 	return &npool.GetUserAppsResponse{
 		Infos: resp,
-		Total: uint32(len(resp)),
+		Total: uint32(total),
 	}, nil
 }

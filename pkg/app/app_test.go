@@ -113,7 +113,7 @@ func getApps(t *testing.T) {
 }
 
 func getUserApps(t *testing.T) {
-	infos, err := GetUserApps(context.Background(), appInfo.CreatedBy, 0, 1)
+	infos, _, err := GetUserApps(context.Background(), appInfo.CreatedBy, 0, 1)
 	if !assert.Nil(t, err) {
 		infos[0].CreatedAt = appInfo.CreatedAt
 		assert.Equal(t, infos[0], &appInfo)

@@ -76,7 +76,7 @@ func GetApp(ctx context.Context, appID string) (*npool.App, error) {
 	return info.(*npool.App), nil
 }
 
-func GetApps(ctx context.Context, limit, offset int32) ([]*npool.App, uint32, error) {
+func GetApps(ctx context.Context, offset, limit int32) ([]*npool.App, uint32, error) {
 	var total uint32
 	info, err := do(ctx, func(_ctx context.Context, cli npool.AppMwClient) (cruder.Any, error) {
 		resp, err := cli.GetApps(ctx, &npool.GetAppsRequest{
