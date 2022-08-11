@@ -141,14 +141,14 @@ func getUser(t *testing.T) {
 }
 
 func getUsers(t *testing.T) {
-	infos, err := GetUsers(context.Background(), userInfo.AppID, 0, 1)
+	infos, _, err := GetUsers(context.Background(), userInfo.AppID, 0, 1)
 	if !assert.Nil(t, err) {
 		assert.NotEqual(t, len(infos), 0)
 	}
 }
 
 func getManyUsers(t *testing.T) {
-	infos, err := GetManyUsers(context.Background(), []string{userInfo.ID})
+	infos, _, err := GetManyUsers(context.Background(), []string{userInfo.ID})
 	if !assert.Nil(t, err) {
 		assert.Equal(t, infos[0], &userInfo)
 	}

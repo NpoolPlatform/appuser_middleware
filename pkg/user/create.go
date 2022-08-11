@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"github.com/google/uuid"
 
 	"github.com/NpoolPlatform/appuser-manager/pkg/middleware/encrypt"
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
@@ -50,13 +51,18 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 
 	span = commontracer.TraceInvoker(span, "user", "db", "CreateTx")
 
+	importedFromAppID := uuid.UUID{}.String()
+
+	if in.ImportedFromAppID != nil {
+		importedFromAppID = in.GetImportedFromAppID()
+	}
 	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
 		info, err := appusercrud.CreateSet(tx.AppUser.Create(), &appusermgrpb.AppUserReq{
 			ID:            in.ID,
 			AppID:         in.AppID,
 			PhoneNo:       in.PhoneNO,
 			EmailAddress:  in.EmailAddress,
-			ImportFromApp: in.ImportedFromAppID,
+			ImportFromApp: &importedFromAppID,
 		}).Save(ctx)
 		if err != nil {
 			logger.Sugar().Errorw("CreateUser", "error", err)
@@ -107,29 +113,31 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 				return err
 			}
 			password = &passwordStr
+
+			if _, err = appusersecretcrud.CreateSet(tx.AppUserSecret.Create(), &appusersecretamgrpb.AppUserSecretReq{
+				AppID:        in.AppID,
+				UserID:       in.ID,
+				PasswordHash: password,
+				Salt:         salt,
+				GoogleSecret: in.GoogleSecret,
+			}).Save(ctx); err != nil {
+				logger.Sugar().Errorw("CreateUser", "error", err)
+				return err
+			}
 		}
 
-		if _, err = appusersecretcrud.CreateSet(tx.AppUserSecret.Create(), &appusersecretamgrpb.AppUserSecretReq{
-			AppID:        in.AppID,
-			UserID:       in.ID,
-			PasswordHash: password,
-			Salt:         salt,
-			GoogleSecret: in.GoogleSecret,
-		}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("CreateUser", "error", err)
-			return err
-		}
-
-		if _, err = appuserthirdpartycrud.CreateSet(tx.AppUserThirdParty.Create(), &appuserthirdpartymgrpb.AppUserThirdPartyReq{
-			AppID:                in.AppID,
-			UserID:               in.ID,
-			ThirdPartyID:         in.ThirdPartyID,
-			ThirdPartyUserID:     in.ThirdPartyUserID,
-			ThirdPartyUsername:   in.ThirdPartyUsername,
-			ThirdPartyUserAvatar: in.ThirdPartyUserAvatar,
-		}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("CreateUser", "error", err)
-			return err
+		if in.ThirdPartyID != nil {
+			if _, err = appuserthirdpartycrud.CreateSet(tx.AppUserThirdParty.Create(), &appuserthirdpartymgrpb.AppUserThirdPartyReq{
+				AppID:                in.AppID,
+				UserID:               in.ID,
+				ThirdPartyID:         in.ThirdPartyID,
+				ThirdPartyUserID:     in.ThirdPartyUserID,
+				ThirdPartyUsername:   in.ThirdPartyUsername,
+				ThirdPartyUserAvatar: in.ThirdPartyUserAvatar,
+			}).Save(ctx); err != nil {
+				logger.Sugar().Errorw("CreateUser", "error", err)
+				return err
+			}
 		}
 
 		bulk := make([]*ent.AppRoleUserCreate, len(in.RoleIDs))

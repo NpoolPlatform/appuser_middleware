@@ -79,7 +79,7 @@ func (s *Server) GetUsers(ctx context.Context, in *npool.GetUsersRequest) (*npoo
 
 	span = commontracer.TraceInvoker(span, "user", "middleware", "GetUsers")
 
-	infos, err := muser.GetUsers(ctx, in.GetAppID(), in.GetOffset(), in.GetLimit())
+	infos, total, err := muser.GetUsers(ctx, in.GetAppID(), in.GetOffset(), in.GetLimit())
 	if err != nil {
 		logger.Sugar().Errorw("GetUsers", "error", err)
 		return &npool.GetUsersResponse{}, status.Error(codes.Internal, "fail get users")
@@ -87,6 +87,7 @@ func (s *Server) GetUsers(ctx context.Context, in *npool.GetUsersRequest) (*npoo
 
 	return &npool.GetUsersResponse{
 		Infos: cuser.Ent2GrpcMany(infos),
+		Total: uint32(total),
 	}, nil
 }
 
@@ -118,7 +119,7 @@ func (s *Server) GetManyUsers(ctx context.Context, in *npool.GetManyUsersRequest
 
 	span = commontracer.TraceInvoker(span, "user", "middleware", "GetManyUsers")
 
-	infos, err := muser.GetManyUsers(ctx, in.GetIDs())
+	infos, total, err := muser.GetManyUsers(ctx, in.GetIDs())
 	if err != nil {
 		logger.Sugar().Errorw("GetManyUsers", "error", err)
 		return &npool.GetManyUsersResponse{}, status.Error(codes.Internal, "fail get many users")
@@ -126,5 +127,6 @@ func (s *Server) GetManyUsers(ctx context.Context, in *npool.GetManyUsersRequest
 
 	return &npool.GetManyUsersResponse{
 		Infos: cuser.Ent2GrpcMany(infos),
+		Total: uint32(total),
 	}, nil
 }

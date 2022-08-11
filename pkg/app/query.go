@@ -103,9 +103,10 @@ func GetApps(ctx context.Context, offset, limit int32) ([]*app.App, error) {
 	return infos, nil
 }
 
-func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*app.App, error) {
+func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*app.App, int, error) {
 	var err error
 	infos := []*app.App{}
+	var total int
 
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUserApps")
 	defer span.End()
@@ -123,12 +124,21 @@ func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*ap
 	span = commontracer.TraceInvoker(span, "app", "db", "query join")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
+
 		stm := cli.
 			App.
 			Query().
 			Where(
 				entapp.CreatedBy(uuid.MustParse(userID)),
-			).
+			)
+
+		total, err = stm.Count(ctx)
+		if err != nil {
+			logger.Sugar().Errorw("GetUserApps", "error", err)
+			return err
+		}
+
+		stm.
 			Offset(int(offset)).
 			Limit(int(limit))
 
@@ -137,10 +147,10 @@ func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*ap
 	})
 	if err != nil {
 		logger.Sugar().Errorw("GetUserApps", "error", err)
-		return nil, err
+		return nil, 0, err
 	}
 
-	return infos, nil
+	return infos, total, nil
 }
 
 func join(stm *ent.AppQuery) *ent.AppSelect {

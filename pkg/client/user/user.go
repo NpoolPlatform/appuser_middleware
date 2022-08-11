@@ -77,7 +77,8 @@ func GetUser(ctx context.Context, appID, userID string) (*npool.User, error) {
 	return info.(*npool.User), nil
 }
 
-func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*npool.User, error) {
+func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*npool.User, uint32, error) {
+	var total uint32
 	info, err := do(ctx, func(_ctx context.Context, cli npool.UserMwClient) (cruder.Any, error) {
 		resp, err := cli.GetUsers(ctx, &npool.GetUsersRequest{
 			AppID:  appID,
@@ -87,15 +88,19 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*npool.
 		if err != nil {
 			return nil, err
 		}
-		return resp.GetInfos(), nil
+
+		total = resp.GetTotal()
+		return resp.Infos, nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return info.([]*npool.User), nil
+	return info.([]*npool.User), total, nil
 }
 
-func GetManyUsers(ctx context.Context, ids []string) ([]*npool.User, error) {
+func GetManyUsers(ctx context.Context, ids []string) ([]*npool.User, uint32, error) {
+	var total uint32
+
 	infos, err := do(ctx, func(_ctx context.Context, cli npool.UserMwClient) (cruder.Any, error) {
 		resp, err := cli.GetManyUsers(ctx, &npool.GetManyUsersRequest{
 			IDs: ids,
@@ -103,10 +108,12 @@ func GetManyUsers(ctx context.Context, ids []string) ([]*npool.User, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		total = resp.GetTotal()
 		return resp.Infos, nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return infos.([]*npool.User), nil
+	return infos.([]*npool.User), total, nil
 }
