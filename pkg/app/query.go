@@ -124,7 +124,6 @@ func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*ap
 	span = commontracer.TraceInvoker(span, "app", "db", "query join")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
-
 		stm := cli.
 			App.
 			Query().
