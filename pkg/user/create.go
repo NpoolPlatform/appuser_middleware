@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 
 	"github.com/NpoolPlatform/appuser-manager/pkg/middleware/encrypt"
