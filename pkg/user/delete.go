@@ -3,6 +3,9 @@ package user
 import (
 	"context"
 
+	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
+	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
+
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approleuser"
@@ -33,33 +36,39 @@ func DeleteUser(ctx context.Context, userID uuid.UUID) error {
 	span = commontracer.TraceInvoker(span, "user", "db", "DeleteTx")
 
 	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
-		err = tx.AppUser.DeleteOneID(userID).Exec(ctx)
+		_, err = tx.AppUser.Delete().Where(appuser.ID(userID)).Exec(ctx)
 		if err != nil {
+			logger.Sugar().Errorw("DeleteUser", "error", err)
 			return err
 		}
 
 		_, err = tx.AppUserExtra.Delete().Where(appuserextra.UserID(userID)).Exec(ctx)
 		if err != nil {
+			logger.Sugar().Errorw("DeleteUser", "error", err)
 			return err
 		}
 
 		_, err = tx.AppUserControl.Delete().Where(appusercontrol.UserID(userID)).Exec(ctx)
 		if err != nil {
+			logger.Sugar().Errorw("DeleteUser", "error", err)
 			return err
 		}
 
 		_, err = tx.AppUserSecret.Delete().Where(appusersecret.UserID(userID)).Exec(ctx)
 		if err != nil {
+			logger.Sugar().Errorw("DeleteUser", "error", err)
 			return err
 		}
 
 		_, err = tx.AppUserThirdParty.Delete().Where(appuserthirdparty.UserID(userID)).Exec(ctx)
 		if err != nil {
+			logger.Sugar().Errorw("DeleteUser", "error", err)
 			return err
 		}
 
 		_, err = tx.AppRoleUser.Delete().Where(approleuser.UserID(userID)).Exec(ctx)
 		if err != nil {
+			logger.Sugar().Errorw("DeleteUser", "error", err)
 			return err
 		}
 
