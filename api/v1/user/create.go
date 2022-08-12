@@ -1,4 +1,3 @@
-//nolint:dupl
 package user
 
 import (
@@ -10,6 +9,7 @@ import (
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/user"
 	mw "github.com/NpoolPlatform/appuser-middleware/pkg/user"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
+	"github.com/google/uuid"
 	"go.opentelemetry.io/otel"
 	scodes "go.opentelemetry.io/otel/codes"
 
@@ -49,4 +49,34 @@ func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*
 	return &npool.CreateUserResponse{
 		Info: cuser.Ent2Grpc(info),
 	}, nil
+}
+
+func (s *Server) CreateUserRevert(ctx context.Context, in *npool.CreateUserRequest) (*npool.CreateUserResponse, error) {
+	var err error
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "CreateUser")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	span = tracer.Trace(span, in.GetInfo())
+
+	if err := validate(ctx, in.GetInfo()); err != nil {
+		logger.Sugar().Errorw("CreateUserRevert", "error", err)
+		return &npool.CreateUserResponse{}, err
+	}
+
+	span = commontracer.TraceInvoker(span, "user", "middleware", "DeleteUser")
+
+	err = mw.DeleteUser(ctx, uuid.MustParse(in.GetInfo().GetID()))
+	if err != nil {
+		logger.Sugar().Errorw("CreateUserRevert", "error", err)
+		return &npool.CreateUserResponse{}, status.Error(codes.Internal, err.Error())
+	}
+
+	return &npool.CreateUserResponse{}, nil
 }
