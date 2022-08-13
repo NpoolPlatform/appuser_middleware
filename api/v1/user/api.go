@@ -6,9 +6,9 @@ import (
 )
 
 type Server struct {
-	user.UnimplementedUserMwServer
+	user.UnimplementedMiddlewareServer
 }
 
 func Register(server grpc.ServiceRegistrar) {
-	user.RegisterUserMwServer(server, &Server{})
+	user.RegisterMiddlewareServer(server, &Server{})
 }
