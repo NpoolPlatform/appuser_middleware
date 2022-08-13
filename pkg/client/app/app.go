@@ -13,7 +13,7 @@ import (
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 )
 
-func do(ctx context.Context, fn func(_ctx context.Context, cli npool.AppMwClient) (cruder.Any, error)) (cruder.Any, error) {
+func do(ctx context.Context, fn func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error)) (cruder.Any, error) {
 	_ctx, cancel := context.WithTimeout(ctx, 10*time.Second) //nolint
 	defer cancel()
 
@@ -23,13 +23,13 @@ func do(ctx context.Context, fn func(_ctx context.Context, cli npool.AppMwClient
 	}
 	defer conn.Close()
 
-	cli := npool.NewAppMwClient(conn)
+	cli := npool.NewMiddlewareClient(conn)
 
 	return fn(_ctx, cli)
 }
 
 func CreateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
-	info, err := do(ctx, func(_ctx context.Context, cli npool.AppMwClient) (cruder.Any, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.CreateApp(ctx, &npool.CreateAppRequest{
 			Info: in,
 		})
@@ -45,7 +45,7 @@ func CreateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
 }
 
 func UpdateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
-	info, err := do(ctx, func(_ctx context.Context, cli npool.AppMwClient) (cruder.Any, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.UpdateApp(ctx, &npool.UpdateAppRequest{
 			Info: in,
 		})
@@ -61,7 +61,7 @@ func UpdateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
 }
 
 func GetApp(ctx context.Context, appID string) (*npool.App, error) {
-	info, err := do(ctx, func(_ctx context.Context, cli npool.AppMwClient) (cruder.Any, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetApp(ctx, &npool.GetAppRequest{
 			AppID: appID,
 		})
@@ -78,7 +78,7 @@ func GetApp(ctx context.Context, appID string) (*npool.App, error) {
 
 func GetApps(ctx context.Context, offset, limit int32) ([]*npool.App, uint32, error) {
 	var total uint32
-	info, err := do(ctx, func(_ctx context.Context, cli npool.AppMwClient) (cruder.Any, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetApps(ctx, &npool.GetAppsRequest{
 			Offset: offset,
 			Limit:  limit,
@@ -99,7 +99,7 @@ func GetApps(ctx context.Context, offset, limit int32) ([]*npool.App, uint32, er
 
 func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*npool.App, uint32, error) {
 	var total uint32
-	infos, err := do(ctx, func(_ctx context.Context, cli npool.AppMwClient) (cruder.Any, error) {
+	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetUserApps(ctx, &npool.GetUserAppsRequest{
 			UserID: userID,
 			Offset: offset,

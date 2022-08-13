@@ -98,7 +98,7 @@ func creatUser(t *testing.T) {
 	)
 	info, err := CreateUser(context.Background(), &userReq)
 	if assert.Nil(t, err) {
-		userInfo.CreateAt = info.CreateAt
+		userInfo.CreatedAt = info.CreatedAt
 		assert.Equal(t, info, &userInfo)
 	}
 }
