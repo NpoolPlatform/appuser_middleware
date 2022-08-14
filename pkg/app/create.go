@@ -55,13 +55,13 @@ func CreateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
 		id = info.ID.String()
 
 		if _, err := appctrlmgrcrud.CreateSet(tx.AppControl.Create(), &appctrlmgrpb.AppControlReq{
-			AppID:               &id,
-			SignupMethods:       in.SignupMethods,
-			ExternSigninMethods: in.ExtSigninMethods,
-			RecaptchaMethod:     in.RecaptchaMethod,
-			KycEnable:           in.KycEnable,
-			SigninVerifyEnable:  in.SigninVerifyEnable,
-			InvitationCodeMust:  in.InvitationCodeMust,
+			AppID:              &id,
+			SignupMethods:      in.SignupMethods,
+			ExtSigninMethods:   in.ExtSigninMethods,
+			RecaptchaMethod:    in.RecaptchaMethod,
+			KycEnable:          in.KycEnable,
+			SigninVerifyEnable: in.SigninVerifyEnable,
+			InvitationCodeMust: in.InvitationCodeMust,
 		}).Save(ctx); err != nil {
 			logger.Sugar().Errorw("CreateApp", "error", err)
 			return err

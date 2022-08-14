@@ -7,7 +7,7 @@ import (
 
 	appusersecretcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appusersecret"
 	appuserthirdpartycrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appuserthirdparty"
-	"github.com/NpoolPlatform/appuser-manager/pkg/middleware/encrypt"
+	"github.com/NpoolPlatform/appuser-manager/pkg/encrypt"
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/user"
@@ -37,8 +37,6 @@ import (
 
 //nolint:funlen
 func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
-	var id string
-	var appID string
 	var err error
 
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "UpdateUser")
@@ -51,15 +49,12 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 	}()
 
 	span = tracer.Trace(span, in)
-
 	span = commontracer.TraceInvoker(span, "user", "db", "UpdateTx")
 
-	appID1 := uuid.MustParse(in.GetID())
 	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
-		info, err := appusercrud.UpdateSet(
+		_, err := appusercrud.UpdateSet(
 			tx.AppUser.UpdateOneID(uuid.MustParse(in.GetID())),
 			&appusermgrpb.AppUserReq{
-				ID:            in.ID,
 				PhoneNo:       in.PhoneNO,
 				EmailAddress:  in.EmailAddress,
 				ImportFromApp: in.ImportedFromAppID,
@@ -69,17 +64,22 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 			return err
 		}
 
-		id = info.ID.String()
-		appID = info.AppID.String()
+		extra, err := tx.
+			AppUserExtra.
+			Query().
+			Where(
+				entappuserextra.AppID(uuid.MustParse(in.GetAppID())),
+				entappuserextra.UserID(uuid.MustParse(in.GetID())),
+			).
+			ForUpdate().
+			Only(ctx)
+		if err != nil {
+			return err
+		}
 
 		if _, err = appuserextracrud.UpdateSet(
-			tx.AppUserExtra.
-				Update().
-				Where(
-					entappuserextra.AppID(uuid.MustParse(in.GetID())),
-				),
+			extra,
 			&appuserextramgrpb.AppUserExtraReq{
-				AppID:         in.ID,
 				FirstName:     in.FirstName,
 				Birthday:      in.Birthday,
 				LastName:      in.LastName,
@@ -95,17 +95,24 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 			return err
 		}
 
+		ctrl, err := tx.
+			AppUserControl.
+			Query().
+			Where(
+				entappusercontrol.AppID(uuid.MustParse(in.GetAppID())),
+				entappusercontrol.UserID(uuid.MustParse(in.GetID())),
+			).
+			ForUpdate().
+			Only(ctx)
+		if err != nil {
+			return err
+		}
+
 		if _, err = appusercontrolcrud.UpdateSet(
-			tx.AppUserControl.
-				Update().
-				Where(
-					entappusercontrol.AppID(appID1),
-				),
+			ctrl,
 			&appusercontrolmgrpb.AppUserControlReq{
-				AppID:                              in.AppID,
-				UserID:                             in.ID,
-				SigninVerifyByGoogleAuthentication: in.SigninVerifyByGoogleAuth,
-				GoogleAuthenticationVerified:       in.GoogleAuthenticationVerified,
+				GoogleAuthVerified: in.GoogleAuthVerified,
+				SigninVerifyType:   in.SigninVerifyType,
 			}).Save(ctx); err != nil {
 			logger.Sugar().Errorw("UpdateUser", "err", err.Error())
 			return err
@@ -126,12 +133,21 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 			password = &passwordStr
 		}
 
+		secret, err := tx.
+			AppUserSecret.
+			Query().
+			Where(
+				entappusersecret.AppID(uuid.MustParse(in.GetAppID())),
+				entappusersecret.UserID(uuid.MustParse(in.GetID())),
+			).
+			ForUpdate().
+			Only(ctx)
+		if err != nil {
+			return err
+		}
+
 		if _, err = appusersecretcrud.UpdateSet(
-			tx.AppUserSecret.
-				Update().
-				Where(
-					entappusersecret.AppID(appID1),
-				),
+			secret,
 			&appusersecretamgrpb.AppUserSecretReq{
 				AppID:        in.AppID,
 				PasswordHash: password,
@@ -142,18 +158,27 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 			return err
 		}
 
+		thirdparty, err := tx.
+			AppUserThirdParty.
+			Query().
+			Where(
+				entappuserthirdparty.AppID(uuid.MustParse(in.GetAppID())),
+				entappuserthirdparty.UserID(uuid.MustParse(in.GetID())),
+			).
+			ForUpdate().
+			Only(ctx)
+		if err != nil {
+			return err
+		}
+
 		if _, err = appuserthirdpartycrud.UpdateSet(
-			tx.AppUserThirdParty.
-				Update().
-				Where(
-					entappuserthirdparty.AppID(appID1),
-				),
+			thirdparty,
 			&appuserthirdpartymgrpb.AppUserThirdPartyReq{
-				AppID:                in.AppID,
-				ThirdPartyID:         in.ThirdPartyID,
-				ThirdPartyUserID:     in.ThirdPartyUserID,
-				ThirdPartyUsername:   in.ThirdPartyUsername,
-				ThirdPartyUserAvatar: in.ThirdPartyUserAvatar,
+				AppID:              in.AppID,
+				ThirdPartyID:       in.ThirdPartyID,
+				ThirdPartyUserID:   in.ThirdPartyUserID,
+				ThirdPartyUsername: in.ThirdPartyUsername,
+				ThirdPartyAvatar:   in.ThirdPartyAvatar,
 			}).Save(ctx); err != nil {
 			logger.Sugar().Errorw("UpdateUser", "err", err.Error())
 			return err
@@ -165,5 +190,5 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 		return nil, err
 	}
 
-	return GetUser(ctx, appID, id)
+	return GetUser(ctx, in.GetAppID(), in.GetID())
 }

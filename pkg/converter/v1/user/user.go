@@ -15,8 +15,8 @@ func Ent2Grpc(row *npool.User) *npool.User {
 	_ = json.Unmarshal([]byte(row.AddressFieldsString), &addressFields)
 
 	row.AddressFields = addressFields
-	row.SigninVerifyByGoogleAuthentication = row.SigninVerifyByGoogleAuthenticationInt != 0
-	row.GoogleAuthenticationVerified = row.GoogleAuthenticationVerifiedInt != 0
+	row.SigninVerifyByGoogleAuth = row.SigninVerifyByGoogleAuthInt != 0
+	row.GoogleAuthVerified = row.GoogleAuthVerifiedInt != 0
 
 	row.Banned = false
 	if row.GetBanAppUserID() != "" {

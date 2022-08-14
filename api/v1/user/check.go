@@ -53,10 +53,10 @@ func validate(ctx context.Context, info *npool.UserReq) error {
 	}
 
 	err = appusercontrol.Validate(&mgrappusercontrol.AppUserControlReq{
-		AppID:                              info.AppID,
-		UserID:                             info.ID,
-		SigninVerifyByGoogleAuthentication: info.SigninVerifyByGoogleAuth,
-		GoogleAuthenticationVerified:       info.GoogleAuthenticationVerified,
+		AppID:              info.AppID,
+		UserID:             info.ID,
+		GoogleAuthVerified: info.GoogleAuthVerified,
+		SigninVerifyType:   info.SigninVerifyType,
 	})
 	if err != nil {
 		logger.Sugar().Errorw("validate", err.Error())

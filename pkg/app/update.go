@@ -57,20 +57,28 @@ func UpdateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
 			return err
 		}
 
+		info, err := tx.
+			AppControl.
+			Query().
+			Where(
+				entappcontrol.AppID(uuid.MustParse(in.GetID())),
+			).
+			ForUpdate().
+			Only(ctx)
+		if err != nil {
+			return err
+		}
+
 		if _, err = appctrlmgrcrud.UpdateSet(
-			tx.AppControl.
-				Update().
-				Where(
-					entappcontrol.AppID(uuid.MustParse(in.GetID())),
-				),
+			info,
 			&appctrlmgrpb.AppControlReq{
-				AppID:               in.ID,
-				SignupMethods:       in.SignupMethods,
-				ExternSigninMethods: in.ExtSigninMethods,
-				RecaptchaMethod:     in.RecaptchaMethod,
-				KycEnable:           in.KycEnable,
-				SigninVerifyEnable:  in.SigninVerifyEnable,
-				InvitationCodeMust:  in.InvitationCodeMust,
+				AppID:              in.ID,
+				SignupMethods:      in.SignupMethods,
+				ExtSigninMethods:   in.ExtSigninMethods,
+				RecaptchaMethod:    in.RecaptchaMethod,
+				KycEnable:          in.KycEnable,
+				SigninVerifyEnable: in.SigninVerifyEnable,
+				InvitationCodeMust: in.InvitationCodeMust,
 			}).Save(ctx); err != nil {
 			logger.Sugar().Errorw("UpdateApp", "error", err)
 			return err

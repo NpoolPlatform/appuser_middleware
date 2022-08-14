@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/NpoolPlatform/appuser-manager/pkg/middleware/encrypt"
+	"github.com/NpoolPlatform/appuser-manager/pkg/encrypt"
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/user"
@@ -93,10 +93,10 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 		}
 
 		if _, err = appusercontrolcrud.CreateSet(tx.AppUserControl.Create(), &appusercontrolmgrpb.AppUserControlReq{
-			AppID:                              in.AppID,
-			UserID:                             in.ID,
-			SigninVerifyByGoogleAuthentication: in.SigninVerifyByGoogleAuth,
-			GoogleAuthenticationVerified:       in.GoogleAuthenticationVerified,
+			AppID:              in.AppID,
+			UserID:             in.ID,
+			GoogleAuthVerified: in.GoogleAuthVerified,
+			SigninVerifyType:   in.SigninVerifyType,
 		}).Save(ctx); err != nil {
 			logger.Sugar().Errorw("CreateUser", "error", err)
 			return err
@@ -129,12 +129,12 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 
 		if in.ThirdPartyID != nil {
 			if _, err = appuserthirdpartycrud.CreateSet(tx.AppUserThirdParty.Create(), &appuserthirdpartymgrpb.AppUserThirdPartyReq{
-				AppID:                in.AppID,
-				UserID:               in.ID,
-				ThirdPartyID:         in.ThirdPartyID,
-				ThirdPartyUserID:     in.ThirdPartyUserID,
-				ThirdPartyUsername:   in.ThirdPartyUsername,
-				ThirdPartyUserAvatar: in.ThirdPartyUserAvatar,
+				AppID:              in.AppID,
+				UserID:             in.ID,
+				ThirdPartyID:       in.ThirdPartyID,
+				ThirdPartyUserID:   in.ThirdPartyUserID,
+				ThirdPartyUsername: in.ThirdPartyUsername,
+				ThirdPartyAvatar:   in.ThirdPartyAvatar,
 			}).Save(ctx); err != nil {
 				logger.Sugar().Errorw("CreateUser", "error", err)
 				return err
