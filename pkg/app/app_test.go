@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -13,6 +12,9 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/testinit"
+
+	rcpt "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/recaptcha"
+	sm "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/signmethod"
 )
 
 func init() {
@@ -25,21 +27,22 @@ func init() {
 }
 
 var (
-	uuidSlice     = []string{uuid.NewString()}
-	uuidSliceS, _ = json.Marshal(uuidSlice)
-	appInfo       = npool.App{
-		ID:                     uuid.NewString(),
-		CreatedBy:              uuid.NewString(),
-		Name:                   uuid.NewString(),
-		Logo:                   uuid.NewString(),
-		Description:            uuid.NewString(),
-		Banned:                 false,
-		SignupMethodsString:    string(uuidSliceS),
-		ExtSigninMethodsString: string(uuidSliceS),
-		RecaptchaMethod:        uuid.NewString(),
-		KycEnableInt:           1,
-		SigninVerifyEnableInt:  1,
-		InvitationCodeMustInt:  1,
+	uuidSlice  = []sm.SignMethodType{sm.SignMethodType_Email, sm.SignMethodType_Mobile}
+	uuidSliceS = fmt.Sprintf(`{"%v", "%v"}`, sm.SignMethodType_Email.String(), sm.SignMethodType_Mobile.String())
+	appInfo    = npool.App{
+		ID:                    uuid.NewString(),
+		CreatedBy:             uuid.NewString(),
+		Name:                  uuid.NewString(),
+		Logo:                  uuid.NewString(),
+		Description:           uuid.NewString(),
+		Banned:                false,
+		SignupMethodsStr:      string(uuidSliceS),
+		ExtSigninMethodsStr:   string(uuidSliceS),
+		RecaptchaMethodStr:    rcpt.RecaptchaType_GoogleRecaptchaV3.String(),
+		RecaptchaMethod:       rcpt.RecaptchaType_GoogleRecaptchaV3,
+		KycEnableInt:          1,
+		SigninVerifyEnableInt: 1,
+		InvitationCodeMustInt: 1,
 	}
 )
 
