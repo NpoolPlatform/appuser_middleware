@@ -79,19 +79,15 @@ func (s *Server) GetApps(ctx context.Context, in *npool.GetAppsRequest) (*npool.
 		return &npool.GetAppsResponse{}, status.Error(codes.Internal, "fail get apps")
 	}
 
-	resp := []*npool.App{}
-	for _, val := range infos {
-		ginfo, err := capp.Ent2Grpc(val)
-		if err != nil {
-			logger.Sugar().Errorw("GetApps", "error", err)
-			return &npool.GetAppsResponse{}, status.Error(codes.Internal, "invalid value")
-		}
-		resp = append(resp, ginfo)
+	ginfo, err := capp.Ent2GrpcMany(infos)
+	if err != nil {
+		logger.Sugar().Errorw("GetApps", "error", err)
+		return &npool.GetAppsResponse{}, status.Error(codes.Internal, "invalid value")
 	}
 
 	return &npool.GetAppsResponse{
-		Infos: resp,
-		Total: uint32(len(resp)),
+		Infos: ginfo,
+		Total: uint32(len(ginfo)),
 	}, nil
 }
 
@@ -122,18 +118,14 @@ func (s *Server) GetUserApps(ctx context.Context, in *npool.GetUserAppsRequest) 
 		return &npool.GetUserAppsResponse{}, status.Error(codes.Internal, "fail get user apps")
 	}
 
-	resp := []*npool.App{}
-	for _, val := range infos {
-		ginfo, err := capp.Ent2Grpc(val)
-		if err != nil {
-			logger.Sugar().Errorw("GetUserApps", "error", err)
-			return &npool.GetUserAppsResponse{}, status.Error(codes.Internal, "invalid value")
-		}
-		resp = append(resp, ginfo)
+	ginfo, err := capp.Ent2GrpcMany(infos)
+	if err != nil {
+		logger.Sugar().Errorw("GetApps", "error", err)
+		return &npool.GetUserAppsResponse{}, status.Error(codes.Internal, "invalid value")
 	}
 
 	return &npool.GetUserAppsResponse{
-		Infos: resp,
+		Infos: ginfo,
 		Total: uint32(total),
 	}, nil
 }
@@ -167,18 +159,14 @@ func (s *Server) GetManyApps(ctx context.Context, in *npool.GetManyAppsRequest) 
 		return &npool.GetManyAppsResponse{}, status.Error(codes.Internal, "fail get user apps")
 	}
 
-	resp := []*npool.App{}
-	for _, val := range infos {
-		ginfo, err := capp.Ent2Grpc(val)
-		if err != nil {
-			logger.Sugar().Errorw("GetUserApps", "error", err)
-			return &npool.GetManyAppsResponse{}, status.Error(codes.Internal, "invalid value")
-		}
-		resp = append(resp, ginfo)
+	ginfo, err := capp.Ent2GrpcMany(infos)
+	if err != nil {
+		logger.Sugar().Errorw("GetApps", "error", err)
+		return &npool.GetManyAppsResponse{}, status.Error(codes.Internal, "invalid value")
 	}
 
 	return &npool.GetManyAppsResponse{
-		Infos: resp,
+		Infos: ginfo,
 		Total: uint32(total),
 	}, nil
 }
