@@ -1,12 +1,16 @@
+//nolint:dupl
 package role
 
 import (
 	"context"
+
 	"entgo.io/ent/dialect/sql"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 	entapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
 	entapprole "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approle"
+	entapproleuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approleuser"
+	entappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
@@ -21,6 +25,7 @@ func GetRoles(ctx context.Context, appID string, offset, limit int32) ([]*role.R
 	var err error
 	infos := []*role.Role{}
 	var total int
+
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoles")
 	defer span.End()
 	defer func() {
@@ -50,7 +55,7 @@ func GetRoles(ctx context.Context, appID string, offset, limit int32) ([]*role.R
 		stm.
 			Offset(int(offset)).
 			Limit(int(limit))
-		return join(stm).
+		return joinRole(stm).
 			Scan(ctx, &infos)
 	})
 	if err != nil {
@@ -64,6 +69,7 @@ func GetRoles(ctx context.Context, appID string, offset, limit int32) ([]*role.R
 func GetManyRoles(ctx context.Context, ids []string) ([]*role.Role, error) {
 	var err error
 	infos := []*role.Role{}
+
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyRoles")
 	defer span.End()
 	defer func() {
@@ -88,7 +94,7 @@ func GetManyRoles(ctx context.Context, ids []string) ([]*role.Role, error) {
 			Where(
 				entapprole.IDIn(idsU...),
 			)
-		return join(stm).
+		return joinRole(stm).
 			Scan(ctx, &infos)
 	})
 	if err != nil {
@@ -99,7 +105,7 @@ func GetManyRoles(ctx context.Context, ids []string) ([]*role.Role, error) {
 	return infos, nil
 }
 
-func join(stm *ent.AppRoleQuery) *ent.AppRoleSelect {
+func joinRole(stm *ent.AppRoleQuery) *ent.AppRoleSelect {
 	return stm.Select(
 		entapprole.FieldID,
 		entapprole.FieldCreatedBy,
@@ -120,6 +126,88 @@ func join(stm *ent.AppRoleQuery) *ent.AppRoleSelect {
 				sql.As(t1.C(entapp.FieldLogo), "app_logo"),
 				t1.C(entapp.FieldCreatedAt),
 			)
+	})
+}
 
+func GetManyRoleUsers(ctx context.Context, ids []string) ([]*role.RoleUser, error) {
+	var err error
+	infos := []*role.RoleUser{}
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyRoleUsers")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	span.SetAttributes(attribute.StringSlice("ids", ids))
+	span = commontracer.TraceInvoker(span, "app", "db", "query join")
+
+	idsU := []uuid.UUID{}
+	for _, val := range ids {
+		idsU = append(idsU, uuid.MustParse(val))
+	}
+
+	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
+		stm := cli.
+			AppRoleUser.
+			Query().
+			Where(
+				entapproleuser.IDIn(idsU...),
+			)
+		return joinRoleUser(stm).
+			Scan(ctx, &infos)
+	})
+	if err != nil {
+		logger.Sugar().Errorw("GetManyRoleUsers", "error", err)
+		return nil, err
+	}
+
+	return infos, nil
+}
+
+func joinRoleUser(stm *ent.AppRoleUserQuery) *ent.AppRoleUserSelect {
+	return stm.Select(
+		entapproleuser.FieldID,
+	).Modify(func(s *sql.Selector) {
+		t1 := sql.Table(entapprole.Table)
+		s.
+			LeftJoin(t1).
+			On(
+				s.C(entapproleuser.FieldRoleID),
+				t1.C(entapprole.FieldID),
+			).
+			AppendSelect(
+				t1.C(entapprole.FieldCreatedBy),
+				t1.C(entapprole.FieldRole),
+				t1.C(entapprole.FieldDescription),
+				t1.C(entapprole.FieldDefault),
+			)
+
+		t2 := sql.Table(entapp.Table)
+		s.
+			LeftJoin(t2).
+			On(
+				s.C(entapproleuser.FieldAppID),
+				t2.C(entapp.FieldID),
+			).
+			AppendSelect(
+				sql.As(t2.C(entapp.FieldID), "app_id"),
+				sql.As(t2.C(entapp.FieldName), "app_name"),
+				sql.As(t2.C(entapp.FieldLogo), "app_logo"),
+			)
+		t3 := sql.Table(entappuser.Table)
+		s.
+			LeftJoin(t3).
+			On(
+				s.C(entapproleuser.FieldUserID),
+				t3.C(entappuser.FieldID),
+			).
+			AppendSelect(
+				sql.As(t3.C(entappuser.FieldID), "user_id"),
+				sql.As(t3.C(entappuser.FieldEmailAddress), "app_name"),
+				t3.C(entappuser.FieldPhoneNo),
+			)
 	})
 }
