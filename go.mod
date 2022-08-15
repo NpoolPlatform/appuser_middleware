@@ -6,7 +6,7 @@ require (
 	entgo.io/ent v0.11.2
 	github.com/NpoolPlatform/api-manager v0.0.0-20220714064853-e3bf392e2c17
 	github.com/NpoolPlatform/go-service-framework v0.0.0-20220812032117-44ecffa2bb95
-	github.com/NpoolPlatform/message v0.0.0-20220814161348-6cc0db506d71
+	github.com/NpoolPlatform/message v0.0.0-20220815083344-83df61172746
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0

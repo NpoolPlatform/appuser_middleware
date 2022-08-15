@@ -152,6 +152,52 @@ func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*ap
 	return infos, total, nil
 }
 
+func GetManyApps(ctx context.Context, ids []string) ([]*app.App, int, error) {
+	var err error
+	infos := []*app.App{}
+	var total int
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyApps")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	span.SetAttributes(attribute.StringSlice("ids", ids))
+
+	idsU := []uuid.UUID{}
+	for _, val := range ids {
+		idsU = append(idsU, uuid.MustParse(val))
+	}
+
+	span = commontracer.TraceInvoker(span, "app", "db", "query join")
+
+	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
+		stm := cli.
+			App.
+			Query().
+			Where(
+				entapp.IDIn(idsU...),
+			)
+		total, err = stm.Count(ctx)
+		if err != nil {
+			logger.Sugar().Errorw("GetManyApps", "error", err)
+			return err
+		}
+		return join(stm).
+			Scan(ctx, &infos)
+	})
+	if err != nil {
+		logger.Sugar().Errorw("GetManyApps", "error", err)
+		return nil, 0, err
+	}
+
+	return infos, total, nil
+}
+
 func join(stm *ent.AppQuery) *ent.AppSelect {
 	return stm.Select(
 		entapp.FieldID,

@@ -28,7 +28,8 @@ func init() {
 
 var (
 	uuidSlice  = []sm.SignMethodType{sm.SignMethodType_Email, sm.SignMethodType_Mobile}
-	uuidSliceS = fmt.Sprintf(`{"%v", "%v"}`, sm.SignMethodType_Email.String(), sm.SignMethodType_Mobile.String())
+	uuidSliceS = fmt.Sprintf(`["%v", "%v"]`, sm.SignMethodType_Email.String(), sm.SignMethodType_Mobile.String())
+	rec        = rcpt.RecaptchaType_GoogleRecaptchaV3
 	appInfo    = npool.App{
 		ID:                    uuid.NewString(),
 		CreatedBy:             uuid.NewString(),
@@ -36,10 +37,9 @@ var (
 		Logo:                  uuid.NewString(),
 		Description:           uuid.NewString(),
 		Banned:                false,
-		SignupMethodsStr:      string(uuidSliceS),
-		ExtSigninMethodsStr:   string(uuidSliceS),
+		SignupMethodsStr:      uuidSliceS,
+		ExtSigninMethodsStr:   uuidSliceS,
 		RecaptchaMethodStr:    rcpt.RecaptchaType_GoogleRecaptchaV3.String(),
-		RecaptchaMethod:       rcpt.RecaptchaType_GoogleRecaptchaV3,
 		KycEnableInt:          1,
 		SigninVerifyEnableInt: 1,
 		InvitationCodeMustInt: 1,
@@ -61,7 +61,7 @@ func creatApp(t *testing.T) {
 			BanMessage:         &appInfo.BanMessage,
 			SignupMethods:      uuidSlice,
 			ExtSigninMethods:   uuidSlice,
-			RecaptchaMethod:    &appInfo.RecaptchaMethod,
+			RecaptchaMethod:    &rec,
 			KycEnable:          &boolVal,
 			SigninVerifyEnable: &boolVal,
 			InvitationCodeMust: &boolVal,
@@ -87,7 +87,7 @@ func updateApp(t *testing.T) {
 			BanMessage:         &appInfo.BanMessage,
 			SignupMethods:      uuidSlice,
 			ExtSigninMethods:   uuidSlice,
-			RecaptchaMethod:    &appInfo.RecaptchaMethod,
+			RecaptchaMethod:    &rec,
 			KycEnable:          &boolVal,
 			SigninVerifyEnable: &boolVal,
 			InvitationCodeMust: &boolVal,
