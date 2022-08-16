@@ -29,7 +29,7 @@ func do(ctx context.Context, fn func(_ctx context.Context, cli npool.MiddlewareC
 }
 
 func GetRole(ctx context.Context, id string) (*npool.Role, error) {
-	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetRole(ctx, &npool.GetRoleRequest{
 			ID: id,
 		})
@@ -41,7 +41,7 @@ func GetRole(ctx context.Context, id string) (*npool.Role, error) {
 	if err != nil {
 		return nil, err
 	}
-	return infos.(*npool.Role), nil
+	return info.(*npool.Role), nil
 }
 
 func GetRoles(ctx context.Context, appID string, offset, limit int32) ([]*npool.Role, uint32, error) {
@@ -103,7 +103,7 @@ func GetRoleUser(ctx context.Context, id string) (*npool.RoleUser, error) {
 func GetRoleUsers(ctx context.Context, appID, roleID string, offset, limit int32) ([]*npool.RoleUser, uint32, error) {
 	var total uint32
 
-	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetRoleUsers(ctx, &npool.GetRoleUsersRequest{
 			AppID:  appID,
 			RoleID: roleID,
@@ -119,13 +119,13 @@ func GetRoleUsers(ctx context.Context, appID, roleID string, offset, limit int32
 	if err != nil {
 		return nil, 0, err
 	}
-	return info.([]*npool.RoleUser), total, nil
+	return infos.([]*npool.RoleUser), total, nil
 }
 
 func GetAppRoleUsers(ctx context.Context, targetAppID, roleID string, offset, limit int32) ([]*npool.RoleUser, uint32, error) {
 	var total uint32
 
-	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetAppRoleUsers(ctx, &npool.GetAppRoleUsersRequest{
 			TargetAppID: targetAppID,
 			RoleID:      roleID,
@@ -141,7 +141,7 @@ func GetAppRoleUsers(ctx context.Context, targetAppID, roleID string, offset, li
 	if err != nil {
 		return nil, 0, err
 	}
-	return info.([]*npool.RoleUser), total, nil
+	return infos.([]*npool.RoleUser), total, nil
 }
 
 func GetManyRoleUsers(ctx context.Context, ids []string) ([]*npool.RoleUser, uint32, error) {

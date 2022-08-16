@@ -79,7 +79,7 @@ func GetUser(ctx context.Context, appID, userID string) (*npool.User, error) {
 
 func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*npool.User, uint32, error) {
 	var total uint32
-	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetUsers(ctx, &npool.GetUsersRequest{
 			AppID:  appID,
 			Offset: offset,
@@ -95,7 +95,7 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*npool.
 	if err != nil {
 		return nil, 0, err
 	}
-	return info.([]*npool.User), total, nil
+	return infos.([]*npool.User), total, nil
 }
 
 func GetManyUsers(ctx context.Context, ids []string) ([]*npool.User, uint32, error) {
