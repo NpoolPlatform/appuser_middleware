@@ -174,6 +174,46 @@ func (s *Server) GetRoleUsers(ctx context.Context, in *npool.GetRoleUsersRequest
 	}, nil
 }
 
+func (s *Server) GetAppRoleUsers(ctx context.Context, in *npool.GetAppRoleUsersRequest) (*npool.GetAppRoleUsersResponse, error) {
+	var err error
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyRoleUsers")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	span.SetAttributes(attribute.String("TargetAppID", in.GetTargetAppID()))
+	span.SetAttributes(attribute.String("RoleID", in.GetRoleID()))
+	commontracer.TraceOffsetLimit(span, int(in.GetOffset()), int(in.GetLimit()))
+
+	if _, err := uuid.Parse(in.GetTargetAppID()); err != nil {
+		logger.Sugar().Errorw("GetManyRoleUsers", "error", err)
+		return &npool.GetAppRoleUsersResponse{}, status.Error(codes.InvalidArgument, "AppID is invalid")
+	}
+
+	if _, err := uuid.Parse(in.GetRoleID()); err != nil {
+		logger.Sugar().Errorw("GetManyRoleUsers", "error", err)
+		return &npool.GetAppRoleUsersResponse{}, status.Error(codes.InvalidArgument, "RoleID is invalid")
+	}
+
+	span = commontracer.TraceInvoker(span, "user", "middleware", "GetManyRoleUsers")
+
+	infos, total, err := mroleuser.GetRoleUsers(ctx, in.GetTargetAppID(), in.GetRoleID(), in.GetOffset(), in.GetLimit())
+	if err != nil {
+		logger.Sugar().Errorw("GetManyRoleUsers", "error", err)
+		return &npool.GetAppRoleUsersResponse{}, status.Error(codes.Internal, "fail get many role users")
+	}
+
+	return &npool.GetAppRoleUsersResponse{
+		Infos: croleuser.Ent2GrpcMany(infos),
+		Total: uint32(total),
+	}, nil
+}
+
 func (s *Server) GetManyRoleUsers(ctx context.Context, in *npool.GetManyRoleUsersRequest) (*npool.GetManyRoleUsersResponse, error) {
 	var err error
 
