@@ -29,6 +29,8 @@ func do(ctx context.Context, fn func(_ctx context.Context, cli npool.MiddlewareC
 }
 
 func GetRoles(ctx context.Context, appID string, offset, limit int32) ([]*npool.Role, uint32, error) {
+	var total uint32
+
 	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetRoles(ctx, &npool.GetRolesRequest{
 			AppID:  appID,
@@ -38,15 +40,18 @@ func GetRoles(ctx context.Context, appID string, offset, limit int32) ([]*npool.
 		if err != nil {
 			return nil, err
 		}
+		total = resp.GetTotal()
 		return resp.Infos, nil
 	})
 	if err != nil {
 		return nil, 0, err
 	}
-	return infos.([]*npool.Role), 0, nil
+	return infos.([]*npool.Role), total, nil
 }
 
 func GetManyRoles(ctx context.Context, ids []string) ([]*npool.Role, uint32, error) {
+	var total uint32
+
 	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetManyRoles(ctx, &npool.GetManyRolesRequest{
 			IDs: ids,
@@ -54,10 +59,30 @@ func GetManyRoles(ctx context.Context, ids []string) ([]*npool.Role, uint32, err
 		if err != nil {
 			return nil, err
 		}
+		total = resp.GetTotal()
 		return resp.Infos, nil
 	})
 	if err != nil {
 		return nil, 0, err
 	}
-	return infos.([]*npool.Role), 0, nil
+	return infos.([]*npool.Role), total, nil
+}
+
+func GetManyRoleUsers(ctx context.Context, ids []string) ([]*npool.RoleUser, uint32, error) {
+	var total uint32
+
+	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.GetManyRoleUsers(ctx, &npool.GetManyRoleUsersRequest{
+			IDs: ids,
+		})
+		if err != nil {
+			return nil, err
+		}
+		total = resp.GetTotal()
+		return resp.Infos, nil
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+	return infos.([]*npool.RoleUser), total, nil
 }
