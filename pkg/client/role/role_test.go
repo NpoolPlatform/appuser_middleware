@@ -1,18 +1,19 @@
 package role
 
 import (
-	"bou.ke/monkey"
 	"context"
 	"fmt"
+	"os"
+	"strconv"
+	"testing"
+
+	"bou.ke/monkey"
 	approlecli "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/approle"
 	"github.com/NpoolPlatform/go-service-framework/pkg/config"
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
 	"github.com/NpoolPlatform/message/npool/appuser/mgr/v2/approle"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"os"
-	"strconv"
-	"testing"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"

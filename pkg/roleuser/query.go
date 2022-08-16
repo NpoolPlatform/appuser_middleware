@@ -1,4 +1,3 @@
-//nolint:dupl
 package roleuser
 
 import (
@@ -21,7 +20,7 @@ import (
 	scodes "go.opentelemetry.io/otel/codes"
 )
 
-func GetRoleUsers(ctx context.Context, appID, RoleID string, offset, limit int32) ([]*role.RoleUser, int, error) {
+func GetRoleUsers(ctx context.Context, appID, roleID string, offset, limit int32) ([]*role.RoleUser, int, error) {
 	var err error
 	infos := []*role.RoleUser{}
 	var total int
@@ -36,7 +35,7 @@ func GetRoleUsers(ctx context.Context, appID, RoleID string, offset, limit int32
 	}()
 
 	span.SetAttributes(attribute.String("AppID", appID))
-	span.SetAttributes(attribute.String("RoleID", RoleID))
+	span.SetAttributes(attribute.String("RoleID", roleID))
 	commontracer.TraceOffsetLimit(span, int(offset), int(limit))
 
 	span = commontracer.TraceInvoker(span, "app", "db", "query join")
@@ -47,7 +46,7 @@ func GetRoleUsers(ctx context.Context, appID, RoleID string, offset, limit int32
 			Query().
 			Where(
 				entapproleuser.AppID(uuid.MustParse(appID)),
-				entapproleuser.RoleID(uuid.MustParse(RoleID)),
+				entapproleuser.RoleID(uuid.MustParse(roleID)),
 			)
 		total, err = stm.Count(ctx)
 		if err != nil {

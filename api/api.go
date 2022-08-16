@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+
 	"github.com/NpoolPlatform/appuser-middleware/api/v1/role"
 
 	"github.com/NpoolPlatform/appuser-middleware/api/v1/app"
