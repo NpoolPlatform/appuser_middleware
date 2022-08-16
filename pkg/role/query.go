@@ -20,7 +20,6 @@ import (
 
 func GetRole(ctx context.Context, id string) (*role.Role, error) {
 	var err error
-	var total int
 	var info *role.Role
 
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoles")
@@ -42,11 +41,6 @@ func GetRole(ctx context.Context, id string) (*role.Role, error) {
 			Where(
 				entapprole.ID(uuid.MustParse(id)),
 			)
-
-		total, err = stm.Count(ctx)
-		if err != nil {
-			return err
-		}
 		return joinRole(stm).
 			Scan(ctx, &info)
 	})
