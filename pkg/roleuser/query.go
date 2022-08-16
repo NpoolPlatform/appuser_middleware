@@ -20,6 +20,40 @@ import (
 	scodes "go.opentelemetry.io/otel/codes"
 )
 
+func GetRoleUser(ctx context.Context, id string) (*role.RoleUser, error) {
+	var err error
+	var info *role.RoleUser
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyRoleUsers")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	span = commontracer.TraceID(span, id)
+	span = commontracer.TraceInvoker(span, "app", "db", "query join")
+
+	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
+		stm := cli.
+			AppRoleUser.
+			Query().
+			Where(
+				entapproleuser.ID(uuid.MustParse(id)),
+			)
+		return join(stm).
+			Scan(ctx, &info)
+	})
+	if err != nil {
+		logger.Sugar().Errorw("GetManyRoleUsers", "error", err)
+		return nil, err
+	}
+
+	return info, nil
+}
+
 func GetRoleUsers(ctx context.Context, appID, roleID string, offset, limit int32) ([]*role.RoleUser, int, error) {
 	var err error
 	infos := []*role.RoleUser{}
