@@ -24,6 +24,36 @@ import (
 	"github.com/google/uuid"
 )
 
+func (s *Server) GetRole(ctx context.Context, in *npool.GetRoleRequest) (*npool.GetRoleResponse, error) {
+	var err error
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoles")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	if _, err := uuid.Parse(in.GetID()); err != nil {
+		logger.Sugar().Errorw("GetRole", "error", err)
+		return &npool.GetRoleResponse{}, status.Error(codes.InvalidArgument, "ID is invalid")
+	}
+
+	span = commontracer.TraceInvoker(span, "role", "middleware", "GetRoles")
+
+	info, err := mrole.GetRole(ctx, in.GetID())
+	if err != nil {
+		logger.Sugar().Errorw("GetRoles", "error", err)
+		return &npool.GetRoleResponse{}, status.Error(codes.Internal, "fail get roles")
+	}
+
+	return &npool.GetRoleResponse{
+		Info: crole.Ent2Grpc(info),
+	}, nil
+}
+
 func (s *Server) GetRoles(ctx context.Context, in *npool.GetRolesRequest) (*npool.GetRolesResponse, error) {
 	var err error
 

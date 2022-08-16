@@ -18,6 +18,46 @@ import (
 	scodes "go.opentelemetry.io/otel/codes"
 )
 
+func GetRole(ctx context.Context, id string) (*role.Role, error) {
+	var err error
+	var total int
+	var info *role.Role
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoles")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	span = commontracer.TraceID(span, id)
+	span = commontracer.TraceInvoker(span, "app", "db", "query join")
+
+	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
+		stm := cli.
+			AppRole.
+			Query().
+			Where(
+				entapprole.ID(uuid.MustParse(id)),
+			)
+
+		total, err = stm.Count(ctx)
+		if err != nil {
+			return err
+		}
+		return joinRole(stm).
+			Scan(ctx, &info)
+	})
+	if err != nil {
+		logger.Sugar().Errorw("GetRoles", "error", err)
+		return nil, err
+	}
+
+	return info, nil
+}
+
 func GetRoles(ctx context.Context, appID string, offset, limit int32) ([]*role.Role, int, error) {
 	var err error
 	infos := []*role.Role{}
