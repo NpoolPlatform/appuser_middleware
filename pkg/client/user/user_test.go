@@ -37,30 +37,29 @@ var (
 	uuidSlice     = []string{uuid.NewString()}
 	uuidSliceS, _ = json.Marshal(uuidSlice)
 	userInfo      = npool.User{
-		ID:                          uuid.NewString(),
-		AppID:                       uuid.NewString(),
-		EmailAddress:                uuid.NewString(),
-		PhoneNO:                     uuid.NewString(),
-		ImportedFromAppID:           uuid.NewString(),
-		Username:                    uuid.NewString(),
-		AddressFieldsString:         string(uuidSliceS),
-		AddressFields:               uuidSlice,
-		Gender:                      uuid.NewString(),
-		PostalCode:                  uuid.NewString(),
-		Age:                         100,
-		Birthday:                    uint32(time.Now().Unix()),
-		Avatar:                      uuid.NewString(),
-		Organization:                uuid.NewString(),
-		FirstName:                   uuid.NewString(),
-		LastName:                    uuid.NewString(),
-		IDNumber:                    uuid.NewString(),
-		SigninVerifyByGoogleAuthInt: 1,
-		SigninVerifyByGoogleAuth:    true,
-		GoogleAuthVerifiedInt:       1,
-		GoogleAuthVerified:          true,
-		SigninVerifyType:            sm.SignMethodType_Email,
-		HasGoogleSecret:             true,
-		Roles:                       []string{""},
+		ID:                    uuid.NewString(),
+		AppID:                 uuid.NewString(),
+		EmailAddress:          uuid.NewString(),
+		PhoneNO:               uuid.NewString(),
+		ImportedFromAppID:     uuid.NewString(),
+		Username:              uuid.NewString(),
+		AddressFieldsString:   string(uuidSliceS),
+		AddressFields:         uuidSlice,
+		Gender:                uuid.NewString(),
+		PostalCode:            uuid.NewString(),
+		Age:                   100,
+		Birthday:              uint32(time.Now().Unix()),
+		Avatar:                uuid.NewString(),
+		Organization:          uuid.NewString(),
+		FirstName:             uuid.NewString(),
+		LastName:              uuid.NewString(),
+		IDNumber:              uuid.NewString(),
+		GoogleAuthVerifiedInt: 1,
+		GoogleAuthVerified:    true,
+		SigninVerifyType:      sm.SignMethodType_Email,
+		SigninVerifyTypeStr:   sm.SignMethodType_Email.String(),
+		HasGoogleSecret:       true,
+		Roles:                 []string{""},
 	}
 )
 
@@ -99,6 +98,7 @@ func creatUser(t *testing.T) {
 			BanMessage:         &userInfo.BanMessage,
 		}
 	)
+
 	info, err := CreateUser(context.Background(), &userReq)
 	if assert.Nil(t, err) {
 		userInfo.CreatedAt = info.CreatedAt

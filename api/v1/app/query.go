@@ -79,19 +79,15 @@ func (s *Server) GetApps(ctx context.Context, in *npool.GetAppsRequest) (*npool.
 		return &npool.GetAppsResponse{}, status.Error(codes.Internal, "fail get apps")
 	}
 
-	resp := []*npool.App{}
-	for _, val := range infos {
-		ginfo, err := capp.Ent2Grpc(val)
-		if err != nil {
-			logger.Sugar().Errorw("GetApps", "error", err)
-			return &npool.GetAppsResponse{}, status.Error(codes.Internal, "invalid value")
-		}
-		resp = append(resp, ginfo)
+	ginfos, err := capp.Ent2GrpcMany(infos)
+	if err != nil {
+		logger.Sugar().Errorw("GetApps", "error", err)
+		return &npool.GetAppsResponse{}, status.Error(codes.Internal, "invalid value")
 	}
 
 	return &npool.GetAppsResponse{
-		Infos: resp,
-		Total: uint32(len(resp)),
+		Infos: ginfos,
+		Total: uint32(len(ginfos)),
 	}, nil
 }
 
@@ -122,18 +118,55 @@ func (s *Server) GetUserApps(ctx context.Context, in *npool.GetUserAppsRequest) 
 		return &npool.GetUserAppsResponse{}, status.Error(codes.Internal, "fail get user apps")
 	}
 
-	resp := []*npool.App{}
-	for _, val := range infos {
-		ginfo, err := capp.Ent2Grpc(val)
-		if err != nil {
-			logger.Sugar().Errorw("GetUserApps", "error", err)
-			return &npool.GetUserAppsResponse{}, status.Error(codes.Internal, "invalid value")
-		}
-		resp = append(resp, ginfo)
+	ginfos, err := capp.Ent2GrpcMany(infos)
+	if err != nil {
+		logger.Sugar().Errorw("GetUserApps", "error", err)
+		return &npool.GetUserAppsResponse{}, status.Error(codes.Internal, "invalid value")
 	}
 
 	return &npool.GetUserAppsResponse{
-		Infos: resp,
+		Infos: ginfos,
+		Total: uint32(total),
+	}, nil
+}
+
+func (s *Server) GetManyApps(ctx context.Context, in *npool.GetManyAppsRequest) (*npool.GetManyAppsResponse, error) {
+	var err error
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyApps")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	span.SetAttributes(attribute.StringSlice("IDs", in.GetIDs()))
+
+	for _, val := range in.GetIDs() {
+		if _, err := uuid.Parse(val); err != nil {
+			logger.Sugar().Errorw("GetManyApps", "error", err)
+			return &npool.GetManyAppsResponse{}, status.Error(codes.InvalidArgument, "ID is invalid")
+		}
+	}
+
+	span = commontracer.TraceInvoker(span, "app", "middleware", "GetManyApps")
+
+	infos, total, err := mapp.GetManyApps(ctx, in.GetIDs())
+	if err != nil {
+		logger.Sugar().Errorw("GetManyApps", "error", err)
+		return &npool.GetManyAppsResponse{}, status.Error(codes.Internal, "fail get many apps")
+	}
+
+	ginfos, err := capp.Ent2GrpcMany(infos)
+	if err != nil {
+		logger.Sugar().Errorw("GetManyApps", "error", err)
+		return &npool.GetManyAppsResponse{}, status.Error(codes.Internal, "invalid value")
+	}
+
+	return &npool.GetManyAppsResponse{
+		Infos: ginfos,
 		Total: uint32(total),
 	}, nil
 }

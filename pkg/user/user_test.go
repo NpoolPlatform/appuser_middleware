@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/testinit"
+	sm "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/signmethod"
 )
 
 func init() {
@@ -27,6 +28,7 @@ func init() {
 var (
 	uuidSlice     = []string{uuid.NewString()}
 	uuidSliceS, _ = json.Marshal(uuidSlice)
+	signType      = sm.SignMethodType_Email
 	userInfo      = npool.User{
 		ID:                          uuid.NewString(),
 		AppID:                       uuid.NewString(),
@@ -45,6 +47,7 @@ var (
 		LastName:                    uuid.NewString(),
 		IDNumber:                    uuid.NewString(),
 		SigninVerifyByGoogleAuthInt: 0,
+		SigninVerifyTypeStr:         signType.String(),
 		GoogleAuthVerifiedInt:       0,
 		HasGoogleSecret:             true,
 		Roles:                       []string{""},
@@ -75,6 +78,7 @@ func creatUser(t *testing.T) {
 			LastName:           &userInfo.LastName,
 			IDNumber:           &userInfo.IDNumber,
 			GoogleAuthVerified: &userInfo.GoogleAuthVerified,
+			SigninVerifyType:   &signType,
 			PasswordHash:       &strVal,
 			GoogleSecret:       &appID,
 			ThirdPartyID:       &strVal,
@@ -114,7 +118,7 @@ func updateUser(t *testing.T) {
 			LastName:           &userInfo.LastName,
 			IDNumber:           &userInfo.IDNumber,
 			GoogleAuthVerified: &userInfo.GoogleAuthVerified,
-			SigninVerifyType:   &userInfo.SigninVerifyType,
+			SigninVerifyType:   &signType,
 			PasswordHash:       &strVal,
 			GoogleSecret:       &appID,
 			ThirdPartyID:       &strVal,

@@ -3,6 +3,8 @@ package user
 import (
 	"encoding/json"
 
+	"github.com/NpoolPlatform/message/npool/appuser/mgr/v2/signmethod"
+
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 )
 
@@ -15,13 +17,14 @@ func Ent2Grpc(row *npool.User) *npool.User {
 	_ = json.Unmarshal([]byte(row.AddressFieldsString), &addressFields)
 
 	row.AddressFields = addressFields
-	row.SigninVerifyByGoogleAuth = row.SigninVerifyByGoogleAuthInt != 0
 	row.GoogleAuthVerified = row.GoogleAuthVerifiedInt != 0
 
 	row.Banned = false
 	if row.GetBanAppUserID() != "" {
 		row.Banned = true
 	}
+
+	row.SigninVerifyType = signmethod.SignMethodType(signmethod.SignMethodType_value[row.SigninVerifyTypeStr])
 	return row
 }
 

@@ -34,7 +34,7 @@ func init() {
 
 var (
 	uuidSlice  = []sm.SignMethodType{sm.SignMethodType_Email, sm.SignMethodType_Mobile}
-	uuidSliceS = fmt.Sprintf(`{"%v", "%v"}`, sm.SignMethodType_Email.String(), sm.SignMethodType_Mobile.String())
+	uuidSliceS = fmt.Sprintf(`["%v", "%v"]`, sm.SignMethodType_Email.String(), sm.SignMethodType_Mobile.String())
 	appInfo    = npool.App{
 		ID:                    uuid.NewString(),
 		CreatedBy:             uuid.NewString(),
@@ -42,9 +42,9 @@ var (
 		Logo:                  uuid.NewString(),
 		Description:           uuid.NewString(),
 		Banned:                false,
-		SignupMethodsStr:      string(uuidSliceS),
+		SignupMethodsStr:      uuidSliceS,
 		SignupMethods:         uuidSlice,
-		ExtSigninMethodsStr:   string(uuidSliceS),
+		ExtSigninMethodsStr:   uuidSliceS,
 		ExtSigninMethods:      uuidSlice,
 		RecaptchaMethodStr:    rcpt.RecaptchaType_GoogleRecaptchaV3.String(),
 		RecaptchaMethod:       rcpt.RecaptchaType_GoogleRecaptchaV3,
@@ -134,6 +134,14 @@ func getUserApps(t *testing.T) {
 	}
 }
 
+func getManyApps(t *testing.T) {
+	infos, _, err := GetManyApps(context.Background(), []string{appInfo.ID})
+	if !assert.Nil(t, err) {
+		infos[0].CreatedAt = appInfo.CreatedAt
+		assert.Equal(t, infos[0], &appInfo)
+	}
+}
+
 func TestMainOrder(t *testing.T) {
 	if runByGithubAction, err := strconv.ParseBool(os.Getenv("RUN_BY_GITHUB_ACTION")); err == nil && runByGithubAction {
 		return
@@ -149,4 +157,5 @@ func TestMainOrder(t *testing.T) {
 	t.Run("getApp", getApp)
 	t.Run("getApps", getApps)
 	t.Run("getUserApps", getUserApps)
+	t.Run("getManyApps", getManyApps)
 }

@@ -49,3 +49,15 @@ func Ent2Grpc(row *npool.App) (*npool.App, error) {
 
 	return row, nil
 }
+
+func Ent2GrpcMany(rows []*npool.App) ([]*npool.App, error) {
+	apps := []*npool.App{}
+	for _, row := range rows {
+		app, err := Ent2Grpc(row)
+		if err != nil {
+			return nil, err
+		}
+		apps = append(apps, app)
+	}
+	return apps, nil
+}
