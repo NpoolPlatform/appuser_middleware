@@ -47,6 +47,9 @@ func Ent2Grpc(row *npool.App) (*npool.App, error) {
 	row.InvitationCodeMust = row.InvitationCodeMustInt != 0
 	row.RecaptchaMethod = rcpt.RecaptchaType(rcpt.RecaptchaType_value[row.RecaptchaMethodStr])
 
+	if row.BanAppID != "" {
+		row.Banned = true
+	}
 	return row, nil
 }
 

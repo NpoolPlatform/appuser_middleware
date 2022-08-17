@@ -20,7 +20,7 @@ import (
 
 func GetRole(ctx context.Context, id string) (*role.Role, error) {
 	var err error
-	var info *role.Role
+	var infos []*role.Role
 
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoles")
 	defer span.End()
@@ -32,7 +32,7 @@ func GetRole(ctx context.Context, id string) (*role.Role, error) {
 	}()
 
 	span = commontracer.TraceID(span, id)
-	span = commontracer.TraceInvoker(span, "app", "db", "query join")
+	span = commontracer.TraceInvoker(span, "app", "db", "QueryJoin")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		stm := cli.
@@ -42,14 +42,14 @@ func GetRole(ctx context.Context, id string) (*role.Role, error) {
 				entapprole.ID(uuid.MustParse(id)),
 			)
 		return joinRole(stm).
-			Scan(ctx, &info)
+			Scan(ctx, &infos)
 	})
 	if err != nil {
 		logger.Sugar().Errorw("GetRoles", "error", err)
 		return nil, err
 	}
 
-	return info, nil
+	return infos[0], nil
 }
 
 func GetRoles(ctx context.Context, appID string, offset, limit int32) ([]*role.Role, int, error) {
@@ -68,7 +68,7 @@ func GetRoles(ctx context.Context, appID string, offset, limit int32) ([]*role.R
 
 	span.SetAttributes(attribute.String("AppID", appID))
 	span = commontracer.TraceOffsetLimit(span, int(offset), int(limit))
-	span = commontracer.TraceInvoker(span, "app", "db", "query join")
+	span = commontracer.TraceInvoker(span, "app", "db", "QueryJoin")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		stm := cli.
@@ -111,7 +111,7 @@ func GetManyRoles(ctx context.Context, ids []string) ([]*role.Role, error) {
 	}()
 
 	span.SetAttributes(attribute.StringSlice("ids", ids))
-	span = commontracer.TraceInvoker(span, "app", "db", "query join")
+	span = commontracer.TraceInvoker(span, "app", "db", "QueryJoin")
 
 	idsU := []uuid.UUID{}
 	for _, val := range ids {
