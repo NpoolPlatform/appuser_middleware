@@ -85,7 +85,7 @@ func (s *Server) GetRoles(ctx context.Context, in *npool.GetRolesRequest) (*npoo
 
 	return &npool.GetRolesResponse{
 		Infos: crole.Ent2GrpcMany(infos),
-		Total: uint32(total),
+		Total: total,
 	}, nil
 }
 
@@ -120,7 +120,7 @@ func (s *Server) GetAppRoles(ctx context.Context, in *npool.GetAppRolesRequest) 
 
 	return &npool.GetAppRolesResponse{
 		Infos: crole.Ent2GrpcMany(infos),
-		Total: uint32(total),
+		Total: total,
 	}, nil
 }
 
@@ -152,7 +152,7 @@ func (s *Server) GetManyRoles(ctx context.Context, in *npool.GetManyRolesRequest
 
 	span = commontracer.TraceInvoker(span, "user", "middleware", "GetManyRoles")
 
-	infos, err := mrole.GetManyRoles(ctx, in.GetIDs())
+	infos, total, err := mrole.GetManyRoles(ctx, in.GetIDs())
 	if err != nil {
 		logger.Sugar().Errorw("GetManyRoles", "error", err)
 		return &npool.GetManyRolesResponse{}, status.Error(codes.Internal, "fail get many roles")
@@ -160,7 +160,7 @@ func (s *Server) GetManyRoles(ctx context.Context, in *npool.GetManyRolesRequest
 
 	return &npool.GetManyRolesResponse{
 		Infos: crole.Ent2GrpcMany(infos),
-		Total: uint32(len(infos)),
+		Total: total,
 	}, nil
 }
 
@@ -232,7 +232,7 @@ func (s *Server) GetRoleUsers(ctx context.Context, in *npool.GetRoleUsersRequest
 
 	return &npool.GetRoleUsersResponse{
 		Infos: croleuser.Ent2GrpcMany(infos),
-		Total: uint32(total),
+		Total: total,
 	}, nil
 }
 
@@ -272,7 +272,7 @@ func (s *Server) GetAppRoleUsers(ctx context.Context, in *npool.GetAppRoleUsersR
 
 	return &npool.GetAppRoleUsersResponse{
 		Infos: croleuser.Ent2GrpcMany(infos),
-		Total: uint32(total),
+		Total: total,
 	}, nil
 }
 
@@ -304,7 +304,7 @@ func (s *Server) GetManyRoleUsers(ctx context.Context, in *npool.GetManyRoleUser
 
 	span = commontracer.TraceInvoker(span, "user", "middleware", "GetManyRoleUsers")
 
-	infos, err := mroleuser.GetManyRoleUsers(ctx, in.GetIDs())
+	infos, total, err := mroleuser.GetManyRoleUsers(ctx, in.GetIDs())
 	if err != nil {
 		logger.Sugar().Errorw("GetManyRoleUsers", "error", err)
 		return &npool.GetManyRoleUsersResponse{}, status.Error(codes.Internal, "fail get many role users")
@@ -312,6 +312,6 @@ func (s *Server) GetManyRoleUsers(ctx context.Context, in *npool.GetManyRoleUser
 
 	return &npool.GetManyRoleUsersResponse{
 		Infos: croleuser.Ent2GrpcMany(infos),
-		Total: uint32(len(infos)),
+		Total: total,
 	}, nil
 }

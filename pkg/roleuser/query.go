@@ -34,7 +34,7 @@ func GetRoleUser(ctx context.Context, id string) (*role.RoleUser, error) {
 	}()
 
 	span = commontracer.TraceID(span, id)
-	span = commontracer.TraceInvoker(span, "app", "db", "QueryJoin")
+	span = commontracer.TraceInvoker(span, "roleuser", "db", "CRUD")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		stm := cli.
@@ -54,7 +54,7 @@ func GetRoleUser(ctx context.Context, id string) (*role.RoleUser, error) {
 	return infos[0], nil
 }
 
-func GetRoleUsers(ctx context.Context, appID, roleID string, offset, limit int32) ([]*role.RoleUser, int, error) {
+func GetRoleUsers(ctx context.Context, appID, roleID string, offset, limit int32) ([]*role.RoleUser, uint32, error) {
 	var err error
 	infos := []*role.RoleUser{}
 	var total int
@@ -72,7 +72,7 @@ func GetRoleUsers(ctx context.Context, appID, roleID string, offset, limit int32
 	span.SetAttributes(attribute.String("RoleID", roleID))
 	commontracer.TraceOffsetLimit(span, int(offset), int(limit))
 
-	span = commontracer.TraceInvoker(span, "app", "db", "QueryJoin")
+	span = commontracer.TraceInvoker(span, "roleuser", "db", "CRUD")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		stm := cli.
@@ -94,10 +94,10 @@ func GetRoleUsers(ctx context.Context, appID, roleID string, offset, limit int32
 		return nil, 0, err
 	}
 
-	return infos, total, nil
+	return infos, uint32(total), nil
 }
 
-func GetManyRoleUsers(ctx context.Context, ids []string) ([]*role.RoleUser, error) {
+func GetManyRoleUsers(ctx context.Context, ids []string) ([]*role.RoleUser, uint32, error) {
 	var err error
 	infos := []*role.RoleUser{}
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyRoleUsers")
@@ -110,7 +110,7 @@ func GetManyRoleUsers(ctx context.Context, ids []string) ([]*role.RoleUser, erro
 	}()
 
 	span.SetAttributes(attribute.StringSlice("ids", ids))
-	span = commontracer.TraceInvoker(span, "app", "db", "QueryJoin")
+	span = commontracer.TraceInvoker(span, "roleuser", "db", "CRUD")
 
 	idsU := []uuid.UUID{}
 	for _, val := range ids {
@@ -129,10 +129,10 @@ func GetManyRoleUsers(ctx context.Context, ids []string) ([]*role.RoleUser, erro
 	})
 	if err != nil {
 		logger.Sugar().Errorw("GetManyRoleUsers", "error", err)
-		return nil, err
+		return nil, 0, err
 	}
 
-	return infos, nil
+	return infos, uint32(len(infos)), nil
 }
 
 func join(stm *ent.AppRoleUserQuery) *ent.AppRoleUserSelect {

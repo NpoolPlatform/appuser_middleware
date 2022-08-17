@@ -40,7 +40,7 @@ func GetApp(ctx context.Context, id string) (*app.App, error) {
 
 	span = commontracer.TraceID(span, id)
 
-	span = commontracer.TraceInvoker(span, "app", "db", "QueryJoin")
+	span = commontracer.TraceInvoker(span, "app", "db", "CRUD")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		stm := cli.
@@ -83,7 +83,7 @@ func GetApps(ctx context.Context, offset, limit int32) ([]*app.App, error) {
 
 	span = commontracer.TraceOffsetLimit(span, int(offset), int(limit))
 
-	span = commontracer.TraceInvoker(span, "app", "db", "QueryJoin")
+	span = commontracer.TraceInvoker(span, "app", "db", "CRUD")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		stm := cli.
@@ -121,7 +121,7 @@ func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*ap
 
 	span = commontracer.TraceOffsetLimit(span, int(offset), int(limit))
 
-	span = commontracer.TraceInvoker(span, "app", "db", "QueryJoin")
+	span = commontracer.TraceInvoker(span, "app", "db", "CRUD")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		stm := cli.
@@ -173,7 +173,7 @@ func GetManyApps(ctx context.Context, ids []string) ([]*app.App, int, error) {
 		idsU = append(idsU, uuid.MustParse(val))
 	}
 
-	span = commontracer.TraceInvoker(span, "app", "db", "QueryJoin")
+	span = commontracer.TraceInvoker(span, "app", "db", "CRUD")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		stm := cli.

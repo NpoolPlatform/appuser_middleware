@@ -43,7 +43,7 @@ func GetUser(ctx context.Context, appID, userID string) (*user.User, error) {
 		}
 	}()
 
-	span = commontracer.TraceInvoker(span, "user", "middleware", "QueryJoin")
+	span = commontracer.TraceInvoker(span, "user", "middleware", "CRUD")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		stm := cli.
@@ -94,7 +94,7 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*user.U
 		}
 	}()
 
-	span = commontracer.TraceInvoker(span, "user", "db", "QueryJoin")
+	span = commontracer.TraceInvoker(span, "user", "db", "CRUD")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		stm := cli.
@@ -137,7 +137,7 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*user.U
 	return infos, total, nil
 }
 
-func GetManyUsers(ctx context.Context, userIDs []string) ([]*user.User, int, error) {
+func GetManyUsers(ctx context.Context, userIDs []string) ([]*user.User, uint32, error) {
 	var infos []*user.User
 	var err error
 	var total int
@@ -156,7 +156,7 @@ func GetManyUsers(ctx context.Context, userIDs []string) ([]*user.User, int, err
 		users = append(users, uuid.MustParse(user))
 	}
 
-	span = commontracer.TraceInvoker(span, "user", "db", "QueryJoin")
+	span = commontracer.TraceInvoker(span, "user", "db", "CRUD")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		stm := cli.
@@ -190,7 +190,7 @@ func GetManyUsers(ctx context.Context, userIDs []string) ([]*user.User, int, err
 		return nil, 0, err
 	}
 
-	return infos, total, nil
+	return infos, uint32(total), nil
 }
 
 func expand(ctx context.Context, userIDs []string, users []*user.User) ([]*user.User, error) {
@@ -217,7 +217,7 @@ func expand(ctx context.Context, userIDs []string, users []*user.User) ([]*user.
 		uids = append(uids, uuid.MustParse(user))
 	}
 
-	span = commontracer.TraceInvoker(span, "user", "db", "QueryJoin")
+	span = commontracer.TraceInvoker(span, "user", "db", "CRUD")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		return cli.
