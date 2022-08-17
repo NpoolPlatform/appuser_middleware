@@ -43,7 +43,7 @@ func GetUser(ctx context.Context, appID, userID string) (*user.User, error) {
 		}
 	}()
 
-	span = commontracer.TraceInvoker(span, "user", "middleware", "query join")
+	span = commontracer.TraceInvoker(span, "user", "middleware", "CRUD")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		stm := cli.
@@ -70,7 +70,7 @@ func GetUser(ctx context.Context, appID, userID string) (*user.User, error) {
 		return nil, fmt.Errorf("too many records")
 	}
 
-	span = commontracer.TraceInvoker(span, "user", "method", "expand")
+	span = commontracer.TraceInvoker(span, "user", "method", "Expand")
 
 	infos, err = expand(ctx, []string{userID}, infos)
 	if err != nil {
@@ -94,7 +94,7 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*user.U
 		}
 	}()
 
-	span = commontracer.TraceInvoker(span, "user", "db", "query join")
+	span = commontracer.TraceInvoker(span, "user", "db", "CRUD")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		stm := cli.
@@ -127,7 +127,7 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*user.U
 		users = append(users, info.ID)
 	}
 
-	span = commontracer.TraceInvoker(span, "user", "method", "expand")
+	span = commontracer.TraceInvoker(span, "user", "method", "Expand")
 
 	infos, err = expand(ctx, users, infos)
 	if err != nil {
@@ -156,7 +156,7 @@ func GetManyUsers(ctx context.Context, userIDs []string) ([]*user.User, uint32, 
 		users = append(users, uuid.MustParse(user))
 	}
 
-	span = commontracer.TraceInvoker(span, "user", "db", "query join")
+	span = commontracer.TraceInvoker(span, "user", "db", "CRUD")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		stm := cli.
@@ -183,7 +183,7 @@ func GetManyUsers(ctx context.Context, userIDs []string) ([]*user.User, uint32, 
 		info.Banned = info.BanAppUserID != uuid.UUID{}.String()
 	}
 
-	span = commontracer.TraceInvoker(span, "user", "method", "expand")
+	span = commontracer.TraceInvoker(span, "user", "method", "Expand")
 
 	infos, err = expand(ctx, userIDs, infos)
 	if err != nil {
@@ -217,7 +217,7 @@ func expand(ctx context.Context, userIDs []string, users []*user.User) ([]*user.
 		uids = append(uids, uuid.MustParse(user))
 	}
 
-	span = commontracer.TraceInvoker(span, "user", "db", "query join")
+	span = commontracer.TraceInvoker(span, "user", "db", "CRUD")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		return cli.

@@ -20,7 +20,7 @@ import (
 
 func GetRole(ctx context.Context, id string) (*role.Role, error) {
 	var err error
-	var info *role.Role
+	var infos []*role.Role
 
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoles")
 	defer span.End()
@@ -42,14 +42,14 @@ func GetRole(ctx context.Context, id string) (*role.Role, error) {
 				entapprole.ID(uuid.MustParse(id)),
 			)
 		return join(stm).
-			Scan(ctx, &info)
+			Scan(ctx, &infos)
 	})
 	if err != nil {
 		logger.Sugar().Errorw("GetRoles", "error", err)
 		return nil, err
 	}
 
-	return info, nil
+	return infos[0], nil
 }
 
 func GetRoles(ctx context.Context, appID string, offset, limit int32) ([]*role.Role, uint32, error) {
@@ -111,7 +111,7 @@ func GetManyRoles(ctx context.Context, ids []string) ([]*role.Role, uint32, erro
 	}()
 
 	span.SetAttributes(attribute.StringSlice("ids", ids))
-	span = commontracer.TraceInvoker(span, "role", "db", "CRUD")
+	span = commontracer.TraceInvoker(span, "app", "db", "CRUD")
 
 	idsU := []uuid.UUID{}
 	for _, val := range ids {

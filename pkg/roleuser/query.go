@@ -22,7 +22,7 @@ import (
 
 func GetRoleUser(ctx context.Context, id string) (*role.RoleUser, error) {
 	var err error
-	var info *role.RoleUser
+	var infos []*role.RoleUser
 
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyRoleUsers")
 	defer span.End()
@@ -44,14 +44,14 @@ func GetRoleUser(ctx context.Context, id string) (*role.RoleUser, error) {
 				entapproleuser.ID(uuid.MustParse(id)),
 			)
 		return join(stm).
-			Scan(ctx, &info)
+			Scan(ctx, &infos)
 	})
 	if err != nil {
 		logger.Sugar().Errorw("GetManyRoleUsers", "error", err)
 		return nil, err
 	}
 
-	return info, nil
+	return infos[0], nil
 }
 
 func GetRoleUsers(ctx context.Context, appID, roleID string, offset, limit int32) ([]*role.RoleUser, uint32, error) {
