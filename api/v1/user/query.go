@@ -127,6 +127,6 @@ func (s *Server) GetManyUsers(ctx context.Context, in *npool.GetManyUsersRequest
 
 	return &npool.GetManyUsersResponse{
 		Infos: cuser.Ent2GrpcMany(infos),
-		Total: uint32(total),
+		Total: total,
 	}, nil
 }

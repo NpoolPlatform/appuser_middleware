@@ -137,7 +137,7 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*user.U
 	return infos, total, nil
 }
 
-func GetManyUsers(ctx context.Context, userIDs []string) ([]*user.User, int, error) {
+func GetManyUsers(ctx context.Context, userIDs []string) ([]*user.User, uint32, error) {
 	var infos []*user.User
 	var err error
 	var total int
@@ -190,7 +190,7 @@ func GetManyUsers(ctx context.Context, userIDs []string) ([]*user.User, int, err
 		return nil, 0, err
 	}
 
-	return infos, total, nil
+	return infos, uint32(total), nil
 }
 
 func expand(ctx context.Context, userIDs []string, users []*user.User) ([]*user.User, error) {
