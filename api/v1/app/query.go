@@ -33,16 +33,16 @@ func (s *Server) GetApp(ctx context.Context, in *npool.GetAppRequest) (*npool.Ge
 		}
 	}()
 
-	span = commontracer.TraceID(span, in.GetAppID())
+	span = commontracer.TraceID(span, in.GetID())
 
-	if _, err := uuid.Parse(in.GetAppID()); err != nil {
+	if _, err := uuid.Parse(in.GetID()); err != nil {
 		logger.Sugar().Errorw("GetApp", "error", err)
 		return &npool.GetAppResponse{}, status.Error(codes.InvalidArgument, "AppID is invalid")
 	}
 
 	span = commontracer.TraceInvoker(span, "app", "middleware", "GetApp")
 
-	info, err := mapp.GetApp(ctx, in.GetAppID())
+	info, err := mapp.GetApp(ctx, in.GetID())
 	if err != nil {
 		logger.Sugar().Errorw("GetApp", "error", err)
 		return &npool.GetAppResponse{}, status.Error(codes.Internal, "fail get app")

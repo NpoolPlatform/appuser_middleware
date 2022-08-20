@@ -122,28 +122,6 @@ func GetRoleUsers(ctx context.Context, appID, roleID string, offset, limit int32
 	return infos.([]*npool.RoleUser), total, nil
 }
 
-func GetAppRoleUsers(ctx context.Context, targetAppID, roleID string, offset, limit int32) ([]*npool.RoleUser, uint32, error) {
-	var total uint32
-
-	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
-		resp, err := cli.GetAppRoleUsers(ctx, &npool.GetAppRoleUsersRequest{
-			TargetAppID: targetAppID,
-			RoleID:      roleID,
-			Offset:      offset,
-			Limit:       limit,
-		})
-		if err != nil {
-			return nil, err
-		}
-		total = resp.GetTotal()
-		return resp.Infos, nil
-	})
-	if err != nil {
-		return nil, 0, err
-	}
-	return infos.([]*npool.RoleUser), total, nil
-}
-
 func GetManyRoleUsers(ctx context.Context, ids []string) ([]*npool.RoleUser, uint32, error) {
 	var total uint32
 

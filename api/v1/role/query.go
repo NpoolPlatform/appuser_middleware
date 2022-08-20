@@ -1,4 +1,3 @@
-//nolint:dupl
 package role
 
 import (
@@ -84,41 +83,6 @@ func (s *Server) GetRoles(ctx context.Context, in *npool.GetRolesRequest) (*npoo
 	}
 
 	return &npool.GetRolesResponse{
-		Infos: crole.Ent2GrpcMany(infos),
-		Total: total,
-	}, nil
-}
-
-func (s *Server) GetAppRoles(ctx context.Context, in *npool.GetAppRolesRequest) (*npool.GetAppRolesResponse, error) {
-	var err error
-
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetAppRoles")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
-
-	commontracer.TraceOffsetLimit(span, int(in.GetOffset()), int(in.GetLimit()))
-
-	span.SetAttributes(attribute.String("TargetAppID", in.GetTargetAppID()))
-
-	if _, err := uuid.Parse(in.GetTargetAppID()); err != nil {
-		logger.Sugar().Errorw("GetAppRoles", "error", err)
-		return &npool.GetAppRolesResponse{}, status.Error(codes.InvalidArgument, "AppID is invalid")
-	}
-
-	span = commontracer.TraceInvoker(span, "user", "middleware", "GetAppRoles")
-
-	infos, total, err := mrole.GetRoles(ctx, in.GetTargetAppID(), in.GetOffset(), in.GetLimit())
-	if err != nil {
-		logger.Sugar().Errorw("GetAppRoles", "error", err)
-		return &npool.GetAppRolesResponse{}, status.Error(codes.Internal, "fail get app roles")
-	}
-
-	return &npool.GetAppRolesResponse{
 		Infos: crole.Ent2GrpcMany(infos),
 		Total: total,
 	}, nil
@@ -231,46 +195,6 @@ func (s *Server) GetRoleUsers(ctx context.Context, in *npool.GetRoleUsersRequest
 	}
 
 	return &npool.GetRoleUsersResponse{
-		Infos: croleuser.Ent2GrpcMany(infos),
-		Total: total,
-	}, nil
-}
-
-func (s *Server) GetAppRoleUsers(ctx context.Context, in *npool.GetAppRoleUsersRequest) (*npool.GetAppRoleUsersResponse, error) {
-	var err error
-
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyRoleUsers")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
-
-	span.SetAttributes(attribute.String("TargetAppID", in.GetTargetAppID()))
-	span.SetAttributes(attribute.String("RoleID", in.GetRoleID()))
-	commontracer.TraceOffsetLimit(span, int(in.GetOffset()), int(in.GetLimit()))
-
-	if _, err := uuid.Parse(in.GetTargetAppID()); err != nil {
-		logger.Sugar().Errorw("GetManyRoleUsers", "error", err)
-		return &npool.GetAppRoleUsersResponse{}, status.Error(codes.InvalidArgument, "AppID is invalid")
-	}
-
-	if _, err := uuid.Parse(in.GetRoleID()); err != nil {
-		logger.Sugar().Errorw("GetManyRoleUsers", "error", err)
-		return &npool.GetAppRoleUsersResponse{}, status.Error(codes.InvalidArgument, "RoleID is invalid")
-	}
-
-	span = commontracer.TraceInvoker(span, "user", "middleware", "GetManyRoleUsers")
-
-	infos, total, err := mroleuser.GetRoleUsers(ctx, in.GetTargetAppID(), in.GetRoleID(), in.GetOffset(), in.GetLimit())
-	if err != nil {
-		logger.Sugar().Errorw("GetManyRoleUsers", "error", err)
-		return &npool.GetAppRoleUsersResponse{}, status.Error(codes.Internal, "fail get many role users")
-	}
-
-	return &npool.GetAppRoleUsersResponse{
 		Infos: croleuser.Ent2GrpcMany(infos),
 		Total: total,
 	}, nil
