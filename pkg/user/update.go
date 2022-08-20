@@ -55,7 +55,7 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 		_, err := appusercrud.UpdateSet(
 			tx.AppUser.UpdateOneID(uuid.MustParse(in.GetID())),
 			&appusermgrpb.AppUserReq{
-				PhoneNo:       in.PhoneNO,
+				PhoneNO:       in.PhoneNO,
 				EmailAddress:  in.EmailAddress,
 				ImportFromApp: in.ImportedFromAppID,
 			}).Save(ctx)

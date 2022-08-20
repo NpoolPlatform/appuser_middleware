@@ -23,7 +23,7 @@ func validate(ctx context.Context, info *npool.UserReq) error {
 	err := appuser.Validate(&mgrappuser.AppUserReq{
 		ID:            info.ID,
 		AppID:         info.AppID,
-		PhoneNo:       info.PhoneNO,
+		PhoneNO:       info.PhoneNO,
 		EmailAddress:  info.EmailAddress,
 		ImportFromApp: info.ImportedFromAppID,
 	})

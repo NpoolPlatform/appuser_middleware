@@ -61,7 +61,7 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 		info, err := appusercrud.CreateSet(tx.AppUser.Create(), &appusermgrpb.AppUserReq{
 			ID:            in.ID,
 			AppID:         in.AppID,
-			PhoneNo:       in.PhoneNO,
+			PhoneNO:       in.PhoneNO,
 			EmailAddress:  in.EmailAddress,
 			ImportFromApp: &importedFromAppID,
 		}).Save(ctx)
