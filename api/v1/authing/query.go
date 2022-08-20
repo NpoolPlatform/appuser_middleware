@@ -6,7 +6,7 @@ import (
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing"
 )
 
-func (s *Server) GetAuthOnly(ctx context.Context, in *npool.GetAuthOnlyRequest) (*npool.GetAuthOnlyResponse, error) {
+func (s *Server) ExistConds(ctx context.Context, in *npool.ExistCondsRequest) (*npool.ExistCondsResponse, error) {
 	return nil, nil
 }
 
