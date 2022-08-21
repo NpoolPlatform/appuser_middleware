@@ -28,7 +28,7 @@ func do(ctx context.Context, fn func(_ctx context.Context, cli npool.MiddlewareC
 	return fn(_ctx, cli)
 }
 
-func ExistAuth(ctx context.Context, appID string, userID, token *string, resource, method string) (bool, error) {
+func ExistAuth(ctx context.Context, appID string, userID *string, resource, method string) (bool, error) {
 	exist, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.ExistAuth(ctx, &npool.ExistAuthRequest{
 			AppID:    appID,
