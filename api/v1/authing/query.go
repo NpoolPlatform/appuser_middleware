@@ -37,7 +37,7 @@ func (s *Server) ExistAuth(ctx context.Context, in *npool.ExistAuthRequest) (*np
 		return &npool.ExistAuthResponse{}, status.Error(codes.InvalidArgument, "Method is invalid")
 	}
 
-	exist, err := authing1.ExistAuth(ctx, in.GetAppID(), in.GetUserID(), in.GetResource(), in.GetMethod())
+	exist, err := authing1.ExistAuth(ctx, in.GetAppID(), in.UserID, in.GetResource(), in.GetMethod())
 	if err != nil {
 		logger.Sugar().Errorw("ExistAuth", "error", err)
 		return &npool.ExistAuthResponse{}, status.Error(codes.InvalidArgument, "fail check auth")
