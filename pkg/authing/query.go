@@ -34,6 +34,8 @@ func existAppAuth(ctx context.Context, appID, resource, method string) (exist bo
 			Query().
 			Where(
 				auth.AppID(uuid.MustParse(appID)),
+				auth.RoleID(uuid.UUID{}),
+				auth.UserID(uuid.UUID{}),
 				auth.Resource(resource),
 				auth.Method(method),
 			).
