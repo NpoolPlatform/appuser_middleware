@@ -2,7 +2,8 @@ package authing
 
 import (
 	"context"
-	"fmt"
+
+	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
@@ -66,13 +67,16 @@ func existAppAuth(ctx context.Context, appID, resource, method string) (exist bo
 		return false, err
 	}
 	if len(res) == 0 {
-		return false, fmt.Errorf("permission denied")
+		logger.Sugar().Infow("existAppAuth", "Reason", "no record")
+		return false, nil
 	}
 	if res[0].AppBID == res[0].AppID {
-		return false, fmt.Errorf("permission denied")
+		logger.Sugar().Infow("existAppAuth", "Reason", "banned")
+		return false, nil
 	}
 	if res[0].AppID != res[0].AppVID {
-		return false, fmt.Errorf("permission denied")
+		logger.Sugar().Infow("existAppAuth", "Reason", "mismatch appid")
+		return false, nil
 	}
 
 	return true, nil
