@@ -8,6 +8,7 @@ import (
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
 
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
+	signmethod "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/signmethod"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
@@ -36,7 +37,7 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 		if err != nil {
 			return nil, err
 		}
-		return resp.GetInfo(), nil
+		return resp.Info, nil
 	})
 	if err != nil {
 		return nil, err
@@ -52,7 +53,7 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 		if err != nil {
 			return nil, err
 		}
-		return resp.GetInfo(), nil
+		return resp.Info, nil
 	})
 	if err != nil {
 		return nil, err
@@ -69,7 +70,7 @@ func GetUser(ctx context.Context, appID, userID string) (*npool.User, error) {
 		if err != nil {
 			return nil, err
 		}
-		return resp.GetInfo(), nil
+		return resp.Info, nil
 	})
 	if err != nil {
 		return nil, err
@@ -116,4 +117,30 @@ func GetManyUsers(ctx context.Context, ids []string) ([]*npool.User, uint32, err
 		return nil, 0, err
 	}
 	return infos.([]*npool.User), total, nil
+}
+
+func VerifyUser(
+	ctx context.Context,
+	appID, account string,
+	accountType signmethod.SignMethodType,
+	passwordHash string,
+) (
+	*npool.User, error,
+) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.VerifyUser(ctx, &npool.VerifyUserRequest{
+			AppID:        appID,
+			Account:      account,
+			AccountType:  accountType,
+			PasswordHash: passwordHash,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return info.(*npool.User), nil
 }
