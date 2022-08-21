@@ -3,15 +3,12 @@ package user
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 
 	"github.com/NpoolPlatform/appuser-manager/pkg/encrypt"
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/user"
-	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
-	"go.opentelemetry.io/otel"
-	scodes "go.opentelemetry.io/otel/codes"
 
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
@@ -31,6 +28,11 @@ import (
 	appuserextracrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appuserextra"
 	appusersecretcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appusersecret"
 	appuserthirdpartycrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appuserthirdparty"
+
+	uuid1 "github.com/NpoolPlatform/go-service-framework/pkg/const/uuid"
+
+	"go.opentelemetry.io/otel"
+	scodes "go.opentelemetry.io/otel/codes"
 )
 
 //nolint:funlen
@@ -52,11 +54,11 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 
 	span = commontracer.TraceInvoker(span, "user", "db", "CreateTx")
 
-	importedFromAppID := uuid.UUID{}.String()
-
+	importedFromAppID := uuid1.InvalidUUIDStr
 	if in.ImportedFromAppID != nil {
 		importedFromAppID = in.GetImportedFromAppID()
 	}
+
 	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
 		info, err := appusercrud.CreateSet(tx.AppUser.Create(), &appusermgrpb.AppUserReq{
 			ID:            in.ID,
