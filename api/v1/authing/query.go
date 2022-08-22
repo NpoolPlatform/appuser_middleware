@@ -1,10 +1,17 @@
+//nolint:dupl
 package authing
 
 import (
 	"context"
 
-	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
+	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
+	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	scodes "go.opentelemetry.io/otel/codes"
 
+	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/authing"
+	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing"
 
 	authing1 "github.com/NpoolPlatform/appuser-middleware/pkg/authing"
@@ -15,7 +22,16 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *Server) ExistAuth(ctx context.Context, in *npool.ExistAuthRequest) (*npool.ExistAuthResponse, error) {
+func (s *Server) ExistAuth(ctx context.Context, in *npool.ExistAuthRequest) (info *npool.ExistAuthResponse, err error) {
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoles")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
 	if _, err := uuid.Parse(in.GetAppID()); err != nil {
 		logger.Sugar().Errorw("ExistAuth", "AppID", in.GetAppID(), "error", err)
 		return &npool.ExistAuthResponse{}, status.Error(codes.InvalidArgument, "AppID is invalid")
@@ -37,6 +53,10 @@ func (s *Server) ExistAuth(ctx context.Context, in *npool.ExistAuthRequest) (*np
 		return &npool.ExistAuthResponse{}, status.Error(codes.InvalidArgument, "Method is invalid")
 	}
 
+	span = tracer.Trace(span, in)
+
+	span = commontracer.TraceInvoker(span, "auth", "auth", "ExistAuth")
+
 	exist, err := authing1.ExistAuth(ctx, in.GetAppID(), in.UserID, in.GetResource(), in.GetMethod())
 	if err != nil {
 		logger.Sugar().Errorw("ExistAuth", "error", err)
@@ -48,10 +68,66 @@ func (s *Server) ExistAuth(ctx context.Context, in *npool.ExistAuthRequest) (*np
 	}, nil
 }
 
-func (s *Server) GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (*npool.GetAuthsResponse, error) {
-	return &npool.GetAuthsResponse{}, status.Error(codes.Unimplemented, "NOT IMPLEMENTED")
+func (s *Server) GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (info *npool.GetAuthsResponse, err error) {
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoles")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	span.SetAttributes(attribute.String("AppID", in.GetAppID()))
+	span = commontracer.TraceOffsetLimit(span, int(in.GetOffset()), int(in.GetLimit()))
+
+	if _, err := uuid.Parse(in.GetAppID()); err != nil {
+		logger.Sugar().Errorw("GetAuths", "AppID", in.GetAppID(), "error", err)
+		return &npool.GetAuthsResponse{}, status.Error(codes.InvalidArgument, "AppID is invalid")
+	}
+
+	span = commontracer.TraceInvoker(span, "auth", "auth", "GetAuths")
+
+	infos, total, err := authing1.GetAuths(ctx, in.GetAppID(), in.GetOffset(), in.GetLimit())
+	if err != nil {
+		logger.Sugar().Errorw("GetAuths", "error", err)
+		return &npool.GetAuthsResponse{}, status.Error(codes.Internal, err.Error())
+	}
+
+	return &npool.GetAuthsResponse{
+		Infos: infos,
+		Total: uint32(total),
+	}, nil
 }
 
-func (s *Server) GetHistories(ctx context.Context, in *npool.GetHistoriesRequest) (*npool.GetHistoriesResponse, error) {
-	return &npool.GetHistoriesResponse{}, status.Error(codes.Unimplemented, "NOT IMPLEMENTED")
+func (s *Server) GetHistories(ctx context.Context, in *npool.GetHistoriesRequest) (info *npool.GetHistoriesResponse, err error) {
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetHistories")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	span.SetAttributes(attribute.String("AppID", in.GetAppID()))
+	span = commontracer.TraceOffsetLimit(span, int(in.GetOffset()), int(in.GetLimit()))
+
+	if _, err := uuid.Parse(in.GetAppID()); err != nil {
+		logger.Sugar().Errorw("GetHistories", "AppID", in.GetAppID(), "error", err)
+		return &npool.GetHistoriesResponse{}, status.Error(codes.InvalidArgument, "AppID is invalid")
+	}
+
+	span = commontracer.TraceInvoker(span, "auth", "auth", "GetHistories")
+
+	infos, total, err := authing1.GetHistories(ctx, in.GetAppID(), in.GetOffset(), in.GetLimit())
+	if err != nil {
+		logger.Sugar().Errorw("GetHistories", "error", err)
+		return &npool.GetHistoriesResponse{}, status.Error(codes.Internal, err.Error())
+	}
+
+	return &npool.GetHistoriesResponse{
+		Infos: infos,
+		Total: uint32(total),
+	}, nil
 }
