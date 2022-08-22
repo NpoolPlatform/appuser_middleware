@@ -44,6 +44,11 @@ func GetAuths(ctx context.Context, appID string, offset, limit int32) (infos []*
 		if err != nil {
 			return err
 		}
+
+		stm.
+			Offset(int(offset)).
+			Limit(int(limit))
+
 		return join(stm).
 			Scan(ctx, &infos)
 	})
