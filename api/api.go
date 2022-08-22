@@ -3,6 +3,8 @@ package api
 import (
 	"context"
 
+	"github.com/NpoolPlatform/appuser-middleware/api/v1/kyc"
+
 	"github.com/NpoolPlatform/appuser-middleware/api/v1/app"
 	"github.com/NpoolPlatform/appuser-middleware/api/v1/authing"
 	"github.com/NpoolPlatform/appuser-middleware/api/v1/role"
@@ -24,6 +26,7 @@ func Register(server grpc.ServiceRegistrar) {
 	user.Register(server)
 	role.Register(server)
 	authing.Register(server)
+	kyc.Register(server)
 }
 
 func RegisterGateway(mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) error {
