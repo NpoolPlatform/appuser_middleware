@@ -1,4 +1,4 @@
-//nolint:nolintlint,dupl
+//nolint:dupl
 package authing
 
 import (
@@ -28,11 +28,11 @@ func do(ctx context.Context, fn func(_ctx context.Context, cli npool.MiddlewareC
 	return fn(_ctx, cli)
 }
 
-func ExistAuth(ctx context.Context, appID string, userID *string, resource, method string) (bool, error) {
-	exist, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+func ExistAuth(ctx context.Context, appID, userID, resource, method string) (bool, error) {
+	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.ExistAuth(ctx, &npool.ExistAuthRequest{
 			AppID:    appID,
-			UserID:   userID,
+			UserID:   &userID,
 			Resource: resource,
 			Method:   method,
 		})
@@ -44,10 +44,12 @@ func ExistAuth(ctx context.Context, appID string, userID *string, resource, meth
 	if err != nil {
 		return false, err
 	}
-	return exist.(bool), nil
+	return infos.(bool), nil
 }
 
-func GetAuths(ctx context.Context, appID string, offset, limit int32) ([]*npool.Auth, error) {
+func GetAuths(ctx context.Context, appID string, offset, limit int32) ([]*npool.Auth, uint32, error) {
+	var total uint32
+
 	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetAuths(ctx, &npool.GetAuthsRequest{
 			AppID:  appID,
@@ -57,15 +59,18 @@ func GetAuths(ctx context.Context, appID string, offset, limit int32) ([]*npool.
 		if err != nil {
 			return nil, err
 		}
+		total = resp.GetTotal()
 		return resp.Infos, nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return infos.([]*npool.Auth), nil
+	return infos.([]*npool.Auth), total, nil
 }
 
-func GetHistories(ctx context.Context, appID string, offset, limit int32) ([]*npool.History, error) {
+func GetHistories(ctx context.Context, appID string, offset, limit int32) ([]*npool.History, uint32, error) {
+	var total uint32
+
 	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetHistories(ctx, &npool.GetHistoriesRequest{
 			AppID:  appID,
@@ -75,10 +80,11 @@ func GetHistories(ctx context.Context, appID string, offset, limit int32) ([]*np
 		if err != nil {
 			return nil, err
 		}
+		total = resp.GetTotal()
 		return resp.Infos, nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return infos.([]*npool.History), nil
+	return infos.([]*npool.History), total, nil
 }
