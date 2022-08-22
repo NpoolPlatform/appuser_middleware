@@ -7,6 +7,9 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
+	"github.com/NpoolPlatform/message/npool"
+
 	mgr "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/kyc"
 
 	"bou.ke/monkey"
@@ -78,7 +81,13 @@ func getKyc(t *testing.T) {
 }
 
 func getKycs(t *testing.T) {
-	infos, _, err := GetKycs(context.Background(), kycInfo.GetAppID(), 0, 1)
+	infos, _, err := GetKycs(context.Background(), &kyc.Conds{
+		Conds: &mgr.Conds{
+			ID: &npool.StringVal{
+				Op:    cruder.EQ,
+				Value: kycInfo.ID,
+			},
+		}}, 0, 1)
 	if assert.Nil(t, err) {
 		assert.NotEqual(t, len(infos), 0)
 	}
