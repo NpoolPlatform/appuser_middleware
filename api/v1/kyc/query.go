@@ -3,11 +3,12 @@ package kyc
 import (
 	"context"
 
+	tracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer/kyc"
+
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
 	scodes "go.opentelemetry.io/otel/codes"
 
 	ckyc "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/kyc"
@@ -64,16 +65,11 @@ func (s *Server) GetKycs(ctx context.Context, in *npool.GetKycsRequest) (*npool.
 
 	commontracer.TraceOffsetLimit(span, int(in.GetOffset()), int(in.GetLimit()))
 
-	span.SetAttributes(attribute.String("AppID", in.GetAppID()))
-
-	if _, err := uuid.Parse(in.GetAppID()); err != nil {
-		logger.Sugar().Errorw("GetKycs", "error", err)
-		return &npool.GetKycsResponse{}, status.Error(codes.InvalidArgument, "AppID is invalid")
-	}
+	tracer.TraceConds(span, in.GetConds().GetConds())
 
 	span = commontracer.TraceInvoker(span, "kyc", "middleware", "GetKycs")
 
-	infos, total, err := mkyc.GetKycs(ctx, in.GetAppID(), in.GetOffset(), in.GetLimit())
+	infos, total, err := mkyc.GetKycs(ctx, in.GetConds(), in.GetOffset(), in.GetLimit())
 	if err != nil {
 		logger.Sugar().Errorw("GetKycs", "error", err)
 		return &npool.GetKycsResponse{}, status.Error(codes.Internal, "fail get kycs")

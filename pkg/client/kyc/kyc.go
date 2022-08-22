@@ -44,12 +44,12 @@ func GetKyc(ctx context.Context, id string) (*npool.Kyc, error) {
 	return info.(*npool.Kyc), nil
 }
 
-func GetKycs(ctx context.Context, appID string, offset, limit int32) ([]*npool.Kyc, uint32, error) {
+func GetKycs(ctx context.Context, conds *npool.Conds, offset, limit int32) ([]*npool.Kyc, uint32, error) {
 	var total uint32
 
 	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetKycs(ctx, &npool.GetKycsRequest{
-			AppID:  appID,
+			Conds:  conds,
 			Offset: offset,
 			Limit:  limit,
 		})

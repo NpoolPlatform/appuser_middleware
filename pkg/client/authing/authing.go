@@ -47,6 +47,22 @@ func ExistAuth(ctx context.Context, appID, userID, resource, method string) (boo
 	return infos.(bool), nil
 }
 
+func GetAuth(ctx context.Context, id string) (*npool.Auth, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.GetAuth(ctx, &npool.GetAuthRequest{
+			ID: id,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return info.(*npool.Auth), nil
+}
+
 func GetAuths(ctx context.Context, appID string, offset, limit int32) ([]*npool.Auth, uint32, error) {
 	var total uint32
 

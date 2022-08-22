@@ -6,6 +6,7 @@ import (
 	entappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
 
 	"entgo.io/ent/dialect/sql"
+	crudkyc "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/kyc"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 	entapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
@@ -16,7 +17,6 @@ import (
 	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/kyc"
 	"github.com/google/uuid"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
 	scodes "go.opentelemetry.io/otel/codes"
 )
 
@@ -54,7 +54,7 @@ func GetKyc(ctx context.Context, id string) (*kyc.Kyc, error) {
 	return infos[0], nil
 }
 
-func GetKycs(ctx context.Context, appID string, offset, limit int32) ([]*kyc.Kyc, uint32, error) {
+func GetKycs(ctx context.Context, conds *kyc.Conds, offset, limit int32) ([]*kyc.Kyc, uint32, error) {
 	var err error
 	infos := []*kyc.Kyc{}
 	var total int
@@ -68,17 +68,14 @@ func GetKycs(ctx context.Context, appID string, offset, limit int32) ([]*kyc.Kyc
 		}
 	}()
 
-	span.SetAttributes(attribute.String("AppID", appID))
 	span = commontracer.TraceOffsetLimit(span, int(offset), int(limit))
 	span = commontracer.TraceInvoker(span, "kyc", "db", "CRUD")
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
-		stm := cli.
-			Kyc.
-			Query().
-			Where(
-				entkyc.AppID(uuid.MustParse(appID)),
-			)
+		stm, err := crudkyc.SetQueryConds(conds.GetConds(), cli)
+		if err != nil {
+			return err
+		}
 
 		total, err = stm.Count(ctx)
 		if err != nil {

@@ -21,6 +21,38 @@ import (
 	scodes "go.opentelemetry.io/otel/codes"
 )
 
+func GetAuth(ctx context.Context, id string) (info *npool.Auth, err error) {
+	infos := []*npool.Auth{}
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetAuth")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	span = commontracer.TraceInvoker(span, "auth", "db", "QueryJoin")
+
+	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
+		stm := cli.
+			Auth.
+			Query().
+			Where(
+				entauth.ID(uuid.MustParse(id)),
+			)
+		return join(stm).
+			Scan(ctx, &infos)
+	})
+	if err != nil {
+		logger.Sugar().Errorw("GetAuths", "error", err)
+		return nil, err
+	}
+
+	return infos[0], nil
+}
+
 func GetAuths(ctx context.Context, appID string, offset, limit int32) (infos []*npool.Auth, total int, err error) {
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetAuths")
 	defer span.End()
@@ -58,7 +90,7 @@ func GetAuths(ctx context.Context, appID string, offset, limit int32) (infos []*
 		return nil, 0, err
 	}
 
-	return nil, total, err
+	return infos, total, nil
 }
 
 func join(stm *ent.AuthQuery) *ent.AuthSelect {
@@ -144,7 +176,7 @@ func GetHistories(ctx context.Context, appID string, offset, limit int32) (infos
 		return nil, 0, err
 	}
 
-	return nil, total, err
+	return infos, total, nil
 }
 
 func jsonH(stm *ent.AuthHistoryQuery) *ent.AuthHistorySelect {
