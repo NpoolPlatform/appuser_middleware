@@ -1,4 +1,3 @@
-//nolint:dupl
 package authing
 
 import (
@@ -79,9 +78,10 @@ func GetAuths(ctx context.Context, appID string, offset, limit int32) (infos []*
 		}
 
 		stm.
-			Offset(int(offset)).
-			Limit(int(limit))
-
+			Offset(int(offset))
+		if limit > 0 {
+			stm.Limit(int(limit))
+		}
 		return join(stm).
 			Scan(ctx, &infos)
 	})
