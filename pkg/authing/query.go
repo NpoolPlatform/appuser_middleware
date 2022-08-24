@@ -98,6 +98,9 @@ func join(stm *ent.AuthQuery) *ent.AuthSelect {
 		entauth.FieldResource,
 		entauth.FieldMethod,
 		entauth.FieldCreatedAt,
+		entauth.FieldAppID,
+		entauth.FieldRoleID,
+		entauth.FieldUserID,
 	).Modify(func(s *sql.Selector) {
 		t1 := sql.Table(entapp.Table)
 		s.
@@ -107,7 +110,6 @@ func join(stm *ent.AuthQuery) *ent.AuthSelect {
 				t1.C(entapp.FieldID),
 			).
 			AppendSelect(
-				sql.As(t1.C(entapp.FieldID), "app_id"),
 				sql.As(t1.C(entapp.FieldName), "app_name"),
 				sql.As(t1.C(entapp.FieldLogo), "app_logo"),
 			)
@@ -120,7 +122,6 @@ func join(stm *ent.AuthQuery) *ent.AuthSelect {
 				t2.C(entapprole.FieldID),
 			).
 			AppendSelect(
-				sql.As(t2.C(entapprole.FieldID), "role_id"),
 				sql.As(t2.C(entapprole.FieldRole), "role_name"),
 			)
 
@@ -132,7 +133,6 @@ func join(stm *ent.AuthQuery) *ent.AuthSelect {
 				t3.C(entappuser.FieldID),
 			).
 			AppendSelect(
-				sql.As(t3.C(entappuser.FieldID), "user_id"),
 				sql.As(t3.C(entappuser.FieldEmailAddress), "email_address"),
 				sql.As(t3.C(entappuser.FieldPhoneNo), "phone_no"),
 			)

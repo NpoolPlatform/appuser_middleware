@@ -3,6 +3,7 @@ package authing
 import (
 	"context"
 	"fmt"
+	"github.com/NpoolPlatform/message/npool/appuser/mgr/v2/authing/auth"
 
 	"os"
 	"strconv"
@@ -13,8 +14,8 @@ import (
 	authhistorycli "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/authing/history"
 	"github.com/NpoolPlatform/go-service-framework/pkg/config"
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
-	"github.com/NpoolPlatform/message/npool/appuser/mgr/v2/authing/auth"
 	"github.com/NpoolPlatform/message/npool/appuser/mgr/v2/authing/history"
+	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -34,13 +35,14 @@ func init() {
 }
 
 var (
-	authInfo = auth.Auth{
-		ID:       uuid.NewString(),
-		AppID:    uuid.NewString(),
-		RoleID:   uuid.NewString(),
-		UserID:   uuid.NewString(),
-		Resource: uuid.NewString(),
-		Method:   uuid.NewString(),
+	id       = uuid.NewString()
+	authInfo = authing.Auth{
+		AppID:     uuid.NewString(),
+		RoleID:    uuid.NewString(),
+		UserID:    uuid.NewString(),
+		Resource:  uuid.NewString(),
+		Method:    uuid.NewString(),
+		CreatedAt: 0,
 	}
 
 	historyInfo = history.History{
@@ -56,7 +58,7 @@ var (
 
 func create(t *testing.T) {
 	appAuthReq := auth.AuthReq{
-		ID:       &authInfo.ID,
+		ID:       &id,
 		AppID:    &authInfo.AppID,
 		RoleID:   &authInfo.RoleID,
 		UserID:   &authInfo.UserID,
@@ -91,6 +93,14 @@ func existAuth(t *testing.T) {
 	}
 }
 
+func getAuth(t *testing.T) {
+	info, err := GetAuth(context.Background(), id)
+	if assert.Nil(t, err) {
+		authInfo.CreatedAt = info.CreatedAt
+		assert.Equal(t, info, &authInfo)
+	}
+}
+
 func getAuths(t *testing.T) {
 	_, total, err := GetAuths(context.Background(), authInfo.GetAppID(), 0, 1)
 	if assert.Nil(t, err) {
@@ -119,6 +129,7 @@ func TestMainOrder(t *testing.T) {
 	t.Run("create", create)
 	t.Run("createH", createH)
 	t.Run("existAuth", existAuth)
+	t.Run("getAuth", getAuth)
 	t.Run("getAuths", getAuths)
 	t.Run("getHistories", getHistories)
 }
