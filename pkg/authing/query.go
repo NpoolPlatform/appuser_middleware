@@ -21,6 +21,38 @@ import (
 	scodes "go.opentelemetry.io/otel/codes"
 )
 
+func GetAuth(ctx context.Context, id string) (info *npool.Auth, err error) {
+	infos := []*npool.Auth{}
+
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetAuth")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	span = commontracer.TraceInvoker(span, "auth", "db", "QueryJoin")
+
+	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
+		stm := cli.
+			Auth.
+			Query().
+			Where(
+				entauth.ID(uuid.MustParse(id)),
+			)
+		return join(stm).
+			Scan(ctx, &infos)
+	})
+	if err != nil {
+		logger.Sugar().Errorw("GetAuths", "error", err)
+		return nil, err
+	}
+
+	return infos[0], nil
+}
+
 func GetAuths(ctx context.Context, appID string, offset, limit int32) (infos []*npool.Auth, total int, err error) {
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetAuths")
 	defer span.End()
@@ -58,7 +90,7 @@ func GetAuths(ctx context.Context, appID string, offset, limit int32) (infos []*
 		return nil, 0, err
 	}
 
-	return nil, total, err
+	return infos, total, nil
 }
 
 func join(stm *ent.AuthQuery) *ent.AuthSelect {
@@ -66,6 +98,9 @@ func join(stm *ent.AuthQuery) *ent.AuthSelect {
 		entauth.FieldResource,
 		entauth.FieldMethod,
 		entauth.FieldCreatedAt,
+		entauth.FieldAppID,
+		entauth.FieldRoleID,
+		entauth.FieldUserID,
 	).Modify(func(s *sql.Selector) {
 		t1 := sql.Table(entapp.Table)
 		s.
@@ -75,7 +110,6 @@ func join(stm *ent.AuthQuery) *ent.AuthSelect {
 				t1.C(entapp.FieldID),
 			).
 			AppendSelect(
-				sql.As(t1.C(entapp.FieldID), "app_id"),
 				sql.As(t1.C(entapp.FieldName), "app_name"),
 				sql.As(t1.C(entapp.FieldLogo), "app_logo"),
 			)
@@ -88,7 +122,6 @@ func join(stm *ent.AuthQuery) *ent.AuthSelect {
 				t2.C(entapprole.FieldID),
 			).
 			AppendSelect(
-				sql.As(t2.C(entapprole.FieldID), "role_id"),
 				sql.As(t2.C(entapprole.FieldRole), "role_name"),
 			)
 
@@ -100,7 +133,6 @@ func join(stm *ent.AuthQuery) *ent.AuthSelect {
 				t3.C(entappuser.FieldID),
 			).
 			AppendSelect(
-				sql.As(t3.C(entappuser.FieldID), "user_id"),
 				sql.As(t3.C(entappuser.FieldEmailAddress), "email_address"),
 				sql.As(t3.C(entappuser.FieldPhoneNo), "phone_no"),
 			)
@@ -144,7 +176,7 @@ func GetHistories(ctx context.Context, appID string, offset, limit int32) (infos
 		return nil, 0, err
 	}
 
-	return nil, total, err
+	return infos, total, nil
 }
 
 func jsonH(stm *ent.AuthHistoryQuery) *ent.AuthHistorySelect {
