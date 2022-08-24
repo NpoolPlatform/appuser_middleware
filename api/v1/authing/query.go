@@ -68,6 +68,36 @@ func (s *Server) ExistAuth(ctx context.Context, in *npool.ExistAuthRequest) (inf
 	}, nil
 }
 
+func (s *Server) GetAuth(ctx context.Context, in *npool.GetAuthRequest) (resp *npool.GetAuthResponse, err error) {
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoles")
+	defer span.End()
+	defer func() {
+		if err != nil {
+			span.SetStatus(scodes.Error, err.Error())
+			span.RecordError(err)
+		}
+	}()
+
+	span = commontracer.TraceID(span, in.ID)
+
+	if _, err := uuid.Parse(in.GetID()); err != nil {
+		logger.Sugar().Errorw("GetAuth", "ID", in.GetID(), "error", err)
+		return &npool.GetAuthResponse{}, status.Error(codes.InvalidArgument, "ID is invalid")
+	}
+
+	span = commontracer.TraceInvoker(span, "auth", "auth", "GetAuths")
+
+	info, err := authing1.GetAuth(ctx, in.GetID())
+	if err != nil {
+		logger.Sugar().Errorw("GetAuths", "error", err)
+		return &npool.GetAuthResponse{}, status.Error(codes.Internal, err.Error())
+	}
+
+	return &npool.GetAuthResponse{
+		Info: info,
+	}, nil
+}
+
 func (s *Server) GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (info *npool.GetAuthsResponse, err error) {
 	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoles")
 	defer span.End()
