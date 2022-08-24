@@ -38,6 +38,7 @@ func VerifyUser(
 	*usermwpb.User, error,
 ) {
 	type r struct {
+		ID           string `sql:"id"`
 		AppID        string `sql:"app_id"`
 		UserID       string `sql:"user_id"`
 		PasswordHash string `sql:"password_hash"`
@@ -96,6 +97,7 @@ func VerifyUser(
 					AppendSelect(
 						sql.As(t1.C(entsecret.FieldPasswordHash), "password_hash"),
 						sql.As(t1.C(entsecret.FieldSalt), "salt"),
+						sql.As(t1.C(entsecret.FieldUserID), "user_id"),
 					)
 			}).
 			Scan(ctx, &infos)
