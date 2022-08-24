@@ -3,6 +3,7 @@ package authing
 import (
 	"context"
 	"fmt"
+
 	"github.com/NpoolPlatform/message/npool/appuser/mgr/v2/authing/auth"
 
 	"os"
