@@ -38,6 +38,7 @@ func init() {
 var (
 	id       = uuid.NewString()
 	authInfo = authing.Auth{
+		ID:        id,
 		AppID:     uuid.NewString(),
 		RoleID:    uuid.NewString(),
 		UserID:    uuid.NewString(),
