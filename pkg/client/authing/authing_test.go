@@ -88,7 +88,7 @@ func createH(t *testing.T) {
 }
 
 func existAuth(t *testing.T) {
-	exist, err := ExistAuth(context.Background(), authInfo.GetAppID(), authInfo.GetUserID(), authInfo.GetResource(), authInfo.Method)
+	exist, err := ExistAuth(context.Background(), authInfo.AppID, &authInfo.UserID, authInfo.Resource, authInfo.Method)
 	if assert.Nil(t, err) {
 		assert.NotEqual(t, exist, true)
 	}
