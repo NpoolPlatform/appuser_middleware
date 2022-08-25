@@ -95,6 +95,7 @@ func GetAuths(ctx context.Context, appID string, offset, limit int32) (infos []*
 
 func join(stm *ent.AuthQuery) *ent.AuthSelect {
 	return stm.Select(
+		entauth.FieldID,
 		entauth.FieldResource,
 		entauth.FieldMethod,
 		entauth.FieldCreatedAt,
