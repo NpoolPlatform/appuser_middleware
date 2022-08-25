@@ -26,7 +26,7 @@ func Ent2Grpc(row *npool.User) *npool.User {
 	}
 
 	row.SigninVerifyType = signmethod.SignMethodType(signmethod.SignMethodType_value[row.SigninVerifyTypeStr])
-	row.KycReviewState = kyc.KycReviewState(kyc.KycReviewState_value[row.KycReviewStateStr])
+	row.State = kyc.KycState(kyc.KycState_value[row.KycStateStr])
 	return row
 }
 

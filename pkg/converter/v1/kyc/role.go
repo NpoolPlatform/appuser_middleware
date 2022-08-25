@@ -11,6 +11,7 @@ func Ent2Grpc(row *npool.Kyc) *npool.Kyc {
 	}
 	row.DocumentType = mgrkyc.KycDocumentType(mgrkyc.KycDocumentType_value[row.GetDocumentTypeStr()])
 	row.EntityType = mgrkyc.KycEntityType(mgrkyc.KycEntityType_value[row.GetEntityTypeStr()])
+	row.State = mgrkyc.KycState(mgrkyc.KycState_value[row.GetStateStr()])
 	return row
 }
 

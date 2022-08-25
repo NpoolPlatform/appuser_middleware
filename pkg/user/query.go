@@ -345,7 +345,7 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 					t5.C(entkyc.FieldUserID),
 				).
 				AppendSelect(
-					sql.As(t5.C(entkyc.FieldReviewState), "kyc_review_state"),
+					sql.As(t5.C(entkyc.FieldState), "state"),
 				)
 		})
 }
