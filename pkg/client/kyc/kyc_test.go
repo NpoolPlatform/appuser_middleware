@@ -3,10 +3,11 @@ package kyc
 import (
 	"context"
 	"fmt"
-	v2 "github.com/NpoolPlatform/message/npool/review/mgr/v2"
 	"os"
 	"strconv"
 	"testing"
+
+	v2 "github.com/NpoolPlatform/message/npool/review/mgr/v2"
 
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	"github.com/NpoolPlatform/message/npool"
