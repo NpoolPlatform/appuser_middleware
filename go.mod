@@ -6,7 +6,7 @@ require (
 	entgo.io/ent v0.11.2
 	github.com/NpoolPlatform/api-manager v0.0.0-20220820093920-25cb3a5d5e3a
 	github.com/NpoolPlatform/go-service-framework v0.0.0-20220818105452-9457611ae070
-	github.com/NpoolPlatform/message v0.0.0-20220824071956-4172454682b7
+	github.com/NpoolPlatform/message v0.0.0-20220825060000-4b566b91dc31
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
@@ -21,7 +21,7 @@ require (
 
 require (
 	bou.ke/monkey v1.0.2
-	github.com/NpoolPlatform/appuser-manager v0.0.0-20220824084946-eb497e74ef0b
+	github.com/NpoolPlatform/appuser-manager v0.0.0-20220825060232-c263cd82c1b3
 	github.com/NpoolPlatform/ledger-manager v0.0.0-20220727114744-a028b0ff1bbf
 	github.com/NpoolPlatform/libent-cruder v0.0.0-20220821121920-9559f5776d15
 	go.opentelemetry.io/otel v1.8.0

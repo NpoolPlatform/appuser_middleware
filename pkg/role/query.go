@@ -143,6 +143,7 @@ func join(stm *ent.AppRoleQuery) *ent.AppRoleSelect {
 		entapprole.FieldRole,
 		entapprole.FieldDescription,
 		entapprole.FieldDefault,
+		entapprole.FieldGenesis,
 	).Modify(func(s *sql.Selector) {
 		t1 := sql.Table(entapp.Table)
 		s.
