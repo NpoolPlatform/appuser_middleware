@@ -106,6 +106,7 @@ func join(stm *ent.KycQuery) *ent.KycSelect {
 		entkyc.FieldSelfieImg,
 		entkyc.FieldEntityType,
 		entkyc.FieldReviewID,
+		entkyc.FieldReviewState,
 		entkyc.FieldCreatedAt,
 		entkyc.FieldUpdatedAt,
 		entkyc.FieldAppID,

@@ -3,6 +3,7 @@ package kyc
 import (
 	"context"
 	"fmt"
+	v2 "github.com/NpoolPlatform/message/npool/review/mgr/v2"
 	"os"
 	"strconv"
 	"testing"
@@ -49,6 +50,7 @@ var (
 		EntityType:      mgr.KycEntityType_Individual,
 		EntityTypeStr:   mgr.KycEntityType_Individual.String(),
 		ReviewID:        uuid.NewString(),
+		ReviewStateStr:  v2.ReviewState_Wait.String(),
 	}
 )
 

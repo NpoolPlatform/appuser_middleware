@@ -25,6 +25,7 @@ import (
 
 	entsecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
 	entbanappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banappuser"
+	entkyc "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/kyc"
 	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
 	"github.com/google/uuid"
@@ -335,6 +336,16 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 				AppendSelect(
 					sql.As(t4.C(entbanappuser.FieldID), "ban_app_user_id"),
 					sql.As(t4.C(entbanappuser.FieldMessage), "ban_message"),
+				)
+			t5 := sql.Table(entkyc.Table)
+			s.
+				LeftJoin(t5).
+				On(
+					s.C(entuser.FieldID),
+					t5.C(entkyc.FieldUserID),
+				).
+				AppendSelect(
+					sql.As(t5.C(entkyc.FieldReviewState), "kyc_review_state"),
 				)
 		})
 }

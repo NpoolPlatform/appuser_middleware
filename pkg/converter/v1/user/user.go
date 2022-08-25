@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/NpoolPlatform/message/npool/appuser/mgr/v2/signmethod"
+	review "github.com/NpoolPlatform/message/npool/review/mgr/v2"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 )
@@ -25,6 +26,7 @@ func Ent2Grpc(row *npool.User) *npool.User {
 	}
 
 	row.SigninVerifyType = signmethod.SignMethodType(signmethod.SignMethodType_value[row.SigninVerifyTypeStr])
+	row.KycReviewState = review.ReviewState(review.ReviewState_value[row.KycReviewStateStr])
 	return row
 }
 
