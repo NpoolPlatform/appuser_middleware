@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"testing"
 
-	v2 "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/kyc"
-
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	"github.com/NpoolPlatform/message/npool"
 
@@ -51,7 +49,7 @@ var (
 		EntityType:      mgr.KycEntityType_Individual,
 		EntityTypeStr:   mgr.KycEntityType_Individual.String(),
 		ReviewID:        uuid.NewString(),
-		ReviewStateStr:  v2.KycReviewState_Wait.String(),
+		ReviewStateStr:  mgr.KycReviewState_Wait.String(),
 	}
 )
 
