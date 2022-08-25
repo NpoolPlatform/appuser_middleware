@@ -151,6 +151,7 @@ func join(stm *ent.AppRoleUserQuery) *ent.AppRoleUserSelect {
 				t1.C(entapprole.FieldRole),
 				t1.C(entapprole.FieldDescription),
 				t1.C(entapprole.FieldDefault),
+				t1.C(entapprole.FieldGenesis),
 			)
 
 		t2 := sql.Table(entapp.Table)
