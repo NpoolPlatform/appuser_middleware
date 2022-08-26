@@ -3,8 +3,6 @@ package user
 import (
 	"context"
 
-	"github.com/google/uuid"
-
 	cuser "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/user"
 
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
@@ -19,6 +17,8 @@ import (
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/google/uuid"
 )
 
 func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*npool.UpdateUserResponse, error) {
