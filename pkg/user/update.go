@@ -167,42 +167,33 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 			return err
 		}
 
-		thirdPartyExist, err := appuserthirdpartycrud.ExistConds(ctx, &appuserthirdpartymgrpb.Conds{
-			UserID: &npoolpb.StringVal{
-				Op:    cruder.EQ,
-				Value: in.GetID(),
-			},
-		})
+		thirdParty, err := tx.
+			AppUserThirdParty.
+			Query().
+			Where(
+				entappuserthirdparty.AppID(uuid.MustParse(in.GetAppID())),
+				entappuserthirdparty.UserID(uuid.MustParse(in.GetID())),
+			).
+			ForUpdate().
+			Only(ctx)
 		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil
+			}
 			return err
 		}
 
-		if thirdPartyExist {
-			thirdParty, err := tx.
-				AppUserThirdParty.
-				Query().
-				Where(
-					entappuserthirdparty.AppID(uuid.MustParse(in.GetAppID())),
-					entappuserthirdparty.UserID(uuid.MustParse(in.GetID())),
-				).
-				ForUpdate().
-				Only(ctx)
-			if err != nil {
-				return err
-			}
-
-			if _, err = appuserthirdpartycrud.UpdateSet(
-				thirdParty,
-				&appuserthirdpartymgrpb.AppUserThirdPartyReq{
-					AppID:              in.AppID,
-					ThirdPartyID:       in.ThirdPartyID,
-					ThirdPartyUserID:   in.ThirdPartyUserID,
-					ThirdPartyUsername: in.ThirdPartyUsername,
-					ThirdPartyAvatar:   in.ThirdPartyAvatar,
-				}).Save(ctx); err != nil {
-				logger.Sugar().Errorw("UpdateUser", "err", err.Error())
-				return err
-			}
+		if _, err = appuserthirdpartycrud.UpdateSet(
+			thirdParty,
+			&appuserthirdpartymgrpb.AppUserThirdPartyReq{
+				AppID:              in.AppID,
+				ThirdPartyID:       in.ThirdPartyID,
+				ThirdPartyUserID:   in.ThirdPartyUserID,
+				ThirdPartyUsername: in.ThirdPartyUsername,
+				ThirdPartyAvatar:   in.ThirdPartyAvatar,
+			}).Save(ctx); err != nil {
+			logger.Sugar().Errorw("UpdateUser", "err", err.Error())
+			return err
 		}
 		return nil
 	})
