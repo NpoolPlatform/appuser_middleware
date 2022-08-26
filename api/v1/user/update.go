@@ -3,6 +3,7 @@ package user
 
 import (
 	"context"
+	"github.com/google/uuid"
 
 	cuser "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/user"
 
@@ -34,12 +35,16 @@ func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*
 
 	span = tracer.Trace(span, in.GetInfo())
 
-	if err := validate(ctx, in.GetInfo()); err != nil {
-		logger.Sugar().Errorw("UpdateUser", "error", err)
-		return &npool.UpdateUserResponse{}, err
-	}
-
 	span = commontracer.TraceInvoker(span, "user", "middleware", "UpdateUser")
+
+	if _, err := uuid.Parse(in.GetInfo().GetID()); err != nil {
+		logger.Sugar().Infow("UpdateUser", "ID", in.GetInfo().GetID())
+		return &npool.UpdateUserResponse{}, status.Error(codes.InvalidArgument, err.Error())
+	}
+	if _, err := uuid.Parse(in.GetInfo().GetAppID()); err != nil {
+		logger.Sugar().Infow("UpdateUser", "AppID", in.GetInfo().GetAppID())
+		return &npool.UpdateUserResponse{}, status.Error(codes.InvalidArgument, err.Error())
+	}
 
 	info, err := mw.UpdateUser(ctx, in.GetInfo())
 	if err != nil {

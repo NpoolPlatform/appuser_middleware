@@ -36,6 +36,7 @@ func init() {
 }
 
 var (
+	state   = mgr.KycState_Reviewing
 	kycInfo = kyc.Kyc{
 		ID:              uuid.NewString(),
 		AppID:           uuid.NewString(),
@@ -50,6 +51,7 @@ var (
 		EntityTypeStr:   mgr.KycEntityType_Individual.String(),
 		ReviewID:        uuid.NewString(),
 		StateStr:        mgr.KycState_Reviewing.String(),
+		State:           mgr.KycState_Reviewing,
 	}
 )
 
@@ -65,6 +67,7 @@ func create(t *testing.T) {
 		SelfieImg:    &kycInfo.SelfieImg,
 		EntityType:   &kycInfo.EntityType,
 		ReviewID:     &kycInfo.ReviewID,
+		State:        &state,
 	}
 	_, err := kyccli.Create(context.Background(), &appRoleReq)
 	if !assert.Nil(t, err) {
