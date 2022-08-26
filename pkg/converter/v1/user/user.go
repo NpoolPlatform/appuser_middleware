@@ -3,6 +3,7 @@ package user
 import (
 	"encoding/json"
 
+	"github.com/NpoolPlatform/message/npool/appuser/mgr/v2/kyc"
 	"github.com/NpoolPlatform/message/npool/appuser/mgr/v2/signmethod"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
@@ -25,6 +26,7 @@ func Ent2Grpc(row *npool.User) *npool.User {
 	}
 
 	row.SigninVerifyType = signmethod.SignMethodType(signmethod.SignMethodType_value[row.SigninVerifyTypeStr])
+	row.State = kyc.KycState(kyc.KycState_value[row.KycStateStr])
 	return row
 }
 

@@ -49,6 +49,7 @@ var (
 		EntityType:      mgr.KycEntityType_Individual,
 		EntityTypeStr:   mgr.KycEntityType_Individual.String(),
 		ReviewID:        uuid.NewString(),
+		StateStr:        mgr.KycState_Reviewing.String(),
 	}
 )
 
