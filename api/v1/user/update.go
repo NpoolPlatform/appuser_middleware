@@ -1,4 +1,3 @@
-//nolint:dupl
 package user
 
 import (
@@ -18,6 +17,8 @@ import (
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/google/uuid"
 )
 
 func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*npool.UpdateUserResponse, error) {
@@ -34,12 +35,16 @@ func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*
 
 	span = tracer.Trace(span, in.GetInfo())
 
-	if err := validate(ctx, in.GetInfo()); err != nil {
-		logger.Sugar().Errorw("UpdateUser", "error", err)
-		return &npool.UpdateUserResponse{}, err
-	}
-
 	span = commontracer.TraceInvoker(span, "user", "middleware", "UpdateUser")
+
+	if _, err := uuid.Parse(in.GetInfo().GetID()); err != nil {
+		logger.Sugar().Infow("UpdateUser", "ID", in.GetInfo().GetID())
+		return &npool.UpdateUserResponse{}, status.Error(codes.InvalidArgument, err.Error())
+	}
+	if _, err := uuid.Parse(in.GetInfo().GetAppID()); err != nil {
+		logger.Sugar().Infow("UpdateUser", "AppID", in.GetInfo().GetAppID())
+		return &npool.UpdateUserResponse{}, status.Error(codes.InvalidArgument, err.Error())
+	}
 
 	info, err := mw.UpdateUser(ctx, in.GetInfo())
 	if err != nil {
