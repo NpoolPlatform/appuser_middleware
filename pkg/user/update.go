@@ -2,6 +2,9 @@ package user
 
 import (
 	"context"
+	"fmt"
+
+	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 
 	"github.com/google/uuid"
 
@@ -20,6 +23,7 @@ import (
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 
+	npoolpb "github.com/NpoolPlatform/message/npool"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
@@ -35,7 +39,7 @@ import (
 	entappuserthirdparty "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserthirdparty"
 )
 
-//nolint:funlen
+//nolint:funlen,gocyclo
 func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 	var err error
 
@@ -50,6 +54,11 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 
 	span = tracer.Trace(span, in)
 	span = commontracer.TraceInvoker(span, "user", "db", "UpdateTx")
+
+	err = checkUserExist(ctx, in)
+	if err != nil {
+		return nil, err
+	}
 
 	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
 		_, err := appusercrud.UpdateSet(
@@ -158,32 +167,43 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 			return err
 		}
 
-		thirdparty, err := tx.
-			AppUserThirdParty.
-			Query().
-			Where(
-				entappuserthirdparty.AppID(uuid.MustParse(in.GetAppID())),
-				entappuserthirdparty.UserID(uuid.MustParse(in.GetID())),
-			).
-			ForUpdate().
-			Only(ctx)
+		thirdPartyExist, err := appuserthirdpartycrud.ExistConds(ctx, &appuserthirdpartymgrpb.Conds{
+			UserID: &npoolpb.StringVal{
+				Op:    cruder.EQ,
+				Value: in.GetID(),
+			},
+		})
 		if err != nil {
 			return err
 		}
 
-		if _, err = appuserthirdpartycrud.UpdateSet(
-			thirdparty,
-			&appuserthirdpartymgrpb.AppUserThirdPartyReq{
-				AppID:              in.AppID,
-				ThirdPartyID:       in.ThirdPartyID,
-				ThirdPartyUserID:   in.ThirdPartyUserID,
-				ThirdPartyUsername: in.ThirdPartyUsername,
-				ThirdPartyAvatar:   in.ThirdPartyAvatar,
-			}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("UpdateUser", "err", err.Error())
-			return err
-		}
+		if thirdPartyExist {
+			thirdParty, err := tx.
+				AppUserThirdParty.
+				Query().
+				Where(
+					entappuserthirdparty.AppID(uuid.MustParse(in.GetAppID())),
+					entappuserthirdparty.UserID(uuid.MustParse(in.GetID())),
+				).
+				ForUpdate().
+				Only(ctx)
+			if err != nil {
+				return err
+			}
 
+			if _, err = appuserthirdpartycrud.UpdateSet(
+				thirdParty,
+				&appuserthirdpartymgrpb.AppUserThirdPartyReq{
+					AppID:              in.AppID,
+					ThirdPartyID:       in.ThirdPartyID,
+					ThirdPartyUserID:   in.ThirdPartyUserID,
+					ThirdPartyUsername: in.ThirdPartyUsername,
+					ThirdPartyAvatar:   in.ThirdPartyAvatar,
+				}).Save(ctx); err != nil {
+				logger.Sugar().Errorw("UpdateUser", "err", err.Error())
+				return err
+			}
+		}
 		return nil
 	})
 	if err != nil {
@@ -191,4 +211,68 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 	}
 
 	return GetUser(ctx, in.GetAppID(), in.GetID())
+}
+
+func checkUserExist(ctx context.Context, in *npool.UserReq) error {
+	userExist, err := appusercrud.Exist(ctx, uuid.MustParse(in.GetID()))
+	if err != nil {
+		return err
+	}
+	if !userExist {
+		return fmt.Errorf("user not exsit")
+	}
+
+	extraExist, err := appuserextracrud.ExistConds(ctx, &appuserextramgrpb.Conds{
+		UserID: &npoolpb.StringVal{
+			Op:    cruder.EQ,
+			Value: in.GetID(),
+		},
+	})
+	if err != nil {
+		return err
+	}
+	if !extraExist {
+		_, err = appuserextracrud.Create(ctx, &appuserextramgrpb.AppUserExtraReq{
+			AppID:         in.AppID,
+			UserID:        in.ID,
+			FirstName:     in.FirstName,
+			Birthday:      in.Birthday,
+			LastName:      in.LastName,
+			Gender:        in.Gender,
+			Avatar:        in.Avatar,
+			Username:      in.Username,
+			PostalCode:    in.PostalCode,
+			Age:           in.Age,
+			Organization:  in.Organization,
+			IDNumber:      in.IDNumber,
+			AddressFields: in.AddressFields,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	controlExist, err := appusercontrolcrud.ExistConds(ctx, &appusercontrolmgrpb.Conds{
+		UserID: &npoolpb.StringVal{
+			Op:    cruder.EQ,
+			Value: in.GetID(),
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	if !controlExist {
+		_, err = appusercontrolcrud.Create(ctx, &appusercontrolmgrpb.AppUserControlReq{
+			AppID:              in.AppID,
+			UserID:             in.ID,
+			GoogleAuthVerified: in.GoogleAuthVerified,
+			SigninVerifyType:   in.SigninVerifyType,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

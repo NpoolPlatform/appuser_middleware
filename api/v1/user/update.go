@@ -1,8 +1,8 @@
-//nolint:dupl
 package user
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 
 	cuser "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/user"
