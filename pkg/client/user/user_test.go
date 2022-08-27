@@ -108,13 +108,16 @@ func creatUser(t *testing.T) {
 
 func updateUser(t *testing.T) {
 	var (
-		appID   = userInfo.AppID
-		strVal  = "AAA"
+		appID        = userInfo.AppID
+		strVal       = "AAA"
+		emailAddress = uuid.NewString()
+		phoneNO      = uuid.NewString()
+
 		userReq = npool.UserReq{
 			ID:                 &userInfo.ID,
 			AppID:              &userInfo.AppID,
-			EmailAddress:       &userInfo.EmailAddress,
-			PhoneNO:            &userInfo.PhoneNO,
+			EmailAddress:       &emailAddress,
+			PhoneNO:            &phoneNO,
 			ImportedFromAppID:  &userInfo.ImportedFromAppID,
 			Username:           &userInfo.Username,
 			AddressFields:      uuidSlice,
@@ -139,6 +142,10 @@ func updateUser(t *testing.T) {
 			BanMessage:         &userInfo.BanMessage,
 		}
 	)
+
+	userInfo.PhoneNO = phoneNO
+	userInfo.EmailAddress = emailAddress
+
 	info, err := UpdateUser(context.Background(), &userReq)
 	if assert.Nil(t, err) {
 		info.Roles = userInfo.Roles
