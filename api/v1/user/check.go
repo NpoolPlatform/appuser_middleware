@@ -3,24 +3,28 @@ package user
 import (
 	"context"
 
+	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
+
+	"github.com/NpoolPlatform/appuser-manager/api/v2/appuser"
+	"github.com/NpoolPlatform/appuser-manager/api/v2/appusercontrol"
+	"github.com/NpoolPlatform/appuser-manager/api/v2/appuserextra"
+	"github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/approle"
+	appusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appuser"
+	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
-	mgrappuser "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
+	npoolpb "github.com/NpoolPlatform/message/npool"
+	appuserpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
 	mgrappusercontrol "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appusercontrol"
 	mgrappuserextra "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuserextra"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"github.com/NpoolPlatform/appuser-manager/api/v2/appuser"
-	"github.com/NpoolPlatform/appuser-manager/api/v2/appusercontrol"
-	"github.com/NpoolPlatform/appuser-manager/api/v2/appuserextra"
-	"github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/approle"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 )
 
+//nolint:dupl,funlen,gocyclo
 func validate(ctx context.Context, info *npool.UserReq) error {
-	err := appuser.Validate(&mgrappuser.AppUserReq{
+	err := appuser.Validate(&appuserpb.AppUserReq{
 		ID:            info.ID,
 		AppID:         info.AppID,
 		PhoneNO:       info.PhoneNO,
@@ -63,7 +67,7 @@ func validate(ctx context.Context, info *npool.UserReq) error {
 		return status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if info.PasswordHash == nil && info.ThirdPartyID == nil {
+	if info.PasswordHash == nil && info.ThirdPartyID == nil && info.GetPasswordHash() == "" && info.GetThirdPartyID() == "" {
 		logger.Sugar().Errorw("validate", "PasswordHash or ThirdPartyID must be one")
 		return status.Error(codes.InvalidArgument, "PasswordHash or ThirdPartyID must be one")
 	}
@@ -85,6 +89,52 @@ func validate(ctx context.Context, info *npool.UserReq) error {
 			return status.Error(codes.Internal, err.Error())
 		}
 	}
+
+	if info.PhoneNO != nil && info.GetPhoneNO() != "" {
+		phoneExist, err := appusercrud.ExistConds(ctx, &appuserpb.Conds{
+			PhoneNO: &npoolpb.StringVal{
+				Op:    cruder.EQ,
+				Value: info.GetPhoneNO(),
+			},
+			AppID: &npoolpb.StringVal{
+				Op:    cruder.EQ,
+				Value: info.GetAppID(),
+			},
+		})
+
+		if err != nil {
+			logger.Sugar().Errorw("validate", "err", err)
+			return status.Error(codes.Internal, err.Error())
+		}
+
+		if phoneExist {
+			logger.Sugar().Errorw("validate", "phoneExsit", phoneExist)
+			return status.Error(codes.AlreadyExists, "phone already exists")
+		}
+	}
+
+	if info.EmailAddress != nil && info.GetEmailAddress() != "" {
+		emailExist, err := appusercrud.ExistConds(ctx, &appuserpb.Conds{
+			EmailAddress: &npoolpb.StringVal{
+				Op:    cruder.EQ,
+				Value: info.GetEmailAddress(),
+			},
+			AppID: &npoolpb.StringVal{
+				Op:    cruder.EQ,
+				Value: info.GetAppID(),
+			},
+		})
+		if err != nil {
+			logger.Sugar().Errorw("validate", "err", err)
+			return status.Error(codes.Internal, err.Error())
+		}
+
+		if emailExist {
+			logger.Sugar().Errorw("validate", "emailExist", emailExist)
+			return status.Error(codes.AlreadyExists, "email already exists")
+		}
+	}
+
 	return nil
 }
 
