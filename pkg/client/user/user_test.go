@@ -36,9 +36,10 @@ func init() {
 var (
 	uuidSlice     = []string{uuid.NewString()}
 	uuidSliceS, _ = json.Marshal(uuidSlice)
+	appID         = uuid.NewString()
 	userInfo      = npool.User{
 		ID:                    uuid.NewString(),
-		AppID:                 uuid.NewString(),
+		AppID:                 appID,
 		EmailAddress:          uuid.NewString(),
 		PhoneNO:               uuid.NewString(),
 		ImportedFromAppID:     uuid.NewString(),
@@ -58,6 +59,7 @@ var (
 		GoogleAuthVerified:    true,
 		SigninVerifyType:      sm.SignMethodType_Email,
 		SigninVerifyTypeStr:   sm.SignMethodType_Email.String(),
+		GoogleSecret:          appID,
 		HasGoogleSecret:       true,
 		Roles:                 []string{""},
 	}
