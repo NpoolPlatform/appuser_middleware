@@ -3,6 +3,11 @@ package user
 import (
 	"context"
 
+	appusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appuser"
+	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
+	npoolpb "github.com/NpoolPlatform/message/npool"
+	appuserpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
+
 	cuser "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/user"
 
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
@@ -21,6 +26,7 @@ import (
 	"github.com/google/uuid"
 )
 
+//nolint:dupl
 func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*npool.UpdateUserResponse, error) {
 	var err error
 
@@ -44,6 +50,51 @@ func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*
 	if _, err := uuid.Parse(in.GetInfo().GetAppID()); err != nil {
 		logger.Sugar().Infow("UpdateUser", "AppID", in.GetInfo().GetAppID())
 		return &npool.UpdateUserResponse{}, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	if in.Info.PhoneNO != nil && in.Info.GetPhoneNO() != "" {
+		phoneExist, err := appusercrud.ExistConds(ctx, &appuserpb.Conds{
+			PhoneNO: &npoolpb.StringVal{
+				Op:    cruder.EQ,
+				Value: in.Info.GetPhoneNO(),
+			},
+			AppID: &npoolpb.StringVal{
+				Op:    cruder.EQ,
+				Value: in.Info.GetAppID(),
+			},
+		})
+
+		if err != nil {
+			logger.Sugar().Errorw("validate", "err", err)
+			return &npool.UpdateUserResponse{}, status.Error(codes.Internal, err.Error())
+		}
+
+		if phoneExist {
+			logger.Sugar().Errorw("validate", "phoneExsit", phoneExist)
+			return &npool.UpdateUserResponse{}, status.Error(codes.AlreadyExists, "phone already exists")
+		}
+	}
+
+	if in.Info.EmailAddress != nil && in.Info.GetEmailAddress() != "" {
+		emailExist, err := appusercrud.ExistConds(ctx, &appuserpb.Conds{
+			EmailAddress: &npoolpb.StringVal{
+				Op:    cruder.EQ,
+				Value: in.Info.GetEmailAddress(),
+			},
+			AppID: &npoolpb.StringVal{
+				Op:    cruder.EQ,
+				Value: in.Info.GetAppID(),
+			},
+		})
+		if err != nil {
+			logger.Sugar().Errorw("validate", "err", err)
+			return &npool.UpdateUserResponse{}, status.Error(codes.Internal, err.Error())
+		}
+
+		if emailExist {
+			logger.Sugar().Errorw("validate", "emailExist", emailExist)
+			return &npool.UpdateUserResponse{}, status.Error(codes.AlreadyExists, "email already exists")
+		}
 	}
 
 	info, err := mw.UpdateUser(ctx, in.GetInfo())
