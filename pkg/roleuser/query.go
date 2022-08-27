@@ -24,7 +24,7 @@ func GetRoleUser(ctx context.Context, id string) (*role.RoleUser, error) {
 	var err error
 	var infos []*role.RoleUser
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyRoleUsers")
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoleUser")
 	defer span.End()
 	defer func() {
 		if err != nil {

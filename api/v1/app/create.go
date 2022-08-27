@@ -32,7 +32,7 @@ func (s *Server) CreateApp(ctx context.Context, in *npool.CreateAppRequest) (*np
 
 	span = tracer.Trace(span, in.GetInfo())
 
-	if err := validate(in.GetInfo()); err != nil {
+	if err := validate(ctx, in.GetInfo()); err != nil {
 		logger.Sugar().Errorw("CreateApp", "error", err)
 		return &npool.CreateAppResponse{}, err
 	}

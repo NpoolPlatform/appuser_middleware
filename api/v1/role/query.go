@@ -131,7 +131,7 @@ func (s *Server) GetManyRoles(ctx context.Context, in *npool.GetManyRolesRequest
 func (s *Server) GetRoleUser(ctx context.Context, in *npool.GetRoleUserRequest) (*npool.GetRoleUserResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyRoleUsers")
+	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoleUser")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -143,7 +143,7 @@ func (s *Server) GetRoleUser(ctx context.Context, in *npool.GetRoleUserRequest) 
 	commontracer.TraceID(span, in.GetID())
 
 	if _, err := uuid.Parse(in.GetID()); err != nil {
-		logger.Sugar().Errorw("GetManyRoleUsers", "error", err)
+		logger.Sugar().Errorw("GetRoleUser", "error", err)
 		return &npool.GetRoleUserResponse{}, status.Error(codes.InvalidArgument, "AppID is invalid")
 	}
 
@@ -151,8 +151,8 @@ func (s *Server) GetRoleUser(ctx context.Context, in *npool.GetRoleUserRequest) 
 
 	info, err := mroleuser.GetRoleUser(ctx, in.GetID())
 	if err != nil {
-		logger.Sugar().Errorw("GetManyRoleUsers", "error", err)
-		return &npool.GetRoleUserResponse{}, status.Error(codes.Internal, "fail get many role users")
+		logger.Sugar().Errorw("GetRoleUser", "error", err)
+		return &npool.GetRoleUserResponse{}, status.Error(codes.Internal, "fail get role user")
 	}
 
 	return &npool.GetRoleUserResponse{
