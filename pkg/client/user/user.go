@@ -119,7 +119,7 @@ func GetManyUsers(ctx context.Context, ids []string) ([]*npool.User, uint32, err
 	return infos.([]*npool.User), total, nil
 }
 
-func VerifyUser(
+func VerifyAccount(
 	ctx context.Context,
 	appID, account string,
 	accountType signmethod.SignMethodType,
@@ -128,10 +128,34 @@ func VerifyUser(
 	*npool.User, error,
 ) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
-		resp, err := cli.VerifyUser(ctx, &npool.VerifyUserRequest{
+		resp, err := cli.VerifyAccount(ctx, &npool.VerifyAccountRequest{
 			AppID:        appID,
 			Account:      account,
 			AccountType:  accountType,
+			PasswordHash: passwordHash,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return info.(*npool.User), nil
+}
+
+func VerifyUser(
+	ctx context.Context,
+	appID, userID string,
+	passwordHash string,
+) (
+	*npool.User, error,
+) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.VerifyUser(ctx, &npool.VerifyUserRequest{
+			AppID:        appID,
+			UserID:       userID,
 			PasswordHash: passwordHash,
 		})
 		if err != nil {
