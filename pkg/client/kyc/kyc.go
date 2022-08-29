@@ -3,7 +3,6 @@ package kyc
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
@@ -71,13 +70,10 @@ func GetOnlyKyc(ctx context.Context, conds *npool.Conds) (*npool.Kyc, error) {
 		resp, err := cli.GetKycs(ctx, &npool.GetKycsRequest{
 			Conds:  conds,
 			Offset: 0,
-			Limit:  2,
+			Limit:  1,
 		})
 		if err != nil {
 			return nil, err
-		}
-		if len(resp.GetInfos()) > 1 {
-			return nil, fmt.Errorf("more than one")
 		}
 		return resp.Infos, nil
 	})
