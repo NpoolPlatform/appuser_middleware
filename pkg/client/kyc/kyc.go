@@ -80,7 +80,7 @@ func GetKycOnly(ctx context.Context, conds *npool.Conds) (info *npool.Kyc, err e
 	if err != nil {
 		return nil, err
 	}
-	if len(infos) == 0 {
+	if len(infos.([]*npool.Kyc)) == 0 {
 		return nil, err
 	}
 	return infos.([]*npool.Kyc)[0], nil
