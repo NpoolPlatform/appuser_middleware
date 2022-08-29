@@ -3,6 +3,7 @@ package kyc
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
@@ -63,4 +64,25 @@ func GetKycs(ctx context.Context, conds *npool.Conds, offset, limit int32) ([]*n
 		return nil, 0, err
 	}
 	return infos.([]*npool.Kyc), total, nil
+}
+
+func GetOnlyKyc(ctx context.Context, conds *npool.Conds) (*npool.Kyc, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.GetKycs(ctx, &npool.GetKycsRequest{
+			Conds:  conds,
+			Offset: 0,
+			Limit:  2,
+		})
+		if err != nil {
+			return nil, err
+		}
+		if len(resp.GetInfos()) > 1 {
+			return nil, fmt.Errorf("more than one")
+		}
+		return resp.Infos, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return info.(*npool.Kyc), nil
 }
