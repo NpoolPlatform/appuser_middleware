@@ -64,3 +64,24 @@ func GetKycs(ctx context.Context, conds *npool.Conds, offset, limit int32) ([]*n
 	}
 	return infos.([]*npool.Kyc), total, nil
 }
+
+func GetKycOnly(ctx context.Context, conds *npool.Conds) (info *npool.Kyc, err error) {
+	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.GetKycs(ctx, &npool.GetKycsRequest{
+			Conds:  conds,
+			Offset: 0,
+			Limit:  1,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Infos, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(infos) == 0 {
+		return nil, err
+	}
+	return infos.([]*npool.Kyc)[0], nil
+}
