@@ -29,9 +29,10 @@ var (
 	uuidSlice     = []string{uuid.NewString()}
 	uuidSliceS, _ = json.Marshal(uuidSlice)
 	signType      = sm.SignMethodType_Email
+	appID         = uuid.NewString()
 	userInfo      = npool.User{
 		ID:                          uuid.NewString(),
-		AppID:                       uuid.NewString(),
+		AppID:                       appID,
 		EmailAddress:                uuid.NewString(),
 		PhoneNO:                     uuid.NewString(),
 		ImportedFromAppID:           uuid.NewString(),
@@ -49,6 +50,7 @@ var (
 		SigninVerifyByGoogleAuthInt: 0,
 		SigninVerifyTypeStr:         signType.String(),
 		GoogleAuthVerifiedInt:       0,
+		GoogleSecret:                appID,
 		HasGoogleSecret:             true,
 		Roles:                       []string{""},
 	}

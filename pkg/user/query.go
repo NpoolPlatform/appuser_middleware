@@ -261,6 +261,7 @@ func expand(ctx context.Context, userIDs []string, users []*user.User) ([]*user.
 		for _, user := range users {
 			if info.UserID.String() == user.ID {
 				user.HasGoogleSecret = info.GoogleSecret != ""
+				user.GoogleSecret = info.GoogleSecret
 				user.Roles = append(user.Roles, info.RoleName)
 				break
 			}
