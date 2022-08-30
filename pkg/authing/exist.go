@@ -213,6 +213,7 @@ func existRoleAuth(ctx context.Context, appID, userID, resource, method string) 
 	return true, nil
 }
 
+//nolint
 func existUserAuth(ctx context.Context, appID, userID, resource, method string) (exist bool, err error) {
 	type r struct {
 		AppID   string `sql:"app_id"`
