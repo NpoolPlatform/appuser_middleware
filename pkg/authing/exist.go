@@ -219,7 +219,6 @@ func existUserAuth(ctx context.Context, appID, userID, resource, method string) 
 		UserID  string `sql:"id"`
 		AppVID  string `sql:"app_vid"`
 		AppBID  string `sql:"app_bid"`
-		UserVID string `sql:"user_vid"`
 		UserBID string `sql:"user_bid"`
 	}
 
@@ -227,6 +226,7 @@ func existUserAuth(ctx context.Context, appID, userID, resource, method string) 
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		return cli.
+			Debug().
 			AppUser.
 			Query().
 			Select(
@@ -312,10 +312,6 @@ func existUserAuth(ctx context.Context, appID, userID, resource, method string) 
 	}
 	if res[0].UserBID == res[0].UserID {
 		logger.Sugar().Infow("existUserAuth", "Reason", "banned userid")
-		return false, nil
-	}
-	if res[0].UserID != res[0].UserVID {
-		logger.Sugar().Infow("existUserAuth", "Reason", "mismatch userid")
 		return false, nil
 	}
 
