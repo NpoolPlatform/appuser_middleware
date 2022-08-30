@@ -171,7 +171,7 @@ func existRoleAuth(ctx context.Context, appID, userID, resource, method string) 
 						s.C(approleuser.FieldAppID),
 					).
 					On(
-						t5.C(auth.FieldUserID),
+						t5.C(auth.FieldRoleID),
 						s.C(approleuser.FieldRoleID),
 					).
 					Where(
@@ -216,7 +216,7 @@ func existRoleAuth(ctx context.Context, appID, userID, resource, method string) 
 func existUserAuth(ctx context.Context, appID, userID, resource, method string) (exist bool, err error) {
 	type r struct {
 		AppID   string `sql:"app_id"`
-		UserID  string `sql:"user_id"`
+		UserID  string `sql:"id"`
 		AppVID  string `sql:"app_vid"`
 		AppBID  string `sql:"app_bid"`
 		UserVID string `sql:"user_vid"`
@@ -295,6 +295,7 @@ func existUserAuth(ctx context.Context, appID, userID, resource, method string) 
 			Scan(ctx, &res)
 	})
 	if err != nil {
+		logger.Sugar().Errorw("existUserAuth", "error", err)
 		return false, err
 	}
 	if len(res) == 0 {
@@ -325,8 +326,8 @@ func ExistAuth(ctx context.Context, appID string, userID *string, resource, meth
 	if userID == nil {
 		return existAppAuth(ctx, appID, resource, method)
 	}
-	if exist, err := existUserAuth(ctx, appID, *userID, resource, method); err == nil && exist {
-		return exist, err
+	if exist, err := existRoleAuth(ctx, appID, *userID, resource, method); err == nil && exist {
+		return true, nil
 	}
-	return existRoleAuth(ctx, appID, *userID, resource, method)
+	return existUserAuth(ctx, appID, *userID, resource, method)
 }
