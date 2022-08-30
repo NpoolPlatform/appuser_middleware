@@ -86,6 +86,9 @@ func GetRoleUsers(ctx context.Context, appID, roleID string, offset, limit int32
 		if err != nil {
 			return err
 		}
+		stm.
+			Offset(int(offset)).
+			Limit(int(limit))
 		return join(stm).
 			Scan(ctx, &infos)
 	})
@@ -175,7 +178,7 @@ func join(stm *ent.AppRoleUserQuery) *ent.AppRoleUserSelect {
 			).
 			AppendSelect(
 				sql.As(t3.C(entappuser.FieldID), "user_id"),
-				sql.As(t3.C(entappuser.FieldEmailAddress), "app_name"),
+				sql.As(t3.C(entappuser.FieldEmailAddress), "email_address"),
 				t3.C(entappuser.FieldPhoneNo),
 			)
 	})
