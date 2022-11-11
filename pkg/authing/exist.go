@@ -227,7 +227,6 @@ func existUserAuth(ctx context.Context, appID, userID, resource, method string) 
 
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		return cli.
-			Debug().
 			AppUser.
 			Query().
 			Select(

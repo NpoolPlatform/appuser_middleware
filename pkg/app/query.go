@@ -58,7 +58,7 @@ func GetApp(ctx context.Context, id string) (*app.App, error) {
 		return nil, err
 	}
 	if len(infos) == 0 {
-		return nil, nil
+		return nil, fmt.Errorf("no record")
 	}
 	if len(infos) > 1 {
 		logger.Sugar().Errorw("GetApp", "too many records")
