@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	subscribermgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/subscriber"
+	mgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/subscriber"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/subscriber"
 
 	"entgo.io/ent/dialect/sql"
@@ -46,7 +46,7 @@ func GetSubscriber(ctx context.Context, id string) (*npool.Subscriber, error) {
 	return infos[0], nil
 }
 
-func GetSubscriberes(ctx context.Context, conds *subscribermgrpb.Conds, offset, limit int32) ([]*npool.Subscriber, uint32, error) {
+func GetSubscriberes(ctx context.Context, conds *mgrpb.Conds, offset, limit int32) ([]*npool.Subscriber, uint32, error) {
 	var infos []*npool.Subscriber
 	var total uint32
 
