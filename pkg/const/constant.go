@@ -14,4 +14,6 @@ const (
 
 	CreateUser       = "CreateUser"
 	CreateUserRevert = "CreateUserRevert"
+
+	DefaultRowLimit = int32(100)
 )
