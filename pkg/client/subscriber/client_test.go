@@ -75,7 +75,7 @@ func getSubscriber(t *testing.T) {
 }
 
 func getSubscriberes(t *testing.T) {
-	infos, _, err := GetSubscriberes(context.Background(), 0, 1)
+	infos, _, err := GetSubscriberes(context.Background(), nil, 0, 1)
 	if !assert.Nil(t, err) {
 		assert.NotEqual(t, len(infos), 0)
 	}
