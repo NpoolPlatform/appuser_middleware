@@ -80,10 +80,11 @@ func GetSubscriber(ctx context.Context, appID string) (*npool.Subscriber, error)
 	return info.(*npool.Subscriber), nil
 }
 
-func GetSubscriberes(ctx context.Context, offset, limit int32) ([]*npool.Subscriber, uint32, error) {
+func GetSubscriberes(ctx context.Context, conds *mgrpb.Conds, offset, limit int32) ([]*npool.Subscriber, uint32, error) {
 	var total uint32
 	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetSubscriberes(ctx, &npool.GetSubscriberesRequest{
+			Conds:  conds,
 			Offset: offset,
 			Limit:  limit,
 		})
@@ -91,7 +92,7 @@ func GetSubscriberes(ctx context.Context, offset, limit int32) ([]*npool.Subscri
 			return nil, err
 		}
 
-		total = uint32(len(resp.GetInfos()))
+		total = resp.Total
 
 		return resp.Infos, nil
 	})
