@@ -3,6 +3,7 @@ package subscriber
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
@@ -41,6 +42,7 @@ func CreateSubscriber(ctx context.Context, in *mgrpb.SubscriberReq) (*npool.Subs
 		return resp.Info, nil
 	})
 	if err != nil {
+		fmt.Printf("1--- %v\n", err)
 		return nil, err
 	}
 	return info.(*npool.Subscriber), nil
