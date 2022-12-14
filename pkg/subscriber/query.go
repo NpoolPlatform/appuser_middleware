@@ -72,6 +72,30 @@ func GetSubscriberes(ctx context.Context, conds *mgrpb.Conds, offset, limit int3
 	return infos, total, nil
 }
 
+func GetSubscriberOnly(ctx context.Context, conds *mgrpb.Conds) (*npool.Subscriber, error) {
+	var infos []*npool.Subscriber
+
+	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		stm, err := crud.SetQueryConds(conds, cli)
+		if err != nil {
+			return err
+		}
+		return join(stm).
+			Scan(_ctx, &infos)
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(infos) == 0 {
+		return nil, nil
+	}
+	if len(infos) > 1 {
+		return nil, fmt.Errorf("too many record")
+	}
+
+	return infos[0], nil
+}
+
 func join(stm *ent.SubscriberQuery) *ent.SubscriberSelect {
 	return stm.
 		Select(
