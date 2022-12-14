@@ -21,8 +21,7 @@ require (
 
 require (
 	bou.ke/monkey v1.0.2
-	github.com/NpoolPlatform/appuser-manager v0.0.0-20221213124942-e22e62e7a3a8
-	github.com/NpoolPlatform/ledger-manager v0.0.0-20220727114744-a028b0ff1bbf
+	github.com/NpoolPlatform/appuser-manager v0.0.0-20221214023747-64882ddf00b2
 	github.com/NpoolPlatform/libent-cruder v0.0.0-20220821121920-9559f5776d15
 	go.opentelemetry.io/otel v1.8.0
 	go.opentelemetry.io/otel/trace v1.8.0
