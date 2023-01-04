@@ -99,6 +99,7 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 			UserID:             in.ID,
 			GoogleAuthVerified: in.GoogleAuthVerified,
 			SigninVerifyType:   in.SigninVerifyType,
+			Kol:                in.Kol,
 		}).Save(ctx); err != nil {
 			logger.Sugar().Errorw("CreateUser", "error", err)
 			return err

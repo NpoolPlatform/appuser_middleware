@@ -313,6 +313,7 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 				AppendSelect(
 					sql.As(t2.C(entappusercontrol.FieldGoogleAuthenticationVerified), "google_authentication_verified"),
 					t2.C(entappusercontrol.FieldSigninVerifyType),
+					t2.C(entappusercontrol.FieldKol),
 				)
 
 			t3 := sql.Table(entapp.Table)

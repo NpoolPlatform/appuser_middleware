@@ -19,6 +19,7 @@ import (
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/testinit"
 
+	ctrl "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appcontrol"
 	rcpt "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/recaptcha"
 	sm "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/signmethod"
 )
@@ -36,24 +37,27 @@ var (
 	uuidSlice  = []sm.SignMethodType{sm.SignMethodType_Email, sm.SignMethodType_Mobile}
 	uuidSliceS = fmt.Sprintf(`["%v", "%v"]`, sm.SignMethodType_Email.String(), sm.SignMethodType_Mobile.String())
 	appInfo    = npool.App{
-		ID:                    uuid.NewString(),
-		CreatedBy:             uuid.NewString(),
-		Name:                  uuid.NewString(),
-		Logo:                  uuid.NewString(),
-		Description:           uuid.NewString(),
-		Banned:                false,
-		SignupMethodsStr:      uuidSliceS,
-		SignupMethods:         uuidSlice,
-		ExtSigninMethodsStr:   uuidSliceS,
-		ExtSigninMethods:      uuidSlice,
-		RecaptchaMethodStr:    rcpt.RecaptchaType_GoogleRecaptchaV3.String(),
-		RecaptchaMethod:       rcpt.RecaptchaType_GoogleRecaptchaV3,
-		KycEnableInt:          1,
-		KycEnable:             true,
-		SigninVerifyEnableInt: 1,
-		SigninVerifyEnable:    true,
-		InvitationCodeMustInt: 1,
-		InvitationCodeMust:    true,
+		ID:                          uuid.NewString(),
+		CreatedBy:                   uuid.NewString(),
+		Name:                        uuid.NewString(),
+		Logo:                        uuid.NewString(),
+		Description:                 uuid.NewString(),
+		Banned:                      false,
+		SignupMethodsStr:            uuidSliceS,
+		SignupMethods:               uuidSlice,
+		ExtSigninMethodsStr:         uuidSliceS,
+		ExtSigninMethods:            uuidSlice,
+		RecaptchaMethodStr:          rcpt.RecaptchaType_GoogleRecaptchaV3.String(),
+		RecaptchaMethod:             rcpt.RecaptchaType_GoogleRecaptchaV3,
+		KycEnableInt:                1,
+		KycEnable:                   true,
+		SigninVerifyEnableInt:       1,
+		SigninVerifyEnable:          true,
+		InvitationCodeMustInt:       1,
+		InvitationCodeMust:          true,
+		CreateInvitationCodeWhenStr: ctrl.CreateInvitationCodeWhen_Registration.String(),
+		CreateInvitationCodeWhen:    ctrl.CreateInvitationCodeWhen_Registration,
+		MaxTypedCouponsPerOrder:     1,
 	}
 )
 
@@ -63,19 +67,20 @@ func creatApp(t *testing.T) {
 		createdBy = appInfo.CreatedBy
 		boolVal   = true
 		appReq    = npool.AppReq{
-			ID:                 &id,
-			CreatedBy:          &createdBy,
-			Name:               &appInfo.Name,
-			Logo:               &appInfo.Logo,
-			Description:        &appInfo.Description,
-			Banned:             &appInfo.Banned,
-			BanMessage:         &appInfo.BanMessage,
-			SignupMethods:      uuidSlice,
-			ExtSigninMethods:   uuidSlice,
-			RecaptchaMethod:    &appInfo.RecaptchaMethod,
-			KycEnable:          &boolVal,
-			SigninVerifyEnable: &boolVal,
-			InvitationCodeMust: &boolVal,
+			ID:                       &id,
+			CreatedBy:                &createdBy,
+			Name:                     &appInfo.Name,
+			Logo:                     &appInfo.Logo,
+			Description:              &appInfo.Description,
+			Banned:                   &appInfo.Banned,
+			BanMessage:               &appInfo.BanMessage,
+			SignupMethods:            uuidSlice,
+			ExtSigninMethods:         uuidSlice,
+			RecaptchaMethod:          &appInfo.RecaptchaMethod,
+			KycEnable:                &boolVal,
+			SigninVerifyEnable:       &boolVal,
+			InvitationCodeMust:       &boolVal,
+			CreateInvitationCodeWhen: &appInfo.CreateInvitationCodeWhen,
 		}
 	)
 	info, err := CreateApp(context.Background(), &appReq)
@@ -87,23 +92,32 @@ func creatApp(t *testing.T) {
 
 func updateApp(t *testing.T) {
 	var (
-		boolVal = true
-		appReq  = npool.AppReq{
-			ID:                 &appInfo.ID,
-			CreatedBy:          &appInfo.Name,
-			Name:               &appInfo.Name,
-			Logo:               &appInfo.Logo,
-			Description:        &appInfo.Description,
-			Banned:             &appInfo.Banned,
-			BanMessage:         &appInfo.BanMessage,
-			SignupMethods:      uuidSlice,
-			ExtSigninMethods:   uuidSlice,
-			RecaptchaMethod:    &appInfo.RecaptchaMethod,
-			KycEnable:          &boolVal,
-			SigninVerifyEnable: &boolVal,
-			InvitationCodeMust: &boolVal,
+		boolVal                 = true
+		createIvCodeWhen        = ctrl.CreateInvitationCodeWhen_SetToKol
+		maxTypedCouponsPerOrder = uint32(5)
+		appReq                  = npool.AppReq{
+			ID:                       &appInfo.ID,
+			CreatedBy:                &appInfo.Name,
+			Name:                     &appInfo.Name,
+			Logo:                     &appInfo.Logo,
+			Description:              &appInfo.Description,
+			Banned:                   &appInfo.Banned,
+			BanMessage:               &appInfo.BanMessage,
+			SignupMethods:            uuidSlice,
+			ExtSigninMethods:         uuidSlice,
+			RecaptchaMethod:          &appInfo.RecaptchaMethod,
+			KycEnable:                &boolVal,
+			SigninVerifyEnable:       &boolVal,
+			InvitationCodeMust:       &boolVal,
+			CreateInvitationCodeWhen: &createIvCodeWhen,
+			MaxTypedCouponsPerOrder:  &maxTypedCouponsPerOrder,
 		}
 	)
+
+	appInfo.MaxTypedCouponsPerOrder = maxTypedCouponsPerOrder
+	appInfo.CreateInvitationCodeWhenStr = createIvCodeWhen.String()
+	appInfo.CreateInvitationCodeWhen = createIvCodeWhen
+
 	info, err := UpdateApp(context.Background(), &appReq)
 	if assert.Nil(t, err) {
 		info.CreatedAt = appInfo.CreatedAt

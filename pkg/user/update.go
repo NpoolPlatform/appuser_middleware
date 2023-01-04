@@ -122,6 +122,7 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 			&appusercontrolmgrpb.AppUserControlReq{
 				GoogleAuthVerified: in.GoogleAuthVerified,
 				SigninVerifyType:   in.SigninVerifyType,
+				Kol:                in.Kol,
 			}).Save(ctx); err != nil {
 			logger.Sugar().Errorw("UpdateUser", "err", err.Error())
 			return err
