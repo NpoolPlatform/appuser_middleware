@@ -102,6 +102,7 @@ func updateUser(t *testing.T) {
 	var (
 		appID   = userInfo.AppID
 		strVal  = "AAA"
+		kol     = true
 		userReq = npool.UserReq{
 			ID:                 &userInfo.ID,
 			AppID:              &userInfo.AppID,
@@ -129,8 +130,12 @@ func updateUser(t *testing.T) {
 			ThirdPartyAvatar:   &strVal,
 			Banned:             &userInfo.Banned,
 			BanMessage:         &userInfo.BanMessage,
+			Kol:                &kol,
 		}
 	)
+
+	userInfo.Kol = true
+
 	info, err := UpdateUser(context.Background(), &userReq)
 	if assert.Nil(t, err) {
 		info.Roles = userInfo.Roles
