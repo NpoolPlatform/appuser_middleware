@@ -100,9 +100,11 @@ func creatUser(t *testing.T) {
 
 func updateUser(t *testing.T) {
 	var (
-		appID   = userInfo.AppID
-		strVal  = "AAA"
-		userReq = npool.UserReq{
+		appID        = userInfo.AppID
+		strVal       = "AAA"
+		kol          = true
+		kolConfirmed = true
+		userReq      = npool.UserReq{
 			ID:                 &userInfo.ID,
 			AppID:              &userInfo.AppID,
 			EmailAddress:       &userInfo.EmailAddress,
@@ -129,8 +131,14 @@ func updateUser(t *testing.T) {
 			ThirdPartyAvatar:   &strVal,
 			Banned:             &userInfo.Banned,
 			BanMessage:         &userInfo.BanMessage,
+			Kol:                &kol,
+			KolConfirmed:       &kolConfirmed,
 		}
 	)
+
+	userInfo.Kol = true
+	userInfo.KolConfirmed = true
+
 	info, err := UpdateUser(context.Background(), &userReq)
 	if assert.Nil(t, err) {
 		info.Roles = userInfo.Roles

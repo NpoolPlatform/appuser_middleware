@@ -22,6 +22,7 @@ import (
 
 	"github.com/google/uuid"
 
+	ctrlpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appcontrol"
 	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 )
 
@@ -65,6 +66,8 @@ func GetApp(ctx context.Context, id string) (*app.App, error) {
 		return nil, fmt.Errorf("too many records")
 	}
 
+	infos = expand(infos)
+
 	return infos[0], nil
 }
 
@@ -99,6 +102,8 @@ func GetApps(ctx context.Context, offset, limit int32) ([]*app.App, error) {
 		logger.Sugar().Errorw("GetApps", "error", err)
 		return nil, err
 	}
+
+	infos = expand(infos)
 
 	return infos, nil
 }
@@ -149,6 +154,8 @@ func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*ap
 		return nil, 0, err
 	}
 
+	infos = expand(infos)
+
 	return infos, total, nil
 }
 
@@ -195,6 +202,8 @@ func GetManyApps(ctx context.Context, ids []string) ([]*app.App, int, error) {
 		return nil, 0, err
 	}
 
+	infos = expand(infos)
+
 	return infos, total, nil
 }
 
@@ -233,6 +242,18 @@ func join(stm *ent.AppQuery) *ent.AppSelect {
 				t2.C(ctrl.FieldKycEnable),
 				t2.C(ctrl.FieldSigninVerifyEnable),
 				t2.C(ctrl.FieldInvitationCodeMust),
+				t2.C(ctrl.FieldCreateInvitationCodeWhen),
+				t2.C(ctrl.FieldMaxTypedCouponsPerOrder),
 			)
 	})
+}
+
+func expand(infos []*app.App) []*app.App {
+	for _, info := range infos {
+		info.CreateInvitationCodeWhen =
+			ctrlpb.CreateInvitationCodeWhen(
+				ctrlpb.CreateInvitationCodeWhen_value[info.CreateInvitationCodeWhenStr],
+			)
+	}
+	return infos
 }

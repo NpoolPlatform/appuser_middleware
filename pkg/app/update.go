@@ -72,13 +72,15 @@ func UpdateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
 		if _, err = appctrlmgrcrud.UpdateSet(
 			info,
 			&appctrlmgrpb.AppControlReq{
-				AppID:              in.ID,
-				SignupMethods:      in.SignupMethods,
-				ExtSigninMethods:   in.ExtSigninMethods,
-				RecaptchaMethod:    in.RecaptchaMethod,
-				KycEnable:          in.KycEnable,
-				SigninVerifyEnable: in.SigninVerifyEnable,
-				InvitationCodeMust: in.InvitationCodeMust,
+				AppID:                    in.ID,
+				SignupMethods:            in.SignupMethods,
+				ExtSigninMethods:         in.ExtSigninMethods,
+				RecaptchaMethod:          in.RecaptchaMethod,
+				KycEnable:                in.KycEnable,
+				SigninVerifyEnable:       in.SigninVerifyEnable,
+				InvitationCodeMust:       in.InvitationCodeMust,
+				CreateInvitationCodeWhen: in.CreateInvitationCodeWhen,
+				MaxTypedCouponsPerOrder:  in.MaxTypedCouponsPerOrder,
 			}).Save(ctx); err != nil {
 			logger.Sugar().Errorw("UpdateApp", "error", err)
 			return err
