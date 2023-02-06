@@ -61,6 +61,9 @@ func (s *Server) GetUser(ctx context.Context, in *npool.GetUserRequest) (*npool.
 }
 
 func validateConds(in *mgrpb.Conds) error {
+	if in == nil {
+		return nil
+	}
 	if in.ID != nil {
 		if _, err := uuid.Parse(in.GetID().GetValue()); err != nil {
 			logger.Sugar().Errorw("validateConds", "ID", in.GetID().GetValue(), "error", err)

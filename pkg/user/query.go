@@ -103,17 +103,18 @@ func GetUsers(ctx context.Context, conds *mgrpb.Conds, offset, limit int32) ([]*
 		stm := cli.
 			AppUser.
 			Query()
-		if conds.ID != nil {
-			stm.Where(
-				entuser.ID(uuid.MustParse(conds.GetID().GetValue())),
-			)
+		if conds != nil {
+			if conds.ID != nil {
+				stm.Where(
+					entuser.ID(uuid.MustParse(conds.GetID().GetValue())),
+				)
+			}
+			if conds.AppID != nil {
+				stm.Where(
+					entuser.AppID(uuid.MustParse(conds.GetAppID().GetValue())),
+				)
+			}
 		}
-		if conds.AppID != nil {
-			stm.Where(
-				entuser.AppID(uuid.MustParse(conds.GetAppID().GetValue())),
-			)
-		}
-
 		total, err = stm.Count(ctx)
 		if err != nil {
 			logger.Sugar().Errorw("GetUsers", "err", err.Error())
