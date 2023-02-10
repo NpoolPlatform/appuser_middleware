@@ -3,6 +3,8 @@ package user
 import (
 	"context"
 
+	mgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
+
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
@@ -58,6 +60,25 @@ func (s *Server) GetUser(ctx context.Context, in *npool.GetUserRequest) (*npool.
 	}, nil
 }
 
+func validateConds(in *mgrpb.Conds) error {
+	if in == nil {
+		return nil
+	}
+	if in.ID != nil {
+		if _, err := uuid.Parse(in.GetID().GetValue()); err != nil {
+			logger.Sugar().Errorw("validateConds", "ID", in.GetID().GetValue(), "error", err)
+			return err
+		}
+	}
+	if in.AppID != nil {
+		if _, err := uuid.Parse(in.GetAppID().GetValue()); err != nil {
+			logger.Sugar().Errorw("validateConds", "AppID", in.GetAppID().GetValue(), "error", err)
+			return err
+		}
+	}
+	return nil
+}
+
 func (s *Server) GetUsers(ctx context.Context, in *npool.GetUsersRequest) (*npool.GetUsersResponse, error) {
 	var err error
 
@@ -70,16 +91,15 @@ func (s *Server) GetUsers(ctx context.Context, in *npool.GetUsersRequest) (*npoo
 		}
 	}()
 
-	span.SetAttributes(attribute.String("AppID", in.GetAppID()))
-
-	if _, err := uuid.Parse(in.GetAppID()); err != nil {
-		logger.Sugar().Errorw("GetUsers", "error", err)
-		return &npool.GetUsersResponse{}, status.Error(codes.InvalidArgument, "AppID is invalid")
-	}
-
 	span = commontracer.TraceInvoker(span, "user", "middleware", "GetUsers")
 
-	infos, total, err := muser.GetUsers(ctx, in.GetAppID(), in.GetOffset(), in.GetLimit())
+	err = validateConds(in.GetConds())
+	if err != nil {
+		logger.Sugar().Errorw("GetUsers", "error", err)
+		return &npool.GetUsersResponse{}, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	infos, total, err := muser.GetUsers(ctx, in.GetConds(), in.GetOffset(), in.GetLimit())
 	if err != nil {
 		logger.Sugar().Errorw("GetUsers", "error", err)
 		return &npool.GetUsersResponse{}, status.Error(codes.Internal, "fail get users")

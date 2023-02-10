@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	mgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
+
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
@@ -81,7 +83,7 @@ func GetUser(ctx context.Context, appID, userID string) (*user.User, error) {
 	return infos[0], nil
 }
 
-func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*user.User, int, error) {
+func GetUsers(ctx context.Context, conds *mgrpb.Conds, offset, limit int32) ([]*user.User, int, error) {
 	var infos []*user.User
 	var err error
 	var total int
@@ -100,11 +102,19 @@ func GetUsers(ctx context.Context, appID string, offset, limit int32) ([]*user.U
 	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
 		stm := cli.
 			AppUser.
-			Query().
-			Where(
-				entuser.AppID(uuid.MustParse(appID)),
-			)
-
+			Query()
+		if conds != nil {
+			if conds.ID != nil {
+				stm.Where(
+					entuser.ID(uuid.MustParse(conds.GetID().GetValue())),
+				)
+			}
+			if conds.AppID != nil {
+				stm.Where(
+					entuser.AppID(uuid.MustParse(conds.GetAppID().GetValue())),
+				)
+			}
+		}
 		total, err = stm.Count(ctx)
 		if err != nil {
 			logger.Sugar().Errorw("GetUsers", "err", err.Error())

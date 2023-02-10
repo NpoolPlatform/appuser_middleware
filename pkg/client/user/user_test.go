@@ -9,6 +9,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
+	commonpb "github.com/NpoolPlatform/message/npool"
+	mgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
+
 	"bou.ke/monkey"
 	"github.com/NpoolPlatform/go-service-framework/pkg/config"
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
@@ -163,7 +167,12 @@ func getUser(t *testing.T) {
 }
 
 func getUsers(t *testing.T) {
-	infos, _, err := GetUsers(context.Background(), userInfo.AppID, 0, 1)
+	infos, _, err := GetUsers(context.Background(), &mgrpb.Conds{
+		AppID: &commonpb.StringVal{
+			Op:    cruder.EQ,
+			Value: userInfo.AppID,
+		},
+	}, 0, 1)
 	if !assert.Nil(t, err) {
 		assert.NotEqual(t, len(infos), 0)
 	}
