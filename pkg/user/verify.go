@@ -23,8 +23,8 @@ import (
 
 	entsecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
 
-	signmethod "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/signmethod"
 	usermwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/google/uuid"
 )
@@ -32,7 +32,7 @@ import (
 func VerifyAccount(
 	ctx context.Context,
 	appID, account string,
-	accountType signmethod.SignMethodType,
+	accountType basetypes.SignMethod,
 	passwordHash string,
 ) (
 	*usermwpb.User, error,
@@ -68,9 +68,9 @@ func VerifyAccount(
 			)
 
 		switch accountType {
-		case signmethod.SignMethodType_Email:
+		case basetypes.SignMethod_Email:
 			stm.Where(entuser.EmailAddress(account))
-		case signmethod.SignMethodType_Mobile:
+		case basetypes.SignMethod_Mobile:
 			stm.Where(entuser.PhoneNo(account))
 		default:
 			return fmt.Errorf("invalid account type")

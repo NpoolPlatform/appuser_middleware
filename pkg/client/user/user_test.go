@@ -25,7 +25,7 @@ import (
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/testinit"
 
-	sm "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/signmethod"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 )
 
 func init() {
@@ -61,8 +61,8 @@ var (
 		IDNumber:              uuid.NewString(),
 		GoogleAuthVerifiedInt: 1,
 		GoogleAuthVerified:    true,
-		SigninVerifyType:      sm.SignMethodType_Email,
-		SigninVerifyTypeStr:   sm.SignMethodType_Email.String(),
+		SigninVerifyType:      basetypes.SignMethod_Email,
+		SigninVerifyTypeStr:   basetypes.SignMethod_Email.String(),
 		GoogleSecret:          appID,
 		HasGoogleSecret:       true,
 		Roles:                 []string{""},

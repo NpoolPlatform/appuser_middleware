@@ -15,7 +15,7 @@ import (
 
 	ctrl "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appcontrol"
 	rcpt "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/recaptcha"
-	sm "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/signmethod"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 )
 
 func init() {
@@ -28,8 +28,8 @@ func init() {
 }
 
 var (
-	uuidSlice  = []sm.SignMethodType{sm.SignMethodType_Email, sm.SignMethodType_Mobile}
-	uuidSliceS = fmt.Sprintf(`["%v", "%v"]`, sm.SignMethodType_Email.String(), sm.SignMethodType_Mobile.String())
+	uuidSlice  = []basetypes.SignMethod{basetypes.SignMethod_Email, basetypes.SignMethod_Mobile}
+	uuidSliceS = fmt.Sprintf(`["%v", "%v"]`, basetypes.SignMethod_Email.String(), basetypes.SignMethod_Mobile.String())
 	rec        = rcpt.RecaptchaType_GoogleRecaptchaV3
 	appInfo    = npool.App{
 		ID:                          uuid.NewString(),

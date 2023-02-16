@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/testinit"
-	sm "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/signmethod"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 )
 
 func init() {
@@ -32,7 +32,7 @@ func init() {
 var (
 	uuidSlice     = []string{uuid.NewString()}
 	uuidSliceS, _ = json.Marshal(uuidSlice)
-	signType      = sm.SignMethodType_Email
+	signType      = basetypes.SignMethod_Email
 	appID         = uuid.NewString()
 	userInfo      = npool.User{
 		ID:                          uuid.NewString(),
