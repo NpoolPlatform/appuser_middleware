@@ -6,7 +6,7 @@ import (
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 
 	rcpt "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/recaptcha"
-	sm "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/signmethod"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 )
 
 func Ent2Grpc(row *npool.App) (*npool.App, error) {
@@ -15,7 +15,7 @@ func Ent2Grpc(row *npool.App) (*npool.App, error) {
 	}
 
 	methods := []string{}
-	methods1 := []sm.SignMethodType{}
+	methods1 := []basetypes.SignMethod{}
 
 	if row.SignupMethodsStr != "" {
 		err := json.Unmarshal([]byte(row.SignupMethodsStr), &methods)
@@ -24,11 +24,11 @@ func Ent2Grpc(row *npool.App) (*npool.App, error) {
 		}
 	}
 	for _, m := range methods {
-		methods1 = append(methods1, sm.SignMethodType(sm.SignMethodType_value[m]))
+		methods1 = append(methods1, basetypes.SignMethod(basetypes.SignMethod_value[m]))
 	}
 
 	emethods := []string{}
-	emethods1 := []sm.SignMethodType{}
+	emethods1 := []basetypes.SignMethod{}
 
 	if row.ExtSigninMethodsStr != "" {
 		err := json.Unmarshal([]byte(row.ExtSigninMethodsStr), &emethods)
@@ -37,7 +37,7 @@ func Ent2Grpc(row *npool.App) (*npool.App, error) {
 		}
 	}
 	for _, m := range emethods {
-		emethods1 = append(emethods1, sm.SignMethodType(sm.SignMethodType_value[m]))
+		emethods1 = append(emethods1, basetypes.SignMethod(basetypes.SignMethod_value[m]))
 	}
 
 	row.SignupMethods = methods1

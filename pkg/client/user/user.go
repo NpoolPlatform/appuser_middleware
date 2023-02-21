@@ -10,8 +10,8 @@ import (
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
 
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
-	signmethod "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/signmethod"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
 )
@@ -124,7 +124,7 @@ func GetManyUsers(ctx context.Context, ids []string) ([]*npool.User, uint32, err
 func VerifyAccount(
 	ctx context.Context,
 	appID, account string,
-	accountType signmethod.SignMethodType,
+	accountType basetypes.SignMethod,
 	passwordHash string,
 ) (
 	*npool.User, error,
