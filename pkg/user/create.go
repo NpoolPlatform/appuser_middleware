@@ -89,6 +89,7 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 			Organization:  in.Organization,
 			IDNumber:      in.IDNumber,
 			AddressFields: in.AddressFields,
+			ActionCredits: in.ActionCredits,
 		}).Save(ctx); err != nil {
 			logger.Sugar().Errorw("CreateUser", "error", err)
 			return err

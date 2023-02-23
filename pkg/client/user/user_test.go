@@ -20,6 +20,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
+
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
@@ -66,6 +67,7 @@ var (
 		GoogleSecret:          appID,
 		HasGoogleSecret:       true,
 		Roles:                 []string{""},
+		ActionCredits:         "0",
 	}
 )
 
@@ -118,6 +120,7 @@ func updateUser(t *testing.T) {
 		strVal       = "AAA"
 		emailAddress = uuid.NewString()
 		phoneNO      = uuid.NewString()
+		credits      = "1.234234"
 
 		userReq = npool.UserReq{
 			ID:                 &userInfo.ID,
@@ -146,11 +149,13 @@ func updateUser(t *testing.T) {
 			ThirdPartyAvatar:   &strVal,
 			Banned:             &userInfo.Banned,
 			BanMessage:         &userInfo.BanMessage,
+			ActionCredits:      &credits,
 		}
 	)
 
 	userInfo.PhoneNO = phoneNO
 	userInfo.EmailAddress = emailAddress
+	userInfo.ActionCredits = credits
 
 	info, err := UpdateUser(context.Background(), &userReq)
 	if assert.Nil(t, err) {

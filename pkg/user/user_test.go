@@ -57,6 +57,7 @@ var (
 		GoogleSecret:                appID,
 		HasGoogleSecret:             true,
 		Roles:                       []string{""},
+		ActionCredits:               "0",
 	}
 )
 
@@ -108,6 +109,7 @@ func updateUser(t *testing.T) {
 		strVal       = "AAA"
 		kol          = true
 		kolConfirmed = true
+		credits      = "1.2342"
 		userReq      = npool.UserReq{
 			ID:                 &userInfo.ID,
 			AppID:              &userInfo.AppID,
@@ -137,11 +139,13 @@ func updateUser(t *testing.T) {
 			BanMessage:         &userInfo.BanMessage,
 			Kol:                &kol,
 			KolConfirmed:       &kolConfirmed,
+			ActionCredits:      &credits,
 		}
 	)
 
 	userInfo.Kol = true
 	userInfo.KolConfirmed = true
+	userInfo.ActionCredits = credits
 
 	info, err := UpdateUser(context.Background(), &userReq)
 	if assert.Nil(t, err) {

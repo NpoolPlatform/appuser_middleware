@@ -5,7 +5,7 @@ go 1.17
 require (
 	entgo.io/ent v0.11.2
 	github.com/NpoolPlatform/go-service-framework v0.0.0-20221102072657-7fcc5e6f1012
-	github.com/NpoolPlatform/message v0.0.0-20230221074244-b2bf82fffce8
+	github.com/NpoolPlatform/message v0.0.0-20230223072453-2dffe864b5af
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
@@ -20,7 +20,7 @@ require (
 
 require (
 	bou.ke/monkey v1.0.2
-	github.com/NpoolPlatform/appuser-manager v0.0.0-20230221094907-4452d99d9f56
+	github.com/NpoolPlatform/appuser-manager v0.0.0-20230223120608-45b42c6f4ee7
 	github.com/NpoolPlatform/basal-middleware v0.0.0-20230221094657-688f81366495
 	github.com/NpoolPlatform/libent-cruder v0.0.0-20221109023947-366125b690fb
 	go.opentelemetry.io/otel v1.8.0
@@ -80,6 +80,7 @@ require (
 	github.com/prometheus/common v0.32.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/spf13/afero v1.8.2 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect

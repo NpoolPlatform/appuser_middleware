@@ -100,6 +100,7 @@ func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 				Organization:  in.Organization,
 				IDNumber:      in.IDNumber,
 				AddressFields: in.AddressFields,
+				ActionCredits: in.ActionCredits,
 			}).Save(ctx); err != nil {
 			return err
 		}
