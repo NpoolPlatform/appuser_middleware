@@ -20,7 +20,7 @@ require (
 
 require (
 	bou.ke/monkey v1.0.2
-	github.com/NpoolPlatform/appuser-manager v0.0.0-20230227072413-caa79837353f
+	github.com/NpoolPlatform/appuser-manager v0.0.0-20230301025811-83657783bdd0
 	github.com/NpoolPlatform/basal-middleware v0.0.0-20230221094657-688f81366495
 	github.com/NpoolPlatform/libent-cruder v0.0.0-20221109023947-366125b690fb
 	github.com/shopspring/decimal v1.3.1

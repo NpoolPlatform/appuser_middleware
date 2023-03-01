@@ -48,8 +48,8 @@ github.com/BurntSushi/toml v1.1.0 h1:ksErzDEI1khOiGPgpwuI7x2ebx/uXQNw7xJpn9Eq1+I
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/DATA-DOG/go-sqlmock v1.5.0 h1:Shsta01QNfFxHCfpW6YH2STWB0MudeXXEWMr20OEh60=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
-github.com/NpoolPlatform/appuser-manager v0.0.0-20230227072413-caa79837353f h1:uM3N4zSb6dMVa96lTnzPGhsNTpxEht8FpcnTlgHPEGw=
-github.com/NpoolPlatform/appuser-manager v0.0.0-20230227072413-caa79837353f/go.mod h1:9LfSDOyHJ1h22YPSIhsKlbSmOfr9x+giOg/8rWT8g6k=
+github.com/NpoolPlatform/appuser-manager v0.0.0-20230301025811-83657783bdd0 h1:W/FGmQ1mn0JKB8ERc+BfJnbDRJan1q/sFaDVA65wssc=
+github.com/NpoolPlatform/appuser-manager v0.0.0-20230301025811-83657783bdd0/go.mod h1:9LfSDOyHJ1h22YPSIhsKlbSmOfr9x+giOg/8rWT8g6k=
 github.com/NpoolPlatform/basal-middleware v0.0.0-20230221094657-688f81366495 h1:nsyv7O18rOkvVIxG1eIww7C3iAj3eLmWxj8fnlrNTlE=
 github.com/NpoolPlatform/basal-middleware v0.0.0-20230221094657-688f81366495/go.mod h1:vJXQnMxhAgu3v7X2YelLqm2k5hvcH5XwSvKR0qyb31E=
 github.com/NpoolPlatform/go-service-framework v0.0.0-20221102072657-7fcc5e6f1012 h1:agWdYMDo1nBXR0w/PQz9Kze5IZsROOwSL8WcQFTMT4Q=
