@@ -31,6 +31,7 @@ import (
 	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 func GetUser(ctx context.Context, appID, userID string) (*user.User, error) {
@@ -267,6 +268,10 @@ func expand(ctx context.Context, userIDs []string, users []*user.User) ([]*user.
 		return nil, err
 	}
 
+	for _, user := range users {
+		user.ActionCredits = decimal.RequireFromString(user.ActionCredits).String()
+	}
+
 	for _, info := range infos {
 		for _, user := range users {
 			if info.UserID.String() == user.ID {
@@ -311,6 +316,7 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 					sql.As(t1.C(entextra.FieldAvatar), "avatar"),
 					sql.As(t1.C(entextra.FieldOrganization), "organization"),
 					sql.As(t1.C(entextra.FieldIDNumber), "id_number"),
+					sql.As(t1.C(entextra.FieldActionCredits), "action_credits"),
 				)
 
 			t2 := sql.Table(entappusercontrol.Table)
