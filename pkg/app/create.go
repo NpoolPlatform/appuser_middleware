@@ -64,6 +64,8 @@ func CreateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
 			InvitationCodeMust:       in.InvitationCodeMust,
 			CreateInvitationCodeWhen: in.CreateInvitationCodeWhen,
 			MaxTypedCouponsPerOrder:  in.MaxTypedCouponsPerOrder,
+			UnderMaintenance:         in.UnderMaintenance,
+			CommitButtons:            in.CommitButtons,
 		}).Save(ctx); err != nil {
 			logger.Sugar().Errorw("CreateApp", "error", err)
 			return err
