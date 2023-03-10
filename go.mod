@@ -5,7 +5,7 @@ go 1.17
 require (
 	entgo.io/ent v0.11.2
 	github.com/NpoolPlatform/go-service-framework v0.0.0-20221102072657-7fcc5e6f1012
-	github.com/NpoolPlatform/message v0.0.0-20230310040542-d65ca3992ef6
+	github.com/NpoolPlatform/message v0.0.0-20230310090354-48046207adaa
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
@@ -20,7 +20,7 @@ require (
 
 require (
 	bou.ke/monkey v1.0.2
-	github.com/NpoolPlatform/appuser-manager v0.0.0-20230310035349-0707ab27dd11
+	github.com/NpoolPlatform/appuser-manager v0.0.0-20230310091158-5952728816b4
 	github.com/NpoolPlatform/basal-middleware v0.0.0-20230221094657-688f81366495
 	github.com/NpoolPlatform/libent-cruder v0.0.0-20221109023947-366125b690fb
 	github.com/shopspring/decimal v1.3.1
