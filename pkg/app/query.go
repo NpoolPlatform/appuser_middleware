@@ -245,8 +245,8 @@ func join(stm *ent.AppQuery) *ent.AppSelect {
 				t2.C(ctrl.FieldInvitationCodeMust),
 				t2.C(ctrl.FieldCreateInvitationCodeWhen),
 				t2.C(ctrl.FieldMaxTypedCouponsPerOrder),
-				t2.C(ctrl.FieldUnderMaintenance),
-				t2.C(ctrl.FieldCommitButtons),
+				t2.C(ctrl.FieldMaintaining),
+				t2.C(ctrl.FieldCommitButtonTargets),
 			)
 	})
 }
@@ -257,7 +257,7 @@ func expand(infos []*app.App) []*app.App {
 			ctrlpb.CreateInvitationCodeWhen(
 				ctrlpb.CreateInvitationCodeWhen_value[info.CreateInvitationCodeWhenStr],
 			)
-		_ = json.Unmarshal([]byte(info.CommitButtonsStr), &infos[key].CommitButtons)
+		_ = json.Unmarshal([]byte(info.CommitButtonTargetsStr), &infos[key].CommitButtonTargets)
 	}
 	return infos
 }

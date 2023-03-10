@@ -60,9 +60,9 @@ var (
 		CreateInvitationCodeWhenStr: ctrl.CreateInvitationCodeWhen_Registration.String(),
 		CreateInvitationCodeWhen:    ctrl.CreateInvitationCodeWhen_Registration,
 		MaxTypedCouponsPerOrder:     1,
-		UnderMaintenance:            true,
-		CommitButtonsStr:            fmt.Sprintf("[\"%v\"]", commitButton),
-		CommitButtons:               []string{commitButton},
+		Maintaining:                 true,
+		CommitButtonTargetsStr:      fmt.Sprintf("[\"%v\"]", commitButton),
+		CommitButtonTargets:         []string{commitButton},
 	}
 )
 
@@ -86,8 +86,8 @@ func creatApp(t *testing.T) {
 			SigninVerifyEnable:       &boolVal,
 			InvitationCodeMust:       &boolVal,
 			CreateInvitationCodeWhen: &appInfo.CreateInvitationCodeWhen,
-			UnderMaintenance:         &appInfo.UnderMaintenance,
-			CommitButtons:            appInfo.CommitButtons,
+			Maintaining:              &appInfo.Maintaining,
+			CommitButtonTargets:      appInfo.CommitButtonTargets,
 		}
 	)
 	info, err := CreateApp(context.Background(), &appReq)
