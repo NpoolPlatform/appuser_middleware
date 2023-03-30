@@ -269,8 +269,8 @@ func expand(ctx context.Context, userIDs []string, users []*user.User) ([]*user.
 	}
 
 	for _, user := range users {
-		if _, err := decimal.NewFromString(user.ActionCredits); err == nil {
-			user.ActionCredits = user.ActionCredits
+		if credits, err := decimal.NewFromString(user.ActionCredits); err == nil {
+			user.ActionCredits = credits.String()
 			continue
 		}
 		user.ActionCredits = decimal.NewFromInt(0).String()
