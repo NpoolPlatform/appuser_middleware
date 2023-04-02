@@ -28,10 +28,11 @@ func init() {
 }
 
 var (
-	uuidSlice  = []basetypes.SignMethod{basetypes.SignMethod_Email, basetypes.SignMethod_Mobile}
-	uuidSliceS = fmt.Sprintf(`["%v", "%v"]`, basetypes.SignMethod_Email.String(), basetypes.SignMethod_Mobile.String())
-	rec        = rcpt.RecaptchaType_GoogleRecaptchaV3
-	appInfo    = npool.App{
+	uuidSlice    = []basetypes.SignMethod{basetypes.SignMethod_Email, basetypes.SignMethod_Mobile}
+	uuidSliceS   = fmt.Sprintf(`["%v", "%v"]`, basetypes.SignMethod_Email.String(), basetypes.SignMethod_Mobile.String())
+	rec          = rcpt.RecaptchaType_GoogleRecaptchaV3
+	commitButton = uuid.NewString()
+	appInfo      = npool.App{
 		ID:                          uuid.NewString(),
 		CreatedBy:                   uuid.NewString(),
 		Name:                        uuid.NewString(),
@@ -47,6 +48,9 @@ var (
 		CreateInvitationCodeWhenStr: ctrl.CreateInvitationCodeWhen_Registration.String(),
 		CreateInvitationCodeWhen:    ctrl.CreateInvitationCodeWhen_Registration,
 		MaxTypedCouponsPerOrder:     1,
+		Maintaining:                 true,
+		CommitButtonTargets:         []string{commitButton},
+		CommitButtonTargetsStr:      fmt.Sprintf("[\"%v\"]", commitButton),
 	}
 )
 
@@ -70,6 +74,8 @@ func creatApp(t *testing.T) {
 			SigninVerifyEnable:       &boolVal,
 			InvitationCodeMust:       &boolVal,
 			CreateInvitationCodeWhen: &appInfo.CreateInvitationCodeWhen,
+			Maintaining:              &appInfo.Maintaining,
+			CommitButtonTargets:      appInfo.CommitButtonTargets,
 		}
 	)
 	info, err := CreateApp(context.Background(), &appReq)

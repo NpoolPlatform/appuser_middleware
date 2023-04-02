@@ -34,9 +34,10 @@ func init() {
 }
 
 var (
-	uuidSlice  = []basetypes.SignMethod{basetypes.SignMethod_Email, basetypes.SignMethod_Mobile}
-	uuidSliceS = fmt.Sprintf(`["%v", "%v"]`, basetypes.SignMethod_Email.String(), basetypes.SignMethod_Mobile.String())
-	appInfo    = npool.App{
+	commitButton = uuid.NewString()
+	uuidSlice    = []basetypes.SignMethod{basetypes.SignMethod_Email, basetypes.SignMethod_Mobile}
+	uuidSliceS   = fmt.Sprintf(`["%v", "%v"]`, basetypes.SignMethod_Email.String(), basetypes.SignMethod_Mobile.String())
+	appInfo      = npool.App{
 		ID:                          uuid.NewString(),
 		CreatedBy:                   uuid.NewString(),
 		Name:                        uuid.NewString(),
@@ -55,9 +56,13 @@ var (
 		SigninVerifyEnable:          true,
 		InvitationCodeMustInt:       1,
 		InvitationCodeMust:          true,
+		CreatedAt:                   0,
 		CreateInvitationCodeWhenStr: ctrl.CreateInvitationCodeWhen_Registration.String(),
 		CreateInvitationCodeWhen:    ctrl.CreateInvitationCodeWhen_Registration,
 		MaxTypedCouponsPerOrder:     1,
+		Maintaining:                 true,
+		CommitButtonTargetsStr:      fmt.Sprintf("[\"%v\"]", commitButton),
+		CommitButtonTargets:         []string{commitButton},
 	}
 )
 
@@ -81,6 +86,8 @@ func creatApp(t *testing.T) {
 			SigninVerifyEnable:       &boolVal,
 			InvitationCodeMust:       &boolVal,
 			CreateInvitationCodeWhen: &appInfo.CreateInvitationCodeWhen,
+			Maintaining:              &appInfo.Maintaining,
+			CommitButtonTargets:      appInfo.CommitButtonTargets,
 		}
 	)
 	info, err := CreateApp(context.Background(), &appReq)

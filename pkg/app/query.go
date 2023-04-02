@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
@@ -244,16 +245,19 @@ func join(stm *ent.AppQuery) *ent.AppSelect {
 				t2.C(ctrl.FieldInvitationCodeMust),
 				t2.C(ctrl.FieldCreateInvitationCodeWhen),
 				t2.C(ctrl.FieldMaxTypedCouponsPerOrder),
+				t2.C(ctrl.FieldMaintaining),
+				t2.C(ctrl.FieldCommitButtonTargets),
 			)
 	})
 }
 
 func expand(infos []*app.App) []*app.App {
-	for _, info := range infos {
+	for key, info := range infos {
 		info.CreateInvitationCodeWhen =
 			ctrlpb.CreateInvitationCodeWhen(
 				ctrlpb.CreateInvitationCodeWhen_value[info.CreateInvitationCodeWhenStr],
 			)
+		_ = json.Unmarshal([]byte(info.CommitButtonTargetsStr), &infos[key].CommitButtonTargets)
 	}
 	return infos
 }

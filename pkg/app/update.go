@@ -81,6 +81,8 @@ func UpdateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
 				InvitationCodeMust:       in.InvitationCodeMust,
 				CreateInvitationCodeWhen: in.CreateInvitationCodeWhen,
 				MaxTypedCouponsPerOrder:  in.MaxTypedCouponsPerOrder,
+				Maintaining:              in.Maintaining,
+				CommitButtonTargets:      in.CommitButtonTargets,
 			}).Save(ctx); err != nil {
 			logger.Sugar().Errorw("UpdateApp", "error", err)
 			return err
