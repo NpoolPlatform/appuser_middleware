@@ -3,29 +3,26 @@ module github.com/NpoolPlatform/appuser-middleware
 go 1.17
 
 require (
+	bou.ke/monkey v1.0.2
 	entgo.io/ent v0.11.2
+	github.com/NpoolPlatform/appuser-manager v0.0.0-20230407034742-442a05724f07
+	github.com/NpoolPlatform/basal-middleware v0.0.0-20230221094657-688f81366495
 	github.com/NpoolPlatform/go-service-framework v0.0.0-20221102072657-7fcc5e6f1012
+	github.com/NpoolPlatform/libent-cruder v0.0.0-20221109023947-366125b690fb
 	github.com/NpoolPlatform/message v0.0.0-20230331105746-d35da1f1c402
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
+	github.com/shopspring/decimal v1.3.1
 	github.com/stretchr/testify v1.7.1
 	github.com/urfave/cli/v2 v2.4.0
+	go.opentelemetry.io/otel v1.8.0
+	go.opentelemetry.io/otel/trace v1.8.0
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f // indirect
 	google.golang.org/grpc v1.54.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.2.0
 	google.golang.org/protobuf v1.28.1
-)
-
-require (
-	bou.ke/monkey v1.0.2
-	github.com/NpoolPlatform/appuser-manager v0.0.0-20230402073945-55efc452d38b
-	github.com/NpoolPlatform/basal-middleware v0.0.0-20230221094657-688f81366495
-	github.com/NpoolPlatform/libent-cruder v0.0.0-20221109023947-366125b690fb
-	github.com/shopspring/decimal v1.3.1
-	go.opentelemetry.io/otel v1.8.0
-	go.opentelemetry.io/otel/trace v1.8.0
 )
 
 require (

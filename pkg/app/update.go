@@ -18,8 +18,8 @@ import (
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 
-	appmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/app"
-	appctrlmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appcontrol"
+	appmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/app"
+	appctrlmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appcontrol"
 	appmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/app"
 	appctrlmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appcontrol"
 )

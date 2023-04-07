@@ -22,12 +22,12 @@ import (
 	appusersecretamgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appusersecret"
 	appuserthirdpartymgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuserthirdparty"
 
-	approleusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/approleuser"
-	appusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appuser"
-	appusercontrolcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appusercontrol"
-	appuserextracrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appuserextra"
-	appusersecretcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appusersecret"
-	appuserthirdpartycrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appuserthirdparty"
+	approleusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/approleuser"
+	appusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuser"
+	appusercontrolcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appusercontrol"
+	appuserextracrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuserextra"
+	appusersecretcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appusersecret"
+	appuserthirdpartycrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuserthirdparty"
 
 	uuid1 "github.com/NpoolPlatform/go-service-framework/pkg/const/uuid"
 

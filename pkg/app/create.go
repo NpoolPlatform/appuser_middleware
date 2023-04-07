@@ -18,8 +18,8 @@ import (
 	appmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/app"
 	appctrlmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appcontrol"
 
-	appmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/app"
-	appctrlmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appcontrol"
+	appmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/app"
+	appctrlmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appcontrol"
 )
 
 func CreateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {

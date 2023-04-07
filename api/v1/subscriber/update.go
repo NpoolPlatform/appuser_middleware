@@ -5,7 +5,7 @@ import (
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/subscriber"
 
-	mgrapi "github.com/NpoolPlatform/appuser-manager/api/v2/subscriber"
+	mgrapi "github.com/NpoolPlatform/appuser-manager/api/subscriber"
 
 	subscriber1 "github.com/NpoolPlatform/appuser-middleware/pkg/subscriber"
 

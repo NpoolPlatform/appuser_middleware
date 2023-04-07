@@ -12,7 +12,7 @@ import (
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 
-	crud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/subscriber"
+	crud "github.com/NpoolPlatform/appuser-manager/pkg/crud/subscriber"
 
 	entapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
 	entsubscriber "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/subscriber"

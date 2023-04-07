@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 
-	appusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appuser"
+	appusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuser"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npoolpb "github.com/NpoolPlatform/message/npool"
 	appuserpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"

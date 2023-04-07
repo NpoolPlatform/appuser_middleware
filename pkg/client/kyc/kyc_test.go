@@ -13,7 +13,7 @@ import (
 	mgr "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/kyc"
 
 	"bou.ke/monkey"
-	kyccli "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/kyc"
+	kyccli "github.com/NpoolPlatform/appuser-manager/pkg/crud/kyc"
 	"github.com/NpoolPlatform/go-service-framework/pkg/config"
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
 	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/kyc"

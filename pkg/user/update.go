@@ -8,8 +8,8 @@ import (
 
 	"github.com/google/uuid"
 
-	appusersecretcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appusersecret"
-	appuserthirdpartycrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appuserthirdparty"
+	appusersecretcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appusersecret"
+	appuserthirdpartycrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuserthirdparty"
 	"github.com/NpoolPlatform/appuser-manager/pkg/encrypt"
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
@@ -30,9 +30,9 @@ import (
 	appusercontrolmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appusercontrol"
 	appuserextramgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuserextra"
 
-	appusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appuser"
-	appusercontrolcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appusercontrol"
-	appuserextracrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appuserextra"
+	appusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuser"
+	appusercontrolcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appusercontrol"
+	appuserextracrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuserextra"
 	entappusercontrol "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusercontrol"
 	entappuserextra "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserextra"
 	entappusersecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"

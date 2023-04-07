@@ -5,11 +5,11 @@ import (
 
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 
-	"github.com/NpoolPlatform/appuser-manager/api/v2/appuser"
-	"github.com/NpoolPlatform/appuser-manager/api/v2/appusercontrol"
-	"github.com/NpoolPlatform/appuser-manager/api/v2/appuserextra"
-	"github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/approle"
-	appusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appuser"
+	"github.com/NpoolPlatform/appuser-manager/api/appuser"
+	"github.com/NpoolPlatform/appuser-manager/api/appusercontrol"
+	"github.com/NpoolPlatform/appuser-manager/api/appuserextra"
+	"github.com/NpoolPlatform/appuser-manager/pkg/crud/approle"
+	appusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuser"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npoolpb "github.com/NpoolPlatform/message/npool"
