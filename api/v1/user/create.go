@@ -5,7 +5,7 @@ import (
 
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
 	cuser "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/user"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/user"
 	mw "github.com/NpoolPlatform/appuser-middleware/pkg/user"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
@@ -27,7 +27,7 @@ import (
 func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*npool.CreateUserResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "CreateUser")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "CreateUser")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -88,7 +88,7 @@ func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*
 func (s *Server) CreateUserRevert(ctx context.Context, in *npool.CreateUserRequest) (*npool.CreateUserResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "CreateUser")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "CreateUser")
 	defer span.End()
 	defer func() {
 		if err != nil {

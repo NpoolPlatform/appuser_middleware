@@ -5,7 +5,7 @@ import (
 	"context"
 
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	scodes "go.opentelemetry.io/otel/codes"
@@ -23,7 +23,7 @@ import (
 )
 
 func (s *Server) ExistAuth(ctx context.Context, in *npool.ExistAuthRequest) (info *npool.ExistAuthResponse, err error) {
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoles")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetRoles")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -69,7 +69,7 @@ func (s *Server) ExistAuth(ctx context.Context, in *npool.ExistAuthRequest) (inf
 }
 
 func (s *Server) GetAuth(ctx context.Context, in *npool.GetAuthRequest) (resp *npool.GetAuthResponse, err error) {
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoles")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetRoles")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -99,7 +99,7 @@ func (s *Server) GetAuth(ctx context.Context, in *npool.GetAuthRequest) (resp *n
 }
 
 func (s *Server) GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (info *npool.GetAuthsResponse, err error) {
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoles")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetRoles")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -131,7 +131,7 @@ func (s *Server) GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (info 
 }
 
 func (s *Server) GetHistories(ctx context.Context, in *npool.GetHistoriesRequest) (info *npool.GetHistoriesResponse, err error) {
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetHistories")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetHistories")
 	defer span.End()
 	defer func() {
 		if err != nil {

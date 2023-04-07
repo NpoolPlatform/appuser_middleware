@@ -6,7 +6,7 @@ import (
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 
 	cuser "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/user"
 	muser "github.com/NpoolPlatform/appuser-middleware/pkg/user"
@@ -27,7 +27,7 @@ import (
 func (s *Server) VerifyAccount(ctx context.Context, in *npool.VerifyAccountRequest) (*npool.VerifyAccountResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "VerifyAccount")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "VerifyAccount")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -76,7 +76,7 @@ func (s *Server) VerifyAccount(ctx context.Context, in *npool.VerifyAccountReque
 func (s *Server) VerifyUser(ctx context.Context, in *npool.VerifyUserRequest) (*npool.VerifyUserResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "VerifyUser")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "VerifyUser")
 	defer span.End()
 	defer func() {
 		if err != nil {

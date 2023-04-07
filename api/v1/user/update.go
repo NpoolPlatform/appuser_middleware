@@ -11,7 +11,7 @@ import (
 	cuser "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/user"
 
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/user"
 	mw "github.com/NpoolPlatform/appuser-middleware/pkg/user"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
@@ -30,7 +30,7 @@ import (
 func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*npool.UpdateUserResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "UpdateUser")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "UpdateUser")
 	defer span.End()
 	defer func() {
 		if err != nil {

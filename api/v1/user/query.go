@@ -6,7 +6,7 @@ import (
 	mgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
 
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -25,7 +25,7 @@ import (
 func (s *Server) GetUser(ctx context.Context, in *npool.GetUserRequest) (*npool.GetUserResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUser")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetUser")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -82,7 +82,7 @@ func validateConds(in *mgrpb.Conds) error {
 func (s *Server) GetUsers(ctx context.Context, in *npool.GetUsersRequest) (*npool.GetUsersResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUsers")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetUsers")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -114,7 +114,7 @@ func (s *Server) GetUsers(ctx context.Context, in *npool.GetUsersRequest) (*npoo
 func (s *Server) GetManyUsers(ctx context.Context, in *npool.GetManyUsersRequest) (*npool.GetManyUsersResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyUsers")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetManyUsers")
 	defer span.End()
 	defer func() {
 		if err != nil {

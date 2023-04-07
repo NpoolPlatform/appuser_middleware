@@ -12,7 +12,7 @@ import (
 	entauth "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/auth"
 	entauthhistory "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/authhistory"
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing"
 	"github.com/google/uuid"
@@ -23,7 +23,7 @@ import (
 func GetAuth(ctx context.Context, id string) (info *npool.Auth, err error) {
 	infos := []*npool.Auth{}
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetAuth")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetAuth")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -53,7 +53,7 @@ func GetAuth(ctx context.Context, id string) (info *npool.Auth, err error) {
 }
 
 func GetAuths(ctx context.Context, appID string, offset, limit int32) (infos []*npool.Auth, total int, err error) {
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetAuths")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetAuths")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -141,7 +141,7 @@ func join(stm *ent.AuthQuery) *ent.AuthSelect {
 }
 
 func GetHistories(ctx context.Context, appID string, offset, limit int32) (infos []*npool.History, total int, err error) {
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetHistories")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetHistories")
 	defer span.End()
 	defer func() {
 		if err != nil {

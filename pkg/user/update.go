@@ -12,7 +12,7 @@ import (
 	appuserthirdpartycrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuserthirdparty"
 	"github.com/NpoolPlatform/appuser-manager/pkg/encrypt"
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/user"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	appusersecretamgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appusersecret"
@@ -43,7 +43,7 @@ import (
 func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "UpdateUser")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "UpdateUser")
 	defer span.End()
 	defer func() {
 		if err != nil {

@@ -7,7 +7,7 @@ import (
 
 	"github.com/NpoolPlatform/appuser-manager/pkg/encrypt"
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/user"
 
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
@@ -41,7 +41,7 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 	var appID string
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "CreateUser")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "CreateUser")
 	defer span.End()
 	defer func() {
 		if err != nil {

@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/app"
 	"go.opentelemetry.io/otel"
 
@@ -21,7 +21,7 @@ import (
 func (s *Server) CreateApp(ctx context.Context, in *npool.CreateAppRequest) (*npool.CreateAppResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "CreateApp")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "CreateApp")
 	defer span.End()
 	defer func() {
 		if err != nil {

@@ -16,7 +16,7 @@ import (
 	entapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
 	ctrl "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appcontrol"
 	banapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banapp"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 	scodes "go.opentelemetry.io/otel/codes"
 
 	"go.opentelemetry.io/otel"
@@ -31,7 +31,7 @@ func GetApp(ctx context.Context, id string) (*app.App, error) {
 	var err error
 	infos := []*app.App{}
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetApp")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetApp")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -76,7 +76,7 @@ func GetApps(ctx context.Context, offset, limit int32) ([]*app.App, error) {
 	var err error
 	infos := []*app.App{}
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetApps")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetApps")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -114,7 +114,7 @@ func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*ap
 	infos := []*app.App{}
 	var total int
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetUserApps")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetUserApps")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -165,7 +165,7 @@ func GetManyApps(ctx context.Context, ids []string) ([]*app.App, int, error) {
 	infos := []*app.App{}
 	var total int
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyApps")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetManyApps")
 	defer span.End()
 	defer func() {
 		if err != nil {

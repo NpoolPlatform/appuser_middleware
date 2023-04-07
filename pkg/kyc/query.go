@@ -12,7 +12,7 @@ import (
 	entapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
 	entkyc "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/kyc"
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/kyc"
 	"github.com/google/uuid"
@@ -24,7 +24,7 @@ func GetKyc(ctx context.Context, id string) (*kyc.Kyc, error) {
 	var err error
 	var infos []*kyc.Kyc
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetKycs")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetKycs")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -59,7 +59,7 @@ func GetKycs(ctx context.Context, conds *kyc.Conds, offset, limit int32) ([]*kyc
 	infos := []*kyc.Kyc{}
 	var total int
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetKycs")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetKycs")
 	defer span.End()
 	defer func() {
 		if err != nil {

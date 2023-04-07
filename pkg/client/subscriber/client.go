@@ -13,14 +13,14 @@ import (
 	mgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/subscriber"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/subscriber"
 
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 )
 
 func do(ctx context.Context, fn func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error)) (cruder.Any, error) {
 	_ctx, cancel := context.WithTimeout(ctx, 10*time.Second) //nolint
 	defer cancel()
 
-	conn, err := grpc2.GetGRPCConn(constant.ServiceName, grpc2.GRPCTAG)
+	conn, err := grpc2.GetGRPCConn(servicename.ServiceDomain, grpc2.GRPCTAG)
 	if err != nil {
 		return nil, err
 	}

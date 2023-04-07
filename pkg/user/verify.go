@@ -9,7 +9,7 @@ import (
 	"github.com/NpoolPlatform/appuser-manager/pkg/encrypt"
 
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 
 	"go.opentelemetry.io/otel"
 	scodes "go.opentelemetry.io/otel/codes"
@@ -48,7 +48,7 @@ func VerifyAccount(
 	var infos []*r
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "VerifyAccount")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "VerifyAccount")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -120,7 +120,7 @@ func VerifyUser(
 	var infos []*r
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "VerifyUser")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "VerifyUser")
 	defer span.End()
 	defer func() {
 		if err != nil {

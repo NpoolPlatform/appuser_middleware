@@ -1,3 +1,6 @@
 package servicename
 
-const ServiceName = "AppUserMiddleware"
+const (
+	ServiceName   = "AppUserMiddleware"
+	ServiceDomain = "appuser-middleware.npool.top"
+)

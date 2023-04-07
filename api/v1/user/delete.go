@@ -4,7 +4,7 @@ import (
 	"context"
 
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 	mw "github.com/NpoolPlatform/appuser-middleware/pkg/user"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
@@ -18,7 +18,7 @@ import (
 func (s *Server) DeleteUser(ctx context.Context, in *npool.DeleteUserRequest) (*npool.DeleteUserResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "DeleteUser")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "DeleteUser")
 	defer span.End()
 	defer func() {
 		if err != nil {

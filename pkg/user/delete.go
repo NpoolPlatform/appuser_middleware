@@ -14,7 +14,7 @@ import (
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserthirdparty"
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 	"github.com/google/uuid"
 	"go.opentelemetry.io/otel"
 	scodes "go.opentelemetry.io/otel/codes"
@@ -23,7 +23,7 @@ import (
 func DeleteUser(ctx context.Context, userID uuid.UUID) error {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "DeleteUser")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "DeleteUser")
 	defer span.End()
 	defer func() {
 		if err != nil {

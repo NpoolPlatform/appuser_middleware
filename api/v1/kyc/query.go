@@ -6,7 +6,7 @@ import (
 	tracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer/kyc"
 
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"go.opentelemetry.io/otel"
 	scodes "go.opentelemetry.io/otel/codes"
@@ -24,7 +24,7 @@ import (
 func (s *Server) GetKyc(ctx context.Context, in *npool.GetKycRequest) (*npool.GetKycResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetKyc")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetKyc")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -54,7 +54,7 @@ func (s *Server) GetKyc(ctx context.Context, in *npool.GetKycRequest) (*npool.Ge
 func (s *Server) GetKycs(ctx context.Context, in *npool.GetKycsRequest) (*npool.GetKycsResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetKycs")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetKycs")
 	defer span.End()
 	defer func() {
 		if err != nil {

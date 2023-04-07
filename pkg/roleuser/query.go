@@ -11,7 +11,7 @@ import (
 	entapproleuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approleuser"
 	entappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/role"
 	"github.com/google/uuid"
@@ -24,7 +24,7 @@ func GetRoleUser(ctx context.Context, id string) (*role.RoleUser, error) {
 	var err error
 	var infos []*role.RoleUser
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoleUser")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetRoleUser")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -59,7 +59,7 @@ func GetRoleUsers(ctx context.Context, appID, roleID string, offset, limit int32
 	infos := []*role.RoleUser{}
 	var total int
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyRoleUsers")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetManyRoleUsers")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -103,7 +103,7 @@ func GetRoleUsers(ctx context.Context, appID, roleID string, offset, limit int32
 func GetManyRoleUsers(ctx context.Context, ids []string) ([]*role.RoleUser, uint32, error) {
 	var err error
 	infos := []*role.RoleUser{}
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyRoleUsers")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetManyRoleUsers")
 	defer span.End()
 	defer func() {
 		if err != nil {
