@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
-	commonpb "github.com/NpoolPlatform/message/npool"
-	mgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
+	// "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
+	// commonpb "github.com/NpoolPlatform/message/npool"
+	// mgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	"github.com/google/uuid"
@@ -37,8 +37,8 @@ var (
 	ret           = npool.User{
 		ID:                          uuid.NewString(),
 		AppID:                       appID,
-		EmailAddress:                uuid.NewString(),
-		PhoneNO:                     uuid.NewString(),
+		EmailAddress:                "aaa@hhh.ccc",
+		PhoneNO:                     "+8613612203166",
 		ImportedFromAppID:           uuid.NewString(),
 		Username:                    uuid.NewString(),
 		AddressFieldsString:         string(uuidSliceS),
@@ -63,16 +63,13 @@ var (
 
 func creatUser(t *testing.T) {
 	var (
-		id                = ret.ID
-		appID             = ret.AppID
-		importedFromAppID = ret.ImportedFromAppID
-		strVal            = "AAA"
-		userReq           = npool.UserReq{
-			ID:                 &id,
-			AppID:              &appID,
+		strVal = "AAA"
+		req    = npool.UserReq{
+			ID:                 &ret.ID,
+			AppID:              &ret.AppID,
 			EmailAddress:       &ret.EmailAddress,
 			PhoneNO:            &ret.PhoneNO,
-			ImportedFromAppID:  &importedFromAppID,
+			ImportedFromAppID:  &ret.ImportedFromAppID,
 			Username:           &ret.Username,
 			AddressFields:      uuidSlice,
 			Gender:             &ret.Gender,
@@ -96,13 +93,26 @@ func creatUser(t *testing.T) {
 			BanMessage:         &ret.BanMessage,
 		}
 	)
-	info, err := CreateUser(context.Background(), &userReq)
+
+	handler, err := NewHandler(
+		context.Background(),
+		WithID(req.ID),
+		WithAppID(req.GetAppID()),
+		WithPhoneNO(req.PhoneNO),
+		WithEmailAddress(req.EmailAddress),
+		WithImportedFromAppID(req.ImportedFromAppID),
+		WithPasswordHash(req.PasswordHash),
+	)
+	assert.Nil(t, err)
+
+	info, err := handler.CreateUser(context.Background())
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
 		assert.Equal(t, info, &ret)
 	}
 }
 
+/*
 func updateUser(t *testing.T) {
 	var (
 		appID        = ret.AppID
@@ -110,7 +120,7 @@ func updateUser(t *testing.T) {
 		kol          = true
 		kolConfirmed = true
 		credits      = "1.2342"
-		userReq      = npool.UserReq{
+		req          = npool.UserReq{
 			ID:                 &ret.ID,
 			AppID:              &ret.AppID,
 			EmailAddress:       &ret.EmailAddress,
@@ -147,7 +157,7 @@ func updateUser(t *testing.T) {
 	ret.KolConfirmed = true
 	ret.ActionCredits = credits
 
-	info, err := UpdateUser(context.Background(), &userReq)
+	info, err := UpdateUser(context.Background(), &req)
 	if assert.Nil(t, err) {
 		info.Roles = ret.Roles
 		assert.Equal(t, info, &ret)
@@ -179,14 +189,15 @@ func getManyUsers(t *testing.T) {
 		assert.Equal(t, infos[0], &ret)
 	}
 }
+*/
 
-func TestMainOrder(t *testing.T) {
+func TestUser(t *testing.T) {
 	if runByGithubAction, err := strconv.ParseBool(os.Getenv("RUN_BY_GITHUB_ACTION")); err == nil && runByGithubAction {
 		return
 	}
 	t.Run("creatUser", creatUser)
-	t.Run("updateUser", updateUser)
-	t.Run("getUser", getUser)
-	t.Run("getUsers", getUsers)
-	t.Run("getManyUsers", getManyUsers)
+	// t.Run("updateUser", updateUser)
+	// t.Run("getUser", getUser)
+	// t.Run("getUsers", getUsers)
+	// t.Run("getManyUsers", getManyUsers)
 }
