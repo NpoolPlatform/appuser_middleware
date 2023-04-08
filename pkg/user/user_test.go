@@ -92,6 +92,18 @@ func creatUser(t *testing.T) {
 			Banned:             &ret.Banned,
 			BanMessage:         &ret.BanMessage,
 		}
+		ret1 = npool.User{
+			ID:                  ret.ID,
+			AppID:               ret.AppID,
+			EmailAddress:        ret.EmailAddress,
+			PhoneNO:             ret.PhoneNO,
+			ImportedFromAppID:   ret.ImportedFromAppID,
+			ActionCredits:       ret.ActionCredits,
+			AddressFieldsString: "[]",
+			AddressFields:       []string{},
+			SigninVerifyTypeStr: basetypes.SignMethod_Email.String(),
+			SigninVerifyType:    basetypes.SignMethod_Email,
+		}
 	)
 
 	handler, err := NewHandler(
@@ -108,7 +120,8 @@ func creatUser(t *testing.T) {
 	info, err := handler.CreateUser(context.Background())
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
-		assert.Equal(t, info, &ret)
+		ret1.CreatedAt = info.CreatedAt
+		assert.Equal(t, info, &ret1)
 	}
 }
 

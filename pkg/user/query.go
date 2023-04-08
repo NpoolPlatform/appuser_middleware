@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"entgo.io/ent/dialect/sql"
@@ -9,18 +10,18 @@ import (
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 
+	entapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
 	entapprole "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approle"
 	entapproleuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approleuser"
-
-	entapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
 	entappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
 	entappusercontrol "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusercontrol"
 	entextra "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserextra"
 	entappusersecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
-
 	entbanappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banappuser"
 	entkyc "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/kyc"
+
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -279,6 +280,8 @@ func (h *queryHandler) formalize() {
 			continue
 		}
 		info.ActionCredits = credits.String()
+		_ = json.Unmarshal([]byte(info.AddressFieldsString), &info.AddressFields)
+		info.SigninVerifyType = basetypes.SignMethod(basetypes.SignMethod_value[info.SigninVerifyTypeStr])
 	}
 }
 
