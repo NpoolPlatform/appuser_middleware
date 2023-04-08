@@ -21,7 +21,7 @@ import (
 	entapproleuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approleuser"
 
 	entapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
-	entuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
+	entappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
 	entappusercontrol "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusercontrol"
 	entextra "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserextra"
 	entappusersecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
@@ -29,7 +29,7 @@ import (
 	entsecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
 	entbanappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banappuser"
 	entkyc "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/kyc"
-	usermwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
+	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -38,7 +38,7 @@ import (
 type queryHandler struct {
 	*Handler
 	stm   *ent.AppUserSelect
-	infos []*usermwpb.User
+	infos []*npool.User
 }
 
 func (h *queryHandler) queryAppUser(cli *ent.Client) error {
@@ -50,16 +50,17 @@ func (h *queryHandler) queryAppUser(cli *ent.Client) error {
 		AppUser.
 		Query().
 		Where(
-			entuser.AppID(uuid.MustParse(h.AppID)),
-			entuser.ID(uuid.MustParse(*h.ID)),
+			entappuser.AppID(uuid.MustParse(h.AppID)),
+			entappuser.ID(uuid.MustParse(*h.ID)),
+			entappuser.DeletedAt(0),
 		).
 		Select(
-			entuser.FieldID,
-			entuser.FieldAppID,
-			entuser.FieldEmailAddress,
-			entuser.FieldPhoneNo,
-			entuser.FieldImportFromApp,
-			entuser.FieldCreatedAt,
+			entappuser.FieldID,
+			entappuser.FieldAppID,
+			entappuser.FieldEmailAddress,
+			entappuser.FieldPhoneNo,
+			entappuser.FieldImportFromApp,
+			entappuser.FieldCreatedAt,
 		)
 	return nil
 }
@@ -68,7 +69,7 @@ func (h *queryHandler) queryJoinAppUserExtra(s *sql.Selector) {
 	t := sql.Table(entextra.Table)
 	s.LeftJoin(t).
 		On(
-			s.C(entuser.FieldID),
+			s.C(entappuser.FieldID),
 			t.C(entextra.FieldUserID),
 		).
 		AppendSelect(
@@ -91,7 +92,7 @@ func (h *queryHandler) queryJoinAppUserControl(s *sql.Selector) {
 	t := sql.Table(entappusercontrol.Table)
 	s.LeftJoin(t).
 		On(
-			s.C(entuser.FieldID),
+			s.C(entappuser.FieldID),
 			t.C(entappusercontrol.FieldUserID),
 		).
 		AppendSelect(
@@ -106,7 +107,7 @@ func (h *queryHandler) queryJoinApp(s *sql.Selector) {
 	t := sql.Table(entapp.Table)
 	s.LeftJoin(t).
 		On(
-			s.C(entuser.FieldImportFromApp),
+			s.C(entappuser.FieldImportFromApp),
 			t.C(entapp.FieldID),
 		).
 		AppendSelect(
@@ -119,7 +120,7 @@ func (h *queryHandler) queryJoinBanAppUser(s *sql.Selector) {
 	t := sql.Table(entbanappuser.Table)
 	s.LeftJoin(t).
 		On(
-			s.C(entuser.FieldID),
+			s.C(entappuser.FieldID),
 			t.C(entbanappuser.FieldUserID),
 		).
 		AppendSelect(
@@ -132,7 +133,7 @@ func (h *queryHandler) queryJoinKyc(s *sql.Selector) {
 	t := sql.Table(entkyc.Table)
 	s.LeftJoin(t).
 		On(
-			s.C(entuser.FieldID),
+			s.C(entappuser.FieldID),
 			t.C(entkyc.FieldUserID),
 		).
 		AppendSelect(
@@ -144,7 +145,7 @@ func (h *queryHandler) queryJoinAppUserSecret(s *sql.Selector) {
 	t := sql.Table(entappusersecret.Table)
 	s.LeftJoin(t).
 		On(
-			s.C(entuser.FieldID),
+			s.C(entappuser.FieldID),
 			t.C(entappusersecret.FieldUserID),
 		).
 		AppendSelect(
@@ -229,7 +230,7 @@ func (h *queryHandler) formalize() {
 	}
 }
 
-func (h *Handler) GetUser(ctx context.Context) (info *usermwpb.User, err error) {
+func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 	handler := &queryHandler{
 		Handler: h,
 	}
@@ -263,8 +264,8 @@ func (h *Handler) GetUser(ctx context.Context) (info *usermwpb.User, err error) 
 	return handler.infos[0], nil
 }
 
-func GetUser(ctx context.Context, appID, userID string) (*usermwpb.User, error) {
-	var infos []*usermwpb.User
+func GetUser(ctx context.Context, appID, userID string) (*npool.User, error) {
+	var infos []*npool.User
 	var err error
 
 	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetUser")
@@ -283,8 +284,8 @@ func GetUser(ctx context.Context, appID, userID string) (*usermwpb.User, error) 
 			AppUser.
 			Query().
 			Where(
-				entuser.ID(uuid.MustParse(userID)),
-				entuser.AppID(uuid.MustParse(appID)),
+				entappuser.ID(uuid.MustParse(userID)),
+				entappuser.AppID(uuid.MustParse(appID)),
 			).
 			Limit(1)
 
@@ -313,8 +314,8 @@ func GetUser(ctx context.Context, appID, userID string) (*usermwpb.User, error) 
 	return infos[0], nil
 }
 
-func GetUsers(ctx context.Context, conds *mgrpb.Conds, offset, limit int32) ([]*usermwpb.User, int, error) {
-	var infos []*usermwpb.User
+func GetUsers(ctx context.Context, conds *mgrpb.Conds, offset, limit int32) ([]*npool.User, int, error) {
+	var infos []*npool.User
 	var err error
 	var total int
 
@@ -336,12 +337,12 @@ func GetUsers(ctx context.Context, conds *mgrpb.Conds, offset, limit int32) ([]*
 		if conds != nil {
 			if conds.ID != nil {
 				stm.Where(
-					entuser.ID(uuid.MustParse(conds.GetID().GetValue())),
+					entappuser.ID(uuid.MustParse(conds.GetID().GetValue())),
 				)
 			}
 			if conds.AppID != nil {
 				stm.Where(
-					entuser.AppID(uuid.MustParse(conds.GetAppID().GetValue())),
+					entappuser.AppID(uuid.MustParse(conds.GetAppID().GetValue())),
 				)
 			}
 		}
@@ -378,8 +379,8 @@ func GetUsers(ctx context.Context, conds *mgrpb.Conds, offset, limit int32) ([]*
 	return infos, total, nil
 }
 
-func GetManyUsers(ctx context.Context, userIDs []string) ([]*usermwpb.User, uint32, error) {
-	var infos []*usermwpb.User
+func GetManyUsers(ctx context.Context, userIDs []string) ([]*npool.User, uint32, error) {
+	var infos []*npool.User
 	var err error
 	var total int
 
@@ -404,7 +405,7 @@ func GetManyUsers(ctx context.Context, userIDs []string) ([]*usermwpb.User, uint
 			AppUser.
 			Query().
 			Where(
-				entuser.IDIn(users...),
+				entappuser.IDIn(users...),
 			)
 		total, err = stm.Count(ctx)
 		if err != nil {
@@ -434,7 +435,7 @@ func GetManyUsers(ctx context.Context, userIDs []string) ([]*usermwpb.User, uint
 	return infos, uint32(total), nil
 }
 
-func expand(ctx context.Context, userIDs []string, users []*usermwpb.User) ([]*usermwpb.User, error) {
+func expand(ctx context.Context, userIDs []string, users []*npool.User) ([]*npool.User, error) {
 	type extra struct {
 		UserID       uuid.UUID `json:"user_id"`
 		GoogleSecret string    `json:"google_secret"`
@@ -522,19 +523,19 @@ func expand(ctx context.Context, userIDs []string, users []*usermwpb.User) ([]*u
 func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 	return stm.
 		Select(
-			entuser.FieldID,
-			entuser.FieldAppID,
-			entuser.FieldEmailAddress,
-			entuser.FieldPhoneNo,
-			entuser.FieldImportFromApp,
-			entuser.FieldCreatedAt,
+			entappuser.FieldID,
+			entappuser.FieldAppID,
+			entappuser.FieldEmailAddress,
+			entappuser.FieldPhoneNo,
+			entappuser.FieldImportFromApp,
+			entappuser.FieldCreatedAt,
 		).
 		Modify(func(s *sql.Selector) {
 			t1 := sql.Table(entextra.Table)
 			s.
 				LeftJoin(t1).
 				On(
-					s.C(entuser.FieldID),
+					s.C(entappuser.FieldID),
 					t1.C(entextra.FieldUserID),
 				).
 				AppendSelect(
@@ -556,7 +557,7 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 			s.
 				LeftJoin(t2).
 				On(
-					s.C(entuser.FieldID),
+					s.C(entappuser.FieldID),
 					t2.C(entappusercontrol.FieldUserID),
 				).
 				AppendSelect(
@@ -570,7 +571,7 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 			s.
 				LeftJoin(t3).
 				On(
-					s.C(entuser.FieldImportFromApp),
+					s.C(entappuser.FieldImportFromApp),
 					t3.C(entapp.FieldID),
 				).
 				AppendSelect(
@@ -582,7 +583,7 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 			s.
 				LeftJoin(t4).
 				On(
-					s.C(entuser.FieldID),
+					s.C(entappuser.FieldID),
 					t4.C(entbanappuser.FieldUserID),
 				).
 				AppendSelect(
@@ -593,7 +594,7 @@ func join(stm *ent.AppUserQuery) *ent.AppUserSelect {
 			s.
 				LeftJoin(t5).
 				On(
-					s.C(entuser.FieldID),
+					s.C(entappuser.FieldID),
 					t5.C(entkyc.FieldUserID),
 				).
 				AppendSelect(
