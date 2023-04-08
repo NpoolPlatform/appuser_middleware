@@ -34,8 +34,159 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func (h *Handler) GetUser(ctx context.Context) (*usermwpb.User, error) {
-	return nil, nil
+type queryHandler struct {
+	*Handler
+	stm   *ent.AppUserSelect
+	infos []*usermwpb.User
+}
+
+func (h *queryHandler) queryAppUser(cli *ent.Client) error {
+	if h.ID == nil {
+		return fmt.Errorf("invalid userid")
+	}
+
+	h.stm = cli.
+		AppUser.
+		Query().
+		Where(
+			entuser.AppID(uuid.MustParse(h.AppID)),
+			entuser.ID(uuid.MustParse(*h.ID)),
+		).
+		Select(
+			entuser.FieldID,
+			entuser.FieldAppID,
+			entuser.FieldEmailAddress,
+			entuser.FieldPhoneNo,
+			entuser.FieldImportFromApp,
+			entuser.FieldCreatedAt,
+		)
+	return nil
+}
+
+func (h *queryHandler) queryJoinAppUserExtra(s *sql.Selector) {
+	t := sql.Table(entextra.Table)
+	s.LeftJoin(t).
+		On(
+			s.C(entuser.FieldID),
+			t.C(entextra.FieldUserID),
+		).
+		AppendSelect(
+			sql.As(t.C(entextra.FieldUsername), "username"),
+			sql.As(t.C(entextra.FieldFirstName), "first_name"),
+			sql.As(t.C(entextra.FieldLastName), "last_name"),
+			sql.As(t.C(entextra.FieldAddressFields), "address_fields"),
+			sql.As(t.C(entextra.FieldGender), "gender"),
+			sql.As(t.C(entextra.FieldPostalCode), "postal_code"),
+			sql.As(t.C(entextra.FieldAge), "age"),
+			sql.As(t.C(entextra.FieldBirthday), "birthday"),
+			sql.As(t.C(entextra.FieldAvatar), "avatar"),
+			sql.As(t.C(entextra.FieldOrganization), "organization"),
+			sql.As(t.C(entextra.FieldIDNumber), "id_number"),
+			sql.As(t.C(entextra.FieldActionCredits), "action_credits"),
+		)
+}
+
+func (h *queryHandler) queryJoinAppUserControl(s *sql.Selector) {
+	t := sql.Table(entappusercontrol.Table)
+	s.LeftJoin(t).
+		On(
+			s.C(entuser.FieldID),
+			t.C(entappusercontrol.FieldUserID),
+		).
+		AppendSelect(
+			sql.As(t.C(entappusercontrol.FieldGoogleAuthenticationVerified), "google_authentication_verified"),
+			t.C(entappusercontrol.FieldSigninVerifyType),
+			t.C(entappusercontrol.FieldKol),
+			t.C(entappusercontrol.FieldKolConfirmed),
+		)
+}
+
+func (h *queryHandler) queryJoinApp(s *sql.Selector) {
+	t := sql.Table(entapp.Table)
+	s.LeftJoin(t).
+		On(
+			s.C(entuser.FieldImportFromApp),
+			t.C(entapp.FieldID),
+		).
+		AppendSelect(
+			sql.As(t.C(entapp.FieldName), "imported_from_app_name"),
+			sql.As(t.C(entapp.FieldLogo), "imported_from_app_logo"),
+		)
+}
+
+func (h *queryHandler) queryJoinBanAppUser(s *sql.Selector) {
+	t := sql.Table(entbanappuser.Table)
+	s.LeftJoin(t).
+		On(
+			s.C(entuser.FieldID),
+			t.C(entbanappuser.FieldUserID),
+		).
+		AppendSelect(
+			sql.As(t.C(entbanappuser.FieldID), "ban_app_user_id"),
+			sql.As(t.C(entbanappuser.FieldMessage), "ban_message"),
+		)
+}
+
+func (h *queryHandler) queryJoinKyc(s *sql.Selector) {
+	t := sql.Table(entkyc.Table)
+	s.LeftJoin(t).
+		On(
+			s.C(entuser.FieldID),
+			t.C(entkyc.FieldUserID),
+		).
+		AppendSelect(
+			sql.As(t.C(entkyc.FieldState), "kyc_state"),
+		)
+}
+
+func (h *queryHandler) queryJoin() {
+	h.stm.Modify(func(s *sql.Selector) {
+		h.queryJoinAppUserExtra(s)
+		h.queryJoinAppUserControl(s)
+		h.queryJoinApp(s)
+		h.queryJoinBanAppUser(s)
+		h.queryJoinKyc(s)
+	})
+}
+
+func (h *queryHandler) scan(ctx context.Context) error {
+	return h.stm.Scan(ctx, &h.infos)
+}
+
+func (h *queryHandler) formalize() error {
+	return nil
+}
+
+func (h *Handler) GetUser(ctx context.Context) (info *usermwpb.User, err error) {
+	handler := &queryHandler{
+		Handler: h,
+	}
+
+	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		if err := handler.queryAppUser(cli); err != nil {
+			return err
+		}
+		handler.queryJoin()
+		if err := handler.scan(_ctx); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(handler.infos) == 0 {
+		return nil, fmt.Errorf("invalid user")
+	}
+	if len(handler.infos) > 1 {
+		return nil, fmt.Errorf("too many records")
+	}
+
+	if err := handler.formalize(); err != nil {
+		return nil, err
+	}
+
+	return handler.infos[0], nil
 }
 
 func GetUser(ctx context.Context, appID, userID string) (*usermwpb.User, error) {
