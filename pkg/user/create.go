@@ -138,11 +138,12 @@ func (h *createHandler) createAppRoleUser(ctx context.Context, tx *ent.Tx) error
 
 	bulk := make([]*ent.AppRoleUserCreate, len(h.RoleIDs))
 	for i, roleID := range h.RoleIDs {
+		_roleID := roleID
 		bulk[i] = approleusercrud.CreateSet(
 			tx.AppRoleUser.Create(),
 			&approleusermgrpb.AppRoleUserReq{
 				AppID:  &h.AppID,
-				RoleID: &roleID,
+				RoleID: &_roleID,
 				UserID: h.ID,
 			})
 	}

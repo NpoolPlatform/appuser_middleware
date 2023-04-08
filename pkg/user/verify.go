@@ -1,3 +1,4 @@
+//nolint:dupl
 package user
 
 import (
@@ -107,7 +108,9 @@ func (h *Handler) VerifyAccount(ctx context.Context) (*usermwpb.User, error) {
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		handler.queryAppUserByAccount(cli)
+		if err := handler.queryAppUserByAccount(cli); err != nil {
+			return err
+		}
 		handler.queryJoinAppUserSecret()
 		return handler.stm.Scan(_ctx, &infos)
 	})
@@ -145,7 +148,9 @@ func (h *Handler) VerifyUser(ctx context.Context) (*usermwpb.User, error) {
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		handler.queryAppUserByID(cli)
+		if err := handler.queryAppUserByID(cli); err != nil {
+			return err
+		}
 		handler.queryJoinAppUserSecret()
 		return handler.stm.Scan(_ctx, &infos)
 	})

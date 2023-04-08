@@ -254,6 +254,9 @@ func (h *Handler) UpdateUser(ctx context.Context) (*npool.User, error) {
 		}
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	return h.GetUser(ctx)
 }

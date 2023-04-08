@@ -65,8 +65,8 @@ var (
 )
 
 func creatUser(t *testing.T) {
-	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)
-	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000)
+	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)           //nolint
+	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000) //nolint
 	var (
 		strVal = "AAA"
 		req    = npool.UserReq{
@@ -131,8 +131,8 @@ func creatUser(t *testing.T) {
 }
 
 func updateUser(t *testing.T) {
-	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)
-	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000)
+	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)           //nolint
+	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000) //nolint
 	var (
 		appID        = ret.AppID
 		strVal       = "AAA"
