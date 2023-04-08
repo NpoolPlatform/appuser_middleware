@@ -2,28 +2,18 @@ package user
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
-
-	"github.com/google/uuid"
+	"github.com/NpoolPlatform/appuser-manager/pkg/encrypt"
 
 	appusersecretcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appusersecret"
 	appuserthirdpartycrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuserthirdparty"
-	"github.com/NpoolPlatform/appuser-manager/pkg/encrypt"
-	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
-	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/user"
-	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
+
 	appusersecretamgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appusersecret"
 	appuserthirdpartymgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuserthirdparty"
-	"go.opentelemetry.io/otel"
-	scodes "go.opentelemetry.io/otel/codes"
 
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 
-	npoolpb "github.com/NpoolPlatform/message/npool"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
 	appusermgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
@@ -37,236 +27,229 @@ import (
 	entappuserextra "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserextra"
 	entappusersecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
 	entappuserthirdparty "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserthirdparty"
+
+	"github.com/google/uuid"
 )
 
-//nolint:funlen,gocyclo
-func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
-	var err error
+type updateHandler struct {
+	*Handler
+}
 
-	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "UpdateUser")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
+func (h *updateHandler) updateAppUser(ctx context.Context, tx *ent.Tx) error {
+	if _, err := appusercrud.UpdateSet(
+		tx.AppUser.UpdateOneID(uuid.MustParse(*h.ID)),
+		&appusermgrpb.AppUserReq{
+			PhoneNO:       h.PhoneNO,
+			EmailAddress:  h.EmailAddress,
+			ImportFromApp: h.ImportedFromAppID,
+		}).Save(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *updateHandler) updateAppUserExtra(ctx context.Context, tx *ent.Tx) error {
+	info, err := tx.
+		AppUserExtra.
+		Query().
+		Where(
+			entappuserextra.AppID(uuid.MustParse(h.AppID)),
+			entappuserextra.UserID(uuid.MustParse(*h.ID)),
+		).
+		ForUpdate().
+		Only(ctx)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return err
 		}
-	}()
+	}
 
-	span = tracer.Trace(span, in)
-	span = commontracer.TraceInvoker(span, "user", "db", "UpdateTx")
+	req := &appuserextramgrpb.AppUserExtraReq{
+		AppID:         &h.AppID,
+		UserID:        h.ID,
+		FirstName:     h.FirstName,
+		Birthday:      h.Birthday,
+		LastName:      h.LastName,
+		Gender:        h.Gender,
+		Avatar:        h.Avatar,
+		Username:      h.Username,
+		PostalCode:    h.PostalCode,
+		Age:           h.Age,
+		Organization:  h.Organization,
+		IDNumber:      h.IDNumber,
+		AddressFields: h.AddressFields,
+		ActionCredits: h.ActionCredits,
+	}
 
-	err = checkUserExist(ctx, in)
+	if info == nil {
+		if _, err = appuserextracrud.CreateSet(
+			tx.AppUserExtra.Create(),
+			req,
+		).Save(ctx); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	if _, err = appuserextracrud.UpdateSet(info, req).Save(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *updateHandler) updateAppUserControl(ctx context.Context, tx *ent.Tx) error {
+	info, err := tx.
+		AppUserControl.
+		Query().
+		Where(
+			entappusercontrol.AppID(uuid.MustParse(h.AppID)),
+			entappusercontrol.UserID(uuid.MustParse(*h.ID)),
+		).
+		ForUpdate().
+		Only(ctx)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return err
+		}
+	}
+
+	req := &appusercontrolmgrpb.AppUserControlReq{
+		AppID:              &h.AppID,
+		UserID:             h.ID,
+		GoogleAuthVerified: h.GoogleAuthVerified,
+		SigninVerifyType:   h.SigninVerifyType,
+		Kol:                h.Kol,
+		KolConfirmed:       h.KolConfirmed,
+	}
+
+	if info == nil {
+		if _, err := appusercontrolcrud.CreateSet(
+			tx.AppUserControl.Create(),
+			req,
+		).Save(ctx); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	if _, err = appusercontrolcrud.UpdateSet(info, req).Save(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *updateHandler) updateAppUserSecret(ctx context.Context, tx *ent.Tx) error {
+	var salt, password *string
+
+	if h.PasswordHash != nil {
+		saltStr := encrypt.Salt()
+		salt = &saltStr
+
+		passwordStr, err := encrypt.EncryptWithSalt(*h.PasswordHash, saltStr)
+		if err != nil {
+			return err
+		}
+		password = &passwordStr
+	}
+
+	info, err := tx.
+		AppUserSecret.
+		Query().
+		Where(
+			entappusersecret.AppID(uuid.MustParse(h.AppID)),
+			entappusersecret.UserID(uuid.MustParse(*h.ID)),
+		).
+		ForUpdate().
+		Only(ctx)
+	if err != nil {
+		return err
+	}
+
+	if _, err = appusersecretcrud.UpdateSet(
+		info,
+		&appusersecretamgrpb.AppUserSecretReq{
+			PasswordHash: password,
+			Salt:         salt,
+			GoogleSecret: h.GoogleSecret,
+		}).Save(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *updateHandler) updateAppUserThirdParty(ctx context.Context, tx *ent.Tx) error {
+	info, err := tx.
+		AppUserThirdParty.
+		Query().
+		Where(
+			entappuserthirdparty.AppID(uuid.MustParse(h.AppID)),
+			entappuserthirdparty.UserID(uuid.MustParse(*h.ID)),
+		).
+		ForUpdate().
+		Only(ctx)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return err
+		}
+	}
+
+	if info == nil && h.ThirdPartyID == nil {
+		return nil
+	}
+
+	req := &appuserthirdpartymgrpb.AppUserThirdPartyReq{
+		AppID:              &h.AppID,
+		UserID:             h.ID,
+		ThirdPartyID:       h.ThirdPartyID,
+		ThirdPartyUserID:   h.ThirdPartyUserID,
+		ThirdPartyUsername: h.ThirdPartyUsername,
+		ThirdPartyAvatar:   h.ThirdPartyAvatar,
+	}
+
+	if info == nil {
+		if _, err := appuserthirdpartycrud.CreateSet(
+			tx.AppUserThirdParty.Create(),
+			req,
+		).Save(ctx); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	if _, err = appuserthirdpartycrud.UpdateSet(info, req).Save(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *Handler) UpdateUser(ctx context.Context) (*npool.User, error) {
+	info, err := h.GetUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
-		_, err := appusercrud.UpdateSet(
-			tx.AppUser.UpdateOneID(uuid.MustParse(in.GetID())),
-			&appusermgrpb.AppUserReq{
-				PhoneNO:       in.PhoneNO,
-				EmailAddress:  in.EmailAddress,
-				ImportFromApp: in.ImportedFromAppID,
-			}).Save(ctx)
-		if err != nil {
-			logger.Sugar().Errorw("UpdateUser", "err", err.Error())
+	handler := &updateHandler{
+		Handler: h,
+	}
+
+	err = db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {
+		if err := handler.updateAppUser(ctx, tx); err != nil {
 			return err
 		}
-
-		extra, err := tx.
-			AppUserExtra.
-			Query().
-			Where(
-				entappuserextra.AppID(uuid.MustParse(in.GetAppID())),
-				entappuserextra.UserID(uuid.MustParse(in.GetID())),
-			).
-			ForUpdate().
-			Only(ctx)
-		if err != nil {
+		if err := handler.updateAppUserExtra(ctx, tx); err != nil {
 			return err
 		}
-
-		if _, err = appuserextracrud.UpdateSet(
-			extra,
-			&appuserextramgrpb.AppUserExtraReq{
-				FirstName:     in.FirstName,
-				Birthday:      in.Birthday,
-				LastName:      in.LastName,
-				Gender:        in.Gender,
-				Avatar:        in.Avatar,
-				Username:      in.Username,
-				PostalCode:    in.PostalCode,
-				Age:           in.Age,
-				Organization:  in.Organization,
-				IDNumber:      in.IDNumber,
-				AddressFields: in.AddressFields,
-				ActionCredits: in.ActionCredits,
-			}).Save(ctx); err != nil {
+		if err := handler.updateAppUserControl(ctx, tx); err != nil {
 			return err
 		}
-
-		ctrl, err := tx.
-			AppUserControl.
-			Query().
-			Where(
-				entappusercontrol.AppID(uuid.MustParse(in.GetAppID())),
-				entappusercontrol.UserID(uuid.MustParse(in.GetID())),
-			).
-			ForUpdate().
-			Only(ctx)
-		if err != nil {
+		if err := handler.updateAppUserSecret(ctx, tx); err != nil {
 			return err
 		}
-
-		if _, err = appusercontrolcrud.UpdateSet(
-			ctrl,
-			&appusercontrolmgrpb.AppUserControlReq{
-				GoogleAuthVerified: in.GoogleAuthVerified,
-				SigninVerifyType:   in.SigninVerifyType,
-				Kol:                in.Kol,
-				KolConfirmed:       in.KolConfirmed,
-			}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("UpdateUser", "err", err.Error())
-			return err
-		}
-
-		var password *string
-		var salt *string
-
-		if in.PasswordHash != nil {
-			saltStr := encrypt.Salt()
-			salt = &saltStr
-
-			passwordStr, err := encrypt.EncryptWithSalt(in.GetPasswordHash(), saltStr)
-			if err != nil {
-				logger.Sugar().Errorw("UpdateUser", "err", err.Error())
-				return err
-			}
-			password = &passwordStr
-		}
-
-		secret, err := tx.
-			AppUserSecret.
-			Query().
-			Where(
-				entappusersecret.AppID(uuid.MustParse(in.GetAppID())),
-				entappusersecret.UserID(uuid.MustParse(in.GetID())),
-			).
-			ForUpdate().
-			Only(ctx)
-		if err != nil {
-			return err
-		}
-
-		if _, err = appusersecretcrud.UpdateSet(
-			secret,
-			&appusersecretamgrpb.AppUserSecretReq{
-				AppID:        in.AppID,
-				PasswordHash: password,
-				Salt:         salt,
-				GoogleSecret: in.GoogleSecret,
-			}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("UpdateUser", "err", err.Error())
-			return err
-		}
-
-		thirdParty, err := tx.
-			AppUserThirdParty.
-			Query().
-			Where(
-				entappuserthirdparty.AppID(uuid.MustParse(in.GetAppID())),
-				entappuserthirdparty.UserID(uuid.MustParse(in.GetID())),
-			).
-			ForUpdate().
-			Only(ctx)
-		if err != nil {
-			if ent.IsNotFound(err) {
-				return nil
-			}
-			return err
-		}
-
-		if _, err = appuserthirdpartycrud.UpdateSet(
-			thirdParty,
-			&appuserthirdpartymgrpb.AppUserThirdPartyReq{
-				AppID:              in.AppID,
-				ThirdPartyID:       in.ThirdPartyID,
-				ThirdPartyUserID:   in.ThirdPartyUserID,
-				ThirdPartyUsername: in.ThirdPartyUsername,
-				ThirdPartyAvatar:   in.ThirdPartyAvatar,
-			}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("UpdateUser", "err", err.Error())
+		if err := handler.updateAppUserThirdParty(ctx, tx); err != nil {
 			return err
 		}
 		return nil
 	})
-	if err != nil {
-		return nil, err
-	}
 
-	return GetUser(ctx, in.GetAppID(), in.GetID())
-}
-
-func checkUserExist(ctx context.Context, in *npool.UserReq) error {
-	userExist, err := appusercrud.Exist(ctx, uuid.MustParse(in.GetID()))
-	if err != nil {
-		return err
-	}
-	if !userExist {
-		return fmt.Errorf("user not exsit")
-	}
-
-	extraExist, err := appuserextracrud.ExistConds(ctx, &appuserextramgrpb.Conds{
-		UserID: &npoolpb.StringVal{
-			Op:    cruder.EQ,
-			Value: in.GetID(),
-		},
-	})
-	if err != nil {
-		return err
-	}
-	if !extraExist {
-		_, err = appuserextracrud.Create(ctx, &appuserextramgrpb.AppUserExtraReq{
-			AppID:         in.AppID,
-			UserID:        in.ID,
-			FirstName:     in.FirstName,
-			Birthday:      in.Birthday,
-			LastName:      in.LastName,
-			Gender:        in.Gender,
-			Avatar:        in.Avatar,
-			Username:      in.Username,
-			PostalCode:    in.PostalCode,
-			Age:           in.Age,
-			Organization:  in.Organization,
-			IDNumber:      in.IDNumber,
-			AddressFields: in.AddressFields,
-		})
-		if err != nil {
-			return err
-		}
-	}
-
-	controlExist, err := appusercontrolcrud.ExistConds(ctx, &appusercontrolmgrpb.Conds{
-		UserID: &npoolpb.StringVal{
-			Op:    cruder.EQ,
-			Value: in.GetID(),
-		},
-	})
-	if err != nil {
-		return err
-	}
-
-	if !controlExist {
-		_, err = appusercontrolcrud.Create(ctx, &appusercontrolmgrpb.AppUserControlReq{
-			AppID:              in.AppID,
-			UserID:             in.ID,
-			GoogleAuthVerified: in.GoogleAuthVerified,
-			SigninVerifyType:   in.SigninVerifyType,
-		})
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return info, nil
 }
