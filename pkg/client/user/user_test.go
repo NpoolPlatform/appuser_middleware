@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	// "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
-	// commonpb "github.com/NpoolPlatform/message/npool"
-	// mgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
+	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
+	commonpb "github.com/NpoolPlatform/message/npool"
+	mgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
 
 	"bou.ke/monkey"
 	"github.com/NpoolPlatform/go-service-framework/pkg/config"
@@ -49,7 +49,7 @@ var (
 		EmailAddress:          "aaa@aaa.aaa",
 		PhoneNO:               "+8613612203133",
 		ImportedFromAppID:     uuid.NewString(),
-		Username:              uuid.NewString(),
+		Username:              "amwnrekadsf.are-",
 		AddressFieldsString:   string(uuidSliceS),
 		AddressFields:         uuidSlice,
 		Gender:                uuid.NewString(),
@@ -130,20 +130,19 @@ func creatUser(t *testing.T) {
 	}
 }
 
-/*
 func updateUser(t *testing.T) {
+	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)
+	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000)
 	var (
-		appID        = ret.AppID
-		strVal       = "AAA"
-		emailAddress = uuid.NewString()
-		phoneNO      = uuid.NewString()
-		credits      = "1.234234"
+		appID   = ret.AppID
+		strVal  = "AAA"
+		credits = "1.234234"
 
 		req = npool.UserReq{
 			ID:                 &ret.ID,
 			AppID:              &ret.AppID,
-			EmailAddress:       &emailAddress,
-			PhoneNO:            &phoneNO,
+			EmailAddress:       &ret.EmailAddress,
+			PhoneNO:            &ret.PhoneNO,
 			ImportedFromAppID:  &ret.ImportedFromAppID,
 			Username:           &ret.Username,
 			AddressFields:      uuidSlice,
@@ -170,13 +169,11 @@ func updateUser(t *testing.T) {
 		}
 	)
 
-	ret.PhoneNO = phoneNO
-	ret.EmailAddress = emailAddress
 	ret.ActionCredits = credits
 
 	info, err := UpdateUser(context.Background(), &req)
 	if assert.Nil(t, err) {
-		info.Roles = ret.Roles
+		ret.Roles = info.Roles
 		assert.Equal(t, info, &ret)
 	}
 }
@@ -206,7 +203,6 @@ func getManyUsers(t *testing.T) {
 		assert.Equal(t, infos[0], &ret)
 	}
 }
-*/
 
 func TestUser(t *testing.T) {
 	if runByGithubAction, err := strconv.ParseBool(os.Getenv("RUN_BY_GITHUB_ACTION")); err == nil && runByGithubAction {
@@ -220,8 +216,8 @@ func TestUser(t *testing.T) {
 	})
 
 	t.Run("creatUser", creatUser)
-	// t.Run("updateUser", updateUser)
-	// t.Run("getUser", getUser)
-	// t.Run("getUsers", getUsers)
-	// t.Run("getManyUsers", getManyUsers)
+	t.Run("updateUser", updateUser)
+	t.Run("getUser", getUser)
+	t.Run("getUsers", getUsers)
+	t.Run("getManyUsers", getManyUsers)
 }

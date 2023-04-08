@@ -48,6 +48,11 @@ func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*
 	}
 	info, err := handler.UpdateUser(ctx)
 	if err != nil {
+		logger.Sugar().Errorw(
+			"UpdateUser",
+			"Req", req,
+			"error", err,
+		)
 		return &npool.UpdateUserResponse{}, status.Error(codes.Internal, err.Error())
 	}
 

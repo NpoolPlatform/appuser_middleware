@@ -280,6 +280,7 @@ func (h *queryHandler) formalize() {
 		info.ActionCredits = credits.String()
 		_ = json.Unmarshal([]byte(info.AddressFieldsString), &info.AddressFields)
 		info.SigninVerifyType = basetypes.SignMethod(basetypes.SignMethod_value[info.SigninVerifyTypeStr])
+		info.GoogleAuthVerified = info.GoogleAuthVerifiedInt > 0
 	}
 }
 
