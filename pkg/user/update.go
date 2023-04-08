@@ -227,7 +227,7 @@ func (h *Handler) UpdateUser(ctx context.Context) (*npool.User, error) {
 		return nil, err
 	}
 
-	info, err := h.GetUser(ctx)
+	_, err := h.GetUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -255,5 +255,5 @@ func (h *Handler) UpdateUser(ctx context.Context) (*npool.User, error) {
 		return nil
 	})
 
-	return info, nil
+	return h.GetUser(ctx)
 }

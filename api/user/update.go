@@ -32,6 +32,10 @@ func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*
 		user1.WithOrganization(req.Organization),
 		user1.WithIDNumber(req.IDNumber),
 		user1.WithAddressFields(req.AddressFields),
+		user1.WithGoogleSecret(req.GoogleSecret),
+		user1.WithGoogleAuthVerified(req.GoogleAuthVerified),
+		user1.WithKol(req.Kol),
+		user1.WithKolConfirmed(req.KolConfirmed),
 		user1.WithActionCredits(req.ActionCredits),
 	)
 	if err != nil {

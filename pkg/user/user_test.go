@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"os"
 	"strconv"
 	"testing"
 
-	// "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
-	// commonpb "github.com/NpoolPlatform/message/npool"
-	// mgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
+	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
+	commonpb "github.com/NpoolPlatform/message/npool"
+	mgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	"github.com/google/uuid"
@@ -42,6 +43,7 @@ var (
 		ImportedFromAppID:           uuid.NewString(),
 		Username:                    "adfjskajfdl.afd-",
 		AddressFieldsString:         string(uuidSliceS),
+		AddressFields:               uuidSlice,
 		Gender:                      uuid.NewString(),
 		PostalCode:                  uuid.NewString(),
 		Age:                         0,
@@ -53,6 +55,7 @@ var (
 		IDNumber:                    uuid.NewString(),
 		SigninVerifyByGoogleAuthInt: 0,
 		SigninVerifyTypeStr:         signType.String(),
+		SigninVerifyType:            signType,
 		GoogleAuthVerifiedInt:       0,
 		GoogleSecret:                appID,
 		HasGoogleSecret:             true,
@@ -62,6 +65,8 @@ var (
 )
 
 func creatUser(t *testing.T) {
+	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)
+	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000)
 	var (
 		strVal = "AAA"
 		req    = npool.UserReq{
@@ -126,6 +131,8 @@ func creatUser(t *testing.T) {
 }
 
 func updateUser(t *testing.T) {
+	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)
+	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000)
 	var (
 		appID        = ret.AppID
 		strVal       = "AAA"
@@ -188,6 +195,10 @@ func updateUser(t *testing.T) {
 		WithOrganization(req.Organization),
 		WithIDNumber(req.IDNumber),
 		WithAddressFields(req.AddressFields),
+		WithGoogleSecret(req.GoogleSecret),
+		WithGoogleAuthVerified(req.GoogleAuthVerified),
+		WithKol(req.Kol),
+		WithKolConfirmed(req.KolConfirmed),
 		WithActionCredits(req.ActionCredits),
 	)
 	assert.Nil(t, err)
@@ -199,33 +210,49 @@ func updateUser(t *testing.T) {
 	}
 }
 
-/*
 func getUser(t *testing.T) {
-	info, err := GetUser(context.Background(), ret.AppID, ret.ID)
+	handler, err := NewHandler(
+		context.Background(),
+		WithAppID(ret.AppID),
+		WithID(&ret.ID),
+	)
+	assert.Nil(t, err)
+
+	info, err := handler.GetUser(context.Background())
 	if assert.Nil(t, err) {
 		assert.Equal(t, info, &ret)
 	}
 }
 
 func getUsers(t *testing.T) {
-	infos, _, err := GetUsers(context.Background(), &mgrpb.Conds{
-		AppID: &commonpb.StringVal{
-			Op:    cruder.EQ,
-			Value: ret.AppID,
-		},
-	}, 0, 1)
+	conds := &mgrpb.Conds{
+		AppID: &commonpb.StringVal{Op: cruder.EQ, Value: ret.AppID},
+	}
+
+	handler, err := NewHandler(
+		context.Background(),
+		WithConds(conds, 0, 1),
+	)
+	assert.Nil(t, err)
+
+	infos, _, err := handler.GetUsers(context.Background())
 	if !assert.Nil(t, err) {
 		assert.NotEqual(t, len(infos), 0)
 	}
 }
 
 func getManyUsers(t *testing.T) {
-	infos, _, err := GetManyUsers(context.Background(), []string{ret.ID})
+	handler, err := NewHandler(
+		context.Background(),
+		WithIDs([]string{ret.ID}),
+	)
+	assert.Nil(t, err)
+
+	infos, err := handler.GetManyUsers(context.Background())
 	if !assert.Nil(t, err) {
 		assert.Equal(t, infos[0], &ret)
 	}
 }
-*/
 
 func TestUser(t *testing.T) {
 	if runByGithubAction, err := strconv.ParseBool(os.Getenv("RUN_BY_GITHUB_ACTION")); err == nil && runByGithubAction {
@@ -233,7 +260,7 @@ func TestUser(t *testing.T) {
 	}
 	t.Run("creatUser", creatUser)
 	t.Run("updateUser", updateUser)
-	// t.Run("getUser", getUser)
-	// t.Run("getUsers", getUsers)
-	// t.Run("getManyUsers", getManyUsers)
+	t.Run("getUser", getUser)
+	t.Run("getUsers", getUsers)
+	t.Run("getManyUsers", getManyUsers)
 }

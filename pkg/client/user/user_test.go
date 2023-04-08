@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"os"
 	"strconv"
 	"testing"
@@ -72,6 +73,8 @@ var (
 )
 
 func creatUser(t *testing.T) {
+	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)
+	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000)
 	var (
 		id                = ret.ID
 		appID             = ret.AppID

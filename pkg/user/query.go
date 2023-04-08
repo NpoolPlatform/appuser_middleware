@@ -104,7 +104,6 @@ func (h *queryHandler) queryAppUserByIDs(cli *ent.Client) error {
 		cli.AppUser.
 			Query().
 			Where(
-				entappuser.AppID(uuid.MustParse(h.AppID)),
 				entappuser.IDIn(ids...),
 				entappuser.DeletedAt(0),
 			),
@@ -226,8 +225,8 @@ func (h *queryHandler) queryUserRoles(ctx context.Context) error {
 	}
 
 	roles := []*role{}
-
 	uids := []uuid.UUID{}
+
 	for _, info := range h.infos {
 		uids = append(uids, uuid.MustParse(info.ID))
 	}
@@ -237,7 +236,6 @@ func (h *queryHandler) queryUserRoles(ctx context.Context) error {
 			AppRoleUser.
 			Query().
 			Where(
-				entapproleuser.AppID(uuid.MustParse(h.AppID)),
 				entapproleuser.UserIDIn(uids...),
 			).
 			Select(
