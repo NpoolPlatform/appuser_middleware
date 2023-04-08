@@ -27,38 +27,11 @@ import (
 	appusersecretcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appusersecret"
 	appuserthirdpartycrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuserthirdparty"
 
-	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
-	commonpb "github.com/NpoolPlatform/message/npool"
-
 	"github.com/google/uuid"
 )
 
 type createHandler struct {
 	*Handler
-}
-
-func (h *createHandler) checkUser(ctx context.Context) error {
-	if h.PhoneNO == nil && h.EmailAddress == nil {
-		return fmt.Errorf("invalid account")
-	}
-
-	conds := &appusermgrpb.Conds{}
-	if h.EmailAddress != nil {
-		conds.EmailAddress = &commonpb.StringVal{Op: cruder.EQ, Value: *h.EmailAddress}
-	}
-	if h.PhoneNO != nil {
-		conds.PhoneNO = &commonpb.StringVal{Op: cruder.EQ, Value: *h.PhoneNO}
-	}
-
-	exist, err := appusercrud.ExistConds(ctx, conds)
-	if err != nil {
-		return err
-	}
-	if exist {
-		return fmt.Errorf("user already exist")
-	}
-
-	return nil
 }
 
 func (h *createHandler) createAppUser(ctx context.Context, tx *ent.Tx) error {
@@ -219,7 +192,7 @@ func (h *Handler) CreateUser(ctx context.Context) (info *npool.User, err error) 
 		Handler: h,
 	}
 
-	if err := handler.checkUser(ctx); err != nil {
+	if err := h.checkAccountExist(ctx); err != nil {
 		return nil, err
 	}
 
