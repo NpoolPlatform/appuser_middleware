@@ -35,6 +35,10 @@ import (
 	scodes "go.opentelemetry.io/otel/codes"
 )
 
+func (h *Handler) CreateUser(ctx context.Context) (*npool.User, error) {
+	return nil, nil
+}
+
 //nolint:funlen
 func CreateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 	var id string

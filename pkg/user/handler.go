@@ -17,7 +17,7 @@ type Handler struct {
 	AppID              string
 	PhoneNO            *string
 	EmailAddress       *string
-	ImportFromAppID    *string
+	ImportedFromAppID  *string
 	Username           *string
 	AddressFields      []string
 	Gender             *string
@@ -112,7 +112,7 @@ func WithEmailAddress(emailAddress *string) func(context.Context, *Handler) erro
 	}
 }
 
-func WithImportFromAppID(appID *string) func(context.Context, *Handler) error {
+func WithImportedFromAppID(appID *string) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if appID == nil {
 			return nil
@@ -121,7 +121,7 @@ func WithImportFromAppID(appID *string) func(context.Context, *Handler) error {
 			return err
 		}
 		// TODO: check import from app exist
-		h.ImportFromAppID = appID
+		h.ImportedFromAppID = appID
 		return nil
 	}
 }
