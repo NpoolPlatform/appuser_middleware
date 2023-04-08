@@ -19,24 +19,70 @@ import (
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 
-	entuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
+	entappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
 
-	entsecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
+	entappusersecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
 
 	usermwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
-	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/google/uuid"
 )
 
-func VerifyAccount(
-	ctx context.Context,
-	appID, account string,
-	accountType basetypes.SignMethod,
-	passwordHash string,
-) (
-	*usermwpb.User, error,
-) {
+type verifyHandler struct {
+	*Handler
+	stm *ent.AppUserSelect
+}
+
+func (h *verifyHandler) queryAppUser(cli *ent.Client) error {
+	if h.EmailAddress == nil && h.PhoneNO == nil {
+		return fmt.Errorf("invalid account")
+	}
+
+	stm := cli.
+		AppUser.
+		Query().
+		Where(
+			entappuser.AppID(uuid.MustParse(h.AppID)),
+			entappuser.DeletedAt(0),
+		)
+	if h.EmailAddress != nil {
+		stm = stm.Where(
+			entappuser.EmailAddress(*h.EmailAddress),
+		)
+	}
+	if h.PhoneNO != nil {
+		stm = stm.Where(
+			entappuser.PhoneNo(*h.PhoneNO),
+		)
+	}
+	h.stm = stm.Select(
+		entappuser.FieldID,
+		entappuser.FieldAppID,
+	)
+	return nil
+}
+
+func (h *verifyHandler) queryJoinAppUserSecret() {
+	h.stm.Modify(func(s *sql.Selector) {
+		t := sql.Table(entappusersecret.Table)
+		s.LeftJoin(t).
+			On(
+				s.C(entappuser.FieldID),
+				t.C(entappusersecret.FieldUserID),
+			).
+			On(
+				s.C(entappuser.FieldAppID),
+				t.C(entappusersecret.FieldAppID),
+			).
+			AppendSelect(
+				sql.As(t.C(entappusersecret.FieldPasswordHash), "password_hash"),
+				sql.As(t.C(entappusersecret.FieldSalt), "salt"),
+				sql.As(t.C(entappusersecret.FieldUserID), "user_id"),
+			)
+	})
+}
+
+func (h *Handler) VerifyAccount(ctx context.Context) (*usermwpb.User, error) {
 	type r struct {
 		ID           string `sql:"id"`
 		AppID        string `sql:"app_id"`
@@ -46,60 +92,40 @@ func VerifyAccount(
 	}
 
 	var infos []*r
-	var err error
 
-	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "VerifyAccount")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
+	handler := &verifyHandler{
+		Handler: h,
+	}
 
-	span = commontracer.TraceInvoker(span, "user", "middleware", "CRUD")
-
-	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
-		stm := cli.
-			AppUser.
-			Query().
-			Where(
-				entuser.AppID(uuid.MustParse(appID)),
-			)
-
-		switch accountType {
-		case basetypes.SignMethod_Email:
-			stm.Where(entuser.EmailAddress(account))
-		case basetypes.SignMethod_Mobile:
-			stm.Where(entuser.PhoneNo(account))
-		default:
-			return fmt.Errorf("invalid account type")
-		}
-
-		return joinV(stm).
-			Scan(ctx, &infos)
+	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		handler.queryAppUser(cli)
+		handler.queryJoinAppUserSecret()
+		return handler.stm.Scan(_ctx, &infos)
 	})
 	if err != nil {
-		logger.Sugar().Errorw("get user", "err", err.Error())
 		return nil, err
 	}
 	if len(infos) == 0 {
-		return nil, nil
+		return nil, fmt.Errorf("invalid user")
 	}
 	if len(infos) > 1 {
-		logger.Sugar().Errorw("VerifyAccount", "err", "too many records")
-		return nil, fmt.Errorf("too many records")
+		return nil, fmt.Errorf("too many record")
+	}
+
+	if h.PasswordHash == nil {
+		return nil, fmt.Errorf("invalid password")
 	}
 
 	if err := encrypt.VerifyWithSalt(
-		passwordHash,
+		*h.PasswordHash,
 		infos[0].PasswordHash,
 		infos[0].Salt,
 	); err != nil {
 		return nil, err
 	}
 
-	return GetUser(ctx, appID, infos[0].UserID)
+	h.ID = &infos[0].UserID
+	return h.GetUser(ctx)
 }
 
 func VerifyUser(
@@ -136,8 +162,8 @@ func VerifyUser(
 			AppUser.
 			Query().
 			Where(
-				entuser.AppID(uuid.MustParse(appID)),
-				entuser.ID(uuid.MustParse(userID)),
+				entappuser.AppID(uuid.MustParse(appID)),
+				entappuser.ID(uuid.MustParse(userID)),
 			)
 
 		return joinV(stm).
@@ -169,26 +195,26 @@ func VerifyUser(
 func joinV(stm *ent.AppUserQuery) *ent.AppUserSelect {
 	return stm.
 		Select(
-			entuser.FieldAppID,
-			entuser.FieldID,
+			entappuser.FieldAppID,
+			entappuser.FieldID,
 		).
 		Limit(1).
 		Modify(func(s *sql.Selector) {
-			t1 := sql.Table(entsecret.Table)
+			t1 := sql.Table(entappusersecret.Table)
 			s.
 				LeftJoin(t1).
 				On(
-					s.C(entuser.FieldID),
-					t1.C(entsecret.FieldUserID),
+					s.C(entappuser.FieldID),
+					t1.C(entappusersecret.FieldUserID),
 				).
 				On(
-					s.C(entuser.FieldAppID),
-					t1.C(entsecret.FieldAppID),
+					s.C(entappuser.FieldAppID),
+					t1.C(entappusersecret.FieldAppID),
 				).
 				AppendSelect(
-					sql.As(t1.C(entsecret.FieldPasswordHash), "password_hash"),
-					sql.As(t1.C(entsecret.FieldSalt), "salt"),
-					sql.As(t1.C(entsecret.FieldUserID), "user_id"),
+					sql.As(t1.C(entappusersecret.FieldPasswordHash), "password_hash"),
+					sql.As(t1.C(entappusersecret.FieldSalt), "salt"),
+					sql.As(t1.C(entappusersecret.FieldUserID), "user_id"),
 				)
 		})
 }

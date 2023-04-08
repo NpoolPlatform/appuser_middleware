@@ -43,6 +43,8 @@ type Handler struct {
 	Kol                *bool
 	KolConfirmed       *bool
 	ActionCredits      *string
+	Account            *string
+	AccountType        *basetypes.SignMethod
 }
 
 func NewHandler(ctx context.Context, options ...func(context.Context, *Handler) error) (*Handler, error) {
@@ -80,19 +82,34 @@ func WithAppID(appID string) func(context.Context, *Handler) error {
 	}
 }
 
+func validateEmailAddress(emailAddress string) error {
+	if _, err := mail.ParseAddress(emailAddress); err != nil {
+		return err
+	}
+	return nil
+}
+
+func validatePhoneNO(phoneNO string) error {
+	re := regexp.MustCompile(
+		`^(?:(?:\(?(?:00|\+)([1-4]\d\d|[1-9]\d?)\)?)?[` +
+			`\-\.\ \\\/]?)?((?:\(?\d{1,}\)?[\-\.\ \\\/]?)` +
+			`{0,})(?:[\-\.\ \\\/]?(?:#|ext\.?|extension|x)` +
+			`[\-\.\ \\\/]?(\d+))?$`,
+	)
+	if !re.MatchString(phoneNO) {
+		return fmt.Errorf("invalid phone no")
+	}
+
+	return nil
+}
+
 func WithPhoneNO(phoneNO *string) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if phoneNO == nil {
 			return nil
 		}
-		re := regexp.MustCompile(
-			`^(?:(?:\(?(?:00|\+)([1-4]\d\d|[1-9]\d?)\)?)?[` +
-				`\-\.\ \\\/]?)?((?:\(?\d{1,}\)?[\-\.\ \\\/]?)` +
-				`{0,})(?:[\-\.\ \\\/]?(?:#|ext\.?|extension|x)` +
-				`[\-\.\ \\\/]?(\d+))?$`,
-		)
-		if !re.MatchString(*phoneNO) {
-			return fmt.Errorf("invalid phone no")
+		if err := validatePhoneNO(*phoneNO); err != nil {
+			return err
 		}
 		h.PhoneNO = phoneNO
 		return nil
@@ -104,7 +121,7 @@ func WithEmailAddress(emailAddress *string) func(context.Context, *Handler) erro
 		if emailAddress == nil {
 			return nil
 		}
-		if _, err := mail.ParseAddress(*emailAddress); err != nil {
+		if err := validateEmailAddress(*emailAddress); err != nil {
 			return err
 		}
 		h.EmailAddress = emailAddress
@@ -427,6 +444,35 @@ func WithActionCredits(credits *string) func(context.Context, *Handler) error {
 			return fmt.Errorf("invalid credits")
 		}
 		h.ActionCredits = credits
+		return nil
+	}
+}
+
+func WithAccount(account string, accountType basetypes.SignMethod) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if account == "" {
+			return fmt.Errorf("invalid account")
+		}
+
+		var err error
+
+		switch accountType {
+		case basetypes.SignMethod_Mobile:
+			h.PhoneNO = &account
+			err = validatePhoneNO(account)
+		case basetypes.SignMethod_Email:
+			h.EmailAddress = &account
+			err = validateEmailAddress(account)
+		default:
+			return fmt.Errorf("invalid account type")
+		}
+
+		if err != nil {
+			return err
+		}
+
+		h.AccountType = &accountType
+		h.Account = &account
 		return nil
 	}
 }
