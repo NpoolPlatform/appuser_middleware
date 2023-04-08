@@ -28,14 +28,18 @@ import (
 	entsecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
 	entbanappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banappuser"
 	entkyc "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/kyc"
-	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
+	usermwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 
-func GetUser(ctx context.Context, appID, userID string) (*user.User, error) {
-	var infos []*user.User
+func (h *Handler) GetUser(ctx context.Context) (*usermwpb.User, error) {
+	return nil, nil
+}
+
+func GetUser(ctx context.Context, appID, userID string) (*usermwpb.User, error) {
+	var infos []*usermwpb.User
 	var err error
 
 	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetUser")
@@ -84,8 +88,8 @@ func GetUser(ctx context.Context, appID, userID string) (*user.User, error) {
 	return infos[0], nil
 }
 
-func GetUsers(ctx context.Context, conds *mgrpb.Conds, offset, limit int32) ([]*user.User, int, error) {
-	var infos []*user.User
+func GetUsers(ctx context.Context, conds *mgrpb.Conds, offset, limit int32) ([]*usermwpb.User, int, error) {
+	var infos []*usermwpb.User
 	var err error
 	var total int
 
@@ -149,8 +153,8 @@ func GetUsers(ctx context.Context, conds *mgrpb.Conds, offset, limit int32) ([]*
 	return infos, total, nil
 }
 
-func GetManyUsers(ctx context.Context, userIDs []string) ([]*user.User, uint32, error) {
-	var infos []*user.User
+func GetManyUsers(ctx context.Context, userIDs []string) ([]*usermwpb.User, uint32, error) {
+	var infos []*usermwpb.User
 	var err error
 	var total int
 
@@ -205,7 +209,7 @@ func GetManyUsers(ctx context.Context, userIDs []string) ([]*user.User, uint32, 
 	return infos, uint32(total), nil
 }
 
-func expand(ctx context.Context, userIDs []string, users []*user.User) ([]*user.User, error) {
+func expand(ctx context.Context, userIDs []string, users []*usermwpb.User) ([]*usermwpb.User, error) {
 	type extra struct {
 		UserID       uuid.UUID `json:"user_id"`
 		GoogleSecret string    `json:"google_secret"`

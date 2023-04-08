@@ -20,6 +20,7 @@ func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*
 		user1.WithPhoneNO(req.PhoneNO),
 		user1.WithEmailAddress(req.EmailAddress),
 		user1.WithImportedFromAppID(req.ImportedFromAppID),
+		user1.WithPasswordHash(req.PasswordHash),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
