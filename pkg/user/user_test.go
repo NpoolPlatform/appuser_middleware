@@ -40,7 +40,7 @@ var (
 		EmailAddress:                "aaa@hhh.ccc",
 		PhoneNO:                     "+8613612203166",
 		ImportedFromAppID:           uuid.NewString(),
-		Username:                    uuid.NewString(),
+		Username:                    "adfjskajfdl.afd-",
 		AddressFieldsString:         string(uuidSliceS),
 		Gender:                      uuid.NewString(),
 		PostalCode:                  uuid.NewString(),
@@ -125,7 +125,6 @@ func creatUser(t *testing.T) {
 	}
 }
 
-/*
 func updateUser(t *testing.T) {
 	var (
 		appID        = ret.AppID
@@ -170,13 +169,37 @@ func updateUser(t *testing.T) {
 	ret.KolConfirmed = true
 	ret.ActionCredits = credits
 
-	info, err := UpdateUser(context.Background(), &req)
+	handler, err := NewHandler(
+		context.Background(),
+		WithID(req.ID),
+		WithAppID(req.GetAppID()),
+		WithPhoneNO(req.PhoneNO),
+		WithEmailAddress(req.EmailAddress),
+		WithImportedFromAppID(req.ImportedFromAppID),
+		WithPasswordHash(req.PasswordHash),
+		WithFirstName(req.FirstName),
+		WithLastName(req.LastName),
+		WithBirthday(req.Birthday),
+		WithGender(req.Gender),
+		WithAvatar(req.Avatar),
+		WithUsername(req.Username),
+		WithPostalCode(req.PostalCode),
+		WithAge(req.Age),
+		WithOrganization(req.Organization),
+		WithIDNumber(req.IDNumber),
+		WithAddressFields(req.AddressFields),
+		WithActionCredits(req.ActionCredits),
+	)
+	assert.Nil(t, err)
+
+	info, err := handler.UpdateUser(context.Background())
 	if assert.Nil(t, err) {
-		info.Roles = ret.Roles
+		ret.Roles = info.Roles
 		assert.Equal(t, info, &ret)
 	}
 }
 
+/*
 func getUser(t *testing.T) {
 	info, err := GetUser(context.Background(), ret.AppID, ret.ID)
 	if assert.Nil(t, err) {
@@ -209,7 +232,7 @@ func TestUser(t *testing.T) {
 		return
 	}
 	t.Run("creatUser", creatUser)
-	// t.Run("updateUser", updateUser)
+	t.Run("updateUser", updateUser)
 	// t.Run("getUser", getUser)
 	// t.Run("getUsers", getUsers)
 	// t.Run("getManyUsers", getManyUsers)
