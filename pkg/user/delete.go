@@ -28,7 +28,9 @@ func (h *deleteHandler) deleteAppUser(ctx context.Context, tx *ent.Tx) error {
 		UpdateOneID(uuid.MustParse(*h.ID)).
 		SetDeletedAt(uint32(time.Now().Unix())).
 		Save(ctx); err != nil {
-		return err
+		if !ent.IsNotFound(err) {
+			return err
+		}
 	}
 	return nil
 }
@@ -44,7 +46,9 @@ func (h *deleteHandler) deleteAppUserExtra(ctx context.Context, tx *ent.Tx) erro
 		ForUpdate().
 		Only(ctx)
 	if err != nil {
-		return err
+		if !ent.IsNotFound(err) {
+			return err
+		}
 	}
 
 	if _, err := info.
@@ -67,7 +71,9 @@ func (h *deleteHandler) deleteAppUserControl(ctx context.Context, tx *ent.Tx) er
 		ForUpdate().
 		Only(ctx)
 	if err != nil {
-		return err
+		if !ent.IsNotFound(err) {
+			return err
+		}
 	}
 
 	if _, err := info.
@@ -90,7 +96,9 @@ func (h *deleteHandler) deleteAppUserSecret(ctx context.Context, tx *ent.Tx) err
 		ForUpdate().
 		Only(ctx)
 	if err != nil {
-		return err
+		if !ent.IsNotFound(err) {
+			return err
+		}
 	}
 
 	if _, err := info.
@@ -113,7 +121,9 @@ func (h *deleteHandler) deleteAppUserThirdParty(ctx context.Context, tx *ent.Tx)
 		ForUpdate().
 		Only(ctx)
 	if err != nil {
-		return err
+		if !ent.IsNotFound(err) {
+			return err
+		}
 	}
 
 	if _, err := info.
@@ -136,7 +146,9 @@ func (h *deleteHandler) deleteAppRoleUser(ctx context.Context, tx *ent.Tx) error
 		ForUpdate().
 		Only(ctx)
 	if err != nil {
-		return err
+		if !ent.IsNotFound(err) {
+			return err
+		}
 	}
 
 	if _, err := info.
