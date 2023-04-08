@@ -24,6 +24,7 @@ import (
 	entuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
 	entappusercontrol "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusercontrol"
 	entextra "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserextra"
+	entappusersecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
 
 	entsecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
 	entbanappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banappuser"
@@ -139,6 +140,18 @@ func (h *queryHandler) queryJoinKyc(s *sql.Selector) {
 		)
 }
 
+func (h *queryHandler) queryJoinAppUserSecret(s *sql.Selector) {
+	t := sql.Table(entappusersecret.Table)
+	s.LeftJoin(t).
+		On(
+			s.C(entuser.FieldID),
+			t.C(entappusersecret.FieldUserID),
+		).
+		AppendSelect(
+			sql.As(t.C(entappusersecret.FieldGoogleSecret), "google_secret"),
+		)
+}
+
 func (h *queryHandler) queryJoin() {
 	h.stm.Modify(func(s *sql.Selector) {
 		h.queryJoinAppUserExtra(s)
@@ -146,6 +159,7 @@ func (h *queryHandler) queryJoin() {
 		h.queryJoinApp(s)
 		h.queryJoinBanAppUser(s)
 		h.queryJoinKyc(s)
+		h.queryJoinAppUserSecret(s)
 	})
 }
 
@@ -153,8 +167,66 @@ func (h *queryHandler) scan(ctx context.Context) error {
 	return h.stm.Scan(ctx, &h.infos)
 }
 
-func (h *queryHandler) formalize() error {
+func (h *queryHandler) queryUserRoles(ctx context.Context) error {
+	if len(h.infos) == 0 {
+		return nil
+	}
+
+	type role struct {
+		UserID   uuid.UUID `json:"user_id"`
+		RoleName string    `json:"role_name"`
+	}
+
+	roles := []*role{}
+
+	uids := []uuid.UUID{}
+	for _, info := range h.infos {
+		uids = append(uids, uuid.MustParse(info.ID))
+	}
+
+	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		return cli.
+			AppRoleUser.
+			Query().
+			Where(
+				entapproleuser.AppID(uuid.MustParse(h.AppID)),
+				entapproleuser.UserIDIn(uids...),
+			).
+			Select(
+				entapproleuser.FieldUserID,
+			).
+			Modify(func(s *sql.Selector) {
+				t := sql.Table(entapprole.Table)
+				s.LeftJoin(t).
+					On(
+						s.C(entapproleuser.FieldRoleID),
+						t.C(entapprole.FieldID),
+					).
+					AppendSelect(
+						sql.As(t.C(entapprole.FieldRole), "role_name"),
+					)
+			}).
+			Scan(_ctx, &roles)
+	})
+	if err != nil {
+		return err
+	}
+
+	for _, role := range roles {
+		for _, info := range h.infos {
+			if info.ID == role.UserID.String() {
+				info.Roles = append(info.Roles, role.RoleName)
+			}
+		}
+	}
+
 	return nil
+}
+
+func (h *queryHandler) formalize() {
+	for _, info := range h.infos {
+		info.HasGoogleSecret = info.GoogleSecret != ""
+	}
 }
 
 func (h *Handler) GetUser(ctx context.Context) (info *usermwpb.User, err error) {
@@ -182,9 +254,11 @@ func (h *Handler) GetUser(ctx context.Context) (info *usermwpb.User, err error) 
 		return nil, fmt.Errorf("too many records")
 	}
 
-	if err := handler.formalize(); err != nil {
+	if err := handler.queryUserRoles(ctx); err != nil {
 		return nil, err
 	}
+
+	handler.formalize()
 
 	return handler.infos[0], nil
 }
