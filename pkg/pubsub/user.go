@@ -19,7 +19,7 @@ func prepareIncreaseUserActionCredits(body string) (interface{}, error) {
 func handleIncreaseUserActionCredits(ctx context.Context, req interface{}) error {
 	credits := req.([]*eventmwpb.Credit)
 
-	/// TODO: here we should run in transaction
+	// TODO: here we should run in transaction
 	for _, credit := range credits {
 		handler, err := user.NewHandler(
 			ctx,
