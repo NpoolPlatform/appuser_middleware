@@ -50,6 +50,7 @@ func (h *deleteHandler) deleteAppUserExtra(ctx context.Context, tx *ent.Tx) erro
 		if !ent.IsNotFound(err) {
 			return err
 		}
+		return nil
 	}
 
 	if _, err := info.
@@ -75,6 +76,7 @@ func (h *deleteHandler) deleteAppUserControl(ctx context.Context, tx *ent.Tx) er
 		if !ent.IsNotFound(err) {
 			return err
 		}
+		return nil
 	}
 
 	if _, err := info.
@@ -100,6 +102,7 @@ func (h *deleteHandler) deleteAppUserSecret(ctx context.Context, tx *ent.Tx) err
 		if !ent.IsNotFound(err) {
 			return err
 		}
+		return nil
 	}
 
 	if _, err := info.
@@ -125,6 +128,7 @@ func (h *deleteHandler) deleteAppUserThirdParty(ctx context.Context, tx *ent.Tx)
 		if !ent.IsNotFound(err) {
 			return err
 		}
+		return nil
 	}
 
 	if _, err := info.
@@ -150,6 +154,7 @@ func (h *deleteHandler) deleteAppRoleUser(ctx context.Context, tx *ent.Tx) error
 		if !ent.IsNotFound(err) {
 			return err
 		}
+		return nil
 	}
 
 	if _, err := info.
@@ -162,11 +167,6 @@ func (h *deleteHandler) deleteAppRoleUser(ctx context.Context, tx *ent.Tx) error
 }
 
 func (h *Handler) DeleteUser(ctx context.Context) (*npool.User, error) {
-	info, err := h.GetUser(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	handler := &deleteHandler{
 		Handler: h,
 	}
