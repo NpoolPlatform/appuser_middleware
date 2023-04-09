@@ -28,7 +28,7 @@ func (s *Server) DeleteUser(ctx context.Context, in *npool.DeleteUserRequest) (*
 	}
 	info, err := handler.DeleteUser(ctx)
 	if err != nil {
-		return &npool.DeleteUserResponse{}, status.Error(codes.Internal, err.Error())
+		return &npool.DeleteUserResponse{}, status.Error(codes.Aborted, err.Error())
 	}
 
 	return &npool.DeleteUserResponse{

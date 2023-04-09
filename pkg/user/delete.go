@@ -166,7 +166,12 @@ func (h *deleteHandler) deleteAppRoleUser(ctx context.Context, tx *ent.Tx) error
 	return nil
 }
 
-func (h *Handler) DeleteUser(ctx context.Context) (*npool.User, error) {
+func (h *Handler) DeleteUser(ctx context.Context) (info *npool.User, err error) {
+	info, err = h.GetUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	handler := &deleteHandler{
 		Handler: h,
 	}
