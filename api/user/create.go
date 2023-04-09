@@ -32,7 +32,7 @@ func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*
 	}
 	info, err := handler.CreateUser(ctx)
 	if err != nil {
-		return &npool.CreateUserResponse{}, status.Error(codes.Internal, err.Error())
+		return &npool.CreateUserResponse{}, status.Error(codes.Aborted, err.Error())
 	}
 
 	return &npool.CreateUserResponse{
