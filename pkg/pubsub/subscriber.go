@@ -20,7 +20,7 @@ var processingMsg sync.Map
 var subscriber *pubsub.Subscriber
 var publisher *pubsub.Publisher
 
-/// TODO: here we should call from DB transaction context
+// TODO: here we should call from DB transaction context
 func finish(ctx context.Context, msg *pubsub.Msg, err error) error {
 	state := basetypes.MsgState_StateSuccess
 	if err != nil {
@@ -66,10 +66,10 @@ func prepare(mid, body string) (req interface{}, err error) {
 	return req, nil
 }
 
-/// Query a request message
-///  Return
-///   bool   appliable == true, caller should go ahead to apply this message
-///   error  error message
+// Query a request message
+//  Return
+//   bool   appliable == true, caller should go ahead to apply this message
+//   error  error message
 func statReq(ctx context.Context, mid string, uid uuid.UUID) (bool, error) {
 	var err error
 
@@ -102,10 +102,10 @@ func statReq(ctx context.Context, mid string, uid uuid.UUID) (bool, error) {
 	return false, nil
 }
 
-/// Query a message state in database
-///  Return
-///   bool    appliable == true, caller should go ahead to apply this message
-///   error   error message
+// Query a message state in database
+//  Return
+//   bool    appliable == true, caller should go ahead to apply this message
+//   error   error message
 func statMsg(ctx context.Context, mid string, uid uuid.UUID, rid *uuid.UUID) (bool, error) { //nolint
 	switch mid {
 	case basetypes.MsgID_IncreaseUserActionCreditsReq.String():
@@ -115,17 +115,17 @@ func statMsg(ctx context.Context, mid string, uid uuid.UUID, rid *uuid.UUID) (bo
 	}
 }
 
-/// Stat if message in right status, and is appliable
-///  Return
-///   bool    appliable == true, the message needs to be applied
-///   error   error happens
+// Stat if message in right status, and is appliable
+//  Return
+//   bool    appliable == true, the message needs to be applied
+//   error   error happens
 func stat(ctx context.Context, mid string, uid uuid.UUID, rid *uuid.UUID) (bool, error) {
 	return statMsg(ctx, mid, uid, rid)
 }
 
-/// Process will consume the message and return consuming state
-///  Return
-///   error   reason of error, if nil, means the message should be acked
+// Process will consume the message and return consuming state
+//  Return
+//   error   reason of error, if nil, means the message should be acked
 func process(ctx context.Context, mid string, uid uuid.UUID, req interface{}) (err error) {
 	defer func() {
 		if err != nil {
@@ -152,8 +152,8 @@ func process(ctx context.Context, mid string, uid uuid.UUID, req interface{}) (e
 	return nil
 }
 
-/// No matter what handler return, the message will be acked, unless handler halt
-/// If handler halt, the service will be restart, all message will be requeue
+// No matter what handler return, the message will be acked, unless handler halt
+// If handler halt, the service will be restart, all message will be requeue
 func handler(ctx context.Context, msg *pubsub.Msg) error {
 	req, err := prepare(msg.MID, msg.Body)
 	if err != nil {
@@ -195,7 +195,7 @@ func Subscribe(ctx context.Context) (err error) {
 	return subscriber.Subscribe(ctx, handler)
 }
 
-/// TODO: if this will be run after signal catched ?
+// TODO: if this will be run after signal catched ?
 func Shutdown(ctx context.Context) error {
 	if err := db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {
 		var err error
