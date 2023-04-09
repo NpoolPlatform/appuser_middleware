@@ -20,6 +20,7 @@ func (s *Server) DeleteUser(ctx context.Context, in *npool.DeleteUserRequest) (*
 
 	handler, err := user1.NewHandler(
 		ctx,
+		user1.WithAppID(req.GetAppID()),
 		user1.WithID(req.ID),
 	)
 	if err != nil {
