@@ -302,7 +302,7 @@ func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 		return nil, err
 	}
 	if len(handler.infos) == 0 {
-		return nil, fmt.Errorf("invalid user")
+		return nil, nil
 	}
 	if len(handler.infos) > 1 {
 		return nil, fmt.Errorf("too many records")

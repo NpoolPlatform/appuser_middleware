@@ -14,6 +14,10 @@ import (
 
 func (s *Server) DeleteUser(ctx context.Context, in *npool.DeleteUserRequest) (*npool.DeleteUserResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		return &npool.DeleteUserResponse{}, status.Error(codes.InvalidArgument, "invalid userinfo")
+	}
+
 	handler, err := user1.NewHandler(
 		ctx,
 		user1.WithID(req.ID),
