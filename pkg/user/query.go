@@ -54,7 +54,6 @@ func (h *queryHandler) queryAppUser(cli *ent.Client) error {
 		cli.AppUser.
 			Query().
 			Where(
-				entappuser.AppID(uuid.MustParse(h.AppID)),
 				entappuser.ID(uuid.MustParse(*h.ID)),
 				entappuser.DeletedAt(0),
 			),
