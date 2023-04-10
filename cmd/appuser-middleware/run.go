@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 
+	"github.com/NpoolPlatform/go-service-framework/pkg/action"
+	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
+
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/api"
 
 	apicli "github.com/NpoolPlatform/basal-middleware/pkg/client/api"
-	"github.com/NpoolPlatform/go-service-framework/pkg/action"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/pubsub"
 	cli "github.com/urfave/cli/v2"
@@ -38,7 +40,18 @@ func run(ctx context.Context) error {
 	return pubsub.Subscribe(ctx)
 }
 
+func shutdown(ctx context.Context) {
+	<-ctx.Done()
+	logger.Sugar().Infow(
+		"Watch",
+		"State", "Done",
+		"Error", ctx.Err(),
+	)
+	_ = pubsub.Shutdown(ctx)
+}
+
 func watch(ctx context.Context) error {
+	go shutdown(ctx)
 	return nil
 }
 
