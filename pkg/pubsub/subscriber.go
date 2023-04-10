@@ -87,7 +87,7 @@ func statReq(ctx context.Context, mid string, uid uuid.UUID) (bool, error) {
 	switch err {
 	case nil:
 	default:
-		if !ent.IsNotFound(err) {
+		if ent.IsNotFound(err) {
 			return true, nil
 		}
 		logger.Sugar().Warnw(
