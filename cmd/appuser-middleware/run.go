@@ -50,7 +50,7 @@ func shutdown(ctx context.Context) {
 	_ = pubsub.Shutdown(ctx)
 }
 
-func watch(ctx context.Context) error {
+func watch(ctx context.Context, cancel context.CancelFunc) error {
 	go shutdown(ctx)
 	return nil
 }
