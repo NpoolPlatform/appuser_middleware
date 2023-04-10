@@ -178,7 +178,8 @@ func handler(ctx context.Context, msg *pubsub.Msg) error {
 		return nil
 	}
 
-	return process(ctx, msg.MID, msg.UID, req)
+	err = process(ctx, msg.MID, msg.UID, req)
+	return err
 }
 
 func Subscribe(ctx context.Context) (err error) {
