@@ -223,10 +223,6 @@ func (h *updateHandler) updateAppUserThirdParty(ctx context.Context, tx *ent.Tx)
 }
 
 func (h *Handler) UpdateUser(ctx context.Context) (*npool.User, error) {
-	if err := h.checkAccountExist(ctx); err != nil {
-		return nil, err
-	}
-
 	_, err := h.GetUser(ctx)
 	if err != nil {
 		return nil, err
