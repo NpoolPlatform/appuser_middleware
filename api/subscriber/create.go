@@ -8,7 +8,7 @@ import (
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/subscriber"
 
-	mgrapi "github.com/NpoolPlatform/appuser-manager/api/v2/subscriber"
+	mgrapi "github.com/NpoolPlatform/appuser-manager/api/subscriber"
 	mgrcli "github.com/NpoolPlatform/appuser-manager/pkg/client/subscriber"
 	mgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/subscriber"
 

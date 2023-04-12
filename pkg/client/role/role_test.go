@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"bou.ke/monkey"
-	approlecli "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/approle"
+	approlecli "github.com/NpoolPlatform/appuser-manager/pkg/crud/approle"
 	"github.com/NpoolPlatform/go-service-framework/pkg/config"
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
 	"github.com/NpoolPlatform/message/npool/appuser/mgr/v2/approle"

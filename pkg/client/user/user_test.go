@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"os"
 	"strconv"
 	"testing"
@@ -42,13 +43,13 @@ var (
 	uuidSlice     = []string{uuid.NewString()}
 	uuidSliceS, _ = json.Marshal(uuidSlice)
 	appID         = uuid.NewString()
-	userInfo      = npool.User{
+	ret           = npool.User{
 		ID:                    uuid.NewString(),
 		AppID:                 appID,
-		EmailAddress:          uuid.NewString(),
-		PhoneNO:               uuid.NewString(),
+		EmailAddress:          "aaa@aaa.aaa",
+		PhoneNO:               "+8613612203133",
 		ImportedFromAppID:     uuid.NewString(),
-		Username:              uuid.NewString(),
+		Username:              "amwnrekadsf.are-",
 		AddressFieldsString:   string(uuidSliceS),
 		AddressFields:         uuidSlice,
 		Gender:                uuid.NewString(),
@@ -72,102 +73,115 @@ var (
 )
 
 func creatUser(t *testing.T) {
+	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)           //nolint
+	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000) //nolint
 	var (
-		id                = userInfo.ID
-		appID             = userInfo.AppID
-		importedFromAppID = userInfo.ImportedFromAppID
+		id                = ret.ID
+		appID             = ret.AppID
+		importedFromAppID = ret.ImportedFromAppID
 		strVal            = "AAA"
-		userReq           = npool.UserReq{
+		req               = npool.UserReq{
 			ID:                 &id,
 			AppID:              &appID,
-			EmailAddress:       &userInfo.EmailAddress,
-			PhoneNO:            &userInfo.PhoneNO,
+			EmailAddress:       &ret.EmailAddress,
+			PhoneNO:            &ret.PhoneNO,
 			ImportedFromAppID:  &importedFromAppID,
-			Username:           &userInfo.Username,
+			Username:           &ret.Username,
 			AddressFields:      uuidSlice,
-			Gender:             &userInfo.Gender,
-			PostalCode:         &userInfo.PostalCode,
-			Age:                &userInfo.Age,
-			Birthday:           &userInfo.Birthday,
-			Avatar:             &userInfo.Avatar,
-			Organization:       &userInfo.Organization,
-			FirstName:          &userInfo.FirstName,
-			LastName:           &userInfo.LastName,
-			IDNumber:           &userInfo.IDNumber,
-			GoogleAuthVerified: &userInfo.GoogleAuthVerified,
-			SigninVerifyType:   &userInfo.SigninVerifyType,
+			Gender:             &ret.Gender,
+			PostalCode:         &ret.PostalCode,
+			Age:                &ret.Age,
+			Birthday:           &ret.Birthday,
+			Avatar:             &ret.Avatar,
+			Organization:       &ret.Organization,
+			FirstName:          &ret.FirstName,
+			LastName:           &ret.LastName,
+			IDNumber:           &ret.IDNumber,
+			GoogleAuthVerified: &ret.GoogleAuthVerified,
+			SigninVerifyType:   &ret.SigninVerifyType,
 			PasswordHash:       &strVal,
 			GoogleSecret:       &appID,
 			ThirdPartyID:       &strVal,
 			ThirdPartyUserID:   &strVal,
 			ThirdPartyUsername: &strVal,
 			ThirdPartyAvatar:   &strVal,
-			Banned:             &userInfo.Banned,
-			BanMessage:         &userInfo.BanMessage,
+			Banned:             &ret.Banned,
+			BanMessage:         &ret.BanMessage,
+		}
+		ret1 = npool.User{
+			ID:                  ret.ID,
+			AppID:               ret.AppID,
+			EmailAddress:        ret.EmailAddress,
+			PhoneNO:             ret.PhoneNO,
+			ImportedFromAppID:   ret.ImportedFromAppID,
+			ActionCredits:       ret.ActionCredits,
+			AddressFieldsString: "[]",
+			AddressFields:       nil,
+			SigninVerifyTypeStr: basetypes.SignMethod_Email.String(),
+			SigninVerifyType:    basetypes.SignMethod_Email,
 		}
 	)
 
-	info, err := CreateUser(context.Background(), &userReq)
+	info, err := CreateUser(context.Background(), &req)
 	if assert.Nil(t, err) {
-		userInfo.CreatedAt = info.CreatedAt
-		assert.Equal(t, info, &userInfo)
+		ret.CreatedAt = info.CreatedAt
+		ret1.CreatedAt = info.CreatedAt
+		assert.Equal(t, info, &ret1)
 	}
 }
 
 func updateUser(t *testing.T) {
+	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)           //nolint
+	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000) //nolint
 	var (
-		appID        = userInfo.AppID
-		strVal       = "AAA"
-		emailAddress = uuid.NewString()
-		phoneNO      = uuid.NewString()
-		credits      = "1.234234"
+		appID   = ret.AppID
+		strVal  = "AAA"
+		credits = "1.234234"
 
-		userReq = npool.UserReq{
-			ID:                 &userInfo.ID,
-			AppID:              &userInfo.AppID,
-			EmailAddress:       &emailAddress,
-			PhoneNO:            &phoneNO,
-			ImportedFromAppID:  &userInfo.ImportedFromAppID,
-			Username:           &userInfo.Username,
+		req = npool.UserReq{
+			ID:                 &ret.ID,
+			AppID:              &ret.AppID,
+			EmailAddress:       &ret.EmailAddress,
+			PhoneNO:            &ret.PhoneNO,
+			ImportedFromAppID:  &ret.ImportedFromAppID,
+			Username:           &ret.Username,
 			AddressFields:      uuidSlice,
-			Gender:             &userInfo.Gender,
-			PostalCode:         &userInfo.PostalCode,
-			Age:                &userInfo.Age,
-			Birthday:           &userInfo.Birthday,
-			Avatar:             &userInfo.Avatar,
-			Organization:       &userInfo.Organization,
-			FirstName:          &userInfo.FirstName,
-			LastName:           &userInfo.LastName,
-			IDNumber:           &userInfo.IDNumber,
-			GoogleAuthVerified: &userInfo.GoogleAuthVerified,
-			SigninVerifyType:   &userInfo.SigninVerifyType,
+			Gender:             &ret.Gender,
+			PostalCode:         &ret.PostalCode,
+			Age:                &ret.Age,
+			Birthday:           &ret.Birthday,
+			Avatar:             &ret.Avatar,
+			Organization:       &ret.Organization,
+			FirstName:          &ret.FirstName,
+			LastName:           &ret.LastName,
+			IDNumber:           &ret.IDNumber,
+			GoogleAuthVerified: &ret.GoogleAuthVerified,
+			SigninVerifyType:   &ret.SigninVerifyType,
 			PasswordHash:       &strVal,
 			GoogleSecret:       &appID,
 			ThirdPartyID:       &strVal,
 			ThirdPartyUserID:   &strVal,
 			ThirdPartyUsername: &strVal,
 			ThirdPartyAvatar:   &strVal,
-			Banned:             &userInfo.Banned,
-			BanMessage:         &userInfo.BanMessage,
+			Banned:             &ret.Banned,
+			BanMessage:         &ret.BanMessage,
 			ActionCredits:      &credits,
 		}
 	)
 
-	userInfo.PhoneNO = phoneNO
-	userInfo.EmailAddress = emailAddress
-	userInfo.ActionCredits = credits
+	ret.ActionCredits = credits
 
-	info, err := UpdateUser(context.Background(), &userReq)
+	info, err := UpdateUser(context.Background(), &req)
 	if assert.Nil(t, err) {
-		info.Roles = userInfo.Roles
-		assert.Equal(t, info, &userInfo)
+		ret.Roles = info.Roles
+		assert.Equal(t, info, &ret)
 	}
 }
 
 func getUser(t *testing.T) {
-	info, err := GetUser(context.Background(), userInfo.AppID, userInfo.ID)
+	info, err := GetUser(context.Background(), ret.AppID, ret.ID)
 	if assert.Nil(t, err) {
-		assert.Equal(t, info, &userInfo)
+		assert.Equal(t, info, &ret)
 	}
 }
 
@@ -175,7 +189,7 @@ func getUsers(t *testing.T) {
 	infos, _, err := GetUsers(context.Background(), &mgrpb.Conds{
 		AppID: &commonpb.StringVal{
 			Op:    cruder.EQ,
-			Value: userInfo.AppID,
+			Value: ret.AppID,
 		},
 	}, 0, 1)
 	if !assert.Nil(t, err) {
@@ -184,13 +198,13 @@ func getUsers(t *testing.T) {
 }
 
 func getManyUsers(t *testing.T) {
-	infos, _, err := GetManyUsers(context.Background(), []string{userInfo.ID})
+	infos, _, err := GetManyUsers(context.Background(), []string{ret.ID})
 	if !assert.Nil(t, err) {
-		assert.Equal(t, infos[0], &userInfo)
+		assert.Equal(t, infos[0], &ret)
 	}
 }
 
-func TestMainOrder(t *testing.T) {
+func TestUser(t *testing.T) {
 	if runByGithubAction, err := strconv.ParseBool(os.Getenv("RUN_BY_GITHUB_ACTION")); err == nil && runByGithubAction {
 		return
 	}

@@ -9,7 +9,7 @@ import (
 	entapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
 	entapprole "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approle"
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/role"
 	"github.com/google/uuid"
@@ -22,7 +22,7 @@ func GetRole(ctx context.Context, id string) (*role.Role, error) {
 	var err error
 	var infos []*role.Role
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoles")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetRoles")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -57,7 +57,7 @@ func GetRoles(ctx context.Context, appID string, offset, limit int32) ([]*role.R
 	infos := []*role.Role{}
 	var total int
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoles")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetRoles")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -101,7 +101,7 @@ func GetManyRoles(ctx context.Context, ids []string) ([]*role.Role, uint32, erro
 	var err error
 	infos := []*role.Role{}
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyRoles")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetManyRoles")
 	defer span.End()
 	defer func() {
 		if err != nil {

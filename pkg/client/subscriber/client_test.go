@@ -35,7 +35,7 @@ var (
 	ret = npool.Subscriber{
 		ID:           uuid.NewString(),
 		AppID:        uuid.NewString(),
-		EmailAddress: uuid.NewString(),
+		EmailAddress: "hhh@hhh.hhh",
 	}
 
 	req = &mgrpb.SubscriberReq{

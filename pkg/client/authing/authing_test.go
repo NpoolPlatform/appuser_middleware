@@ -11,8 +11,8 @@ import (
 	"testing"
 
 	"bou.ke/monkey"
-	authcli "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/authing/auth"
-	authhistorycli "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/authing/history"
+	authcli "github.com/NpoolPlatform/appuser-manager/pkg/crud/authing/auth"
+	authhistorycli "github.com/NpoolPlatform/appuser-manager/pkg/crud/authing/history"
 	"github.com/NpoolPlatform/go-service-framework/pkg/config"
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
 	"github.com/NpoolPlatform/message/npool/appuser/mgr/v2/authing/history"

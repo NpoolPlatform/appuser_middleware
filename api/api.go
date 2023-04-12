@@ -3,13 +3,12 @@ package api
 import (
 	"context"
 
-	"github.com/NpoolPlatform/appuser-middleware/api/v1/kyc"
-
-	"github.com/NpoolPlatform/appuser-middleware/api/v1/app"
-	"github.com/NpoolPlatform/appuser-middleware/api/v1/authing"
-	"github.com/NpoolPlatform/appuser-middleware/api/v1/role"
-	"github.com/NpoolPlatform/appuser-middleware/api/v1/subscriber"
-	"github.com/NpoolPlatform/appuser-middleware/api/v1/user"
+	"github.com/NpoolPlatform/appuser-middleware/api/app"
+	"github.com/NpoolPlatform/appuser-middleware/api/authing"
+	"github.com/NpoolPlatform/appuser-middleware/api/kyc"
+	"github.com/NpoolPlatform/appuser-middleware/api/role"
+	"github.com/NpoolPlatform/appuser-middleware/api/subscriber"
+	"github.com/NpoolPlatform/appuser-middleware/api/user"
 
 	appusermw "github.com/NpoolPlatform/message/npool/appuser/mw/v1"
 

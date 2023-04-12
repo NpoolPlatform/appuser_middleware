@@ -6,7 +6,7 @@ import (
 	croleuser "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/roleuser"
 
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -26,7 +26,7 @@ import (
 func (s *Server) GetRole(ctx context.Context, in *npool.GetRoleRequest) (*npool.GetRoleResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoles")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetRoles")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -56,7 +56,7 @@ func (s *Server) GetRole(ctx context.Context, in *npool.GetRoleRequest) (*npool.
 func (s *Server) GetRoles(ctx context.Context, in *npool.GetRolesRequest) (*npool.GetRolesResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoles")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetRoles")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -91,7 +91,7 @@ func (s *Server) GetRoles(ctx context.Context, in *npool.GetRolesRequest) (*npoo
 func (s *Server) GetManyRoles(ctx context.Context, in *npool.GetManyRolesRequest) (*npool.GetManyRolesResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyRoles")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetManyRoles")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -131,7 +131,7 @@ func (s *Server) GetManyRoles(ctx context.Context, in *npool.GetManyRolesRequest
 func (s *Server) GetRoleUser(ctx context.Context, in *npool.GetRoleUserRequest) (*npool.GetRoleUserResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetRoleUser")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetRoleUser")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -163,7 +163,7 @@ func (s *Server) GetRoleUser(ctx context.Context, in *npool.GetRoleUserRequest) 
 func (s *Server) GetRoleUsers(ctx context.Context, in *npool.GetRoleUsersRequest) (*npool.GetRoleUsersResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyRoleUsers")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetManyRoleUsers")
 	defer span.End()
 	defer func() {
 		if err != nil {
@@ -203,7 +203,7 @@ func (s *Server) GetRoleUsers(ctx context.Context, in *npool.GetRoleUsersRequest
 func (s *Server) GetManyRoleUsers(ctx context.Context, in *npool.GetManyRoleUsersRequest) (*npool.GetManyRoleUsersResponse, error) {
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "GetManyRoleUsers")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetManyRoleUsers")
 	defer span.End()
 	defer func() {
 		if err != nil {

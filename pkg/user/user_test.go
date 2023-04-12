@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"os"
 	"strconv"
 	"testing"
@@ -37,11 +38,12 @@ var (
 	ret           = npool.User{
 		ID:                          uuid.NewString(),
 		AppID:                       appID,
-		EmailAddress:                uuid.NewString(),
-		PhoneNO:                     uuid.NewString(),
+		EmailAddress:                "aaa@hhh.ccc",
+		PhoneNO:                     "+8613612203166",
 		ImportedFromAppID:           uuid.NewString(),
-		Username:                    uuid.NewString(),
+		Username:                    "adfjskajfdl.afd-",
 		AddressFieldsString:         string(uuidSliceS),
+		AddressFields:               uuidSlice,
 		Gender:                      uuid.NewString(),
 		PostalCode:                  uuid.NewString(),
 		Age:                         0,
@@ -53,6 +55,7 @@ var (
 		IDNumber:                    uuid.NewString(),
 		SigninVerifyByGoogleAuthInt: 0,
 		SigninVerifyTypeStr:         signType.String(),
+		SigninVerifyType:            signType,
 		GoogleAuthVerifiedInt:       0,
 		GoogleSecret:                appID,
 		HasGoogleSecret:             true,
@@ -62,17 +65,16 @@ var (
 )
 
 func creatUser(t *testing.T) {
+	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)           //nolint
+	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000) //nolint
 	var (
-		id                = ret.ID
-		appID             = ret.AppID
-		importedFromAppID = ret.ImportedFromAppID
-		strVal            = "AAA"
-		userReq           = npool.UserReq{
-			ID:                 &id,
-			AppID:              &appID,
+		strVal = "AAA"
+		req    = npool.UserReq{
+			ID:                 &ret.ID,
+			AppID:              &ret.AppID,
 			EmailAddress:       &ret.EmailAddress,
 			PhoneNO:            &ret.PhoneNO,
-			ImportedFromAppID:  &importedFromAppID,
+			ImportedFromAppID:  &ret.ImportedFromAppID,
 			Username:           &ret.Username,
 			AddressFields:      uuidSlice,
 			Gender:             &ret.Gender,
@@ -95,22 +97,49 @@ func creatUser(t *testing.T) {
 			Banned:             &ret.Banned,
 			BanMessage:         &ret.BanMessage,
 		}
+		ret1 = npool.User{
+			ID:                  ret.ID,
+			AppID:               ret.AppID,
+			EmailAddress:        ret.EmailAddress,
+			PhoneNO:             ret.PhoneNO,
+			ImportedFromAppID:   ret.ImportedFromAppID,
+			ActionCredits:       ret.ActionCredits,
+			AddressFieldsString: "[]",
+			AddressFields:       []string{},
+			SigninVerifyTypeStr: basetypes.SignMethod_Email.String(),
+			SigninVerifyType:    basetypes.SignMethod_Email,
+		}
 	)
-	info, err := CreateUser(context.Background(), &userReq)
+
+	handler, err := NewHandler(
+		context.Background(),
+		WithID(req.ID),
+		WithAppID(req.GetAppID()),
+		WithPhoneNO(req.PhoneNO),
+		WithEmailAddress(req.EmailAddress),
+		WithImportedFromAppID(req.ImportedFromAppID),
+		WithPasswordHash(req.PasswordHash),
+	)
+	assert.Nil(t, err)
+
+	info, err := handler.CreateUser(context.Background())
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
-		assert.Equal(t, info, &ret)
+		ret1.CreatedAt = info.CreatedAt
+		assert.Equal(t, info, &ret1)
 	}
 }
 
 func updateUser(t *testing.T) {
+	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)           //nolint
+	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000) //nolint
 	var (
 		appID        = ret.AppID
 		strVal       = "AAA"
 		kol          = true
 		kolConfirmed = true
 		credits      = "1.2342"
-		userReq      = npool.UserReq{
+		req          = npool.UserReq{
 			ID:                 &ret.ID,
 			AppID:              &ret.AppID,
 			EmailAddress:       &ret.EmailAddress,
@@ -147,40 +176,85 @@ func updateUser(t *testing.T) {
 	ret.KolConfirmed = true
 	ret.ActionCredits = credits
 
-	info, err := UpdateUser(context.Background(), &userReq)
+	handler, err := NewHandler(
+		context.Background(),
+		WithID(req.ID),
+		WithAppID(req.GetAppID()),
+		WithPhoneNO(req.PhoneNO),
+		WithEmailAddress(req.EmailAddress),
+		WithImportedFromAppID(req.ImportedFromAppID),
+		WithPasswordHash(req.PasswordHash),
+		WithFirstName(req.FirstName),
+		WithLastName(req.LastName),
+		WithBirthday(req.Birthday),
+		WithGender(req.Gender),
+		WithAvatar(req.Avatar),
+		WithUsername(req.Username),
+		WithPostalCode(req.PostalCode),
+		WithAge(req.Age),
+		WithOrganization(req.Organization),
+		WithIDNumber(req.IDNumber),
+		WithAddressFields(req.AddressFields),
+		WithGoogleSecret(req.GoogleSecret),
+		WithGoogleAuthVerified(req.GoogleAuthVerified),
+		WithKol(req.Kol),
+		WithKolConfirmed(req.KolConfirmed),
+		WithActionCredits(req.ActionCredits),
+	)
+	assert.Nil(t, err)
+
+	info, err := handler.UpdateUser(context.Background())
 	if assert.Nil(t, err) {
-		info.Roles = ret.Roles
+		ret.Roles = info.Roles
 		assert.Equal(t, info, &ret)
 	}
 }
 
 func getUser(t *testing.T) {
-	info, err := GetUser(context.Background(), ret.AppID, ret.ID)
+	handler, err := NewHandler(
+		context.Background(),
+		WithAppID(ret.AppID),
+		WithID(&ret.ID),
+	)
+	assert.Nil(t, err)
+
+	info, err := handler.GetUser(context.Background())
 	if assert.Nil(t, err) {
 		assert.Equal(t, info, &ret)
 	}
 }
 
 func getUsers(t *testing.T) {
-	infos, _, err := GetUsers(context.Background(), &mgrpb.Conds{
-		AppID: &commonpb.StringVal{
-			Op:    cruder.EQ,
-			Value: ret.AppID,
-		},
-	}, 0, 1)
+	conds := &mgrpb.Conds{
+		AppID: &commonpb.StringVal{Op: cruder.EQ, Value: ret.AppID},
+	}
+
+	handler, err := NewHandler(
+		context.Background(),
+		WithConds(conds, 0, 1),
+	)
+	assert.Nil(t, err)
+
+	infos, _, err := handler.GetUsers(context.Background())
 	if !assert.Nil(t, err) {
 		assert.NotEqual(t, len(infos), 0)
 	}
 }
 
 func getManyUsers(t *testing.T) {
-	infos, _, err := GetManyUsers(context.Background(), []string{ret.ID})
+	handler, err := NewHandler(
+		context.Background(),
+		WithIDs([]string{ret.ID}),
+	)
+	assert.Nil(t, err)
+
+	infos, err := handler.GetManyUsers(context.Background())
 	if !assert.Nil(t, err) {
 		assert.Equal(t, infos[0], &ret)
 	}
 }
 
-func TestMainOrder(t *testing.T) {
+func TestUser(t *testing.T) {
 	if runByGithubAction, err := strconv.ParseBool(os.Getenv("RUN_BY_GITHUB_ACTION")); err == nil && runByGithubAction {
 		return
 	}

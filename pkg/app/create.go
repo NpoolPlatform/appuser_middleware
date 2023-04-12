@@ -4,7 +4,7 @@ import (
 	"context"
 
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/app"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"go.opentelemetry.io/otel"
@@ -18,15 +18,15 @@ import (
 	appmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/app"
 	appctrlmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appcontrol"
 
-	appmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/app"
-	appctrlmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/appcontrol"
+	appmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/app"
+	appctrlmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appcontrol"
 )
 
 func CreateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
 	var id string
 	var err error
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "CreateApp")
+	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "CreateApp")
 	defer span.End()
 	defer func() {
 		if err != nil {

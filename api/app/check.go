@@ -13,9 +13,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/NpoolPlatform/appuser-manager/api/v2/app"
-	"github.com/NpoolPlatform/appuser-manager/api/v2/appcontrol"
-	appcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/v2/app"
+	"github.com/NpoolPlatform/appuser-manager/api/app"
+	"github.com/NpoolPlatform/appuser-manager/api/appcontrol"
+	appcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/app"
 )
 
 func validate(ctx context.Context, info *npool.AppReq) error {

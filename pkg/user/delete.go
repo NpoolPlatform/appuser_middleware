@@ -1,83 +1,205 @@
+//nolint:dupl
 package user
 
 import (
 	"context"
-
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
-	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
+	"time"
 
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approleuser"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusercontrol"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserextra"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserthirdparty"
-	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	constant "github.com/NpoolPlatform/appuser-middleware/pkg/message/const"
+
+	entapproleuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approleuser"
+	entappusercontrol "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusercontrol"
+	entappuserextra "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserextra"
+	entappusersecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
+	entappuserthirdparty "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserthirdparty"
+
+	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
+
 	"github.com/google/uuid"
-	"go.opentelemetry.io/otel"
-	scodes "go.opentelemetry.io/otel/codes"
 )
 
-func DeleteUser(ctx context.Context, userID uuid.UUID) error {
-	var err error
+type deleteHandler struct {
+	*Handler
+}
 
-	_, span := otel.Tracer(constant.ServiceName).Start(ctx, "DeleteUser")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
-
-	commontracer.TraceID(span, userID.String())
-	span = commontracer.TraceInvoker(span, "user", "db", "DeleteTx")
-
-	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
-		_, err = tx.AppUser.Delete().Where(appuser.ID(userID)).Exec(ctx)
-		if err != nil {
-			logger.Sugar().Errorw("DeleteUser", "error", err)
+func (h *deleteHandler) deleteAppUser(ctx context.Context, tx *ent.Tx) error {
+	if _, err := tx.
+		AppUser.
+		UpdateOneID(uuid.MustParse(*h.ID)).
+		SetDeletedAt(uint32(time.Now().Unix())).
+		Save(ctx); err != nil {
+		if !ent.IsNotFound(err) {
 			return err
 		}
+	}
+	return nil
+}
 
-		_, err = tx.AppUserExtra.Delete().Where(appuserextra.UserID(userID)).Exec(ctx)
-		if err != nil {
-			logger.Sugar().Errorw("DeleteUser", "error", err)
-			return err
-		}
-
-		_, err = tx.AppUserControl.Delete().Where(appusercontrol.UserID(userID)).Exec(ctx)
-		if err != nil {
-			logger.Sugar().Errorw("DeleteUser", "error", err)
-			return err
-		}
-
-		_, err = tx.AppUserSecret.Delete().Where(appusersecret.UserID(userID)).Exec(ctx)
-		if err != nil {
-			logger.Sugar().Errorw("DeleteUser", "error", err)
-			return err
-		}
-
-		_, err = tx.AppUserThirdParty.Delete().Where(appuserthirdparty.UserID(userID)).Exec(ctx)
-		if err != nil {
-			logger.Sugar().Errorw("DeleteUser", "error", err)
-			return err
-		}
-
-		_, err = tx.AppRoleUser.Delete().Where(approleuser.UserID(userID)).Exec(ctx)
-		if err != nil {
-			logger.Sugar().Errorw("DeleteUser", "error", err)
-			return err
-		}
-
-		return nil
-	})
-
+func (h *deleteHandler) deleteAppUserExtra(ctx context.Context, tx *ent.Tx) error {
+	info, err := tx.
+		AppUserExtra.
+		Query().
+		Where(
+			entappuserextra.AppID(uuid.MustParse(h.AppID)),
+			entappuserextra.UserID(uuid.MustParse(*h.ID)),
+		).
+		ForUpdate().
+		Only(ctx)
 	if err != nil {
-		return err
+		if !ent.IsNotFound(err) {
+			return err
+		}
+		return nil
 	}
 
-	return err
+	if _, err := info.
+		Update().
+		SetDeletedAt(uint32(time.Now().Unix())).
+		Save(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *deleteHandler) deleteAppUserControl(ctx context.Context, tx *ent.Tx) error {
+	info, err := tx.
+		AppUserControl.
+		Query().
+		Where(
+			entappusercontrol.AppID(uuid.MustParse(h.AppID)),
+			entappusercontrol.UserID(uuid.MustParse(*h.ID)),
+		).
+		ForUpdate().
+		Only(ctx)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return err
+		}
+		return nil
+	}
+
+	if _, err := info.
+		Update().
+		SetDeletedAt(uint32(time.Now().Unix())).
+		Save(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *deleteHandler) deleteAppUserSecret(ctx context.Context, tx *ent.Tx) error {
+	info, err := tx.
+		AppUserSecret.
+		Query().
+		Where(
+			entappusersecret.AppID(uuid.MustParse(h.AppID)),
+			entappusersecret.UserID(uuid.MustParse(*h.ID)),
+		).
+		ForUpdate().
+		Only(ctx)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return err
+		}
+		return nil
+	}
+
+	if _, err := info.
+		Update().
+		SetDeletedAt(uint32(time.Now().Unix())).
+		Save(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *deleteHandler) deleteAppUserThirdParty(ctx context.Context, tx *ent.Tx) error {
+	info, err := tx.
+		AppUserThirdParty.
+		Query().
+		Where(
+			entappuserthirdparty.AppID(uuid.MustParse(h.AppID)),
+			entappuserthirdparty.UserID(uuid.MustParse(*h.ID)),
+		).
+		ForUpdate().
+		Only(ctx)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return err
+		}
+		return nil
+	}
+
+	if _, err := info.
+		Update().
+		SetDeletedAt(uint32(time.Now().Unix())).
+		Save(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *deleteHandler) deleteAppRoleUser(ctx context.Context, tx *ent.Tx) error {
+	info, err := tx.
+		AppRoleUser.
+		Query().
+		Where(
+			entapproleuser.AppID(uuid.MustParse(h.AppID)),
+			entapproleuser.UserID(uuid.MustParse(*h.ID)),
+		).
+		ForUpdate().
+		Only(ctx)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return err
+		}
+		return nil
+	}
+
+	if _, err := info.
+		Update().
+		SetDeletedAt(uint32(time.Now().Unix())).
+		Save(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *Handler) DeleteUser(ctx context.Context) (info *npool.User, err error) {
+	info, err = h.GetUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	handler := &deleteHandler{
+		Handler: h,
+	}
+
+	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
+		if err := handler.deleteAppUser(ctx, tx); err != nil {
+			return err
+		}
+		if err := handler.deleteAppUserExtra(ctx, tx); err != nil {
+			return err
+		}
+		if err := handler.deleteAppUserControl(ctx, tx); err != nil {
+			return err
+		}
+		if err := handler.deleteAppUserSecret(ctx, tx); err != nil {
+			return err
+		}
+		if err := handler.deleteAppUserThirdParty(ctx, tx); err != nil {
+			return err
+		}
+		if err := handler.deleteAppRoleUser(ctx, tx); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return info, nil
 }
