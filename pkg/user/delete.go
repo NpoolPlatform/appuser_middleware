@@ -176,23 +176,23 @@ func (h *Handler) DeleteUser(ctx context.Context) (info *npool.User, err error) 
 		Handler: h,
 	}
 
-	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
-		if err := handler.deleteAppUser(ctx, tx); err != nil {
+	err = db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {
+		if err := handler.deleteAppUser(_ctx, tx); err != nil {
 			return err
 		}
-		if err := handler.deleteAppUserExtra(ctx, tx); err != nil {
+		if err := handler.deleteAppUserExtra(_ctx, tx); err != nil {
 			return err
 		}
-		if err := handler.deleteAppUserControl(ctx, tx); err != nil {
+		if err := handler.deleteAppUserControl(_ctx, tx); err != nil {
 			return err
 		}
-		if err := handler.deleteAppUserSecret(ctx, tx); err != nil {
+		if err := handler.deleteAppUserSecret(_ctx, tx); err != nil {
 			return err
 		}
-		if err := handler.deleteAppUserThirdParty(ctx, tx); err != nil {
+		if err := handler.deleteAppUserThirdParty(_ctx, tx); err != nil {
 			return err
 		}
-		if err := handler.deleteAppRoleUser(ctx, tx); err != nil {
+		if err := handler.deleteAppRoleUser(_ctx, tx); err != nil {
 			return err
 		}
 		return nil

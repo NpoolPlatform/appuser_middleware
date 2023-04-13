@@ -261,3 +261,7 @@ func expand(infos []*app.App) []*app.App {
 	}
 	return infos
 }
+
+func (h *Handler) GetApp(ctx context.Context) (*app.App, error) {
+	return GetApp(ctx, h.ID)
+}

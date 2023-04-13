@@ -1,0 +1,87 @@
+package app
+
+import (
+	"context"
+	"time"
+
+	"github.com/NpoolPlatform/appuser-manager/pkg/db"
+	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
+
+	entappctrl "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appcontrol"
+
+	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
+
+	"github.com/google/uuid"
+)
+
+type deleteHandler struct {
+	*Handler
+}
+
+func (h *deleteHandler) deleteApp(ctx context.Context, tx *ent.Tx) error {
+	if _, err := tx.
+		App.
+		UpdateOneID(uuid.MustParse(h.ID)).
+		SetDeletedAt(uint32(time.Now().Unix())).
+		Save(ctx); err != nil {
+		if !ent.IsNotFound(err) {
+			return err
+		}
+	}
+	return nil
+}
+
+func (h *deleteHandler) deleteAppCtrl(ctx context.Context, tx *ent.Tx) error {
+	info, err := tx.
+		AppControl.
+		Query().
+		Where(
+			entappctrl.AppID(uuid.MustParse(h.ID)),
+		).
+		ForUpdate().
+		Only(ctx)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return err
+		}
+		return nil
+	}
+
+	if _, err := info.
+		Update().
+		SetDeletedAt(uint32(time.Now().Unix())).
+		SetDeletedAt(uint32(time.Now().Unix())).
+		Save(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *Handler) DeleteApp(ctx context.Context) (info *npool.App, err error) {
+	info, err = h.GetApp(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if info == nil {
+		return nil, nil
+	}
+
+	handler := &deleteHandler{
+		Handler: h,
+	}
+
+	err = db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {
+		if err := handler.deleteApp(_ctx, tx); err != nil {
+			return err
+		}
+		if err := handler.deleteAppCtrl(_ctx, tx); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return info, nil
+}
