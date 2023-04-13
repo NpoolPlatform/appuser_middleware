@@ -135,3 +135,21 @@ func GetManyApps(ctx context.Context, ids []string) ([]*npool.App, uint32, error
 	}
 	return infos.([]*npool.App), total, nil
 }
+
+func DeleteApp(ctx context.Context, id string) (*npool.App, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.DeleteApp(ctx, &npool.DeleteAppRequest{
+			Info: &npool.AppReq{
+				ID: &id,
+			},
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return info.(*npool.App), nil
+}
