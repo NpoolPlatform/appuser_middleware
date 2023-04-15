@@ -210,15 +210,6 @@ func (h *queryHandler) queryJoin() {
 }
 
 func (h *queryHandler) scan(ctx context.Context) error {
-	if h.Offset == nil {
-		return fmt.Errorf("invalid offset")
-	}
-	if h.Limit == nil {
-		return fmt.Errorf("invalid limit")
-	}
-	h.stm.
-		Offset(int(*h.Offset)).
-		Limit(int(*h.Limit))
 	return h.stm.
 		Scan(ctx, &h.infos)
 }
@@ -328,6 +319,13 @@ func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 }
 
 func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
+	if h.Offset == nil {
+		return nil, 0, fmt.Errorf("invalid offset")
+	}
+	if h.Limit == nil {
+		return nil, 0, fmt.Errorf("invalid limit")
+	}
+
 	handler := &queryHandler{
 		Handler: h,
 	}
@@ -337,6 +335,10 @@ func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
 			return err
 		}
 		handler.queryJoin()
+		handler.stm.
+			Offset(int(*h.Offset)).
+			Limit(int(*h.Limit))
+
 		if err := handler.scan(_ctx); err != nil {
 			return err
 		}
