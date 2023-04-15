@@ -210,7 +210,17 @@ func (h *queryHandler) queryJoin() {
 }
 
 func (h *queryHandler) scan(ctx context.Context) error {
-	return h.stm.Scan(ctx, &h.infos)
+	if h.Offset == nil {
+		return fmt.Errorf("invalid offset")
+	}
+	if h.Limit == nil {
+		return fmt.Errorf("invalid limit")
+	}
+	h.stm.
+		Offset(int(*h.Offset)).
+		Limit(int(*h.Limit))
+	return h.stm.
+		Scan(ctx, &h.infos)
 }
 
 func (h *queryHandler) queryUserRoles(ctx context.Context) error {
