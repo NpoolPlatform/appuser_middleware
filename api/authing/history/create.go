@@ -1,9 +1,9 @@
 package history
 
-/*
 import (
 	"context"
 
+	handler "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing/handler"
 	history1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing/history"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/history"
@@ -13,24 +13,30 @@ import (
 )
 
 func (s *Server) CreateHistory(ctx context.Context, in *npool.CreateHistoryRequest) (*npool.CreateHistoryResponse, error) {
-	handler, err := history1.NewHandler(
+	req := in.GetInfo()
+	handler, err := handler.NewHandler(
 		ctx,
-		history1.WithConds(in.GetConds()),
-		history1.WithOffset(in.GetOffset()),
-		history1.WithLimit(in.GetLimit()),
+		handler.WithID(req.ID),
+		handler.WithAppID(req.GetAppID()),
+		handler.WithUserID(req.UserID),
+		handler.WithResource(req.GetResource()),
+		handler.WithMethod(req.GetMethod()),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
-			"GetAuths",
+			"CreateHistory",
 			"In", in,
 			"Error", err,
 		)
 		return &npool.CreateHistoryResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-	info, err := handler.CreateHistory(ctx)
+	_handler := &history1.Handler{
+		Handler: handler,
+	}
+	info, err := _handler.CreateHistory(ctx)
 	if err != nil {
 		logger.Sugar().Errorw(
-			"GetAuths",
+			"CreateHistory",
 			"In", in,
 			"Error", err,
 		)
@@ -40,4 +46,3 @@ func (s *Server) CreateHistory(ctx context.Context, in *npool.CreateHistoryReque
 		Info: info,
 	}, nil
 }
-*/

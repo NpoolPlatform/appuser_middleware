@@ -12,10 +12,11 @@ import (
 type Handler struct {
 	ID       *uuid.UUID
 	AppID    uuid.UUID
-	RoleID   *uuid.UUID
 	UserID   *uuid.UUID
+	RoleID   *uuid.UUID
 	Method   string
 	Resource string
+	Conds    interface{}
 	Offset   int32
 	Limit    int32
 }
@@ -103,6 +104,13 @@ func WithResource(resource string) func(context.Context, *Handler) error {
 			return fmt.Errorf("resource %v invalid", resource)
 		}
 		h.Resource = resource
+		return nil
+	}
+}
+
+func WithConds(conds interface{}) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		h.Conds = conds
 		return nil
 	}
 }
