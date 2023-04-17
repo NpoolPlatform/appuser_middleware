@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/NpoolPlatform/appuser-manager/pkg/db"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
-	entpubsubmsg "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/pubsubmessage"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
+	entpubsubmsg "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/pubsubmessage"
 
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
