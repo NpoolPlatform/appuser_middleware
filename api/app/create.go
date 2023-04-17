@@ -8,8 +8,8 @@ import (
 	"go.opentelemetry.io/otel"
 
 	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	mw "github.com/NpoolPlatform/appuser-middleware/pkg/app"
 	capp "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/app"
+	mw "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 	scodes "go.opentelemetry.io/otel/codes"

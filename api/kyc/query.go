@@ -12,7 +12,7 @@ import (
 	scodes "go.opentelemetry.io/otel/codes"
 
 	ckyc "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/kyc"
-	mkyc "github.com/NpoolPlatform/appuser-middleware/pkg/kyc"
+	mkyc "github.com/NpoolPlatform/appuser-middleware/pkg/mw/kyc"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/kyc"
 
 	"google.golang.org/grpc/codes"

@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 
-	user1 "github.com/NpoolPlatform/appuser-middleware/pkg/user"
+	user1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 

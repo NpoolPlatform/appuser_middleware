@@ -14,7 +14,7 @@ import (
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing"
 
-	authing1 "github.com/NpoolPlatform/appuser-middleware/pkg/authing"
+	authing1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 
-	app1 "github.com/NpoolPlatform/appuser-middleware/pkg/app"
+	app1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 
 	"google.golang.org/grpc/codes"
