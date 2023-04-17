@@ -29,8 +29,7 @@ var (
 	signupMethods       = []basetypes.SignMethod{basetypes.SignMethod_Email, basetypes.SignMethod_Mobile}
 	signupMethodsStr    = fmt.Sprintf(`["%v", "%v"]`, basetypes.SignMethod_Email.String(), basetypes.SignMethod_Mobile.String())
 	extSignupMethods    = []basetypes.SignMethod{}
-	extSignupMethodsStr = fmt.Sprintf(`[]`)
-	rec                 = basetypes.RecaptchaMethod_GoogleRecaptchaV3
+	extSignupMethodsStr = `[]`
 	commitButton        = uuid.NewString()
 	ret                 = npool.App{
 		ID:                          uuid.NewString(),
@@ -179,7 +178,7 @@ func deleteApp(t *testing.T) {
 	)
 	assert.Nil(t, err)
 	info, err := handler.DeleteApp(context.Background())
-	if assert.Nil(t, nil) {
+	if assert.Nil(t, err) {
 		assert.Equal(t, info, &ret)
 	}
 

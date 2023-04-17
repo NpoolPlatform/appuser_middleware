@@ -18,8 +18,9 @@ import (
 // LoginHistoryUpdate is the builder for updating LoginHistory entities.
 type LoginHistoryUpdate struct {
 	config
-	hooks    []Hook
-	mutation *LoginHistoryMutation
+	hooks     []Hook
+	mutation  *LoginHistoryMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // Where appends a list predicates to the LoginHistoryUpdate builder.
@@ -257,6 +258,12 @@ func (lhu *LoginHistoryUpdate) defaults() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (lhu *LoginHistoryUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *LoginHistoryUpdate {
+	lhu.modifiers = append(lhu.modifiers, modifiers...)
+	return lhu
+}
+
 func (lhu *LoginHistoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -382,6 +389,7 @@ func (lhu *LoginHistoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: loginhistory.FieldLocation,
 		})
 	}
+	_spec.Modifiers = lhu.modifiers
 	if n, err = sqlgraph.UpdateNodes(ctx, lhu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{loginhistory.Label}
@@ -396,9 +404,10 @@ func (lhu *LoginHistoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 // LoginHistoryUpdateOne is the builder for updating a single LoginHistory entity.
 type LoginHistoryUpdateOne struct {
 	config
-	fields   []string
-	hooks    []Hook
-	mutation *LoginHistoryMutation
+	fields    []string
+	hooks     []Hook
+	mutation  *LoginHistoryMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -643,6 +652,12 @@ func (lhuo *LoginHistoryUpdateOne) defaults() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (lhuo *LoginHistoryUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *LoginHistoryUpdateOne {
+	lhuo.modifiers = append(lhuo.modifiers, modifiers...)
+	return lhuo
+}
+
 func (lhuo *LoginHistoryUpdateOne) sqlSave(ctx context.Context) (_node *LoginHistory, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -785,6 +800,7 @@ func (lhuo *LoginHistoryUpdateOne) sqlSave(ctx context.Context) (_node *LoginHis
 			Column: loginhistory.FieldLocation,
 		})
 	}
+	_spec.Modifiers = lhuo.modifiers
 	_node = &LoginHistory{config: lhuo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues

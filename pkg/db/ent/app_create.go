@@ -242,6 +242,10 @@ func (ac *AppCreate) defaults() error {
 		v := app.DefaultCreatedBy()
 		ac.mutation.SetCreatedBy(v)
 	}
+	if _, ok := ac.mutation.Name(); !ok {
+		v := app.DefaultName
+		ac.mutation.SetName(v)
+	}
 	if _, ok := ac.mutation.Logo(); !ok {
 		v := app.DefaultLogo
 		ac.mutation.SetLogo(v)

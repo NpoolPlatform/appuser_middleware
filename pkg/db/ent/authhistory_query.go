@@ -480,6 +480,12 @@ func (ahq *AuthHistoryQuery) ForShare(opts ...sql.LockOption) *AuthHistoryQuery 
 	return ahq
 }
 
+// Modify adds a query modifier for attaching custom logic to queries.
+func (ahq *AuthHistoryQuery) Modify(modifiers ...func(s *sql.Selector)) *AuthHistorySelect {
+	ahq.modifiers = append(ahq.modifiers, modifiers...)
+	return ahq.Select()
+}
+
 // AuthHistoryGroupBy is the group-by builder for AuthHistory entities.
 type AuthHistoryGroupBy struct {
 	config
@@ -570,4 +576,10 @@ func (ahs *AuthHistorySelect) sqlScan(ctx context.Context, v interface{}) error 
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (ahs *AuthHistorySelect) Modify(modifiers ...func(s *sql.Selector)) *AuthHistorySelect {
+	ahs.modifiers = append(ahs.modifiers, modifiers...)
+	return ahs
 }

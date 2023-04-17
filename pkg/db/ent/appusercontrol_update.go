@@ -18,8 +18,9 @@ import (
 // AppUserControlUpdate is the builder for updating AppUserControl entities.
 type AppUserControlUpdate struct {
 	config
-	hooks    []Hook
-	mutation *AppUserControlMutation
+	hooks     []Hook
+	mutation  *AppUserControlMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // Where appends a list predicates to the AppUserControlUpdate builder.
@@ -285,6 +286,12 @@ func (aucu *AppUserControlUpdate) defaults() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (aucu *AppUserControlUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *AppUserControlUpdate {
+	aucu.modifiers = append(aucu.modifiers, modifiers...)
+	return aucu
+}
+
 func (aucu *AppUserControlUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -424,6 +431,7 @@ func (aucu *AppUserControlUpdate) sqlSave(ctx context.Context) (n int, err error
 			Column: appusercontrol.FieldKolConfirmed,
 		})
 	}
+	_spec.Modifiers = aucu.modifiers
 	if n, err = sqlgraph.UpdateNodes(ctx, aucu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{appusercontrol.Label}
@@ -438,9 +446,10 @@ func (aucu *AppUserControlUpdate) sqlSave(ctx context.Context) (n int, err error
 // AppUserControlUpdateOne is the builder for updating a single AppUserControl entity.
 type AppUserControlUpdateOne struct {
 	config
-	fields   []string
-	hooks    []Hook
-	mutation *AppUserControlMutation
+	fields    []string
+	hooks     []Hook
+	mutation  *AppUserControlMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -713,6 +722,12 @@ func (aucuo *AppUserControlUpdateOne) defaults() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (aucuo *AppUserControlUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *AppUserControlUpdateOne {
+	aucuo.modifiers = append(aucuo.modifiers, modifiers...)
+	return aucuo
+}
+
 func (aucuo *AppUserControlUpdateOne) sqlSave(ctx context.Context) (_node *AppUserControl, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -869,6 +884,7 @@ func (aucuo *AppUserControlUpdateOne) sqlSave(ctx context.Context) (_node *AppUs
 			Column: appusercontrol.FieldKolConfirmed,
 		})
 	}
+	_spec.Modifiers = aucuo.modifiers
 	_node = &AppUserControl{config: aucuo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues

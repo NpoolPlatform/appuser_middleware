@@ -480,6 +480,12 @@ func (kq *KycQuery) ForShare(opts ...sql.LockOption) *KycQuery {
 	return kq
 }
 
+// Modify adds a query modifier for attaching custom logic to queries.
+func (kq *KycQuery) Modify(modifiers ...func(s *sql.Selector)) *KycSelect {
+	kq.modifiers = append(kq.modifiers, modifiers...)
+	return kq.Select()
+}
+
 // KycGroupBy is the group-by builder for Kyc entities.
 type KycGroupBy struct {
 	config
@@ -570,4 +576,10 @@ func (ks *KycSelect) sqlScan(ctx context.Context, v interface{}) error {
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (ks *KycSelect) Modify(modifiers ...func(s *sql.Selector)) *KycSelect {
+	ks.modifiers = append(ks.modifiers, modifiers...)
+	return ks
 }

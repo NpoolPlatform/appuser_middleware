@@ -18,8 +18,9 @@ import (
 // AuthUpdate is the builder for updating Auth entities.
 type AuthUpdate struct {
 	config
-	hooks    []Hook
-	mutation *AuthMutation
+	hooks     []Hook
+	mutation  *AuthMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // Where appends a list predicates to the AuthUpdate builder.
@@ -257,6 +258,12 @@ func (au *AuthUpdate) defaults() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (au *AuthUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *AuthUpdate {
+	au.modifiers = append(au.modifiers, modifiers...)
+	return au
+}
+
 func (au *AuthUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -382,6 +389,7 @@ func (au *AuthUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: auth.FieldMethod,
 		})
 	}
+	_spec.Modifiers = au.modifiers
 	if n, err = sqlgraph.UpdateNodes(ctx, au.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{auth.Label}
@@ -396,9 +404,10 @@ func (au *AuthUpdate) sqlSave(ctx context.Context) (n int, err error) {
 // AuthUpdateOne is the builder for updating a single Auth entity.
 type AuthUpdateOne struct {
 	config
-	fields   []string
-	hooks    []Hook
-	mutation *AuthMutation
+	fields    []string
+	hooks     []Hook
+	mutation  *AuthMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -643,6 +652,12 @@ func (auo *AuthUpdateOne) defaults() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (auo *AuthUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *AuthUpdateOne {
+	auo.modifiers = append(auo.modifiers, modifiers...)
+	return auo
+}
+
 func (auo *AuthUpdateOne) sqlSave(ctx context.Context) (_node *Auth, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -785,6 +800,7 @@ func (auo *AuthUpdateOne) sqlSave(ctx context.Context) (_node *Auth, err error) 
 			Column: auth.FieldMethod,
 		})
 	}
+	_spec.Modifiers = auo.modifiers
 	_node = &Auth{config: auo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues

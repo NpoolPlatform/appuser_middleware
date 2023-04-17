@@ -71,6 +71,8 @@ var (
 	DefaultDeletedAt func() uint32
 	// DefaultCreatedBy holds the default value on creation for the "created_by" field.
 	DefaultCreatedBy func() uuid.UUID
+	// DefaultName holds the default value on creation for the "name" field.
+	DefaultName string
 	// DefaultLogo holds the default value on creation for the "logo" field.
 	DefaultLogo string
 	// DefaultDescription holds the default value on creation for the "description" field.

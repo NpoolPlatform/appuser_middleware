@@ -36,7 +36,7 @@ var (
 	signupMethods       = []basetypes.SignMethod{basetypes.SignMethod_Email, basetypes.SignMethod_Mobile}
 	signupMethodsStr    = fmt.Sprintf(`["%v", "%v"]`, basetypes.SignMethod_Email.String(), basetypes.SignMethod_Mobile.String())
 	extSigninMethods    = []basetypes.SignMethod{}
-	extSigninMethodsStr = fmt.Sprintf(`[]`)
+	extSigninMethodsStr = `[]`
 	ret                 = npool.App{
 		ID:                          uuid.NewString(),
 		CreatedBy:                   uuid.NewString(),
