@@ -5,14 +5,14 @@ import (
 
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 
-	"github.com/NpoolPlatform/appuser-manager/pkg/db"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approleuser"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/auth"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banapp"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banappuser"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approleuser"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuser"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/auth"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/banapp"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/banappuser"
 
 	"entgo.io/ent/dialect/sql"
 

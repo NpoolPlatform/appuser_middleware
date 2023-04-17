@@ -3,16 +3,16 @@ package kyc
 import (
 	"context"
 
-	entappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
+	entappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuser"
 
 	"entgo.io/ent/dialect/sql"
-	crudkyc "github.com/NpoolPlatform/appuser-manager/pkg/crud/kyc"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
-	entapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
-	entkyc "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/kyc"
-	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
+	crudkyc "github.com/NpoolPlatform/appuser-middleware/pkg/crud/kyc"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
+	entapp "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
+	entkyc "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/kyc"
 	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
+	commontracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/kyc"
 	"github.com/google/uuid"

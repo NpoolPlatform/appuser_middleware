@@ -4,12 +4,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/mixin"
-
-	"github.com/google/uuid"
-
-	npool "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appcontrol"
-	rcpt "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/recaptcha"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
+	"github.com/google/uuid"
 )
 
 // AppControl holds the schema definition for the AppControl entity.
@@ -54,7 +50,7 @@ func (AppControl) Fields() []ent.Field {
 		field.
 			String("recaptcha_method").
 			Optional().
-			Default(rcpt.RecaptchaType_GoogleRecaptchaV3.String()),
+			Default(basetypes.RecaptchaMethod_GoogleRecaptchaV3.String()),
 		field.
 			Bool("kyc_enable").
 			Optional().
@@ -70,7 +66,7 @@ func (AppControl) Fields() []ent.Field {
 		field.
 			String("create_invitation_code_when").
 			Optional().
-			Default(npool.CreateInvitationCodeWhen_DefaultWhen.String()),
+			Default(basetypes.CreateInvitationCodeWhen_Registration.String()),
 		field.
 			Uint32("max_typed_coupons_per_order").
 			Optional().

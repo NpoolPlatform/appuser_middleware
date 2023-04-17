@@ -10,7 +10,6 @@ import (
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 
-	entapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
 	entapprole "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approle"
 	entapproleuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approleuser"
 	entappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
@@ -19,6 +18,7 @@ import (
 	entappusersecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
 	entbanappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banappuser"
 	entkyc "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/kyc"
+	entapp "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
