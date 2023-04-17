@@ -4,169 +4,129 @@ package app
 import (
 	"context"
 
-	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
-	"go.opentelemetry.io/otel"
-	scodes "go.opentelemetry.io/otel/codes"
-
+	app1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
-
-	capp "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/app"
-	mapp "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
-	"go.opentelemetry.io/otel/attribute"
+
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"github.com/google/uuid"
 )
 
 func (s *Server) GetApp(ctx context.Context, in *npool.GetAppRequest) (*npool.GetAppResponse, error) {
-	var err error
-
-	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetApp")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
-
-	span = commontracer.TraceID(span, in.GetID())
-
-	if _, err := uuid.Parse(in.GetID()); err != nil {
-		logger.Sugar().Errorw("GetApp", "error", err)
-		return &npool.GetAppResponse{}, status.Error(codes.InvalidArgument, "AppID is invalid")
-	}
-
-	span = commontracer.TraceInvoker(span, "app", "middleware", "GetApp")
-
-	info, err := mapp.GetApp(ctx, in.GetID())
+	handler, err := app1.NewHandler(
+		ctx,
+		app1.WithID(&in.ID),
+	)
 	if err != nil {
-		logger.Sugar().Errorw("GetApp", "error", err)
-		return &npool.GetAppResponse{}, status.Error(codes.Internal, "fail get app")
+		logger.Sugar().Errorw(
+			"GetApp",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.GetAppResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-
-	ginfo, err := capp.Ent2Grpc(info)
+	info, err := handler.GetApp(ctx)
 	if err != nil {
-		logger.Sugar().Errorw("GetApp", "error", err)
-		return &npool.GetAppResponse{}, status.Error(codes.Internal, "invalid value")
+		logger.Sugar().Errorw(
+			"GetApp",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.GetAppResponse{}, status.Error(codes.Aborted, err.Error())
 	}
 
 	return &npool.GetAppResponse{
-		Info: ginfo,
+		Info: info,
 	}, nil
 }
 
 func (s *Server) GetApps(ctx context.Context, in *npool.GetAppsRequest) (*npool.GetAppsResponse, error) {
-	var err error
-
-	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetApps")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
-
-	span = commontracer.TraceInvoker(span, "app", "middleware", "GetApps")
-
-	infos, err := mapp.GetApps(ctx, in.GetOffset(), in.GetLimit())
+	handler, err := app1.NewHandler(
+		ctx,
+		app1.WithOffset(in.GetOffset()),
+		app1.WithLimit(in.GetLimit()),
+	)
 	if err != nil {
-		logger.Sugar().Errorw("GetApps", "error", err)
-		return &npool.GetAppsResponse{}, status.Error(codes.Internal, "fail get apps")
+		logger.Sugar().Errorw(
+			"GetApps",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.GetAppsResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-
-	ginfos, err := capp.Ent2GrpcMany(infos)
+	infos, total, err := handler.GetApps(ctx)
 	if err != nil {
-		logger.Sugar().Errorw("GetApps", "error", err)
-		return &npool.GetAppsResponse{}, status.Error(codes.Internal, "invalid value")
+		logger.Sugar().Errorw(
+			"GetApps",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.GetAppsResponse{}, status.Error(codes.Aborted, err.Error())
 	}
 
 	return &npool.GetAppsResponse{
-		Infos: ginfos,
-		Total: uint32(len(ginfos)),
+		Infos: infos,
+		Total: total,
 	}, nil
 }
 
 func (s *Server) GetUserApps(ctx context.Context, in *npool.GetUserAppsRequest) (*npool.GetUserAppsResponse, error) {
-	var err error
-
-	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetUserApps")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
-
-	span.SetAttributes(attribute.String("UserID", in.GetUserID()))
-
-	if _, err := uuid.Parse(in.GetUserID()); err != nil {
-		logger.Sugar().Errorw("GetUserApps", "error", err)
-		return &npool.GetUserAppsResponse{}, status.Error(codes.InvalidArgument, "UserID is invalid")
-	}
-
-	span = commontracer.TraceInvoker(span, "app", "middleware", "GetUserApps")
-
-	infos, total, err := mapp.GetUserApps(ctx, in.GetUserID(), in.GetOffset(), in.GetLimit())
+	handler, err := app1.NewHandler(
+		ctx,
+		app1.WithUserID(in.GetUserID()),
+		app1.WithOffset(in.GetOffset()),
+		app1.WithLimit(in.GetLimit()),
+	)
 	if err != nil {
-		logger.Sugar().Errorw("GetUserApps", "error", err)
-		return &npool.GetUserAppsResponse{}, status.Error(codes.Internal, "fail get user apps")
+		logger.Sugar().Errorw(
+			"GetUserApps",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.GetUserAppsResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-
-	ginfos, err := capp.Ent2GrpcMany(infos)
+	infos, total, err := handler.GetApps(ctx)
 	if err != nil {
-		logger.Sugar().Errorw("GetUserApps", "error", err)
-		return &npool.GetUserAppsResponse{}, status.Error(codes.Internal, "invalid value")
+		logger.Sugar().Errorw(
+			"GetUserApps",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.GetUserAppsResponse{}, status.Error(codes.Aborted, err.Error())
 	}
 
 	return &npool.GetUserAppsResponse{
-		Infos: ginfos,
-		Total: uint32(total),
+		Infos: infos,
+		Total: total,
 	}, nil
 }
 
 func (s *Server) GetManyApps(ctx context.Context, in *npool.GetManyAppsRequest) (*npool.GetManyAppsResponse, error) {
-	var err error
-
-	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetManyApps")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
-
-	span.SetAttributes(attribute.StringSlice("IDs", in.GetIDs()))
-
-	for _, val := range in.GetIDs() {
-		if _, err := uuid.Parse(val); err != nil {
-			logger.Sugar().Errorw("GetManyApps", "error", err)
-			return &npool.GetManyAppsResponse{}, status.Error(codes.InvalidArgument, "ID is invalid")
-		}
-	}
-
-	span = commontracer.TraceInvoker(span, "app", "middleware", "GetManyApps")
-
-	infos, total, err := mapp.GetManyApps(ctx, in.GetIDs())
+	handler, err := app1.NewHandler(
+		ctx,
+		app1.WithIDs(in.GetIDs()),
+		app1.WithOffset(0),
+		app1.WithLimit(int32(len(in.GetIDs()))),
+	)
 	if err != nil {
-		logger.Sugar().Errorw("GetManyApps", "error", err)
-		return &npool.GetManyAppsResponse{}, status.Error(codes.Internal, "fail get many apps")
+		logger.Sugar().Errorw(
+			"GetManyApps",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.GetManyAppsResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-
-	ginfos, err := capp.Ent2GrpcMany(infos)
+	infos, _, err := handler.GetApps(ctx)
 	if err != nil {
-		logger.Sugar().Errorw("GetManyApps", "error", err)
-		return &npool.GetManyAppsResponse{}, status.Error(codes.Internal, "invalid value")
+		logger.Sugar().Errorw(
+			"GetManyApps",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.GetManyAppsResponse{}, status.Error(codes.Aborted, err.Error())
 	}
 
 	return &npool.GetManyAppsResponse{
-		Infos: ginfos,
-		Total: uint32(total),
+		Infos: infos,
 	}, nil
 }

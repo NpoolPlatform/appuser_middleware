@@ -2,96 +2,102 @@ package app
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/google/uuid"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 
-	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
-
-	"github.com/NpoolPlatform/appuser-manager/pkg/db"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
-	entappcontrol "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appcontrol"
-	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
-	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/app"
-	"go.opentelemetry.io/otel"
-	scodes "go.opentelemetry.io/otel/codes"
-
+	appcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/app"
+	ctrlcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/app/control"
+	entappctrl "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appcontrol"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
-
-	appmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/app"
-	appctrlmgrcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appcontrol"
-	appmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/app"
-	appctrlmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appcontrol"
 )
 
-func UpdateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
-	var err error
+type updateHandler struct {
+	*Handler
+}
 
-	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "UpdateApp")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
+func (h *updateHandler) updateApp(ctx context.Context, tx *ent.Tx) error {
+	if h.ID == nil {
+		return fmt.Errorf("invalid id")
+	}
 
-	span = tracer.Trace(span, in)
+	if _, err := appcrud.UpdateSet(
+		tx.App.UpdateOneID(*h.ID),
+		&appcrud.Req{
+			Name:        h.Name,
+			Logo:        h.Logo,
+			Description: h.Description,
+		},
+	).Save(ctx); err != nil {
+		return err
+	}
+	return nil
+}
 
-	span = commontracer.TraceInvoker(span, "app", "db", "UpdateTx")
-
-	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
-		_, err := appmgrcrud.UpdateSet(
-			tx.App.
-				UpdateOneID(
-					uuid.MustParse(in.GetID()),
-				),
-			&appmgrpb.AppReq{
-				ID:          in.ID,
-				Name:        in.Name,
-				Logo:        in.Logo,
-				Description: in.Description,
-			}).Save(ctx)
-		if err != nil {
-			logger.Sugar().Errorw("UpdateApp", "error", err)
+func (h *updateHandler) updateAppCtrl(ctx context.Context, tx *ent.Tx) error {
+	info, err := tx.
+		AppControl.
+		Query().
+		Where(
+			entappctrl.AppID(*h.ID),
+			entappctrl.DeletedAt(0),
+		).
+		ForUpdate().
+		Only(ctx)
+	if err != nil {
+		if !ent.IsNotFound(err) {
 			return err
 		}
+	}
 
-		info, err := tx.
-			AppControl.
-			Query().
-			Where(
-				entappcontrol.AppID(uuid.MustParse(in.GetID())),
-			).
-			ForUpdate().
-			Only(ctx)
-		if err != nil {
+	req := &ctrlcrud.Req{
+		AppID:                    h.ID,
+		SignupMethods:            h.SignupMethods,
+		ExtSigninMethods:         h.ExtSigninMethods,
+		RecaptchaMethod:          h.RecaptchaMethod,
+		KycEnable:                h.KycEnable,
+		SigninVerifyEnable:       h.SigninVerifyEnable,
+		InvitationCodeMust:       h.InvitationCodeMust,
+		CreateInvitationCodeWhen: h.CreateInvitationCodeWhen,
+		MaxTypedCouponsPerOrder:  h.MaxTypedCouponsPerOrder,
+		Maintaining:              h.Maintaining,
+		CommitButtonTargets:      h.CommitButtonTargets,
+	}
+
+	if info == nil {
+		if _, err = ctrlcrud.CreateSet(
+			tx.AppControl.Create(),
+			req,
+		).Save(ctx); err != nil {
 			return err
 		}
+		return nil
+	}
 
-		if _, err = appctrlmgrcrud.UpdateSet(
-			info,
-			&appctrlmgrpb.AppControlReq{
-				AppID:                    in.ID,
-				SignupMethods:            in.SignupMethods,
-				ExtSigninMethods:         in.ExtSigninMethods,
-				RecaptchaMethod:          in.RecaptchaMethod,
-				KycEnable:                in.KycEnable,
-				SigninVerifyEnable:       in.SigninVerifyEnable,
-				InvitationCodeMust:       in.InvitationCodeMust,
-				CreateInvitationCodeWhen: in.CreateInvitationCodeWhen,
-				MaxTypedCouponsPerOrder:  in.MaxTypedCouponsPerOrder,
-				Maintaining:              in.Maintaining,
-				CommitButtonTargets:      in.CommitButtonTargets,
-			}).Save(ctx); err != nil {
-			logger.Sugar().Errorw("UpdateApp", "error", err)
+	if _, err = ctrlcrud.UpdateSet(info.Update(), req).Save(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *Handler) UpdateApp(ctx context.Context) (*npool.App, error) {
+	handler := &updateHandler{
+		Handler: h,
+	}
+
+	err := db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {
+		if err := handler.updateApp(ctx, tx); err != nil {
 			return err
 		}
-
+		if err := handler.updateAppCtrl(ctx, tx); err != nil {
+			return err
+		}
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	return GetApp(ctx, in.GetID())
+
+	return h.GetApp(ctx)
 }

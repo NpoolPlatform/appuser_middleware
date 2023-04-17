@@ -5,263 +5,211 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
-
 	"entgo.io/ent/dialect/sql"
-	commontracer "github.com/NpoolPlatform/appuser-manager/pkg/tracer"
-	"go.opentelemetry.io/otel/attribute"
-
 	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
+
 	entapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
-	ctrl "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appcontrol"
-	banapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banapp"
-	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
-	scodes "go.opentelemetry.io/otel/codes"
+	entappctrl "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appcontrol"
+	entbanapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banapp"
 
-	"go.opentelemetry.io/otel"
-
-	"github.com/google/uuid"
-
-	ctrlpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appcontrol"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 )
 
-func (h *Handler) GetApp(ctx context.Context) (*npool.App, error) {
-	return GetApp(ctx, h.ID.String())
+type queryHandler struct {
+	*Handler
+	stm   *ent.AppSelect
+	infos []*npool.App
+	total uint32
 }
 
-func GetApp(ctx context.Context, id string) (*npool.App, error) {
-	var err error
-	infos := []*npool.App{}
-
-	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetApp")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
-
-	span = commontracer.TraceID(span, id)
-
-	span = commontracer.TraceInvoker(span, "app", "db", "CRUD")
-
-	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
-		stm := cli.
-			App.
-			Query().
-			Where(
-				entapp.ID(uuid.MustParse(id)),
-			).
-			Limit(1)
-		return join(stm).
-			Scan(ctx, &infos)
-	})
-	if err != nil {
-		logger.Sugar().Errorw("GetApp", "error", err)
-		return nil, err
-	}
-	if len(infos) == 0 {
-		return nil, fmt.Errorf("no record")
-	}
-	if len(infos) > 1 {
-		logger.Sugar().Errorw("GetApp", "too many records")
-		return nil, fmt.Errorf("too many records")
-	}
-
-	infos = expand(infos)
-
-	return infos[0], nil
-}
-
-func GetApps(ctx context.Context, offset, limit int32) ([]*npool.App, error) {
-	var err error
-	infos := []*npool.App{}
-
-	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetApps")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
-
-	span = commontracer.TraceOffsetLimit(span, int(offset), int(limit))
-
-	span = commontracer.TraceInvoker(span, "app", "db", "CRUD")
-
-	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
-		stm := cli.
-			App.
-			Query().
-			Offset(int(offset)).
-			Limit(int(limit))
-
-		return join(stm).
-			Scan(ctx, &infos)
-	})
-	if err != nil {
-		logger.Sugar().Errorw("GetApps", "error", err)
-		return nil, err
-	}
-
-	infos = expand(infos)
-
-	return infos, nil
-}
-
-func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*npool.App, int, error) {
-	var err error
-	infos := []*npool.App{}
-	var total int
-
-	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetUserApps")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
-
-	span.SetAttributes(attribute.String("UserID", userID))
-
-	span = commontracer.TraceOffsetLimit(span, int(offset), int(limit))
-
-	span = commontracer.TraceInvoker(span, "app", "db", "CRUD")
-
-	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
-		stm := cli.
-			App.
-			Query().
-			Where(
-				entapp.CreatedBy(uuid.MustParse(userID)),
-			)
-
-		total, err = stm.Count(ctx)
-		if err != nil {
-			logger.Sugar().Errorw("GetUserApps", "error", err)
-			return err
-		}
-
-		stm.
-			Offset(int(offset)).
-			Limit(int(limit))
-
-		return join(stm).
-			Scan(ctx, &infos)
-	})
-	if err != nil {
-		logger.Sugar().Errorw("GetUserApps", "error", err)
-		return nil, 0, err
-	}
-
-	infos = expand(infos)
-
-	return infos, total, nil
-}
-
-func GetManyApps(ctx context.Context, ids []string) ([]*npool.App, int, error) {
-	var err error
-	infos := []*npool.App{}
-	var total int
-
-	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetManyApps")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
-
-	span.SetAttributes(attribute.StringSlice("ids", ids))
-
-	idsU := []uuid.UUID{}
-	for _, val := range ids {
-		idsU = append(idsU, uuid.MustParse(val))
-	}
-
-	span = commontracer.TraceInvoker(span, "app", "db", "CRUD")
-
-	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
-		stm := cli.
-			App.
-			Query().
-			Where(
-				entapp.IDIn(idsU...),
-			)
-		total, err = stm.Count(ctx)
-		if err != nil {
-			logger.Sugar().Errorw("GetManyApps", "error", err)
-			return err
-		}
-		return join(stm).
-			Scan(ctx, &infos)
-	})
-	if err != nil {
-		logger.Sugar().Errorw("GetManyApps", "error", err)
-		return nil, 0, err
-	}
-
-	infos = expand(infos)
-
-	return infos, total, nil
-}
-
-func join(stm *ent.AppQuery) *ent.AppSelect {
-	return stm.Select(
+func (h *queryHandler) selectApp(stm *ent.AppQuery) {
+	h.stm = stm.Select(
 		entapp.FieldID,
 		entapp.FieldLogo,
 		entapp.FieldName,
 		entapp.FieldCreatedBy,
 		entapp.FieldCreatedAt,
 		entapp.FieldDescription,
-	).Modify(func(s *sql.Selector) {
-		t1 := sql.Table(banapp.Table)
-		s.
-			LeftJoin(t1).
-			On(
-				s.C(entapp.FieldID),
-				t1.C(banapp.FieldAppID),
-			).
-			AppendSelect(
-				sql.As(t1.C(banapp.FieldID), "ban_app_id"),
-				sql.As(t1.C(banapp.FieldMessage), "ban_message"),
-			)
+	)
+}
 
-		t2 := sql.Table(ctrl.Table)
-		s.
-			LeftJoin(t2).
-			On(
-				s.C(entapp.FieldID),
-				t2.C(ctrl.FieldAppID),
-			).
-			AppendSelect(
-				t2.C(ctrl.FieldSignupMethods),
-				t2.C(ctrl.FieldExternSigninMethods),
-				t2.C(ctrl.FieldRecaptchaMethod),
-				t2.C(ctrl.FieldKycEnable),
-				t2.C(ctrl.FieldSigninVerifyEnable),
-				t2.C(ctrl.FieldInvitationCodeMust),
-				t2.C(ctrl.FieldCreateInvitationCodeWhen),
-				t2.C(ctrl.FieldMaxTypedCouponsPerOrder),
-				t2.C(ctrl.FieldMaintaining),
-				t2.C(ctrl.FieldCommitButtonTargets),
-			)
+func (h *queryHandler) queryApp(cli *ent.Client) error {
+	if h.ID == nil {
+		return fmt.Errorf("invalid appid")
+	}
+
+	h.selectApp(
+		cli.App.
+			Query().
+			Where(
+				entapp.ID(*h.ID),
+				entapp.DeletedAt(0),
+			),
+	)
+
+	return nil
+}
+
+func (h *queryHandler) queryApps(ctx context.Context, cli *ent.Client) (err error) {
+	stm := cli.App.Query()
+
+	if len(h.IDs) > 0 {
+		stm.Where(
+			entapp.IDIn(h.IDs...),
+		)
+	}
+
+	if h.UserID != nil {
+		stm.Where(
+			entapp.CreatedBy(*h.UserID),
+		)
+	}
+
+	total, err := stm.Count(ctx)
+	if err != nil {
+		return err
+	}
+
+	h.total = uint32(total)
+	h.selectApp(stm)
+	return nil
+}
+
+func (h *queryHandler) queryJoinAppCtrl(s *sql.Selector) {
+	t := sql.Table(entappctrl.Table)
+	s.LeftJoin(t).
+		On(
+			s.C(entapp.FieldID),
+			t.C(entappctrl.FieldAppID),
+		).
+		AppendSelect(
+			t.C(entappctrl.FieldSignupMethods),
+			t.C(entappctrl.FieldExternSigninMethods),
+			t.C(entappctrl.FieldRecaptchaMethod),
+			t.C(entappctrl.FieldKycEnable),
+			t.C(entappctrl.FieldSigninVerifyEnable),
+			t.C(entappctrl.FieldInvitationCodeMust),
+			t.C(entappctrl.FieldCreateInvitationCodeWhen),
+			t.C(entappctrl.FieldMaxTypedCouponsPerOrder),
+			t.C(entappctrl.FieldMaintaining),
+			t.C(entappctrl.FieldCommitButtonTargets),
+		)
+}
+
+func (h *queryHandler) queryJoinBanApp(s *sql.Selector) {
+	t := sql.Table(entbanapp.Table)
+	s.LeftJoin(t).
+		On(
+			s.C(entapp.FieldID),
+			t.C(entbanapp.FieldAppID),
+		).
+		AppendSelect(
+			sql.As(t.C(entbanapp.FieldID), "ban_app_id"),
+			sql.As(t.C(entbanapp.FieldMessage), "ban_message"),
+		)
+}
+
+func (h *queryHandler) queryJoin() {
+	h.stm.Modify(func(s *sql.Selector) {
+		h.queryJoinAppCtrl(s)
+		h.queryJoinBanApp(s)
 	})
 }
 
-func expand(infos []*npool.App) []*npool.App {
-	for key, info := range infos {
+func (h *queryHandler) scan(ctx context.Context) error {
+	return h.stm.Scan(ctx, &h.infos)
+}
+
+func (h *queryHandler) formalize() {
+	for _, info := range h.infos {
 		info.CreateInvitationCodeWhen =
-			ctrlpb.CreateInvitationCodeWhen(
-				ctrlpb.CreateInvitationCodeWhen_value[info.CreateInvitationCodeWhenStr],
+			basetypes.CreateInvitationCodeWhen(
+				basetypes.CreateInvitationCodeWhen_value[info.CreateInvitationCodeWhenStr],
 			)
-		_ = json.Unmarshal([]byte(info.CommitButtonTargetsStr), &infos[key].CommitButtonTargets)
+		_ = json.Unmarshal([]byte(info.CommitButtonTargetsStr), &info.CommitButtonTargets)
+
+		methods := []string{}
+		_methods := []basetypes.SignMethod{}
+
+		_ = json.Unmarshal([]byte(info.SignupMethodsStr), &methods)
+		for _, m := range methods {
+			_methods = append(_methods, basetypes.SignMethod(basetypes.SignMethod_value[m]))
+		}
+
+		emethods := []string{}
+		_emethods := []basetypes.SignMethod{}
+
+		_ = json.Unmarshal([]byte(info.ExtSigninMethodsStr), &emethods)
+		for _, m := range emethods {
+			_emethods = append(_emethods, basetypes.SignMethod(basetypes.SignMethod_value[m]))
+		}
+
+		info.SignupMethods = _methods
+		info.ExtSigninMethods = _emethods
+		info.KycEnable = info.KycEnableInt != 0
+		info.SigninVerifyEnable = info.SigninVerifyEnableInt != 0
+		info.InvitationCodeMust = info.InvitationCodeMustInt != 0
+		info.RecaptchaMethod = basetypes.RecaptchaMethod(basetypes.RecaptchaMethod_value[info.RecaptchaMethodStr])
+
+		info.Banned = info.BanAppID != ""
 	}
-	return infos
+}
+
+func (h *Handler) GetApp(ctx context.Context) (*npool.App, error) {
+	handler := &queryHandler{
+		Handler: h,
+	}
+
+	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		if err := handler.queryApp(cli); err != nil {
+			return err
+		}
+		handler.queryJoin()
+		if err := handler.scan(_ctx); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(handler.infos) == 0 {
+		return nil, nil
+	}
+	if len(handler.infos) > 1 {
+		return nil, fmt.Errorf("too many records")
+	}
+
+	handler.formalize()
+
+	return handler.infos[0], nil
+}
+
+func (h *Handler) GetApps(ctx context.Context) ([]*npool.App, uint32, error) {
+	handler := &queryHandler{
+		Handler: h,
+	}
+
+	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		if err := handler.queryApps(_ctx, cli); err != nil {
+			return err
+		}
+		handler.queryJoin()
+		handler.stm.
+			Offset(int(h.Offset)).
+			Limit(int(h.Limit))
+		if err := handler.scan(_ctx); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+
+	handler.formalize()
+
+	return handler.infos, handler.total, nil
 }

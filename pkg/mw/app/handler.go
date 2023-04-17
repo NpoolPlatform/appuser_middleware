@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	constant "github.com/NpoolPlatform/appuser-middleware/pkg/const"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/google/uuid"
@@ -11,6 +12,7 @@ import (
 
 type Handler struct {
 	ID                       *uuid.UUID
+	IDs                      []uuid.UUID
 	CreatedBy                uuid.UUID
 	Name                     *string
 	Logo                     *string
@@ -27,6 +29,9 @@ type Handler struct {
 	MaxTypedCouponsPerOrder  *uint32
 	Maintaining              *bool
 	CommitButtonTargets      []string
+	UserID                   *uuid.UUID
+	Offset                   int32
+	Limit                    int32
 }
 
 func NewHandler(ctx context.Context, options ...func(context.Context, *Handler) error) (*Handler, error) {
@@ -49,6 +54,24 @@ func WithID(id *string) func(context.Context, *Handler) error {
 			return err
 		}
 		h.ID = &_id
+		return nil
+	}
+}
+
+func WithIDs(ids []string) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if len(ids) == 0 {
+			return fmt.Errorf("invalid ids")
+		}
+		_ids := []uuid.UUID{}
+		for _, id := range ids {
+			_id, err := uuid.Parse(id)
+			if err != nil {
+				return err
+			}
+			_ids = append(_ids, _id)
+		}
+		h.IDs = _ids
 		return nil
 	}
 }
@@ -237,6 +260,34 @@ func WithMaintaining(enable *bool) func(context.Context, *Handler) error {
 func WithCommitButtonTargets(targets []string) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.CommitButtonTargets = targets
+		return nil
+	}
+}
+
+func WithUserID(id string) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		_id, err := uuid.Parse(id)
+		if err != nil {
+			return err
+		}
+		h.UserID = &_id
+		return nil
+	}
+}
+
+func WithOffset(offset int32) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		h.Offset = offset
+		return nil
+	}
+}
+
+func WithLimit(limit int32) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if limit == 0 {
+			limit = constant.DefaultRowLimit
+		}
+		h.Limit = limit
 		return nil
 	}
 }
