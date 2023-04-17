@@ -119,30 +119,74 @@ func updateApp(t *testing.T) {
 	}
 }
 
-/*
 func getApp(t *testing.T) {
-	info, err := GetApp(context.Background(), ret.ID)
+	handler, err := NewHandler(
+		context.Background(),
+		WithID(&ret.ID),
+	)
+	assert.Nil(t, err)
+	info, err := handler.GetApp(context.Background())
 	if assert.Nil(t, err) {
-		info.CreatedAt = ret.CreatedAt
 		assert.Equal(t, info, &ret)
 	}
 }
 
 func getApps(t *testing.T) {
-	infos, err := GetApps(context.Background(), 0, 1)
-	if !assert.Nil(t, err) {
+	handler, err := NewHandler(
+		context.Background(),
+		WithOffset(0),
+		WithLimit(1),
+	)
+	assert.Nil(t, err)
+	infos, _, err := handler.GetApps(context.Background())
+	if assert.Nil(t, err) {
 		assert.NotEqual(t, len(infos), 0)
 	}
 }
 
 func getUserApps(t *testing.T) {
-	infos, _, err := GetUserApps(context.Background(), ret.CreatedBy, 0, 1)
-	if !assert.Nil(t, err) {
-		infos[0].CreatedAt = ret.CreatedAt
+	handler, err := NewHandler(
+		context.Background(),
+		WithUserID(ret.CreatedBy),
+		WithOffset(0),
+		WithLimit(10),
+	)
+	assert.Nil(t, err)
+	infos, _, err := handler.GetApps(context.Background())
+	if assert.Nil(t, err) {
 		assert.Equal(t, infos[0], &ret)
 	}
 }
-*/
+
+func getManyApps(t *testing.T) {
+	handler, err := NewHandler(
+		context.Background(),
+		WithIDs([]string{ret.ID}),
+		WithOffset(0),
+		WithLimit(1),
+	)
+	assert.Nil(t, err)
+	infos, _, err := handler.GetApps(context.Background())
+	if assert.Nil(t, err) {
+		assert.Equal(t, infos[0], &ret)
+	}
+}
+
+func deleteApp(t *testing.T) {
+	handler, err := NewHandler(
+		context.Background(),
+		WithID(&ret.ID),
+	)
+	assert.Nil(t, err)
+	info, err := handler.DeleteApp(context.Background())
+	if assert.Nil(t, nil) {
+		assert.Equal(t, info, &ret)
+	}
+
+	info, err = handler.GetApp(context.Background())
+	assert.Nil(t, err)
+	assert.Nil(t, info)
+}
 
 func TestMainOrder(t *testing.T) {
 	if runByGithubAction, err := strconv.ParseBool(os.Getenv("RUN_BY_GITHUB_ACTION")); err == nil && runByGithubAction {
@@ -150,7 +194,9 @@ func TestMainOrder(t *testing.T) {
 	}
 	t.Run("createApp", creatApp)
 	t.Run("updateApp", updateApp)
-	// t.Run("getApp", getApp)
-	// t.Run("getApps", getApps)
-	// t.Run("getUserApps", getUserApps)
+	t.Run("getApp", getApp)
+	t.Run("getApps", getApps)
+	t.Run("getUserApps", getUserApps)
+	t.Run("getManyApps", getManyApps)
+	t.Run("deleteApp", deleteApp)
 }
