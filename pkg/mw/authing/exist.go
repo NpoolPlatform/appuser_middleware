@@ -327,3 +327,7 @@ func ExistAuth(ctx context.Context, appID string, userID *string, resource, meth
 	}
 	return existUserAuth(ctx, appID, *userID, resource, method)
 }
+
+func (h *Handler) ExistAuth(ctx context.Context) (bool, error) {
+	return false, nil
+}
