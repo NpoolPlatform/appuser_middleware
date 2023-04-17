@@ -27,11 +27,11 @@ type queryHandler struct {
 func (h *queryHandler) selectApp(stm *ent.AppQuery) {
 	h.stm = stm.Select(
 		entapp.FieldID,
+		entapp.FieldCreatedBy,
 		entapp.FieldLogo,
 		entapp.FieldName,
-		entapp.FieldCreatedBy,
-		entapp.FieldCreatedAt,
 		entapp.FieldDescription,
+		entapp.FieldCreatedAt,
 	)
 }
 
