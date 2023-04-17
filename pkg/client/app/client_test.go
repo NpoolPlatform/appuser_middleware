@@ -1,6 +1,5 @@
 package app
 
-/*
 import (
 	"context"
 	"fmt"
@@ -20,8 +19,6 @@ import (
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/testinit"
 
-	ctrl "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appcontrol"
-	rcpt "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/recaptcha"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 )
 
@@ -35,31 +32,30 @@ func init() {
 }
 
 var (
-	commitButton = uuid.NewString()
-	uuidSlice    = []basetypes.SignMethod{basetypes.SignMethod_Email, basetypes.SignMethod_Mobile}
-	uuidSliceS   = fmt.Sprintf(`["%v", "%v"]`, basetypes.SignMethod_Email.String(), basetypes.SignMethod_Mobile.String())
-	appInfo      = npool.App{
+	commitButton        = uuid.NewString()
+	signupMethods       = []basetypes.SignMethod{basetypes.SignMethod_Email, basetypes.SignMethod_Mobile}
+	signupMethodsStr    = fmt.Sprintf(`["%v", "%v"]`, basetypes.SignMethod_Email.String(), basetypes.SignMethod_Mobile.String())
+	extSigninMethods    = []basetypes.SignMethod{}
+	extSigninMethodsStr = fmt.Sprintf(`[]`)
+	ret                 = npool.App{
 		ID:                          uuid.NewString(),
 		CreatedBy:                   uuid.NewString(),
 		Name:                        uuid.NewString(),
 		Logo:                        uuid.NewString(),
 		Description:                 uuid.NewString(),
 		Banned:                      false,
-		SignupMethodsStr:            uuidSliceS,
-		SignupMethods:               uuidSlice,
-		ExtSigninMethodsStr:         uuidSliceS,
-		ExtSigninMethods:            uuidSlice,
-		RecaptchaMethodStr:          rcpt.RecaptchaType_GoogleRecaptchaV3.String(),
-		RecaptchaMethod:             rcpt.RecaptchaType_GoogleRecaptchaV3,
-		KycEnableInt:                1,
+		SignupMethodsStr:            signupMethodsStr,
+		SignupMethods:               signupMethods,
+		ExtSigninMethodsStr:         extSigninMethodsStr,
+		ExtSigninMethods:            extSigninMethods,
+		RecaptchaMethodStr:          basetypes.RecaptchaMethod_GoogleRecaptchaV3.String(),
+		RecaptchaMethod:             basetypes.RecaptchaMethod_GoogleRecaptchaV3,
 		KycEnable:                   true,
-		SigninVerifyEnableInt:       1,
 		SigninVerifyEnable:          true,
-		InvitationCodeMustInt:       1,
 		InvitationCodeMust:          true,
 		CreatedAt:                   0,
-		CreateInvitationCodeWhenStr: ctrl.CreateInvitationCodeWhen_Registration.String(),
-		CreateInvitationCodeWhen:    ctrl.CreateInvitationCodeWhen_Registration,
+		CreateInvitationCodeWhenStr: basetypes.CreateInvitationCodeWhen_Registration.String(),
+		CreateInvitationCodeWhen:    basetypes.CreateInvitationCodeWhen_Registration,
 		MaxTypedCouponsPerOrder:     1,
 		Maintaining:                 true,
 		CommitButtonTargetsStr:      fmt.Sprintf("[\"%v\"]", commitButton),
@@ -69,51 +65,52 @@ var (
 
 func creatApp(t *testing.T) {
 	var (
-		id        = appInfo.ID
-		createdBy = appInfo.CreatedBy
+		id        = ret.ID
+		createdBy = ret.CreatedBy
 		boolVal   = true
-		appReq    = npool.AppReq{
+		req       = npool.AppReq{
 			ID:                       &id,
 			CreatedBy:                &createdBy,
-			Name:                     &appInfo.Name,
-			Logo:                     &appInfo.Logo,
-			Description:              &appInfo.Description,
-			Banned:                   &appInfo.Banned,
-			BanMessage:               &appInfo.BanMessage,
-			SignupMethods:            uuidSlice,
-			ExtSigninMethods:         uuidSlice,
-			RecaptchaMethod:          &appInfo.RecaptchaMethod,
+			Name:                     &ret.Name,
+			Logo:                     &ret.Logo,
+			Description:              &ret.Description,
+			Banned:                   &ret.Banned,
+			BanMessage:               &ret.BanMessage,
+			SignupMethods:            signupMethods,
+			ExtSigninMethods:         extSigninMethods,
+			RecaptchaMethod:          &ret.RecaptchaMethod,
 			KycEnable:                &boolVal,
 			SigninVerifyEnable:       &boolVal,
 			InvitationCodeMust:       &boolVal,
-			CreateInvitationCodeWhen: &appInfo.CreateInvitationCodeWhen,
-			Maintaining:              &appInfo.Maintaining,
-			CommitButtonTargets:      appInfo.CommitButtonTargets,
+			CreateInvitationCodeWhen: &ret.CreateInvitationCodeWhen,
+			Maintaining:              &ret.Maintaining,
+			CommitButtonTargets:      ret.CommitButtonTargets,
 		}
 	)
-	info, err := CreateApp(context.Background(), &appReq)
+	info, err := CreateApp(context.Background(), &req)
 	if assert.Nil(t, err) {
-		info.CreatedAt = appInfo.CreatedAt
-		assert.Equal(t, info, &appInfo)
+		ret.CreatedAt = info.CreatedAt
+		ret.ExtSigninMethods = info.ExtSigninMethods
+		assert.Equal(t, info, &ret)
 	}
 }
 
 func updateApp(t *testing.T) {
 	var (
 		boolVal                 = true
-		createIvCodeWhen        = ctrl.CreateInvitationCodeWhen_SetToKol
+		createIvCodeWhen        = basetypes.CreateInvitationCodeWhen_SetToKol
 		maxTypedCouponsPerOrder = uint32(5)
-		appReq                  = npool.AppReq{
-			ID:                       &appInfo.ID,
-			CreatedBy:                &appInfo.Name,
-			Name:                     &appInfo.Name,
-			Logo:                     &appInfo.Logo,
-			Description:              &appInfo.Description,
-			Banned:                   &appInfo.Banned,
-			BanMessage:               &appInfo.BanMessage,
-			SignupMethods:            uuidSlice,
-			ExtSigninMethods:         uuidSlice,
-			RecaptchaMethod:          &appInfo.RecaptchaMethod,
+		req                     = npool.AppReq{
+			ID:                       &ret.ID,
+			CreatedBy:                &ret.Name,
+			Name:                     &ret.Name,
+			Logo:                     &ret.Logo,
+			Description:              &ret.Description,
+			Banned:                   &ret.Banned,
+			BanMessage:               &ret.BanMessage,
+			SignupMethods:            signupMethods,
+			ExtSigninMethods:         extSigninMethods,
+			RecaptchaMethod:          &ret.RecaptchaMethod,
 			KycEnable:                &boolVal,
 			SigninVerifyEnable:       &boolVal,
 			InvitationCodeMust:       &boolVal,
@@ -122,46 +119,57 @@ func updateApp(t *testing.T) {
 		}
 	)
 
-	appInfo.MaxTypedCouponsPerOrder = maxTypedCouponsPerOrder
-	appInfo.CreateInvitationCodeWhenStr = createIvCodeWhen.String()
-	appInfo.CreateInvitationCodeWhen = createIvCodeWhen
+	ret.MaxTypedCouponsPerOrder = maxTypedCouponsPerOrder
+	ret.CreateInvitationCodeWhenStr = createIvCodeWhen.String()
+	ret.CreateInvitationCodeWhen = createIvCodeWhen
 
-	info, err := UpdateApp(context.Background(), &appReq)
+	info, err := UpdateApp(context.Background(), &req)
 	if assert.Nil(t, err) {
-		info.CreatedAt = appInfo.CreatedAt
-		assert.Equal(t, info, &appInfo)
+		info.CreatedAt = ret.CreatedAt
+		assert.Equal(t, info, &ret)
 	}
 }
 
 func getApp(t *testing.T) {
-	info, err := GetApp(context.Background(), appInfo.ID)
+	info, err := GetApp(context.Background(), ret.ID)
 	if assert.Nil(t, err) {
-		info.CreatedAt = appInfo.CreatedAt
-		assert.Equal(t, info, &appInfo)
+		info.CreatedAt = ret.CreatedAt
+		assert.Equal(t, info, &ret)
 	}
 }
 
 func getApps(t *testing.T) {
 	infos, _, err := GetApps(context.Background(), 0, 1)
-	if !assert.Nil(t, err) {
+	if assert.Nil(t, err) {
 		assert.NotEqual(t, len(infos), 0)
 	}
 }
 
 func getUserApps(t *testing.T) {
-	infos, _, err := GetUserApps(context.Background(), appInfo.CreatedBy, 0, 1)
-	if !assert.Nil(t, err) {
-		infos[0].CreatedAt = appInfo.CreatedAt
-		assert.Equal(t, infos[0], &appInfo)
+	infos, _, err := GetUserApps(context.Background(), ret.CreatedBy, 0, 1)
+	if assert.Nil(t, err) {
+		infos[0].CreatedAt = ret.CreatedAt
+		assert.Equal(t, infos[0], &ret)
 	}
 }
 
 func getManyApps(t *testing.T) {
-	infos, _, err := GetManyApps(context.Background(), []string{appInfo.ID})
-	if !assert.Nil(t, err) {
-		infos[0].CreatedAt = appInfo.CreatedAt
-		assert.Equal(t, infos[0], &appInfo)
+	infos, _, err := GetManyApps(context.Background(), []string{ret.ID})
+	if assert.Nil(t, err) {
+		infos[0].CreatedAt = ret.CreatedAt
+		assert.Equal(t, infos[0], &ret)
 	}
+}
+
+func deleteApp(t *testing.T) {
+	info, err := DeleteApp(context.Background(), ret.ID)
+	if assert.Nil(t, err) {
+		assert.Equal(t, info, &ret)
+	}
+
+	info, err = GetApp(context.Background(), ret.ID)
+	assert.Nil(t, err)
+	assert.Nil(t, info)
 }
 
 func TestMainOrder(t *testing.T) {
@@ -180,5 +188,5 @@ func TestMainOrder(t *testing.T) {
 	t.Run("getApps", getApps)
 	t.Run("getUserApps", getUserApps)
 	t.Run("getManyApps", getManyApps)
+	t.Run("deleteApp", deleteApp)
 }
-*/
