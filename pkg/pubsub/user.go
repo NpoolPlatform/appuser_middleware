@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	user "github.com/NpoolPlatform/appuser-middleware/pkg/user"
+	user "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user"
 	eventmwpb "github.com/NpoolPlatform/message/npool/inspire/mw/v1/event"
 )
 

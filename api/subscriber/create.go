@@ -12,7 +12,7 @@ import (
 	mgrcli "github.com/NpoolPlatform/appuser-manager/pkg/client/subscriber"
 	mgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/subscriber"
 
-	subscriber1 "github.com/NpoolPlatform/appuser-middleware/pkg/subscriber"
+	subscriber1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/subscriber"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

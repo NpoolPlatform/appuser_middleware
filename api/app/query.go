@@ -11,8 +11,8 @@ import (
 
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 
-	mapp "github.com/NpoolPlatform/appuser-middleware/pkg/app"
 	capp "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/app"
+	mapp "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 	"go.opentelemetry.io/otel/attribute"
 	"google.golang.org/grpc/codes"

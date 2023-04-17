@@ -7,7 +7,7 @@ import (
 
 	mgrapi "github.com/NpoolPlatform/appuser-manager/api/subscriber"
 
-	subscriber1 "github.com/NpoolPlatform/appuser-middleware/pkg/subscriber"
+	subscriber1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/subscriber"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

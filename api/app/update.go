@@ -3,8 +3,8 @@ package app
 import (
 	"context"
 
-	mw "github.com/NpoolPlatform/appuser-middleware/pkg/app"
 	capp "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/app"
+	mw "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
 	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 	tracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer/app"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"

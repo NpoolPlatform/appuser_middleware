@@ -13,8 +13,8 @@ import (
 	scodes "go.opentelemetry.io/otel/codes"
 
 	crole "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/role"
-	mrole "github.com/NpoolPlatform/appuser-middleware/pkg/role"
-	mroleuser "github.com/NpoolPlatform/appuser-middleware/pkg/roleuser"
+	mrole "github.com/NpoolPlatform/appuser-middleware/pkg/mw/role"
+	mroleuser "github.com/NpoolPlatform/appuser-middleware/pkg/mw/roleuser"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/role"
 
 	"google.golang.org/grpc/codes"

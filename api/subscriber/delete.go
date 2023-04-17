@@ -5,7 +5,7 @@ import (
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/subscriber"
 
-	subscriber1 "github.com/NpoolPlatform/appuser-middleware/pkg/subscriber"
+	subscriber1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/subscriber"
 
 	"github.com/google/uuid"
 
