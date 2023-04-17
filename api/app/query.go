@@ -43,6 +43,7 @@ func (s *Server) GetApp(ctx context.Context, in *npool.GetAppRequest) (*npool.Ge
 func (s *Server) GetApps(ctx context.Context, in *npool.GetAppsRequest) (*npool.GetAppsResponse, error) {
 	handler, err := app1.NewHandler(
 		ctx,
+		app1.WithConds(in.Conds),
 		app1.WithOffset(in.GetOffset()),
 		app1.WithLimit(in.GetLimit()),
 	)
@@ -67,66 +68,5 @@ func (s *Server) GetApps(ctx context.Context, in *npool.GetAppsRequest) (*npool.
 	return &npool.GetAppsResponse{
 		Infos: infos,
 		Total: total,
-	}, nil
-}
-
-func (s *Server) GetUserApps(ctx context.Context, in *npool.GetUserAppsRequest) (*npool.GetUserAppsResponse, error) {
-	handler, err := app1.NewHandler(
-		ctx,
-		app1.WithUserID(in.GetUserID()),
-		app1.WithOffset(in.GetOffset()),
-		app1.WithLimit(in.GetLimit()),
-	)
-	if err != nil {
-		logger.Sugar().Errorw(
-			"GetUserApps",
-			"In", in,
-			"Error", err,
-		)
-		return &npool.GetUserAppsResponse{}, status.Error(codes.Aborted, err.Error())
-	}
-	infos, total, err := handler.GetApps(ctx)
-	if err != nil {
-		logger.Sugar().Errorw(
-			"GetUserApps",
-			"In", in,
-			"Error", err,
-		)
-		return &npool.GetUserAppsResponse{}, status.Error(codes.Aborted, err.Error())
-	}
-
-	return &npool.GetUserAppsResponse{
-		Infos: infos,
-		Total: total,
-	}, nil
-}
-
-func (s *Server) GetManyApps(ctx context.Context, in *npool.GetManyAppsRequest) (*npool.GetManyAppsResponse, error) {
-	handler, err := app1.NewHandler(
-		ctx,
-		app1.WithIDs(in.GetIDs()),
-		app1.WithOffset(0),
-		app1.WithLimit(int32(len(in.GetIDs()))),
-	)
-	if err != nil {
-		logger.Sugar().Errorw(
-			"GetManyApps",
-			"In", in,
-			"Error", err,
-		)
-		return &npool.GetManyAppsResponse{}, status.Error(codes.Aborted, err.Error())
-	}
-	infos, _, err := handler.GetApps(ctx)
-	if err != nil {
-		logger.Sugar().Errorw(
-			"GetManyApps",
-			"In", in,
-			"Error", err,
-		)
-		return &npool.GetManyAppsResponse{}, status.Error(codes.Aborted, err.Error())
-	}
-
-	return &npool.GetManyAppsResponse{
-		Infos: infos,
 	}, nil
 }

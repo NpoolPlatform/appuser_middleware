@@ -76,10 +76,11 @@ func GetApp(ctx context.Context, appID string) (*npool.App, error) {
 	return info.(*npool.App), nil
 }
 
-func GetApps(ctx context.Context, offset, limit int32) ([]*npool.App, uint32, error) {
+func GetApps(ctx context.Context, conds *npool.Conds, offset, limit int32) ([]*npool.App, uint32, error) {
 	var total uint32
 	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetApps(ctx, &npool.GetAppsRequest{
+			Conds:  conds,
 			Offset: offset,
 			Limit:  limit,
 		})
@@ -93,45 +94,6 @@ func GetApps(ctx context.Context, offset, limit int32) ([]*npool.App, uint32, er
 	})
 	if err != nil {
 		return nil, total, err
-	}
-	return infos.([]*npool.App), total, nil
-}
-
-func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*npool.App, uint32, error) {
-	var total uint32
-	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
-		resp, err := cli.GetUserApps(ctx, &npool.GetUserAppsRequest{
-			UserID: userID,
-			Offset: offset,
-			Limit:  limit,
-		})
-		if err != nil {
-			return nil, err
-		}
-		return resp.Infos, nil
-	})
-	if err != nil {
-		return nil, 0, err
-	}
-	return infos.([]*npool.App), total, nil
-}
-
-func GetManyApps(ctx context.Context, ids []string) ([]*npool.App, uint32, error) {
-	var total uint32
-
-	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
-		resp, err := cli.GetManyApps(ctx, &npool.GetManyAppsRequest{
-			IDs: ids,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		total = resp.GetTotal()
-		return resp.Infos, nil
-	})
-	if err != nil {
-		return nil, 0, err
 	}
 	return infos.([]*npool.App), total, nil
 }

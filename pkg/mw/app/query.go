@@ -9,12 +9,15 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 
+	appcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/app"
 	entapp "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
 	entappctrl "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appcontrol"
 	entbanapp "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/banapp"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
+
+	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 )
 
 type queryHandler struct {
@@ -60,11 +63,29 @@ func (h *queryHandler) queryApps(ctx context.Context, cli *ent.Client) (err erro
 			entapp.IDIn(h.IDs...),
 		)
 	}
-
 	if h.UserID != nil {
 		stm.Where(
 			entapp.CreatedBy(*h.UserID),
 		)
+	}
+	if h.Conds != nil {
+		conds := &appcrud.Conds{}
+		if h.Conds.ID != nil {
+			conds.ID = &cruder.Cond{Op: h.Conds.ID.Op, Val: h.Conds.ID.Value}
+		}
+		if h.Conds.IDs != nil {
+			conds.IDs = &cruder.Cond{Op: h.Conds.IDs.Op, Val: h.Conds.IDs.Value}
+		}
+		if h.Conds.CreatedBy != nil {
+			conds.CreatedBy = &cruder.Cond{Op: h.Conds.CreatedBy.Op, Val: h.Conds.CreatedBy.Value}
+		}
+		if h.Conds.Name != nil {
+			conds.Name = &cruder.Cond{Op: h.Conds.Name.Op, Val: h.Conds.Name.Value}
+		}
+		stm, err = appcrud.SetQueryConds(stm, conds)
+		if err != nil {
+			return err
+		}
 	}
 
 	total, err := stm.Count(ctx)
