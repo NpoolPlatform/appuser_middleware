@@ -2,6 +2,7 @@ package history
 
 import (
 	"context"
+	"fmt"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
@@ -30,6 +31,22 @@ func (h *queryHistoryHandler) selectAuthHistory(stm *ent.AuthHistoryQuery) {
 		entauthhistory.FieldAllowed,
 		entauthhistory.FieldCreatedAt,
 	)
+}
+
+func (h *queryHistoryHandler) queryAuthHistory(cli *ent.Client) error {
+	if h.ID == nil {
+		return fmt.Errorf("invalid id")
+	}
+
+	h.selectAuthHistory(
+		cli.
+			AuthHistory.
+			Query().
+			Where(
+				entauthhistory.ID(*h.ID),
+			),
+	)
+	return nil
 }
 
 func (h *queryHistoryHandler) queryAuthHistories(ctx context.Context, cli *ent.Client) error {
@@ -86,6 +103,37 @@ func (h *queryHistoryHandler) queryJoin() {
 
 func (h *queryHistoryHandler) scan(ctx context.Context) error {
 	return h.stm.Scan(ctx, &h.infos)
+}
+
+func (h *Handler) GetHistory(ctx context.Context) (*npool.History, error) {
+	handler := &queryHistoryHandler{
+		Handler: h,
+	}
+
+	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		if err := handler.queryAuthHistory(cli); err != nil {
+			return nil
+		}
+		handler.queryJoin()
+		handler.stm.
+			Offset(int(h.Offset)).
+			Limit(int(h.Limit))
+		if err := handler.scan(ctx); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(handler.infos) == 0 {
+		return nil, nil
+	}
+	if len(handler.infos) > 1 {
+		return nil, fmt.Errorf("too many record")
+	}
+
+	return handler.infos[0], nil
 }
 
 func (h *Handler) GetHistories(ctx context.Context) ([]*npool.History, uint32, error) {
