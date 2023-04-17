@@ -4,6 +4,7 @@ package history
 import (
 	"context"
 
+	handler "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing/handler"
 	history1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing/history"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/history"
@@ -13,24 +14,27 @@ import (
 )
 
 func (s *Server) GetHistories(ctx context.Context, in *npool.GetHistoriesRequest) (*npool.GetHistoriesResponse, error) {
-	handler, err := history1.NewHandler(
+	handler, err := handler.NewHandler(
 		ctx,
-		history1.WithConds(in.GetConds()),
-		history1.WithOffset(in.GetOffset()),
-		history1.WithLimit(in.GetLimit()),
+		handler.WithConds(in.GetConds()),
+		handler.WithOffset(in.GetOffset()),
+		handler.WithLimit(in.GetLimit()),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
-			"GetAuths",
+			"GetHistories",
 			"In", in,
 			"Error", err,
 		)
 		return &npool.GetHistoriesResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-	infos, total, err := handler.GetHistories(ctx)
+	_handler := &history1.Handler{
+		Handler: handler,
+	}
+	infos, total, err := _handler.GetHistories(ctx)
 	if err != nil {
 		logger.Sugar().Errorw(
-			"GetAuths",
+			"GetHistories",
 			"In", in,
 			"Error", err,
 		)
