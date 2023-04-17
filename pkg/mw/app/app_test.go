@@ -79,48 +79,47 @@ func creatApp(t *testing.T) {
 	assert.Nil(t, err)
 	info, err := handler.CreateApp(context.Background())
 	if assert.Nil(t, err) {
-		info.CreatedAt = ret.CreatedAt
+		ret.CreatedAt = info.CreatedAt
+		assert.Equal(t, info, &ret)
+	}
+}
+
+func updateApp(t *testing.T) {
+	const createIvCodeWhen = basetypes.CreateInvitationCodeWhen_SetToKol
+	ret.MaxTypedCouponsPerOrder = uint32(5)
+	ret.CreateInvitationCodeWhenStr = createIvCodeWhen.String()
+	ret.CreateInvitationCodeWhen = createIvCodeWhen
+	ret.KycEnable = false
+	ret.Name = uuid.NewString()
+	ret.Logo = "afjdksajfdlksajfdsla"
+	ret.Description = "kojldksajflkdsajfldk"
+
+	handler, err := NewHandler(
+		context.Background(),
+		WithID(&ret.ID),
+		WithName(&ret.Name),
+		WithLogo(&ret.Logo),
+		WithDescription(&ret.Description),
+		WithSignupMethods(ret.GetSignupMethods()),
+		WithExtSigninMethods(ret.GetExtSigninMethods()),
+		WithRecaptchaMethod(&ret.RecaptchaMethod),
+		WithKycEnable(&ret.KycEnable),
+		WithSigninVerifyEnable(&ret.SigninVerifyEnable),
+		WithInvitationCodeMust(&ret.InvitationCodeMust),
+		WithCreateInvitationCodeWhen(&ret.CreateInvitationCodeWhen),
+		WithMaxTypedCouponsPerOrder(&ret.MaxTypedCouponsPerOrder),
+		WithMaintaining(&ret.Maintaining),
+		WithCommitButtonTargets(ret.GetCommitButtonTargets()),
+	)
+	assert.Nil(t, err)
+
+	info, err := handler.UpdateApp(context.Background())
+	if assert.Nil(t, err) {
 		assert.Equal(t, info, &ret)
 	}
 }
 
 /*
-func updateApp(t *testing.T) {
-	var (
-		boolVal                 = true
-		createIvCodeWhen        = ctrl.CreateInvitationCodeWhen_SetToKol
-		maxTypedCouponsPerOrder = uint32(5)
-
-		req = npool.AppReq{
-			ID:                       &ret.ID,
-			CreatedBy:                &ret.Name,
-			Name:                     &ret.Name,
-			Logo:                     &ret.Logo,
-			Description:              &ret.Description,
-			Banned:                   &ret.Banned,
-			BanMessage:               &ret.BanMessage,
-			SignupMethods:            uuidSlice,
-			ExtSigninMethods:         uuidSlice,
-			RecaptchaMethod:          &rec,
-			KycEnable:                &boolVal,
-			SigninVerifyEnable:       &boolVal,
-			InvitationCodeMust:       &boolVal,
-			CreateInvitationCodeWhen: &createIvCodeWhen,
-			MaxTypedCouponsPerOrder:  &maxTypedCouponsPerOrder,
-		}
-	)
-
-	ret.MaxTypedCouponsPerOrder = maxTypedCouponsPerOrder
-	ret.CreateInvitationCodeWhenStr = createIvCodeWhen.String()
-	ret.CreateInvitationCodeWhen = createIvCodeWhen
-
-	info, err := UpdateApp(context.Background(), &req)
-	if assert.Nil(t, err) {
-		info.CreatedAt = ret.CreatedAt
-		assert.Equal(t, info, &ret)
-	}
-}
-
 func getApp(t *testing.T) {
 	info, err := GetApp(context.Background(), ret.ID)
 	if assert.Nil(t, err) {
@@ -150,7 +149,7 @@ func TestMainOrder(t *testing.T) {
 		return
 	}
 	t.Run("createApp", creatApp)
-	// t.Run("updateApp", updateApp)
+	t.Run("updateApp", updateApp)
 	// t.Run("getApp", getApp)
 	// t.Run("getApps", getApps)
 	// t.Run("getUserApps", getUserApps)
