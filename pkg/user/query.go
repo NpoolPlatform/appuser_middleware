@@ -20,6 +20,7 @@ import (
 	entbanappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banappuser"
 	entkyc "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/kyc"
 
+	kycmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/kyc"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
@@ -281,6 +282,11 @@ func (h *queryHandler) formalize() {
 		_ = json.Unmarshal([]byte(info.AddressFieldsString), &info.AddressFields)
 		info.SigninVerifyType = basetypes.SignMethod(basetypes.SignMethod_value[info.SigninVerifyTypeStr])
 		info.GoogleAuthVerified = info.GoogleAuthVerifiedInt > 0
+
+		_ = json.Unmarshal([]byte(info.AddressFieldsString), &info.AddressFields)
+		info.Banned = info.BanAppUserID != ""
+
+		info.State = kycmgrpb.KycState(kycmgrpb.KycState_value[info.KycStateStr])
 	}
 }
 
