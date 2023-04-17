@@ -24,12 +24,16 @@ import (
 	"github.com/google/uuid"
 
 	ctrlpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appcontrol"
-	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
+	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 )
 
-func GetApp(ctx context.Context, id string) (*app.App, error) {
+func (h *Handler) GetApp(ctx context.Context) (*npool.App, error) {
+	return GetApp(ctx, h.ID.String())
+}
+
+func GetApp(ctx context.Context, id string) (*npool.App, error) {
 	var err error
-	infos := []*app.App{}
+	infos := []*npool.App{}
 
 	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetApp")
 	defer span.End()
@@ -72,9 +76,9 @@ func GetApp(ctx context.Context, id string) (*app.App, error) {
 	return infos[0], nil
 }
 
-func GetApps(ctx context.Context, offset, limit int32) ([]*app.App, error) {
+func GetApps(ctx context.Context, offset, limit int32) ([]*npool.App, error) {
 	var err error
-	infos := []*app.App{}
+	infos := []*npool.App{}
 
 	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetApps")
 	defer span.End()
@@ -109,9 +113,9 @@ func GetApps(ctx context.Context, offset, limit int32) ([]*app.App, error) {
 	return infos, nil
 }
 
-func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*app.App, int, error) {
+func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*npool.App, int, error) {
 	var err error
-	infos := []*app.App{}
+	infos := []*npool.App{}
 	var total int
 
 	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetUserApps")
@@ -160,9 +164,9 @@ func GetUserApps(ctx context.Context, userID string, offset, limit int32) ([]*ap
 	return infos, total, nil
 }
 
-func GetManyApps(ctx context.Context, ids []string) ([]*app.App, int, error) {
+func GetManyApps(ctx context.Context, ids []string) ([]*npool.App, int, error) {
 	var err error
-	infos := []*app.App{}
+	infos := []*npool.App{}
 	var total int
 
 	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetManyApps")
@@ -251,7 +255,7 @@ func join(stm *ent.AppQuery) *ent.AppSelect {
 	})
 }
 
-func expand(infos []*app.App) []*app.App {
+func expand(infos []*npool.App) []*npool.App {
 	for key, info := range infos {
 		info.CreateInvitationCodeWhen =
 			ctrlpb.CreateInvitationCodeWhen(
@@ -260,8 +264,4 @@ func expand(infos []*app.App) []*app.App {
 		_ = json.Unmarshal([]byte(info.CommitButtonTargetsStr), &infos[key].CommitButtonTargets)
 	}
 	return infos
-}
-
-func (h *Handler) GetApp(ctx context.Context) (*app.App, error) {
-	return GetApp(ctx, h.ID)
 }
