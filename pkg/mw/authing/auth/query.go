@@ -1,4 +1,4 @@
-package authing
+package auth
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	entapprole "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approle"
 	entappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuser"
 	entauth "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/auth"
-	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing"
+	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/auth"
 )
 
 type queryHandler struct {

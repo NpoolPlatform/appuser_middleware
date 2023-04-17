@@ -1,4 +1,4 @@
-package authing
+package auth
 
 import (
 	"context"

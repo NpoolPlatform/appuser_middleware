@@ -1,7 +1,7 @@
-package authing
+package auth
 
 import (
-	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing"
+	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/auth"
 	"google.golang.org/grpc"
 )
 
