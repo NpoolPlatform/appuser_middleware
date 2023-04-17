@@ -7,7 +7,7 @@ import (
 
 	"github.com/NpoolPlatform/go-service-framework/pkg/app"
 
-	"github.com/NpoolPlatform/appuser-manager/pkg/db"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
 
 	mysqlconst "github.com/NpoolPlatform/go-service-framework/pkg/mysql/const"
