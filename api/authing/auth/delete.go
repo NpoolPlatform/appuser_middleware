@@ -1,4 +1,3 @@
-//nolint:dupl
 package auth
 
 import (
@@ -15,7 +14,7 @@ import (
 
 func (s *Server) DeleteAuth(ctx context.Context, in *npool.DeleteAuthRequest) (*npool.DeleteAuthResponse, error) {
 	req := in.GetInfo()
-	handler, err := handler.NewHandler(
+	h, err := handler.NewHandler(
 		ctx,
 		handler.WithID(req.ID),
 	)
@@ -28,7 +27,7 @@ func (s *Server) DeleteAuth(ctx context.Context, in *npool.DeleteAuthRequest) (*
 		return &npool.DeleteAuthResponse{}, status.Error(codes.Aborted, err.Error())
 	}
 	_handler := &auth1.Handler{
-		Handler: handler,
+		Handler: h,
 	}
 	info, err := _handler.DeleteAuth(ctx)
 	if err != nil {

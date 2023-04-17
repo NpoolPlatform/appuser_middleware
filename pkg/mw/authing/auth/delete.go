@@ -29,6 +29,9 @@ func (h *Handler) DeleteAuth(ctx context.Context) (*npool.Auth, error) {
 		}
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	return info, nil
 }

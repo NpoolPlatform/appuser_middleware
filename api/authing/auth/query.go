@@ -1,4 +1,3 @@
-//nolint:dupl
 package auth
 
 import (
@@ -14,7 +13,7 @@ import (
 )
 
 func (s *Server) GetAuth(ctx context.Context, in *npool.GetAuthRequest) (*npool.GetAuthResponse, error) {
-	handler, err := handler.NewHandler(
+	h, err := handler.NewHandler(
 		ctx,
 		handler.WithID(&in.ID),
 	)
@@ -27,7 +26,7 @@ func (s *Server) GetAuth(ctx context.Context, in *npool.GetAuthRequest) (*npool.
 		return &npool.GetAuthResponse{}, status.Error(codes.Aborted, err.Error())
 	}
 	_handler := &auth1.Handler{
-		Handler: handler,
+		Handler: h,
 	}
 	info, err := _handler.GetAuth(ctx)
 	if err != nil {
@@ -45,7 +44,7 @@ func (s *Server) GetAuth(ctx context.Context, in *npool.GetAuthRequest) (*npool.
 }
 
 func (s *Server) GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (*npool.GetAuthsResponse, error) {
-	handler, err := handler.NewHandler(
+	h, err := handler.NewHandler(
 		ctx,
 		handler.WithAppID(in.GetAppID()),
 		handler.WithOffset(in.GetOffset()),
@@ -60,7 +59,7 @@ func (s *Server) GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (*npoo
 		return &npool.GetAuthsResponse{}, status.Error(codes.Aborted, err.Error())
 	}
 	_handler := &auth1.Handler{
-		Handler: handler,
+		Handler: h,
 	}
 	infos, total, err := _handler.GetAuths(ctx)
 	if err != nil {

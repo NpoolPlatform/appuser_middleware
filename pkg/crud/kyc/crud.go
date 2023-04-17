@@ -80,6 +80,7 @@ func UpdateSet(info *ent.Kyc, in *npool.KycReq) *ent.KycUpdateOne {
 	return u
 }
 
+//nolint
 func SetQueryConds(conds *npool.Conds, cli *ent.Client) (*ent.KycQuery, error) {
 	stm := cli.Kyc.Query()
 
