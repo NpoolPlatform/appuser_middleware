@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/const"
+	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/google/uuid"
@@ -30,6 +31,7 @@ type Handler struct {
 	Maintaining              *bool
 	CommitButtonTargets      []string
 	UserID                   *uuid.UUID
+	Conds                    *npool.Conds
 	Offset                   int32
 	Limit                    int32
 }
@@ -288,6 +290,13 @@ func WithLimit(limit int32) func(context.Context, *Handler) error {
 			limit = constant.DefaultRowLimit
 		}
 		h.Limit = limit
+		return nil
+	}
+}
+
+func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		h.Conds = conds
 		return nil
 	}
 }
