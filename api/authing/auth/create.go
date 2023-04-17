@@ -14,7 +14,7 @@ import (
 
 func (s *Server) CreateAuth(ctx context.Context, in *npool.CreateAuthRequest) (*npool.CreateAuthResponse, error) {
 	req := in.GetInfo()
-	handler, err := handler.NewHandler(
+	h, err := handler.NewHandler(
 		ctx,
 		handler.WithID(req.ID),
 		handler.WithAppID(req.GetAppID()),
@@ -32,7 +32,7 @@ func (s *Server) CreateAuth(ctx context.Context, in *npool.CreateAuthRequest) (*
 		return &npool.CreateAuthResponse{}, status.Error(codes.Aborted, err.Error())
 	}
 	_handler := &auth1.Handler{
-		Handler: handler,
+		Handler: h,
 	}
 	info, err := _handler.CreateAuth(ctx)
 	if err != nil {

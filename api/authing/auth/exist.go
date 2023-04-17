@@ -1,4 +1,3 @@
-//nolint:dupl
 package auth
 
 import (
@@ -14,7 +13,7 @@ import (
 )
 
 func (s *Server) ExistAuth(ctx context.Context, in *npool.ExistAuthRequest) (*npool.ExistAuthResponse, error) {
-	handler, err := handler.NewHandler(
+	h, err := handler.NewHandler(
 		ctx,
 		handler.WithAppID(in.GetAppID()),
 		handler.WithUserID(in.UserID),
@@ -30,7 +29,7 @@ func (s *Server) ExistAuth(ctx context.Context, in *npool.ExistAuthRequest) (*np
 		return &npool.ExistAuthResponse{}, status.Error(codes.Aborted, err.Error())
 	}
 	_handler := &auth1.Handler{
-		Handler: handler,
+		Handler: h,
 	}
 	exist, err := _handler.ExistAuth(ctx)
 	if err != nil {

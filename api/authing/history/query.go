@@ -1,4 +1,3 @@
-//nolint:dupl
 package history
 
 import (
@@ -14,7 +13,7 @@ import (
 )
 
 func (s *Server) GetHistories(ctx context.Context, in *npool.GetHistoriesRequest) (*npool.GetHistoriesResponse, error) {
-	handler, err := handler.NewHandler(
+	h, err := handler.NewHandler(
 		ctx,
 		handler.WithConds(in.GetConds()),
 		handler.WithOffset(in.GetOffset()),
@@ -29,7 +28,7 @@ func (s *Server) GetHistories(ctx context.Context, in *npool.GetHistoriesRequest
 		return &npool.GetHistoriesResponse{}, status.Error(codes.Aborted, err.Error())
 	}
 	_handler := &history1.Handler{
-		Handler: handler,
+		Handler: h,
 	}
 	infos, total, err := _handler.GetHistories(ctx)
 	if err != nil {

@@ -1,3 +1,4 @@
+//nolint:dupl
 package auth
 
 import (
@@ -75,6 +76,11 @@ func (h *existHandler) queryJoinBanAppUser(s *sql.Selector) {
 		)
 }
 
+type existUserHandler struct {
+	*existHandler
+	stm *ent.AppUserSelect
+}
+
 func (h *existUserHandler) queryJoinAuth(s *sql.Selector) {
 	t := sql.Table(entauth.Table)
 	s.LeftJoin(t).
@@ -94,11 +100,6 @@ func (h *existUserHandler) queryJoinAuth(s *sql.Selector) {
 				sql.EQ(t.C(entauth.FieldMethod), h.Method),
 			),
 		)
-}
-
-type existUserHandler struct {
-	*existHandler
-	stm *ent.AppUserSelect
 }
 
 func (h *existUserHandler) scan(ctx context.Context) error {
@@ -394,5 +395,5 @@ func (h *Handler) ExistAuth(ctx context.Context) (bool, error) {
 	if exist {
 		return true, nil
 	}
-	return handler.existUserAuth(ctx)
+	return handler.existAppAuth(ctx)
 }
