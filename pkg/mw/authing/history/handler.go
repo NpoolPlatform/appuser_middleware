@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/const"
+	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/history"
 
 	"github.com/google/uuid"
 )
@@ -15,6 +16,7 @@ type Handler struct {
 	UserID   *uuid.UUID
 	Method   string
 	Resource string
+	Conds    *npool.Conds
 	Offset   int32
 	Limit    int32
 }
@@ -88,6 +90,13 @@ func WithResource(resource string) func(context.Context, *Handler) error {
 			return fmt.Errorf("resource %v invalid", resource)
 		}
 		h.Resource = resource
+		return nil
+	}
+}
+
+func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		h.Conds = conds
 		return nil
 	}
 }
