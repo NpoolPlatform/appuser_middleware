@@ -20,6 +20,41 @@ import (
 	scodes "go.opentelemetry.io/otel/codes"
 )
 
+type queryHandler struct {
+	*Handler
+}
+
+func (h *queryHandler) selectAuth(stm *ent.AuthQuery) {
+
+}
+
+func (h *queryHandler) queryAuth(cli *ent.Client) error {
+	return nil
+}
+
+func (h *queryHandler) queryJoin() {
+
+}
+
+func (h *Handler) GetAuth(ctx context.Context) (*npool.Auth, error) {
+	handler := &queryHandler{
+		Handler: h,
+	}
+
+	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		if err := handler.queryAuth(cli); err != nil {
+			return nil
+		}
+		handler.queryJoin()
+		if err := handler.scan(ctx); err != nil {
+			return err
+		}
+		return nil
+	})
+
+	return nil, nil
+}
+
 func GetAuth(ctx context.Context, id string) (info *npool.Auth, err error) {
 	infos := []*npool.Auth{}
 
