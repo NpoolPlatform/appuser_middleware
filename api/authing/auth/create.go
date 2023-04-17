@@ -4,6 +4,7 @@ import (
 	"context"
 
 	auth1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing/auth"
+	handler "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing/handler"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/auth"
 
@@ -13,14 +14,14 @@ import (
 
 func (s *Server) CreateAuth(ctx context.Context, in *npool.CreateAuthRequest) (*npool.CreateAuthResponse, error) {
 	req := in.GetInfo()
-	handler, err := auth1.NewHandler(
+	handler, err := handler.NewHandler(
 		ctx,
-		auth1.WithID(req.ID),
-		auth1.WithAppID(req.GetAppID()),
-		auth1.WithRoleID(req.RoleID),
-		auth1.WithUserID(req.UserID),
-		auth1.WithResource(req.GetResource()),
-		auth1.WithMethod(req.GetMethod()),
+		handler.WithID(req.ID),
+		handler.WithAppID(req.GetAppID()),
+		handler.WithRoleID(req.RoleID),
+		handler.WithUserID(req.UserID),
+		handler.WithResource(req.GetResource()),
+		handler.WithMethod(req.GetMethod()),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
@@ -30,7 +31,10 @@ func (s *Server) CreateAuth(ctx context.Context, in *npool.CreateAuthRequest) (*
 		)
 		return &npool.CreateAuthResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-	info, err := handler.CreateAuth(ctx)
+	_handler := &auth1.Handler{
+		Handler: handler,
+	}
+	info, err := _handler.CreateAuth(ctx)
 	if err != nil {
 		logger.Sugar().Errorw(
 			"CreateAuth",

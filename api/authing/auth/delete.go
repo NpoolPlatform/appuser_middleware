@@ -5,6 +5,7 @@ import (
 	"context"
 
 	auth1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing/auth"
+	handler "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing/handler"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/auth"
 
@@ -14,9 +15,9 @@ import (
 
 func (s *Server) DeleteAuth(ctx context.Context, in *npool.DeleteAuthRequest) (*npool.DeleteAuthResponse, error) {
 	req := in.GetInfo()
-	handler, err := auth1.NewHandler(
+	handler, err := handler.NewHandler(
 		ctx,
-		auth1.WithID(req.ID),
+		handler.WithID(req.ID),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
@@ -26,7 +27,10 @@ func (s *Server) DeleteAuth(ctx context.Context, in *npool.DeleteAuthRequest) (*
 		)
 		return &npool.DeleteAuthResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-	info, err := handler.DeleteAuth(ctx)
+	_handler := &auth1.Handler{
+		Handler: handler,
+	}
+	info, err := _handler.DeleteAuth(ctx)
 	if err != nil {
 		logger.Sugar().Errorw(
 			"DeleteAuth",

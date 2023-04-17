@@ -5,6 +5,7 @@ import (
 	"context"
 
 	auth1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing/auth"
+	handler "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing/handler"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/auth"
 
@@ -13,9 +14,9 @@ import (
 )
 
 func (s *Server) GetAuth(ctx context.Context, in *npool.GetAuthRequest) (*npool.GetAuthResponse, error) {
-	handler, err := auth1.NewHandler(
+	handler, err := handler.NewHandler(
 		ctx,
-		auth1.WithID(&in.ID),
+		handler.WithID(&in.ID),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
@@ -25,7 +26,10 @@ func (s *Server) GetAuth(ctx context.Context, in *npool.GetAuthRequest) (*npool.
 		)
 		return &npool.GetAuthResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-	info, err := handler.GetAuth(ctx)
+	_handler := &auth1.Handler{
+		Handler: handler,
+	}
+	info, err := _handler.GetAuth(ctx)
 	if err != nil {
 		logger.Sugar().Errorw(
 			"GetAuth",
@@ -41,11 +45,11 @@ func (s *Server) GetAuth(ctx context.Context, in *npool.GetAuthRequest) (*npool.
 }
 
 func (s *Server) GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (*npool.GetAuthsResponse, error) {
-	handler, err := auth1.NewHandler(
+	handler, err := handler.NewHandler(
 		ctx,
-		auth1.WithAppID(in.GetAppID()),
-		auth1.WithOffset(in.GetOffset()),
-		auth1.WithLimit(in.GetLimit()),
+		handler.WithAppID(in.GetAppID()),
+		handler.WithOffset(in.GetOffset()),
+		handler.WithLimit(in.GetLimit()),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
@@ -55,7 +59,10 @@ func (s *Server) GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (*npoo
 		)
 		return &npool.GetAuthsResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-	infos, total, err := handler.GetAuths(ctx)
+	_handler := &auth1.Handler{
+		Handler: handler,
+	}
+	infos, total, err := _handler.GetAuths(ctx)
 	if err != nil {
 		logger.Sugar().Errorw(
 			"GetAuths",
