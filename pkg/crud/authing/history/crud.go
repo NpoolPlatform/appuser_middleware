@@ -57,7 +57,7 @@ type Conds struct {
 //nolint
 func SetQueryConds(q *ent.AuthHistoryQuery, conds *Conds) (*ent.AuthHistoryQuery, error) {
 	if conds == nil {
-		return stm, nil
+		return q, nil
 	}
 	if conds.ID != nil {
 		id, ok := conds.ID.Val.(uuid.UUID)
@@ -66,7 +66,7 @@ func SetQueryConds(q *ent.AuthHistoryQuery, conds *Conds) (*ent.AuthHistoryQuery
 		}
 		switch conds.ID.Op {
 		case cruder.EQ:
-			stm.Where(entauthhistory.ID(id))
+			q.Where(entauthhistory.ID(id))
 		default:
 			return nil, fmt.Errorf("invalid app field")
 		}
@@ -78,7 +78,7 @@ func SetQueryConds(q *ent.AuthHistoryQuery, conds *Conds) (*ent.AuthHistoryQuery
 		}
 		switch conds.AppID.Op {
 		case cruder.EQ:
-			stm.Where(entauthhistory.AppID(id))
+			q.Where(entauthhistory.AppID(id))
 		default:
 			return nil, fmt.Errorf("invalid app field")
 		}
@@ -90,7 +90,7 @@ func SetQueryConds(q *ent.AuthHistoryQuery, conds *Conds) (*ent.AuthHistoryQuery
 		}
 		switch conds.UserID.Op {
 		case cruder.EQ:
-			stm.Where(entauthhistory.UserID(id))
+			q.Where(entauthhistory.UserID(id))
 		default:
 			return nil, fmt.Errorf("invalid app field")
 		}
@@ -102,7 +102,7 @@ func SetQueryConds(q *ent.AuthHistoryQuery, conds *Conds) (*ent.AuthHistoryQuery
 		}
 		switch conds.Resource.Op {
 		case cruder.EQ:
-			stm.Where(entauthhistory.Resource(res))
+			q.Where(entauthhistory.Resource(res))
 		default:
 			return nil, fmt.Errorf("invalid app field")
 		}
@@ -114,7 +114,7 @@ func SetQueryConds(q *ent.AuthHistoryQuery, conds *Conds) (*ent.AuthHistoryQuery
 		}
 		switch conds.Method.Op {
 		case cruder.EQ:
-			stm.Where(entauthhistory.Method(method))
+			q.Where(entauthhistory.Method(method))
 		default:
 			return nil, fmt.Errorf("invalid app field")
 		}
@@ -126,10 +126,10 @@ func SetQueryConds(q *ent.AuthHistoryQuery, conds *Conds) (*ent.AuthHistoryQuery
 		}
 		switch conds.Allowed.Op {
 		case cruder.EQ:
-			stm.Where(entauthhistory.Allowed(allowed))
+			q.Where(entauthhistory.Allowed(allowed))
 		default:
 			return nil, fmt.Errorf("invalid app field")
 		}
 	}
-	return stm, nil
+	return q, nil
 }

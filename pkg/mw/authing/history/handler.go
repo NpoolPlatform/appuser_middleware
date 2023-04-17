@@ -6,4 +6,10 @@ import (
 
 type Handler struct {
 	*handler.Handler
+	Allowed bool
+}
+
+func (h *Handler) WithAllowed(allowed bool) *Handler {
+	h.Allowed = allowed
+	return h
 }
