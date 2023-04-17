@@ -14,8 +14,8 @@ import (
 
 	crud "github.com/NpoolPlatform/appuser-manager/pkg/crud/subscriber"
 
-	entapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
 	entsubscriber "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/subscriber"
+	entapp "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
 
 	"github.com/google/uuid"
 )
