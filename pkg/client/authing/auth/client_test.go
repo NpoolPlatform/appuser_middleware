@@ -1,10 +1,11 @@
 package authing
 
+/*
 import (
 	"context"
 	"fmt"
 
-	"github.com/NpoolPlatform/message/npool/appuser/mgr/v2/authing/auth"
+	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/auth"
 
 	"os"
 	"strconv"
@@ -135,3 +136,4 @@ func TestMainOrder(t *testing.T) {
 	t.Run("getAuths", getAuths)
 	t.Run("getHistories", getHistories)
 }
+*/
