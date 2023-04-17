@@ -210,8 +210,7 @@ func (h *queryHandler) queryJoin() {
 }
 
 func (h *queryHandler) scan(ctx context.Context) error {
-	return h.stm.
-		Scan(ctx, &h.infos)
+	return h.stm.Scan(ctx, &h.infos)
 }
 
 func (h *queryHandler) queryUserRoles(ctx context.Context) error {

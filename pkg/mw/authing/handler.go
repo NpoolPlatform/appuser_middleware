@@ -1,5 +1,14 @@
 package authing
 
+import (
+	"context"
+	"fmt"
+
+	constant "github.com/NpoolPlatform/appuser-middleware/pkg/const"
+
+	"github.com/google/uuid"
+)
+
 type Handler struct {
 	ID       *uuid.UUID
 	AppID    uuid.UUID
@@ -29,7 +38,7 @@ func WithID(id *string) func(context.Context, *Handler) error {
 		if err != nil {
 			return err
 		}
-		h.ID = &id
+		h.ID = &_id
 		return nil
 	}
 }
