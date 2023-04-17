@@ -480,6 +480,12 @@ func (aq *AuthQuery) ForShare(opts ...sql.LockOption) *AuthQuery {
 	return aq
 }
 
+// Modify adds a query modifier for attaching custom logic to queries.
+func (aq *AuthQuery) Modify(modifiers ...func(s *sql.Selector)) *AuthSelect {
+	aq.modifiers = append(aq.modifiers, modifiers...)
+	return aq.Select()
+}
+
 // AuthGroupBy is the group-by builder for Auth entities.
 type AuthGroupBy struct {
 	config
@@ -570,4 +576,10 @@ func (as *AuthSelect) sqlScan(ctx context.Context, v interface{}) error {
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (as *AuthSelect) Modify(modifiers ...func(s *sql.Selector)) *AuthSelect {
+	as.modifiers = append(as.modifiers, modifiers...)
+	return as
 }

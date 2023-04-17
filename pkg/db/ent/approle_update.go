@@ -18,8 +18,9 @@ import (
 // AppRoleUpdate is the builder for updating AppRole entities.
 type AppRoleUpdate struct {
 	config
-	hooks    []Hook
-	mutation *AppRoleMutation
+	hooks     []Hook
+	mutation  *AppRoleMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // Where appends a list predicates to the AppRoleUpdate builder.
@@ -277,6 +278,12 @@ func (aru *AppRoleUpdate) defaults() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (aru *AppRoleUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *AppRoleUpdate {
+	aru.modifiers = append(aru.modifiers, modifiers...)
+	return aru
+}
+
 func (aru *AppRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -415,6 +422,7 @@ func (aru *AppRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: approle.FieldGenesis,
 		})
 	}
+	_spec.Modifiers = aru.modifiers
 	if n, err = sqlgraph.UpdateNodes(ctx, aru.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{approle.Label}
@@ -429,9 +437,10 @@ func (aru *AppRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 // AppRoleUpdateOne is the builder for updating a single AppRole entity.
 type AppRoleUpdateOne struct {
 	config
-	fields   []string
-	hooks    []Hook
-	mutation *AppRoleMutation
+	fields    []string
+	hooks     []Hook
+	mutation  *AppRoleMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -696,6 +705,12 @@ func (aruo *AppRoleUpdateOne) defaults() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (aruo *AppRoleUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *AppRoleUpdateOne {
+	aruo.modifiers = append(aruo.modifiers, modifiers...)
+	return aruo
+}
+
 func (aruo *AppRoleUpdateOne) sqlSave(ctx context.Context) (_node *AppRole, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -851,6 +866,7 @@ func (aruo *AppRoleUpdateOne) sqlSave(ctx context.Context) (_node *AppRole, err 
 			Column: approle.FieldGenesis,
 		})
 	}
+	_spec.Modifiers = aruo.modifiers
 	_node = &AppRole{config: aruo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues

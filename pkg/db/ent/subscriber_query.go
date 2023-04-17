@@ -480,6 +480,12 @@ func (sq *SubscriberQuery) ForShare(opts ...sql.LockOption) *SubscriberQuery {
 	return sq
 }
 
+// Modify adds a query modifier for attaching custom logic to queries.
+func (sq *SubscriberQuery) Modify(modifiers ...func(s *sql.Selector)) *SubscriberSelect {
+	sq.modifiers = append(sq.modifiers, modifiers...)
+	return sq.Select()
+}
+
 // SubscriberGroupBy is the group-by builder for Subscriber entities.
 type SubscriberGroupBy struct {
 	config
@@ -570,4 +576,10 @@ func (ss *SubscriberSelect) sqlScan(ctx context.Context, v interface{}) error {
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (ss *SubscriberSelect) Modify(modifiers ...func(s *sql.Selector)) *SubscriberSelect {
+	ss.modifiers = append(ss.modifiers, modifiers...)
+	return ss
 }

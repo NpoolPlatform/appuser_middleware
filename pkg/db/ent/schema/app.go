@@ -35,7 +35,7 @@ func (App) Fields() []ent.Field {
 		field.
 			String("name").
 			Optional().
-			Unique(),
+			Default(""),
 		field.
 			String("logo").
 			Optional().

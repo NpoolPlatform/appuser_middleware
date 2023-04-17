@@ -6,12 +6,12 @@ import (
 	"fmt"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 
-	entapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/app"
-	entappctrl "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appcontrol"
-	entbanapp "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banapp"
+	entapp "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
+	entappctrl "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appcontrol"
+	entbanapp "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/banapp"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"

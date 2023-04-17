@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/NpoolPlatform/appuser-manager/pkg/db"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 
-	entappctrl "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appcontrol"
+	entappctrl "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appcontrol"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 )

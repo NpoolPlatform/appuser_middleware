@@ -18,8 +18,9 @@ import (
 // KycUpdate is the builder for updating Kyc entities.
 type KycUpdate struct {
 	config
-	hooks    []Hook
-	mutation *KycMutation
+	hooks     []Hook
+	mutation  *KycMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // Where appends a list predicates to the KycUpdate builder.
@@ -357,6 +358,12 @@ func (ku *KycUpdate) defaults() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (ku *KycUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *KycUpdate {
+	ku.modifiers = append(ku.modifiers, modifiers...)
+	return ku
+}
+
 func (ku *KycUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -547,6 +554,7 @@ func (ku *KycUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: kyc.FieldState,
 		})
 	}
+	_spec.Modifiers = ku.modifiers
 	if n, err = sqlgraph.UpdateNodes(ctx, ku.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{kyc.Label}
@@ -561,9 +569,10 @@ func (ku *KycUpdate) sqlSave(ctx context.Context) (n int, err error) {
 // KycUpdateOne is the builder for updating a single Kyc entity.
 type KycUpdateOne struct {
 	config
-	fields   []string
-	hooks    []Hook
-	mutation *KycMutation
+	fields    []string
+	hooks     []Hook
+	mutation  *KycMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -908,6 +917,12 @@ func (kuo *KycUpdateOne) defaults() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (kuo *KycUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *KycUpdateOne {
+	kuo.modifiers = append(kuo.modifiers, modifiers...)
+	return kuo
+}
+
 func (kuo *KycUpdateOne) sqlSave(ctx context.Context) (_node *Kyc, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -1115,6 +1130,7 @@ func (kuo *KycUpdateOne) sqlSave(ctx context.Context) (_node *Kyc, err error) {
 			Column: kyc.FieldState,
 		})
 	}
+	_spec.Modifiers = kuo.modifiers
 	_node = &Kyc{config: kuo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues

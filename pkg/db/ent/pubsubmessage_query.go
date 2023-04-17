@@ -480,6 +480,12 @@ func (pmq *PubsubMessageQuery) ForShare(opts ...sql.LockOption) *PubsubMessageQu
 	return pmq
 }
 
+// Modify adds a query modifier for attaching custom logic to queries.
+func (pmq *PubsubMessageQuery) Modify(modifiers ...func(s *sql.Selector)) *PubsubMessageSelect {
+	pmq.modifiers = append(pmq.modifiers, modifiers...)
+	return pmq.Select()
+}
+
 // PubsubMessageGroupBy is the group-by builder for PubsubMessage entities.
 type PubsubMessageGroupBy struct {
 	config
@@ -570,4 +576,10 @@ func (pms *PubsubMessageSelect) sqlScan(ctx context.Context, v interface{}) erro
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (pms *PubsubMessageSelect) Modify(modifiers ...func(s *sql.Selector)) *PubsubMessageSelect {
+	pms.modifiers = append(pms.modifiers, modifiers...)
+	return pms
 }

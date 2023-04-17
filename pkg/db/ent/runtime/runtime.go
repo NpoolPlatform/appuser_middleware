@@ -66,6 +66,10 @@ func init() {
 	appDescCreatedBy := appFields[1].Descriptor()
 	// app.DefaultCreatedBy holds the default value on creation for the created_by field.
 	app.DefaultCreatedBy = appDescCreatedBy.Default.(func() uuid.UUID)
+	// appDescName is the schema descriptor for name field.
+	appDescName := appFields[2].Descriptor()
+	// app.DefaultName holds the default value on creation for the name field.
+	app.DefaultName = appDescName.Default.(string)
 	// appDescLogo is the schema descriptor for logo field.
 	appDescLogo := appFields[3].Descriptor()
 	// app.DefaultLogo holds the default value on creation for the logo field.

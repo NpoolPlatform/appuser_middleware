@@ -15,7 +15,7 @@ var (
 		{Name: "updated_at", Type: field.TypeUint32},
 		{Name: "deleted_at", Type: field.TypeUint32},
 		{Name: "created_by", Type: field.TypeUUID, Nullable: true},
-		{Name: "name", Type: field.TypeString, Unique: true, Nullable: true},
+		{Name: "name", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "logo", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "description", Type: field.TypeString, Nullable: true, Default: ""},
 	}

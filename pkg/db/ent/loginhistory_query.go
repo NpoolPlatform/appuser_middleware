@@ -480,6 +480,12 @@ func (lhq *LoginHistoryQuery) ForShare(opts ...sql.LockOption) *LoginHistoryQuer
 	return lhq
 }
 
+// Modify adds a query modifier for attaching custom logic to queries.
+func (lhq *LoginHistoryQuery) Modify(modifiers ...func(s *sql.Selector)) *LoginHistorySelect {
+	lhq.modifiers = append(lhq.modifiers, modifiers...)
+	return lhq.Select()
+}
+
 // LoginHistoryGroupBy is the group-by builder for LoginHistory entities.
 type LoginHistoryGroupBy struct {
 	config
@@ -570,4 +576,10 @@ func (lhs *LoginHistorySelect) sqlScan(ctx context.Context, v interface{}) error
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (lhs *LoginHistorySelect) Modify(modifiers ...func(s *sql.Selector)) *LoginHistorySelect {
+	lhs.modifiers = append(lhs.modifiers, modifiers...)
+	return lhs
 }
