@@ -12,6 +12,7 @@ import (
 type Handler struct {
 	ID       *uuid.UUID
 	AppID    uuid.UUID
+	RoleID   *uuid.UUID
 	UserID   *uuid.UUID
 	Method   string
 	Resource string
@@ -50,6 +51,20 @@ func WithAppID(id string) func(context.Context, *Handler) error {
 			return err
 		}
 		h.AppID = _id
+		return nil
+	}
+}
+
+func WithRoleID(id *string) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if id == nil {
+			return nil
+		}
+		_id, err := uuid.Parse(*id)
+		if err != nil {
+			return err
+		}
+		h.RoleID = &_id
 		return nil
 	}
 }
