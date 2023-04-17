@@ -182,7 +182,7 @@ func WithExtSigninMethods(methods []basetypes.SignMethod) func(context.Context, 
 			case basetypes.SignMethod_Google:
 				return fmt.Errorf("%v signin not implemented", method)
 			default:
-				return fmt.Errorf("signup method %v invalid", method)
+				return fmt.Errorf("ext signin method %v invalid", method)
 			}
 		}
 		h.ExtSigninMethods = methods

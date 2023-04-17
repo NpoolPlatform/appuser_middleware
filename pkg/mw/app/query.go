@@ -148,9 +148,6 @@ func (h *queryHandler) formalize() {
 
 		info.SignupMethods = _methods
 		info.ExtSigninMethods = _emethods
-		info.KycEnable = info.KycEnableInt != 0
-		info.SigninVerifyEnable = info.SigninVerifyEnableInt != 0
-		info.InvitationCodeMust = info.InvitationCodeMustInt != 0
 		info.RecaptchaMethod = basetypes.RecaptchaMethod(basetypes.RecaptchaMethod_value[info.RecaptchaMethodStr])
 
 		info.Banned = info.BanAppID != ""
