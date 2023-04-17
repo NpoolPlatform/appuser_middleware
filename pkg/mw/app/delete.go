@@ -10,8 +10,6 @@ import (
 	entappctrl "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appcontrol"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
-
-	"github.com/google/uuid"
 )
 
 type deleteHandler struct {
@@ -21,7 +19,7 @@ type deleteHandler struct {
 func (h *deleteHandler) deleteApp(ctx context.Context, tx *ent.Tx) error {
 	if _, err := tx.
 		App.
-		UpdateOneID(uuid.MustParse(h.ID)).
+		UpdateOneID(*h.ID).
 		SetDeletedAt(uint32(time.Now().Unix())).
 		Save(ctx); err != nil {
 		if !ent.IsNotFound(err) {
@@ -36,7 +34,7 @@ func (h *deleteHandler) deleteAppCtrl(ctx context.Context, tx *ent.Tx) error {
 		AppControl.
 		Query().
 		Where(
-			entappctrl.AppID(uuid.MustParse(h.ID)),
+			entappctrl.AppID(*h.ID),
 		).
 		ForUpdate().
 		Only(ctx)
