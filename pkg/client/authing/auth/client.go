@@ -1,4 +1,3 @@
-//nolint:dupl
 package authing
 
 import (
@@ -82,25 +81,4 @@ func GetAuths(ctx context.Context, appID string, offset, limit int32) ([]*npool.
 		return nil, 0, err
 	}
 	return infos.([]*npool.Auth), total, nil
-}
-
-func GetHistories(ctx context.Context, appID string, offset, limit int32) ([]*npool.History, uint32, error) {
-	var total uint32
-
-	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
-		resp, err := cli.GetHistories(ctx, &npool.GetHistoriesRequest{
-			AppID:  appID,
-			Offset: offset,
-			Limit:  limit,
-		})
-		if err != nil {
-			return nil, err
-		}
-		total = resp.GetTotal()
-		return resp.Infos, nil
-	})
-	if err != nil {
-		return nil, 0, err
-	}
-	return infos.([]*npool.History), total, nil
 }
