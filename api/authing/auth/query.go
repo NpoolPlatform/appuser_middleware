@@ -1,22 +1,21 @@
 //nolint:dupl
-package authing
+package auth
 
 import (
 	"context"
 
+	auth1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing/auth"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
-	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing"
-
-	authing1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing"
+	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/auth"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 func (s *Server) GetAuth(ctx context.Context, in *npool.GetAuthRequest) (*npool.GetAuthResponse, error) {
-	handler, err := authing1.NewHandler(
+	handler, err := auth1.NewHandler(
 		ctx,
-		authing1.WithID(&in.ID),
+		auth1.WithID(&in.ID),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
@@ -42,11 +41,11 @@ func (s *Server) GetAuth(ctx context.Context, in *npool.GetAuthRequest) (*npool.
 }
 
 func (s *Server) GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (*npool.GetAuthsResponse, error) {
-	handler, err := authing1.NewHandler(
+	handler, err := auth1.NewHandler(
 		ctx,
-		authing1.WithAppID(in.GetAppID()),
-		authing1.WithOffset(in.GetOffset()),
-		authing1.WithLimit(in.GetLimit()),
+		auth1.WithAppID(in.GetAppID()),
+		auth1.WithOffset(in.GetOffset()),
+		auth1.WithLimit(in.GetLimit()),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
@@ -67,36 +66,6 @@ func (s *Server) GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (*npoo
 	}
 
 	return &npool.GetAuthsResponse{
-		Infos: infos,
-		Total: total,
-	}, nil
-}
-
-func (s *Server) GetHistories(ctx context.Context, in *npool.GetHistoriesRequest) (*npool.GetHistoriesResponse, error) {
-	handler, err := authing1.NewHandler(
-		ctx,
-		authing1.WithAppID(in.GetAppID()),
-		authing1.WithOffset(in.GetOffset()),
-		authing1.WithLimit(in.GetLimit()),
-	)
-	if err != nil {
-		logger.Sugar().Errorw(
-			"GetAuths",
-			"In", in,
-			"Error", err,
-		)
-		return &npool.GetHistoriesResponse{}, status.Error(codes.Aborted, err.Error())
-	}
-	infos, total, err := handler.GetHistories(ctx)
-	if err != nil {
-		logger.Sugar().Errorw(
-			"GetAuths",
-			"In", in,
-			"Error", err,
-		)
-		return &npool.GetHistoriesResponse{}, status.Error(codes.Aborted, err.Error())
-	}
-	return &npool.GetHistoriesResponse{
 		Infos: infos,
 		Total: total,
 	}, nil

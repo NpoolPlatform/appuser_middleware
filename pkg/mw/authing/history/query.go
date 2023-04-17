@@ -1,4 +1,4 @@
-package authing
+package history
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	entappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuser"
 	entauth "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/auth"
 	entauthhistory "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/authhistory"
-	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing"
+	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/history"
 )
 
 type queryHistoryHandler struct {

@@ -1,24 +1,24 @@
 //nolint:dupl
-package authing
+package auth
 
 import (
 	"context"
 
-	authing1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing"
+	auth1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing/auth"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
-	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing"
+	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/auth"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 func (s *Server) ExistAuth(ctx context.Context, in *npool.ExistAuthRequest) (*npool.ExistAuthResponse, error) {
-	handler, err := authing1.NewHandler(
+	handler, err := auth1.NewHandler(
 		ctx,
-		authing1.WithAppID(in.GetAppID()),
-		authing1.WithUserID(in.UserID),
-		authing1.WithResource(in.GetResource()),
-		authing1.WithMethod(in.GetMethod()),
+		auth1.WithAppID(in.GetAppID()),
+		auth1.WithUserID(in.UserID),
+		auth1.WithResource(in.GetResource()),
+		auth1.WithMethod(in.GetMethod()),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
