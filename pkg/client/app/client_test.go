@@ -139,25 +139,9 @@ func getApp(t *testing.T) {
 }
 
 func getApps(t *testing.T) {
-	infos, _, err := GetApps(context.Background(), 0, 1)
+	infos, _, err := GetApps(context.Background(), &npool.Conds{}, 0, 1)
 	if assert.Nil(t, err) {
 		assert.NotEqual(t, len(infos), 0)
-	}
-}
-
-func getUserApps(t *testing.T) {
-	infos, _, err := GetUserApps(context.Background(), ret.CreatedBy, 0, 1)
-	if assert.Nil(t, err) {
-		infos[0].CreatedAt = ret.CreatedAt
-		assert.Equal(t, infos[0], &ret)
-	}
-}
-
-func getManyApps(t *testing.T) {
-	infos, _, err := GetManyApps(context.Background(), []string{ret.ID})
-	if assert.Nil(t, err) {
-		infos[0].CreatedAt = ret.CreatedAt
-		assert.Equal(t, infos[0], &ret)
 	}
 }
 
@@ -186,7 +170,5 @@ func TestMainOrder(t *testing.T) {
 	t.Run("updateApp", updateApp)
 	t.Run("getApp", getApp)
 	t.Run("getApps", getApps)
-	t.Run("getUserApps", getUserApps)
-	t.Run("getManyApps", getManyApps)
 	t.Run("deleteApp", deleteApp)
 }
