@@ -1,17 +1,17 @@
 package kyc
 
 import (
-	mgrkyc "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/kyc"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/kyc"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 )
 
 func Ent2Grpc(row *npool.Kyc) *npool.Kyc {
 	if row == nil {
 		return nil
 	}
-	row.DocumentType = mgrkyc.KycDocumentType(mgrkyc.KycDocumentType_value[row.GetDocumentTypeStr()])
-	row.EntityType = mgrkyc.KycEntityType(mgrkyc.KycEntityType_value[row.GetEntityTypeStr()])
-	row.State = mgrkyc.KycState(mgrkyc.KycState_value[row.GetStateStr()])
+	row.DocumentType = basetypes.KycDocumentType(basetypes.KycDocumentType_value[row.GetDocumentTypeStr()])
+	row.EntityType = basetypes.KycEntityType(basetypes.KycEntityType_value[row.GetEntityTypeStr()])
+	row.State = basetypes.KycState(basetypes.KycState_value[row.GetStateStr()])
 	return row
 }
 

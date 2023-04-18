@@ -3,8 +3,6 @@ package kyc
 import (
 	"fmt"
 
-	npool "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/kyc"
-
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/kyc"
 
@@ -13,7 +11,21 @@ import (
 	"github.com/google/uuid"
 )
 
-func CreateSet(c *ent.KycCreate, info *npool.KycReq) *ent.KycCreate {
+type Req struct {
+	ID           *uuid.UUID
+	AppID        *uuid.UUID
+	UserID       *uuid.UUID
+	DocumentType *basetypes.KycDocumentType
+	IDNumber     *string
+	FrontImg     *string
+	BackImg      *string
+	SelfieImg    *string
+	EntityType   *basetypes.KycEntityType
+	ReviewID     *uuid.UUID
+	State        *basetypes.KycState
+}
+
+func CreateSet(c *ent.KycCreate, info *Req) *ent.KycCreate {
 	if info.ID != nil {
 		c.SetID(uuid.MustParse(info.GetID()))
 	}
@@ -50,7 +62,7 @@ func CreateSet(c *ent.KycCreate, info *npool.KycReq) *ent.KycCreate {
 	return c
 }
 
-func UpdateSet(info *ent.Kyc, in *npool.KycReq) *ent.KycUpdateOne {
+func UpdateSet(info *ent.Kyc, in *Req) *ent.KycUpdateOne {
 	u := info.Update()
 
 	if in.DocumentType != nil {
@@ -80,8 +92,22 @@ func UpdateSet(info *ent.Kyc, in *npool.KycReq) *ent.KycUpdateOne {
 	return u
 }
 
+type Conds struct {
+	ID           *cruder.Cond
+	AppID        *cruder.Cond
+	UserID       *cruder.Cond
+	DocumentType *cruder.Cond
+	IDNumber     *cruder.Cond
+	FrontImg     *cruder.Cond
+	BackImg      *cruder.Cond
+	SelfieImg    *cruder.Cond
+	EntityType   *cruder.Cond
+	ReviewID     *cruder.Cond
+	State        *cruder.Cond
+}
+
 //nolint
-func SetQueryConds(conds *npool.Conds, cli *ent.Client) (*ent.KycQuery, error) {
+func SetQueryConds(q *ent.KyeQuery, conds *Conds) (*ent.KycQuery, error) {
 	stm := cli.Kyc.Query()
 
 	if conds == nil {

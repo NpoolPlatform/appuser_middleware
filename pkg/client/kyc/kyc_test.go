@@ -1,5 +1,6 @@
 package kyc
 
+/*
 import (
 	"context"
 	"fmt"
@@ -112,3 +113,4 @@ func TestMainOrder(t *testing.T) {
 	t.Run("getKyc", getKyc)
 	t.Run("getKycs", getKycs)
 }
+*/

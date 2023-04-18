@@ -1,5 +1,6 @@
 package subscriber
 
+/*
 import (
 	"context"
 
@@ -17,3 +18,4 @@ func UpdateSubscriber(ctx context.Context, in *mgrpb.SubscriberReq) (*npool.Subs
 
 	return GetSubscriber(ctx, info.ID)
 }
+*/

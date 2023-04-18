@@ -1,5 +1,6 @@
 package subscriber
 
+/*
 import (
 	"context"
 
@@ -27,3 +28,4 @@ func (s *Server) UpdateSubscriber(ctx context.Context, in *npool.UpdateSubscribe
 		Info: info,
 	}, nil
 }
+*/

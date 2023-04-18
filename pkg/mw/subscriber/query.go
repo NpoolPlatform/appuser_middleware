@@ -1,5 +1,6 @@
 package subscriber
 
+/*
 import (
 	"context"
 	"fmt"
@@ -9,13 +10,13 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 
-	"github.com/NpoolPlatform/appuser-manager/pkg/db"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 
-	crud "github.com/NpoolPlatform/appuser-manager/pkg/crud/subscriber"
+	crud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/subscriber"
 
-	entsubscriber "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/subscriber"
 	entapp "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
+	entsubscriber "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/subscriber"
 
 	"github.com/google/uuid"
 )
@@ -119,3 +120,4 @@ func join(stm *ent.SubscriberQuery) *ent.SubscriberSelect {
 				)
 		})
 }
+*/
