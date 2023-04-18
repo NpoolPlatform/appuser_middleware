@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 
-	npool "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/kyc"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 )
 
 // Kyc holds the schema definition for the Kyc entity.
@@ -43,7 +43,7 @@ func (Kyc) Fields() []ent.Field {
 		field.
 			String("document_type").
 			Optional().
-			Default(npool.KycDocumentType_DefaultKycDocumentType.String()),
+			Default(basetypes.KycDocumentType_DefaultKycDocumentType.String()),
 		field.
 			String("id_number").
 			Optional().
@@ -63,7 +63,7 @@ func (Kyc) Fields() []ent.Field {
 		field.
 			String("entity_type").
 			Optional().
-			Default(npool.KycEntityType_Individual.String()),
+			Default(basetypes.KycEntityType_Individual.String()),
 		field.
 			UUID("review_id", uuid.UUID{}).
 			Optional().
@@ -73,7 +73,7 @@ func (Kyc) Fields() []ent.Field {
 		field.
 			String("state").
 			Optional().
-			Default(npool.KycState_DefaultState.String()),
+			Default(basetypes.KycState_DefaultState.String()),
 	}
 }
 

@@ -6,8 +6,8 @@ import (
 	"github.com/NpoolPlatform/go-service-framework/pkg/action"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 
-	"github.com/NpoolPlatform/appuser-manager/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/api"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 
 	apicli "github.com/NpoolPlatform/basal-middleware/pkg/client/api"
 

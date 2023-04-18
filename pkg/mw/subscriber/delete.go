@@ -1,5 +1,6 @@
 package subscriber
 
+/*
 import (
 	"context"
 
@@ -21,3 +22,4 @@ func DeleteSubscriber(ctx context.Context, id string) (*npool.Subscriber, error)
 
 	return info, nil
 }
+*/
