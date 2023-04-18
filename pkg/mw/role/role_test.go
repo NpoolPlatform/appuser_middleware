@@ -7,14 +7,14 @@ import (
 	"strconv"
 	"testing"
 
-	// "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
+	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/role"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/testinit"
-	// basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	app "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
 )
@@ -97,11 +97,9 @@ func updateRole(t *testing.T) {
 	}
 }
 
-/*
 func getRole(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithAppID(ret.AppID),
 		WithID(&ret.ID),
 	)
 	assert.Nil(t, err)
@@ -119,7 +117,9 @@ func getRoles(t *testing.T) {
 
 	handler, err := NewHandler(
 		context.Background(),
-		WithConds(conds, 0, 1),
+		WithConds(conds),
+		WithOffset(0),
+		WithLimit(0),
 	)
 	assert.Nil(t, err)
 
@@ -129,19 +129,22 @@ func getRoles(t *testing.T) {
 	}
 }
 
-func getManyRoles(t *testing.T) {
+func deleteRole(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithIDs([]string{ret.ID}),
+		WithID(&ret.ID),
 	)
 	assert.Nil(t, err)
 
-	infos, err := handler.GetManyRoles(context.Background())
-	if !assert.Nil(t, err) {
-		assert.Equal(t, infos[0], &ret)
+	info, err := handler.DeleteRole(context.Background())
+	if assert.Nil(t, err) {
+		assert.Equal(t, info, &ret)
 	}
+
+	info, err = handler.GetRole(context.Background())
+	assert.Nil(t, err)
+	assert.Nil(t, info)
 }
-*/
 
 func TestRole(t *testing.T) {
 	if runByGithubAction, err := strconv.ParseBool(os.Getenv("RUN_BY_GITHUB_ACTION")); err == nil && runByGithubAction {
@@ -153,7 +156,7 @@ func TestRole(t *testing.T) {
 
 	t.Run("creatRole", creatRole)
 	t.Run("updateRole", updateRole)
-	// t.Run("getRole", getRole)
-	// t.Run("getRoles", getRoles)
-	// t.Run("getManyRoles", getManyRoles)
+	t.Run("getRole", getRole)
+	t.Run("getRoles", getRoles)
+	t.Run("deleteRole", deleteRole)
 }
