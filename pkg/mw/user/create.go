@@ -14,18 +14,16 @@ import (
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
 	approleusermgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/approleuser"
-	appusermgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
 	appusercontrolmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appusercontrol"
-	appuserextramgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuserextra"
 	appusersecretmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appusersecret"
 	appuserthirdpartymgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuserthirdparty"
 
 	approleusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/approleuser"
-	appusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuser"
 	appusercontrolcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appusercontrol"
-	appuserextracrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuserextra"
 	appusersecretcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appusersecret"
 	appuserthirdpartycrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuserthirdparty"
+	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
+	userextracrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/extra"
 
 	"github.com/google/uuid"
 )
@@ -42,9 +40,9 @@ func (h *createHandler) createAppUser(ctx context.Context, tx *ent.Tx) error {
 		return fmt.Errorf("invalid account")
 	}
 
-	if _, err := appusercrud.CreateSet(
+	if _, err := usercrud.CreateSet(
 		tx.AppUser.Create(),
-		&appusermgrpb.AppUserReq{
+		&usercrud.Req{
 			ID:            h.ID,
 			AppID:         &h.AppID,
 			PhoneNO:       h.PhoneNO,
@@ -58,9 +56,9 @@ func (h *createHandler) createAppUser(ctx context.Context, tx *ent.Tx) error {
 }
 
 func (h *createHandler) createAppUserExtra(ctx context.Context, tx *ent.Tx) error {
-	if _, err := appuserextracrud.CreateSet(
+	if _, err := userextracrud.CreateSet(
 		tx.AppUserExtra.Create(),
-		&appuserextramgrpb.AppUserExtraReq{
+		&userextracrud.Req{
 			AppID:  &h.AppID,
 			UserID: h.ID,
 		},
