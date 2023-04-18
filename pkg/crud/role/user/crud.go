@@ -11,10 +11,11 @@ import (
 )
 
 type Req struct {
-	ID     *uuid.UUID
-	AppID  *uuid.UUID
-	RoleID *uuid.UUID
-	UserID *uuid.UUID
+	ID        *uuid.UUID
+	AppID     *uuid.UUID
+	RoleID    *uuid.UUID
+	UserID    *uuid.UUID
+	DeletedAt *uint32
 }
 
 func CreateSet(c *ent.AppRoleUserCreate, req *Req) *ent.AppRoleUserCreate {
@@ -36,6 +37,9 @@ func CreateSet(c *ent.AppRoleUserCreate, req *Req) *ent.AppRoleUserCreate {
 func UpdateSet(u *ent.AppRoleUserUpdateOne, req *Req) *ent.AppRoleUserUpdateOne {
 	if req.RoleID != nil {
 		u.SetRoleID(*req.RoleID)
+	}
+	if req.DeletedAt != nil {
+		u.SetDeletedAt(*req.DeletedAt)
 	}
 	return u
 }
