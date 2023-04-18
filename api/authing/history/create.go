@@ -14,7 +14,7 @@ import (
 
 func (s *Server) CreateHistory(ctx context.Context, in *npool.CreateHistoryRequest) (*npool.CreateHistoryResponse, error) {
 	req := in.GetInfo()
-	handler, err := history1.NewHandler(
+	_handler, err := history1.NewHandler(
 		ctx,
 		handler.WithID(req.ID),
 		handler.WithAppID(req.GetAppID()),
@@ -31,7 +31,7 @@ func (s *Server) CreateHistory(ctx context.Context, in *npool.CreateHistoryReque
 		)
 		return &npool.CreateHistoryResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-	info, err := handler.CreateHistory(ctx)
+	info, err := _handler.CreateHistory(ctx)
 	if err != nil {
 		logger.Sugar().Errorw(
 			"CreateHistory",

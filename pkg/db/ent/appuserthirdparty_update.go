@@ -145,15 +145,15 @@ func (autpu *AppUserThirdPartyUpdate) ClearThirdPartyUserID() *AppUserThirdParty
 }
 
 // SetThirdPartyID sets the "third_party_id" field.
-func (autpu *AppUserThirdPartyUpdate) SetThirdPartyID(s string) *AppUserThirdPartyUpdate {
-	autpu.mutation.SetThirdPartyID(s)
+func (autpu *AppUserThirdPartyUpdate) SetThirdPartyID(u uuid.UUID) *AppUserThirdPartyUpdate {
+	autpu.mutation.SetThirdPartyID(u)
 	return autpu
 }
 
 // SetNillableThirdPartyID sets the "third_party_id" field if the given value is not nil.
-func (autpu *AppUserThirdPartyUpdate) SetNillableThirdPartyID(s *string) *AppUserThirdPartyUpdate {
-	if s != nil {
-		autpu.SetThirdPartyID(*s)
+func (autpu *AppUserThirdPartyUpdate) SetNillableThirdPartyID(u *uuid.UUID) *AppUserThirdPartyUpdate {
+	if u != nil {
+		autpu.SetThirdPartyID(*u)
 	}
 	return autpu
 }
@@ -219,18 +219,12 @@ func (autpu *AppUserThirdPartyUpdate) Save(ctx context.Context) (int, error) {
 		return 0, err
 	}
 	if len(autpu.hooks) == 0 {
-		if err = autpu.check(); err != nil {
-			return 0, err
-		}
 		affected, err = autpu.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*AppUserThirdPartyMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			if err = autpu.check(); err != nil {
-				return 0, err
 			}
 			autpu.mutation = mutation
 			affected, err = autpu.sqlSave(ctx)
@@ -280,16 +274,6 @@ func (autpu *AppUserThirdPartyUpdate) defaults() error {
 		}
 		v := appuserthirdparty.UpdateDefaultUpdatedAt()
 		autpu.mutation.SetUpdatedAt(v)
-	}
-	return nil
-}
-
-// check runs all checks and user-defined validators on the builder.
-func (autpu *AppUserThirdPartyUpdate) check() error {
-	if v, ok := autpu.mutation.ThirdPartyAvatar(); ok {
-		if err := appuserthirdparty.ThirdPartyAvatarValidator(v); err != nil {
-			return &ValidationError{Name: "third_party_avatar", err: fmt.Errorf(`ent: validator failed for field "AppUserThirdParty.third_party_avatar": %w`, err)}
-		}
 	}
 	return nil
 }
@@ -401,14 +385,14 @@ func (autpu *AppUserThirdPartyUpdate) sqlSave(ctx context.Context) (n int, err e
 	}
 	if value, ok := autpu.mutation.ThirdPartyID(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeUUID,
 			Value:  value,
 			Column: appuserthirdparty.FieldThirdPartyID,
 		})
 	}
 	if autpu.mutation.ThirdPartyIDCleared() {
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeUUID,
 			Column: appuserthirdparty.FieldThirdPartyID,
 		})
 	}
@@ -575,15 +559,15 @@ func (autpuo *AppUserThirdPartyUpdateOne) ClearThirdPartyUserID() *AppUserThirdP
 }
 
 // SetThirdPartyID sets the "third_party_id" field.
-func (autpuo *AppUserThirdPartyUpdateOne) SetThirdPartyID(s string) *AppUserThirdPartyUpdateOne {
-	autpuo.mutation.SetThirdPartyID(s)
+func (autpuo *AppUserThirdPartyUpdateOne) SetThirdPartyID(u uuid.UUID) *AppUserThirdPartyUpdateOne {
+	autpuo.mutation.SetThirdPartyID(u)
 	return autpuo
 }
 
 // SetNillableThirdPartyID sets the "third_party_id" field if the given value is not nil.
-func (autpuo *AppUserThirdPartyUpdateOne) SetNillableThirdPartyID(s *string) *AppUserThirdPartyUpdateOne {
-	if s != nil {
-		autpuo.SetThirdPartyID(*s)
+func (autpuo *AppUserThirdPartyUpdateOne) SetNillableThirdPartyID(u *uuid.UUID) *AppUserThirdPartyUpdateOne {
+	if u != nil {
+		autpuo.SetThirdPartyID(*u)
 	}
 	return autpuo
 }
@@ -656,18 +640,12 @@ func (autpuo *AppUserThirdPartyUpdateOne) Save(ctx context.Context) (*AppUserThi
 		return nil, err
 	}
 	if len(autpuo.hooks) == 0 {
-		if err = autpuo.check(); err != nil {
-			return nil, err
-		}
 		node, err = autpuo.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*AppUserThirdPartyMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			if err = autpuo.check(); err != nil {
-				return nil, err
 			}
 			autpuo.mutation = mutation
 			node, err = autpuo.sqlSave(ctx)
@@ -723,16 +701,6 @@ func (autpuo *AppUserThirdPartyUpdateOne) defaults() error {
 		}
 		v := appuserthirdparty.UpdateDefaultUpdatedAt()
 		autpuo.mutation.SetUpdatedAt(v)
-	}
-	return nil
-}
-
-// check runs all checks and user-defined validators on the builder.
-func (autpuo *AppUserThirdPartyUpdateOne) check() error {
-	if v, ok := autpuo.mutation.ThirdPartyAvatar(); ok {
-		if err := appuserthirdparty.ThirdPartyAvatarValidator(v); err != nil {
-			return &ValidationError{Name: "third_party_avatar", err: fmt.Errorf(`ent: validator failed for field "AppUserThirdParty.third_party_avatar": %w`, err)}
-		}
 	}
 	return nil
 }
@@ -861,14 +829,14 @@ func (autpuo *AppUserThirdPartyUpdateOne) sqlSave(ctx context.Context) (_node *A
 	}
 	if value, ok := autpuo.mutation.ThirdPartyID(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeUUID,
 			Value:  value,
 			Column: appuserthirdparty.FieldThirdPartyID,
 		})
 	}
 	if autpuo.mutation.ThirdPartyIDCleared() {
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeUUID,
 			Column: appuserthirdparty.FieldThirdPartyID,
 		})
 	}

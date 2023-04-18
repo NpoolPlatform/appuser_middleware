@@ -3,8 +3,8 @@ package control
 import (
 	"fmt"
 
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
-	entappuserctrl "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusercontrol"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
+	entappuserctrl "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appusercontrol"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 	"github.com/google/uuid"
@@ -69,7 +69,7 @@ type Conds struct {
 	KolConfirmed *cruder.Cond
 }
 
-//nolint:nolintlint,gocyclo
+//nolint
 func SetQueryConds(q *ent.AppUserControlQuery, conds *Conds) (*ent.AppUserControlQuery, error) {
 	if conds == nil {
 		return q, nil

@@ -5,14 +5,18 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/NpoolPlatform/appuser-manager/pkg/db"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
-	"github.com/NpoolPlatform/appuser-manager/pkg/encrypt"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/encrypt"
 
-	entappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
-	entappusersecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
+	entappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuser"
+	entappusersecret "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appusersecret"
 
-	usermwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
+	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
+
+	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
+
+	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
@@ -28,22 +32,19 @@ func (h *verifyHandler) queryAppUserByAccount(cli *ent.Client) error {
 		return fmt.Errorf("invalid account")
 	}
 
-	stm := cli.
-		AppUser.
-		Query().
-		Where(
-			entappuser.AppID(uuid.MustParse(h.AppID)),
-			entappuser.DeletedAt(0),
-		)
+	conds := &usercrud.Conds{
+		AppID: &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+	}
 	if h.EmailAddress != nil {
-		stm = stm.Where(
-			entappuser.EmailAddress(*h.EmailAddress),
-		)
+		conds.EmailAddress = &cruder.Cond{Op: cruder.EQ, Val: *h.EmailAddress}
 	}
 	if h.PhoneNO != nil {
-		stm = stm.Where(
-			entappuser.PhoneNo(*h.PhoneNO),
-		)
+		conds.PhoneNO = &cruder.Cond{Op: cruder.EQ, Val: *h.PhoneNO}
+	}
+
+	stm, err := usercrud.SetQueryConds(cli.AppUser.Query(), conds)
+	if err != nil {
+		return err
 	}
 	h.stm = stm.Select(
 		entappuser.FieldID,
@@ -57,14 +58,18 @@ func (h *verifyHandler) queryAppUserByID(cli *ent.Client) error {
 		return fmt.Errorf("invalid user id")
 	}
 
-	h.stm = cli.
-		AppUser.
-		Query().
-		Where(
-			entappuser.AppID(uuid.MustParse(h.AppID)),
-			entappuser.ID(uuid.MustParse(*h.ID)),
-			entappuser.DeletedAt(0),
-		).
+	stm, err := usercrud.SetQueryConds(
+		cli.AppUser.Query(),
+		&usercrud.Conds{
+			AppID: &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+			ID:    &cruder.Cond{Op: cruder.EQ, Val: *h.ID},
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	h.stm = stm.
 		Select(
 			entappuser.FieldID,
 			entappuser.FieldAppID,
@@ -93,14 +98,14 @@ func (h *verifyHandler) queryJoinAppUserSecret() {
 }
 
 type r struct {
-	ID           string `sql:"id"`
-	AppID        string `sql:"app_id"`
-	UserID       string `sql:"user_id"`
-	PasswordHash string `sql:"password_hash"`
-	Salt         string `sql:"salt"`
+	ID           uuid.UUID `sql:"id"`
+	AppID        uuid.UUID `sql:"app_id"`
+	UserID       uuid.UUID `sql:"user_id"`
+	PasswordHash string    `sql:"password_hash"`
+	Salt         string    `sql:"salt"`
 }
 
-func (h *Handler) VerifyAccount(ctx context.Context) (*usermwpb.User, error) {
+func (h *Handler) VerifyAccount(ctx context.Context) (*npool.User, error) {
 	var infos []*r
 
 	handler := &verifyHandler{
@@ -140,7 +145,7 @@ func (h *Handler) VerifyAccount(ctx context.Context) (*usermwpb.User, error) {
 	return h.GetUser(ctx)
 }
 
-func (h *Handler) VerifyUser(ctx context.Context) (*usermwpb.User, error) {
+func (h *Handler) VerifyUser(ctx context.Context) (*npool.User, error) {
 	var infos []*r
 
 	handler := &verifyHandler{

@@ -4,28 +4,21 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/NpoolPlatform/appuser-manager/pkg/encrypt"
-
-	"github.com/NpoolPlatform/appuser-manager/pkg/db"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
-
-	entsubscriber "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/subscriber"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/encrypt"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
-	approleusermgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/approleuser"
-	appusercontrolmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appusercontrol"
-	appusersecretmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appusersecret"
-	appuserthirdpartymgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuserthirdparty"
-
-	approleusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/approleuser"
-	appusercontrolcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appusercontrol"
-	appusersecretcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appusersecret"
-	appuserthirdpartycrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuserthirdparty"
+	roleusercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/role/user"
+	subscribercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/subscriber"
 	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
+	userthirdpartycrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/3rdparty"
+	userctrlcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/control"
 	userextracrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/extra"
+	usersecretcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/secret"
 
-	"github.com/google/uuid"
+	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 )
 
 type createHandler struct {
@@ -69,9 +62,9 @@ func (h *createHandler) createAppUserExtra(ctx context.Context, tx *ent.Tx) erro
 }
 
 func (h *createHandler) createAppUserControl(ctx context.Context, tx *ent.Tx) error {
-	if _, err := appusercontrolcrud.CreateSet(
+	if _, err := userctrlcrud.CreateSet(
 		tx.AppUserControl.Create(),
-		&appusercontrolmgrpb.AppUserControlReq{
+		&userctrlcrud.Req{
 			AppID:  &h.AppID,
 			UserID: h.ID,
 		},
@@ -92,9 +85,9 @@ func (h *createHandler) createAppUserSecret(ctx context.Context, tx *ent.Tx) err
 		return err
 	}
 
-	if _, err := appusersecretcrud.CreateSet(
+	if _, err := usersecretcrud.CreateSet(
 		tx.AppUserSecret.Create(),
-		&appusersecretmgrpb.AppUserSecretReq{
+		&usersecretcrud.Req{
 			AppID:        &h.AppID,
 			UserID:       h.ID,
 			PasswordHash: &pwdStr,
@@ -112,9 +105,9 @@ func (h *createHandler) createAppUserThirdParty(ctx context.Context, tx *ent.Tx)
 		return nil
 	}
 
-	if _, err := appuserthirdpartycrud.CreateSet(
+	if _, err := userthirdpartycrud.CreateSet(
 		tx.AppUserThirdParty.Create(),
-		&appuserthirdpartymgrpb.AppUserThirdPartyReq{
+		&userthirdpartycrud.Req{
 			AppID:              &h.AppID,
 			UserID:             h.ID,
 			ThirdPartyID:       h.ThirdPartyID,
@@ -137,9 +130,9 @@ func (h *createHandler) createAppRoleUser(ctx context.Context, tx *ent.Tx) error
 	bulk := make([]*ent.AppRoleUserCreate, len(h.RoleIDs))
 	for i, roleID := range h.RoleIDs {
 		_roleID := roleID
-		bulk[i] = approleusercrud.CreateSet(
+		bulk[i] = roleusercrud.CreateSet(
 			tx.AppRoleUser.Create(),
-			&approleusermgrpb.AppRoleUserReq{
+			&roleusercrud.Req{
 				AppID:  &h.AppID,
 				RoleID: &_roleID,
 				UserID: h.ID,
@@ -160,14 +153,17 @@ func (h *createHandler) updateSubscriber(ctx context.Context, tx *ent.Tx) error 
 		return nil
 	}
 
-	sub, err := tx.
-		Subscriber.
-		Query().
-		Where(
-			entsubscriber.AppID(uuid.MustParse(h.AppID)),
-			entsubscriber.EmailAddress(*h.EmailAddress),
-		).
-		Only(ctx)
+	stm, err := subscribercrud.SetQueryConds(
+		tx.Subscriber.Query(),
+		&subscribercrud.Conds{
+			AppID:        &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+			EmailAddress: &cruder.Cond{Op: cruder.EQ, Val: *h.EmailAddress},
+		},
+	)
+	if err != nil {
+		return err
+	}
+	sub, err := stm.Only(ctx)
 	if ent.IsNotFound(err) {
 		return nil
 	}

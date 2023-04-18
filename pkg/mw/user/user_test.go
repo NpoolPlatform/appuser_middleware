@@ -10,8 +10,6 @@ import (
 	"testing"
 
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
-	commonpb "github.com/NpoolPlatform/message/npool"
-	mgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	"github.com/google/uuid"
@@ -225,8 +223,8 @@ func getUser(t *testing.T) {
 }
 
 func getUsers(t *testing.T) {
-	conds := &mgrpb.Conds{
-		AppID: &commonpb.StringVal{Op: cruder.EQ, Value: ret.AppID},
+	conds := &npool.Conds{
+		AppID: &basetypes.StringVal{Op: cruder.EQ, Value: ret.AppID},
 	}
 
 	handler, err := NewHandler(

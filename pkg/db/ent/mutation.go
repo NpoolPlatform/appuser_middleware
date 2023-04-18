@@ -7974,7 +7974,7 @@ type AppUserThirdPartyMutation struct {
 	app_id               *uuid.UUID
 	user_id              *uuid.UUID
 	third_party_user_id  *string
-	third_party_id       *string
+	third_party_id       *uuid.UUID
 	third_party_username *string
 	third_party_avatar   *string
 	clearedFields        map[string]struct{}
@@ -8403,12 +8403,12 @@ func (m *AppUserThirdPartyMutation) ResetThirdPartyUserID() {
 }
 
 // SetThirdPartyID sets the "third_party_id" field.
-func (m *AppUserThirdPartyMutation) SetThirdPartyID(s string) {
-	m.third_party_id = &s
+func (m *AppUserThirdPartyMutation) SetThirdPartyID(u uuid.UUID) {
+	m.third_party_id = &u
 }
 
 // ThirdPartyID returns the value of the "third_party_id" field in the mutation.
-func (m *AppUserThirdPartyMutation) ThirdPartyID() (r string, exists bool) {
+func (m *AppUserThirdPartyMutation) ThirdPartyID() (r uuid.UUID, exists bool) {
 	v := m.third_party_id
 	if v == nil {
 		return
@@ -8419,7 +8419,7 @@ func (m *AppUserThirdPartyMutation) ThirdPartyID() (r string, exists bool) {
 // OldThirdPartyID returns the old "third_party_id" field's value of the AppUserThirdParty entity.
 // If the AppUserThirdParty object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AppUserThirdPartyMutation) OldThirdPartyID(ctx context.Context) (v string, err error) {
+func (m *AppUserThirdPartyMutation) OldThirdPartyID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldThirdPartyID is only allowed on UpdateOne operations")
 	}
@@ -8701,7 +8701,7 @@ func (m *AppUserThirdPartyMutation) SetField(name string, value ent.Value) error
 		m.SetThirdPartyUserID(v)
 		return nil
 	case appuserthirdparty.FieldThirdPartyID:
-		v, ok := value.(string)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

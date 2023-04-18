@@ -55,7 +55,7 @@ func (h *queryHandler) queryAppUser(cli *ent.Client) error {
 		cli.AppUser.
 			Query().
 			Where(
-				entappuser.ID(uuid.MustParse(*h.ID)),
+				entappuser.ID(*h.ID),
 				entappuser.DeletedAt(0),
 			),
 	)
@@ -95,16 +95,11 @@ func (h *queryHandler) queryAppUserByIDs(cli *ent.Client) error {
 		return fmt.Errorf("invalid ids")
 	}
 
-	ids := []uuid.UUID{}
-	for _, id := range h.IDs {
-		ids = append(ids, uuid.MustParse(id))
-	}
-
 	h.selectAppUser(
 		cli.AppUser.
 			Query().
 			Where(
-				entappuser.IDIn(ids...),
+				entappuser.IDIn(h.IDs...),
 				entappuser.DeletedAt(0),
 			),
 	)

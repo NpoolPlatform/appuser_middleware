@@ -196,9 +196,9 @@ var (
 		{Name: "app_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "user_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "third_party_user_id", Type: field.TypeString, Nullable: true, Default: ""},
-		{Name: "third_party_id", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "third_party_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "third_party_username", Type: field.TypeString, Nullable: true, Default: ""},
-		{Name: "third_party_avatar", Type: field.TypeString, Nullable: true, Size: 1024, Default: ""},
+		{Name: "third_party_avatar", Type: field.TypeString, Nullable: true, Size: 2147483647, Default: ""},
 	}
 	// AppUserThirdPartiesTable holds the schema information for the "app_user_third_parties" table.
 	AppUserThirdPartiesTable = &schema.Table{

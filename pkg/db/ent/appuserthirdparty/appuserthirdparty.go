@@ -82,13 +82,11 @@ var (
 	// DefaultThirdPartyUserID holds the default value on creation for the "third_party_user_id" field.
 	DefaultThirdPartyUserID string
 	// DefaultThirdPartyID holds the default value on creation for the "third_party_id" field.
-	DefaultThirdPartyID string
+	DefaultThirdPartyID func() uuid.UUID
 	// DefaultThirdPartyUsername holds the default value on creation for the "third_party_username" field.
 	DefaultThirdPartyUsername string
 	// DefaultThirdPartyAvatar holds the default value on creation for the "third_party_avatar" field.
 	DefaultThirdPartyAvatar string
-	// ThirdPartyAvatarValidator is a validator for the "third_party_avatar" field. It is called by the builders before save.
-	ThirdPartyAvatarValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )

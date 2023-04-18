@@ -5,8 +5,6 @@ import (
 	"context"
 	"time"
 
-	mgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
-
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
 
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
@@ -80,7 +78,7 @@ func GetUser(ctx context.Context, appID, userID string) (*npool.User, error) {
 	return info.(*npool.User), nil
 }
 
-func GetUsers(ctx context.Context, conds *mgrpb.Conds, offset, limit int32) ([]*npool.User, uint32, error) {
+func GetUsers(ctx context.Context, conds *npool.Conds, offset, limit int32) ([]*npool.User, uint32, error) {
 	var total uint32
 	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetUsers(ctx, &npool.GetUsersRequest{

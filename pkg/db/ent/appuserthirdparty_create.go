@@ -108,15 +108,15 @@ func (autpc *AppUserThirdPartyCreate) SetNillableThirdPartyUserID(s *string) *Ap
 }
 
 // SetThirdPartyID sets the "third_party_id" field.
-func (autpc *AppUserThirdPartyCreate) SetThirdPartyID(s string) *AppUserThirdPartyCreate {
-	autpc.mutation.SetThirdPartyID(s)
+func (autpc *AppUserThirdPartyCreate) SetThirdPartyID(u uuid.UUID) *AppUserThirdPartyCreate {
+	autpc.mutation.SetThirdPartyID(u)
 	return autpc
 }
 
 // SetNillableThirdPartyID sets the "third_party_id" field if the given value is not nil.
-func (autpc *AppUserThirdPartyCreate) SetNillableThirdPartyID(s *string) *AppUserThirdPartyCreate {
-	if s != nil {
-		autpc.SetThirdPartyID(*s)
+func (autpc *AppUserThirdPartyCreate) SetNillableThirdPartyID(u *uuid.UUID) *AppUserThirdPartyCreate {
+	if u != nil {
+		autpc.SetThirdPartyID(*u)
 	}
 	return autpc
 }
@@ -282,7 +282,10 @@ func (autpc *AppUserThirdPartyCreate) defaults() error {
 		autpc.mutation.SetThirdPartyUserID(v)
 	}
 	if _, ok := autpc.mutation.ThirdPartyID(); !ok {
-		v := appuserthirdparty.DefaultThirdPartyID
+		if appuserthirdparty.DefaultThirdPartyID == nil {
+			return fmt.Errorf("ent: uninitialized appuserthirdparty.DefaultThirdPartyID (forgotten import ent/runtime?)")
+		}
+		v := appuserthirdparty.DefaultThirdPartyID()
 		autpc.mutation.SetThirdPartyID(v)
 	}
 	if _, ok := autpc.mutation.ThirdPartyUsername(); !ok {
@@ -313,11 +316,6 @@ func (autpc *AppUserThirdPartyCreate) check() error {
 	}
 	if _, ok := autpc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "AppUserThirdParty.deleted_at"`)}
-	}
-	if v, ok := autpc.mutation.ThirdPartyAvatar(); ok {
-		if err := appuserthirdparty.ThirdPartyAvatarValidator(v); err != nil {
-			return &ValidationError{Name: "third_party_avatar", err: fmt.Errorf(`ent: validator failed for field "AppUserThirdParty.third_party_avatar": %w`, err)}
-		}
 	}
 	return nil
 }
@@ -406,7 +404,7 @@ func (autpc *AppUserThirdPartyCreate) createSpec() (*AppUserThirdParty, *sqlgrap
 	}
 	if value, ok := autpc.mutation.ThirdPartyID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeUUID,
 			Value:  value,
 			Column: appuserthirdparty.FieldThirdPartyID,
 		})
@@ -591,7 +589,7 @@ func (u *AppUserThirdPartyUpsert) ClearThirdPartyUserID() *AppUserThirdPartyUpse
 }
 
 // SetThirdPartyID sets the "third_party_id" field.
-func (u *AppUserThirdPartyUpsert) SetThirdPartyID(v string) *AppUserThirdPartyUpsert {
+func (u *AppUserThirdPartyUpsert) SetThirdPartyID(v uuid.UUID) *AppUserThirdPartyUpsert {
 	u.Set(appuserthirdparty.FieldThirdPartyID, v)
 	return u
 }
@@ -821,7 +819,7 @@ func (u *AppUserThirdPartyUpsertOne) ClearThirdPartyUserID() *AppUserThirdPartyU
 }
 
 // SetThirdPartyID sets the "third_party_id" field.
-func (u *AppUserThirdPartyUpsertOne) SetThirdPartyID(v string) *AppUserThirdPartyUpsertOne {
+func (u *AppUserThirdPartyUpsertOne) SetThirdPartyID(v uuid.UUID) *AppUserThirdPartyUpsertOne {
 	return u.Update(func(s *AppUserThirdPartyUpsert) {
 		s.SetThirdPartyID(v)
 	})
@@ -1226,7 +1224,7 @@ func (u *AppUserThirdPartyUpsertBulk) ClearThirdPartyUserID() *AppUserThirdParty
 }
 
 // SetThirdPartyID sets the "third_party_id" field.
-func (u *AppUserThirdPartyUpsertBulk) SetThirdPartyID(v string) *AppUserThirdPartyUpsertBulk {
+func (u *AppUserThirdPartyUpsertBulk) SetThirdPartyID(v uuid.UUID) *AppUserThirdPartyUpsertBulk {
 	return u.Update(func(s *AppUserThirdPartyUpsert) {
 		s.SetThirdPartyID(v)
 	})
