@@ -79,87 +79,25 @@ func creatRole(t *testing.T) {
 	}
 }
 
-/*
 func updateRole(t *testing.T) {
-	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)           //nolint
-	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000) //nolint
-	var (
-		appID        = ret.AppID
-		strVal       = "AAA"
-		kol          = true
-		kolConfirmed = true
-		credits      = "1.2342"
-		req          = npool.RoleReq{
-			ID:                 &ret.ID,
-			AppID:              &ret.AppID,
-			EmailAddress:       &ret.EmailAddress,
-			PhoneNO:            &ret.PhoneNO,
-			ImportedFromAppID:  &ret.ImportedFromAppID,
-			Rolename:           &ret.Rolename,
-			AddressFields:      uuidSlice,
-			Gender:             &ret.Gender,
-			PostalCode:         &ret.PostalCode,
-			Age:                &ret.Age,
-			Birthday:           &ret.Birthday,
-			Avatar:             &ret.Avatar,
-			Organization:       &ret.Organization,
-			FirstName:          &ret.FirstName,
-			LastName:           &ret.LastName,
-			IDNumber:           &ret.IDNumber,
-			GoogleAuthVerified: &ret.GoogleAuthVerified,
-			SigninVerifyType:   &signType,
-			PasswordHash:       &strVal,
-			GoogleSecret:       &appID,
-			ThirdPartyID:       &strVal,
-			ThirdPartyRoleID:   &strVal,
-			ThirdPartyRolename: &strVal,
-			ThirdPartyAvatar:   &strVal,
-			Banned:             &ret.Banned,
-			BanMessage:         &ret.BanMessage,
-			Kol:                &kol,
-			KolConfirmed:       &kolConfirmed,
-			ActionCredits:      &credits,
-		}
-	)
-
-	ret.Kol = true
-	ret.KolConfirmed = true
-	ret.ActionCredits = credits
-
+	ret.Role = uuid.NewString()
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(req.ID),
-		WithAppID(req.GetAppID()),
-		WithPhoneNO(req.PhoneNO),
-		WithEmailAddress(req.EmailAddress),
-		WithImportedFromAppID(req.ImportedFromAppID),
-		WithPasswordHash(req.PasswordHash),
-		WithFirstName(req.FirstName),
-		WithLastName(req.LastName),
-		WithBirthday(req.Birthday),
-		WithGender(req.Gender),
-		WithAvatar(req.Avatar),
-		WithRolename(req.Rolename),
-		WithPostalCode(req.PostalCode),
-		WithAge(req.Age),
-		WithOrganization(req.Organization),
-		WithIDNumber(req.IDNumber),
-		WithAddressFields(req.AddressFields),
-		WithGoogleSecret(req.GoogleSecret),
-		WithGoogleAuthVerified(req.GoogleAuthVerified),
-		WithKol(req.Kol),
-		WithKolConfirmed(req.KolConfirmed),
-		WithActionCredits(req.ActionCredits),
+		WithID(&ret.ID),
+		WithRole(&ret.Role),
+		WithDescription(&ret.Description),
+		WithDefault(&ret.Default),
+		WithGenesis(&ret.Genesis),
 	)
 	assert.Nil(t, err)
 
 	info, err := handler.UpdateRole(context.Background())
 	if assert.Nil(t, err) {
-		ret.Roles = info.Roles
 		assert.Equal(t, info, &ret)
 	}
 }
 
+/*
 func getRole(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
@@ -214,7 +152,7 @@ func TestRole(t *testing.T) {
 	defer teardown(t)
 
 	t.Run("creatRole", creatRole)
-	// t.Run("updateRole", updateRole)
+	t.Run("updateRole", updateRole)
 	// t.Run("getRole", getRole)
 	// t.Run("getRoles", getRoles)
 	// t.Run("getManyRoles", getManyRoles)
