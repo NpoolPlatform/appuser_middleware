@@ -7,18 +7,18 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 
-	"github.com/NpoolPlatform/appuser-manager/pkg/db"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 
-	entapprole "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approle"
-	entapproleuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approleuser"
-	entappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
-	entappusercontrol "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusercontrol"
-	entextra "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserextra"
-	entappusersecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
-	entbanappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/banappuser"
-	entkyc "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/kyc"
 	entapp "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
+	entapprole "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approle"
+	entapproleuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approleuser"
+	entappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuser"
+	entappusercontrol "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appusercontrol"
+	entextra "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserextra"
+	entappusersecret "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appusersecret"
+	entbanappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/banappuser"
+	entkyc "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/kyc"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
@@ -318,13 +318,6 @@ func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 }
 
 func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
-	if h.Offset == nil {
-		return nil, 0, fmt.Errorf("invalid offset")
-	}
-	if h.Limit == nil {
-		return nil, 0, fmt.Errorf("invalid limit")
-	}
-
 	handler := &queryHandler{
 		Handler: h,
 	}
@@ -335,8 +328,8 @@ func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
 		}
 		handler.queryJoin()
 		handler.stm.
-			Offset(int(*h.Offset)).
-			Limit(int(*h.Limit))
+			Offset(int(h.Offset)).
+			Limit(int(h.Limit))
 
 		if err := handler.scan(_ctx); err != nil {
 			return err

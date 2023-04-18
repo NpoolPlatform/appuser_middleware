@@ -4,12 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	appusermgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
+	"github.com/NpoolPlatform/appuser-manager/pkg/db"
+	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
 
-	appusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuser"
-
+	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
 	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
-	commonpb "github.com/NpoolPlatform/message/npool"
 )
 
 func (h *Handler) checkAccountExist(ctx context.Context) error {
@@ -17,23 +16,28 @@ func (h *Handler) checkAccountExist(ctx context.Context) error {
 		return fmt.Errorf("invalid account")
 	}
 
-	conds := &appusermgrpb.Conds{
-		AppID: &commonpb.StringVal{Op: cruder.EQ, Value: h.AppID},
+	conds := &usercrud.Conds{
+		AppID: &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
 	}
 	if h.EmailAddress != nil {
-		conds.EmailAddress = &commonpb.StringVal{Op: cruder.EQ, Value: *h.EmailAddress}
+		conds.EmailAddress = &cruder.Cond{Op: cruder.EQ, Val: *h.EmailAddress}
 	}
 	if h.PhoneNO != nil {
-		conds.PhoneNO = &commonpb.StringVal{Op: cruder.EQ, Value: *h.PhoneNO}
+		conds.PhoneNO = &cruder.Cond{Op: cruder.EQ, Val: *h.PhoneNO}
 	}
 
-	exist, err := appusercrud.ExistConds(ctx, conds)
-	if err != nil {
-		return err
-	}
-	if exist {
-		return fmt.Errorf("user already exist")
-	}
-
-	return nil
+	return db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		stm, err := usercrud.SetQueryConds(cli.AppUser.Query(), conds)
+		if err != nil {
+			return err
+		}
+		exist, err := stm.Exist(ctx)
+		if err != nil {
+			return err
+		}
+		if !exist {
+			return fmt.Errorf("user already exist")
+		}
+		return nil
+	})
 }
