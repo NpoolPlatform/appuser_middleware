@@ -7,7 +7,7 @@ import (
 	"regexp"
 
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/const"
-	mgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
+	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/google/uuid"
@@ -47,9 +47,9 @@ type Handler struct {
 	ActionCredits      *string
 	Account            *string
 	AccountType        *basetypes.SignMethod
-	Conds              *mgrpb.Conds
-	Offset             *int32
-	Limit              *int32
+	Conds              *npool.Conds
+	Offset             int32
+	Limit              int32
 	IDs                []string
 }
 
@@ -483,12 +483,11 @@ func WithAccount(account string, accountType basetypes.SignMethod) func(context.
 	}
 }
 
-func WithConds(conds *mgrpb.Conds, offset, limit int32) func(context.Context, *Handler) error {
+func WithConds(conds *npool.Conds, offset, limit int32) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if conds == nil {
 			return fmt.Errorf("invalid conds")
 		}
-
 		if conds.ID != nil {
 			if _, err := uuid.Parse(conds.GetID().GetValue()); err != nil {
 				return err
@@ -499,14 +498,24 @@ func WithConds(conds *mgrpb.Conds, offset, limit int32) func(context.Context, *H
 				return err
 			}
 		}
-
 		h.Conds = conds
-		h.Offset = &offset
+		return nil
+	}
+}
+
+func WithOffset(offset int32) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		h.Offset = offset
+		return nil
+	}
+}
+
+func WithLimit(limit int32) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
 		if limit == 0 {
 			limit = constant.DefaultRowLimit
 		}
-		h.Limit = &limit
-
+		h.Limit = limit
 		return nil
 	}
 }
