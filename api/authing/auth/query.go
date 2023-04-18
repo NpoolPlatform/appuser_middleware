@@ -13,7 +13,7 @@ import (
 )
 
 func (s *Server) GetAuth(ctx context.Context, in *npool.GetAuthRequest) (*npool.GetAuthResponse, error) {
-	h, err := handler.NewHandler(
+	handler, err := auth1.NewHandler(
 		ctx,
 		handler.WithID(&in.ID),
 	)
@@ -25,10 +25,7 @@ func (s *Server) GetAuth(ctx context.Context, in *npool.GetAuthRequest) (*npool.
 		)
 		return &npool.GetAuthResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-	_handler := &auth1.Handler{
-		Handler: h,
-	}
-	info, err := _handler.GetAuth(ctx)
+	info, err := handler.GetAuth(ctx)
 	if err != nil {
 		logger.Sugar().Errorw(
 			"GetAuth",
@@ -44,7 +41,7 @@ func (s *Server) GetAuth(ctx context.Context, in *npool.GetAuthRequest) (*npool.
 }
 
 func (s *Server) GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (*npool.GetAuthsResponse, error) {
-	h, err := handler.NewHandler(
+	handler, err := auth1.NewHandler(
 		ctx,
 		handler.WithAppID(in.GetAppID()),
 		handler.WithOffset(in.GetOffset()),
@@ -58,10 +55,7 @@ func (s *Server) GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (*npoo
 		)
 		return &npool.GetAuthsResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-	_handler := &auth1.Handler{
-		Handler: h,
-	}
-	infos, total, err := _handler.GetAuths(ctx)
+	infos, total, err := handler.GetAuths(ctx)
 	if err != nil {
 		logger.Sugar().Errorw(
 			"GetAuths",
