@@ -40,7 +40,7 @@ func (h *createHandler) createAppUser(ctx context.Context, tx *ent.Tx) error {
 			AppID:         &h.AppID,
 			PhoneNO:       h.PhoneNO,
 			EmailAddress:  h.EmailAddress,
-			ImportFromApp: h.ImportedFromAppID,
+			ImportFromApp: h.ImportFromAppID,
 		},
 	).Save(ctx); err != nil {
 		return err

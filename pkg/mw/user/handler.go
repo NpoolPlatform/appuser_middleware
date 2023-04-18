@@ -7,9 +7,12 @@ import (
 	"regexp"
 
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/const"
+	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
 	app "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
+
+	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -20,7 +23,7 @@ type Handler struct {
 	AppID              uuid.UUID
 	PhoneNO            *string
 	EmailAddress       *string
-	ImportedFromAppID  *uuid.UUID
+	ImportFromAppID    *uuid.UUID
 	Username           *string
 	AddressFields      []string
 	Gender             *string
@@ -48,10 +51,9 @@ type Handler struct {
 	ActionCredits      *decimal.Decimal
 	Account            *string
 	AccountType        *basetypes.SignMethod
-	Conds              *npool.Conds
+	Conds              *usercrud.Conds
 	Offset             int32
 	Limit              int32
-	IDs                []uuid.UUID
 }
 
 func NewHandler(ctx context.Context, options ...func(context.Context, *Handler) error) (*Handler, error) {
@@ -151,7 +153,7 @@ func WithEmailAddress(emailAddress *string) func(context.Context, *Handler) erro
 	}
 }
 
-func WithImportedFromAppID(id *string) func(context.Context, *Handler) error {
+func WithImportFromAppID(id *string) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if id == nil {
 			return nil
@@ -174,7 +176,7 @@ func WithImportedFromAppID(id *string) func(context.Context, *Handler) error {
 		if err != nil {
 			return err
 		}
-		h.ImportedFromAppID = &_id
+		h.ImportFromAppID = &_id
 		return nil
 	}
 }
@@ -522,22 +524,59 @@ func WithAccount(account string, accountType basetypes.SignMethod) func(context.
 	}
 }
 
-func WithConds(conds *npool.Conds, offset, limit int32) func(context.Context, *Handler) error {
+func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
+		h.Conds = &usercrud.Conds{}
 		if conds == nil {
-			return fmt.Errorf("invalid conds")
+			return nil
 		}
 		if conds.ID != nil {
-			if _, err := uuid.Parse(conds.GetID().GetValue()); err != nil {
+			id, err := uuid.Parse(conds.GetID().GetValue())
+			if err != nil {
 				return err
 			}
+			h.Conds.ID = &cruder.Cond{Op: conds.GetID().GetOp(), Val: id}
 		}
 		if conds.AppID != nil {
-			if _, err := uuid.Parse(conds.GetAppID().GetValue()); err != nil {
+			id, err := uuid.Parse(conds.GetAppID().GetValue())
+			if err != nil {
 				return err
 			}
+			h.Conds.AppID = &cruder.Cond{Op: conds.GetAppID().GetOp(), Val: id}
 		}
-		h.Conds = conds
+		if conds.PhoneNO != nil {
+			h.Conds.PhoneNO = &cruder.Cond{
+				Op:  conds.GetPhoneNO().GetOp(),
+				Val: conds.GetPhoneNO().GetValue(),
+			}
+		}
+		if conds.EmailAddress != nil {
+			h.Conds.EmailAddress = &cruder.Cond{
+				Op:  conds.GetEmailAddress().GetOp(),
+				Val: conds.GetEmailAddress().GetValue(),
+			}
+		}
+		if conds.ImportFromApp != nil {
+			id, err := uuid.Parse(conds.GetImportFromApp().GetValue())
+			if err != nil {
+				return err
+			}
+			h.Conds.ImportFromApp = &cruder.Cond{
+				Op:  conds.GetImportFromApp().GetOp(),
+				Val: id,
+			}
+		}
+		if len(conds.GetIDs().GetValue()) > 0 {
+			ids := []uuid.UUID{}
+			for _, id := range conds.GetIDs().GetValue() {
+				_id, err := uuid.Parse(id)
+				if err != nil {
+					return err
+				}
+				ids = append(ids, _id)
+			}
+			h.Conds.IDs = &cruder.Cond{Op: conds.GetIDs().GetOp(), Val: ids}
+		}
 		return nil
 	}
 }
@@ -555,25 +594,6 @@ func WithLimit(limit int32) func(context.Context, *Handler) error {
 			limit = constant.DefaultRowLimit
 		}
 		h.Limit = limit
-		return nil
-	}
-}
-
-func WithIDs(ids []string) func(context.Context, *Handler) error {
-	return func(ctx context.Context, h *Handler) error {
-		if len(ids) == 0 {
-			return nil
-		}
-		_ids := []uuid.UUID{}
-		for _, id := range ids {
-			_id, err := uuid.Parse(id)
-			if err != nil {
-				return err
-			}
-			_ids = append(_ids, _id)
-		}
-
-		h.IDs = _ids
 		return nil
 	}
 }

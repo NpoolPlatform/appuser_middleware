@@ -20,6 +20,8 @@ import (
 	entbanappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/banappuser"
 	entkyc "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/kyc"
 
+	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
+
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
@@ -62,20 +64,9 @@ func (h *queryHandler) queryAppUser(cli *ent.Client) error {
 }
 
 func (h *queryHandler) queryAppUserByConds(ctx context.Context, cli *ent.Client) (err error) {
-	if h.Conds == nil {
-		return fmt.Errorf("invalid conds")
-	}
-
-	stm := cli.AppUser.Query()
-	if h.Conds.ID != nil {
-		stm = stm.Where(
-			entappuser.ID(uuid.MustParse(h.Conds.GetID().GetValue())),
-		)
-	}
-	if h.Conds.AppID != nil {
-		stm = stm.Where(
-			entappuser.AppID(uuid.MustParse(h.Conds.GetAppID().GetValue())),
-		)
+	stm, err := usercrud.SetQueryConds(cli.AppUser.Query(), h.Conds)
+	if err != nil {
+		return err
 	}
 
 	total, err := stm.Count(ctx)
@@ -86,22 +77,6 @@ func (h *queryHandler) queryAppUserByConds(ctx context.Context, cli *ent.Client)
 	h.total = uint32(total)
 
 	h.selectAppUser(stm)
-	return nil
-}
-
-func (h *queryHandler) queryAppUserByIDs(cli *ent.Client) error {
-	if len(h.IDs) == 0 {
-		return fmt.Errorf("invalid ids")
-	}
-
-	h.selectAppUser(
-		cli.AppUser.
-			Query().
-			Where(
-				entappuser.IDIn(h.IDs...),
-				entappuser.DeletedAt(0),
-			),
-	)
 	return nil
 }
 
@@ -343,33 +318,4 @@ func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
 	handler.formalize()
 
 	return handler.infos, handler.total, nil
-}
-
-func (h *Handler) GetManyUsers(ctx context.Context) ([]*npool.User, error) {
-	handler := &queryHandler{
-		Handler: h,
-	}
-
-	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryAppUserByIDs(cli); err != nil {
-			return err
-		}
-		handler.queryJoin()
-		if err := handler.scan(_ctx); err != nil {
-			return err
-		}
-		return nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	if err := handler.queryUserRoles(ctx); err != nil {
-		return nil, err
-	}
-
-	handler.formalize()
-
-	return handler.infos, nil
 }

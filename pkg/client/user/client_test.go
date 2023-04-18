@@ -219,21 +219,22 @@ func getUser(t *testing.T) {
 
 func getUsers(t *testing.T) {
 	infos, _, err := GetUsers(context.Background(), &npool.Conds{
-		AppID: &basetypes.StringVal{
-			Op:    cruder.EQ,
-			Value: ret.AppID,
-		},
+		AppID: &basetypes.StringVal{Op: cruder.EQ, Value: ret.AppID},
 	}, 0, 1)
-	if !assert.Nil(t, err) {
+	if assert.Nil(t, err) {
 		assert.NotEqual(t, len(infos), 0)
 	}
 }
 
-func getManyUsers(t *testing.T) {
-	infos, _, err := GetManyUsers(context.Background(), []string{ret.ID})
-	if !assert.Nil(t, err) {
-		assert.Equal(t, infos[0], &ret)
+func deleteUser(t *testing.T) {
+	info, err := DeleteUser(context.Background(), ret.AppID, ret.ID)
+	if assert.Nil(t, err) {
+		assert.Equal(t, info, &ret)
 	}
+
+	info, err = GetUser(context.Background(), ret.AppID, ret.ID)
+	assert.Nil(t, err)
+	assert.Nil(t, info)
 }
 
 func TestUser(t *testing.T) {
@@ -254,5 +255,5 @@ func TestUser(t *testing.T) {
 	t.Run("updateUser", updateUser)
 	t.Run("getUser", getUser)
 	t.Run("getUsers", getUsers)
-	t.Run("getManyUsers", getManyUsers)
+	t.Run("deleteUser", deleteUser)
 }

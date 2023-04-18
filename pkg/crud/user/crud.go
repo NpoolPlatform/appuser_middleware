@@ -135,5 +135,6 @@ func SetQueryConds(q *ent.AppUserQuery, conds *Conds) (*ent.AppUserQuery, error)
 			return nil, fmt.Errorf("invalid appuser field")
 		}
 	}
+	q.Where(entappuser.DeletedAt(0))
 	return q, nil
 }

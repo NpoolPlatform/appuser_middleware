@@ -19,7 +19,7 @@ func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*
 		user1.WithAppID(req.GetAppID()),
 		user1.WithPhoneNO(req.PhoneNO),
 		user1.WithEmailAddress(req.EmailAddress),
-		user1.WithImportedFromAppID(req.ImportedFromAppID),
+		user1.WithImportFromAppID(req.ImportedFromAppID),
 		user1.WithPasswordHash(req.PasswordHash),
 		user1.WithFirstName(req.FirstName),
 		user1.WithLastName(req.LastName),

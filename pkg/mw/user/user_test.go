@@ -121,7 +121,7 @@ func creatUser(t *testing.T) {
 		WithAppID(ret.GetAppID()),
 		WithPhoneNO(&ret.PhoneNO),
 		WithEmailAddress(&ret.EmailAddress),
-		WithImportedFromAppID(&ret.ImportedFromAppID),
+		WithImportFromAppID(&ret.ImportedFromAppID),
 		WithPasswordHash(&passwordHash),
 	)
 	assert.Nil(t, err)
@@ -186,7 +186,7 @@ func updateUser(t *testing.T) {
 		WithAppID(req.GetAppID()),
 		WithPhoneNO(req.PhoneNO),
 		WithEmailAddress(req.EmailAddress),
-		WithImportedFromAppID(req.ImportedFromAppID),
+		WithImportFromAppID(req.ImportedFromAppID),
 		WithPasswordHash(req.PasswordHash),
 		WithFirstName(req.FirstName),
 		WithLastName(req.LastName),
@@ -235,7 +235,9 @@ func getUsers(t *testing.T) {
 
 	handler, err := NewHandler(
 		context.Background(),
-		WithConds(conds, 0, 1),
+		WithConds(conds),
+		WithOffset(0),
+		WithLimit(1),
 	)
 	assert.Nil(t, err)
 
@@ -245,17 +247,21 @@ func getUsers(t *testing.T) {
 	}
 }
 
-func getManyUsers(t *testing.T) {
+func deleteUser(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithIDs([]string{ret.ID}),
+		WithID(&ret.ID),
 	)
 	assert.Nil(t, err)
 
-	infos, err := handler.GetManyUsers(context.Background())
-	if !assert.Nil(t, err) {
-		assert.Equal(t, infos[0], &ret)
+	info, err := handler.DeleteUser(context.Background())
+	if assert.Nil(t, err) {
+		assert.Equal(t, info, &ret)
 	}
+
+	info, err = handler.GetUser(context.Background())
+	assert.Nil(t, err)
+	assert.Nil(t, info)
 }
 
 func TestUser(t *testing.T) {
@@ -270,5 +276,4 @@ func TestUser(t *testing.T) {
 	t.Run("updateUser", updateUser)
 	t.Run("getUser", getUser)
 	t.Run("getUsers", getUsers)
-	t.Run("getManyUsers", getManyUsers)
 }
