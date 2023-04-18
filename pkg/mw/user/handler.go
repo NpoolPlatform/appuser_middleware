@@ -7,6 +7,7 @@ import (
 	"regexp"
 
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/const"
+	app "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
@@ -15,11 +16,11 @@ import (
 )
 
 type Handler struct {
-	ID                 *string
-	AppID              string
+	ID                 *uuid.UUID
+	AppID              uuid.UUID
 	PhoneNO            *string
 	EmailAddress       *string
-	ImportedFromAppID  *string
+	ImportedFromAppID  *uuid.UUID
 	Username           *string
 	AddressFields      []string
 	Gender             *string
@@ -35,13 +36,13 @@ type Handler struct {
 	GoogleAuthVerified *bool
 	PasswordHash       *string
 	GoogleSecret       *string
-	ThirdPartyID       *string
+	ThirdPartyID       *uuid.UUID
 	ThirdPartyUserID   *string
 	ThirdPartyUsername *string
 	ThirdPartyAvatar   *string
 	Banned             *bool
 	BanMessage         *string
-	RoleIDs            []string
+	RoleIDs            []uuid.UUID
 	Kol                *bool
 	KolConfirmed       *bool
 	ActionCredits      *string
@@ -50,7 +51,7 @@ type Handler struct {
 	Conds              *npool.Conds
 	Offset             int32
 	Limit              int32
-	IDs                []string
+	IDs                []uuid.UUID
 }
 
 func NewHandler(ctx context.Context, options ...func(context.Context, *Handler) error) (*Handler, error) {
@@ -69,21 +70,36 @@ func WithID(id *string) func(context.Context, *Handler) error {
 		if id == nil {
 			return nil
 		}
-		if _, err := uuid.Parse(*id); err != nil {
+		_id, err := uuid.Parse(*id)
+		if err != nil {
 			return err
 		}
-		h.ID = id
+		h.ID = &_id
 		return nil
 	}
 }
 
-func WithAppID(appID string) func(context.Context, *Handler) error {
+func WithAppID(id string) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		if _, err := uuid.Parse(appID); err != nil {
+		handler, err := app.NewHandler(
+			ctx,
+			app.WithID(&id),
+		)
+		if err != nil {
 			return err
 		}
-		// TODO: check app exist
-		h.AppID = appID
+		exist, err := handler.ExistApp(ctx)
+		if err != nil {
+			return err
+		}
+		if !exist {
+			return fmt.Errorf("invalid app")
+		}
+		_id, err := uuid.Parse(id)
+		if err != nil {
+			return err
+		}
+		h.AppID = _id
 		return nil
 	}
 }
@@ -135,16 +151,30 @@ func WithEmailAddress(emailAddress *string) func(context.Context, *Handler) erro
 	}
 }
 
-func WithImportedFromAppID(appID *string) func(context.Context, *Handler) error {
+func WithImportedFromAppID(id *string) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		if appID == nil {
+		if id == nil {
 			return nil
 		}
-		if _, err := uuid.Parse(*appID); err != nil {
+		handler, err := app.NewHandler(
+			ctx,
+			app.WithID(id),
+		)
+		if err != nil {
 			return err
 		}
-		// TODO: check import from app exist
-		h.ImportedFromAppID = appID
+		exist, err := handler.ExistApp(ctx)
+		if err != nil {
+			return err
+		}
+		if !exist {
+			return fmt.Errorf("invalid app")
+		}
+		_id, err := uuid.Parse(*id)
+		if err != nil {
+			return err
+		}
+		h.ImportedFromAppID = &_id
 		return nil
 	}
 }
@@ -334,15 +364,17 @@ func WithGoogleSecret(secret *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithThirdPartyID(thirdPartyID *string) func(context.Context, *Handler) error {
+func WithThirdPartyID(id *string) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		if thirdPartyID == nil {
+		if id == nil {
 			return nil
 		}
-		if *thirdPartyID == "" {
-			return fmt.Errorf("invalid thirdpartyid")
+		// TODO: check third party id exist
+		_id, err := uuid.Parse(*id)
+		if err != nil {
+			return err
 		}
-		h.ThirdPartyID = thirdPartyID
+		h.ThirdPartyID = &_id
 		return nil
 	}
 }
@@ -409,14 +441,20 @@ func WithBanMessage(message *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithRoleIDs(roleIDs []string) func(context.Context, *Handler) error {
+func WithRoleIDs(ids []string) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		for _, id := range roleIDs {
-			if _, err := uuid.Parse(id); err != nil {
+		if len(ids) == 0 {
+			return nil
+		}
+		_ids := []uuid.UUID{}
+		for _, id := range ids {
+			_id, err := uuid.Parse(id)
+			if err != nil {
 				return err
 			}
+			_ids = append(_ids, _id)
 		}
-		h.RoleIDs = roleIDs
+		h.RoleIDs = _ids
 		return nil
 	}
 }
@@ -522,13 +560,19 @@ func WithLimit(limit int32) func(context.Context, *Handler) error {
 
 func WithIDs(ids []string) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
+		if len(ids) == 0 {
+			return nil
+		}
+		_ids := []uuid.UUID{}
 		for _, id := range ids {
-			if _, err := uuid.Parse(id); err != nil {
+			_id, err := uuid.Parse(id)
+			if err != nil {
 				return err
 			}
+			_ids = append(_ids, _id)
 		}
 
-		h.IDs = ids
+		h.IDs = _ids
 		return nil
 	}
 }
