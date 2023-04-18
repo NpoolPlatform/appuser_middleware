@@ -18,7 +18,7 @@ func NewHandler(ctx context.Context, options ...interface{}) (*Handler, error) {
 		return nil, err
 	}
 
-	handler := &Handler{
+	h := &Handler{
 		Handler: _handler,
 	}
 	for _, opt := range options {
@@ -26,11 +26,11 @@ func NewHandler(ctx context.Context, options ...interface{}) (*Handler, error) {
 		if !ok {
 			continue
 		}
-		if err := _opt(ctx, handler); err != nil {
+		if err := _opt(ctx, h); err != nil {
 			return nil, err
 		}
 	}
-	return handler, nil
+	return h, nil
 }
 
 func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {

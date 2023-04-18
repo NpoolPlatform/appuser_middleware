@@ -229,7 +229,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			appuserthirdparty.FieldAppID:              {Type: field.TypeUUID, Column: appuserthirdparty.FieldAppID},
 			appuserthirdparty.FieldUserID:             {Type: field.TypeUUID, Column: appuserthirdparty.FieldUserID},
 			appuserthirdparty.FieldThirdPartyUserID:   {Type: field.TypeString, Column: appuserthirdparty.FieldThirdPartyUserID},
-			appuserthirdparty.FieldThirdPartyID:       {Type: field.TypeString, Column: appuserthirdparty.FieldThirdPartyID},
+			appuserthirdparty.FieldThirdPartyID:       {Type: field.TypeUUID, Column: appuserthirdparty.FieldThirdPartyID},
 			appuserthirdparty.FieldThirdPartyUsername: {Type: field.TypeString, Column: appuserthirdparty.FieldThirdPartyUsername},
 			appuserthirdparty.FieldThirdPartyAvatar:   {Type: field.TypeString, Column: appuserthirdparty.FieldThirdPartyAvatar},
 		},
@@ -1189,8 +1189,8 @@ func (f *AppUserThirdPartyFilter) WhereThirdPartyUserID(p entql.StringP) {
 	f.Where(p.Field(appuserthirdparty.FieldThirdPartyUserID))
 }
 
-// WhereThirdPartyID applies the entql string predicate on the third_party_id field.
-func (f *AppUserThirdPartyFilter) WhereThirdPartyID(p entql.StringP) {
+// WhereThirdPartyID applies the entql [16]byte predicate on the third_party_id field.
+func (f *AppUserThirdPartyFilter) WhereThirdPartyID(p entql.ValueP) {
 	f.Where(p.Field(appuserthirdparty.FieldThirdPartyID))
 }
 

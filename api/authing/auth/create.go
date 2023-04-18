@@ -14,7 +14,7 @@ import (
 
 func (s *Server) CreateAuth(ctx context.Context, in *npool.CreateAuthRequest) (*npool.CreateAuthResponse, error) {
 	req := in.GetInfo()
-	handler, err := auth1.NewHandler(
+	_handler, err := auth1.NewHandler(
 		ctx,
 		handler.WithID(req.ID),
 		handler.WithAppID(req.GetAppID()),
@@ -31,7 +31,7 @@ func (s *Server) CreateAuth(ctx context.Context, in *npool.CreateAuthRequest) (*
 		)
 		return &npool.CreateAuthResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-	info, err := handler.CreateAuth(ctx)
+	info, err := _handler.CreateAuth(ctx)
 	if err != nil {
 		logger.Sugar().Errorw(
 			"CreateAuth",

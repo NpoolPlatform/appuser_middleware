@@ -3,8 +3,8 @@ package user
 import (
 	"fmt"
 
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
-	entappuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuser"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
+	entappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuser"
 
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	"github.com/google/uuid"
@@ -56,7 +56,7 @@ type Conds struct {
 	ImportFromApp *cruder.Cond
 }
 
-//nolint:nolintlint,gocyclo
+//nolint
 func SetQueryConds(q *ent.AppUserQuery, conds *Conds) (*ent.AppUserQuery, error) {
 	if conds == nil {
 		return q, nil

@@ -5,18 +5,16 @@ import (
 	"context"
 	"time"
 
-	"github.com/NpoolPlatform/appuser-manager/pkg/db"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 
-	entapproleuser "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/approleuser"
-	entappusercontrol "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusercontrol"
-	entappuserextra "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserextra"
-	entappusersecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
-	entappuserthirdparty "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserthirdparty"
+	entapproleuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approleuser"
+	entappusercontrol "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appusercontrol"
+	entappuserextra "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserextra"
+	entappusersecret "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appusersecret"
+	entappuserthirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserthirdparty"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
-
-	"github.com/google/uuid"
 )
 
 type deleteHandler struct {
@@ -26,7 +24,7 @@ type deleteHandler struct {
 func (h *deleteHandler) deleteAppUser(ctx context.Context, tx *ent.Tx) error {
 	if _, err := tx.
 		AppUser.
-		UpdateOneID(uuid.MustParse(*h.ID)).
+		UpdateOneID(*h.ID).
 		SetDeletedAt(uint32(time.Now().Unix())).
 		Save(ctx); err != nil {
 		if !ent.IsNotFound(err) {
@@ -41,8 +39,8 @@ func (h *deleteHandler) deleteAppUserExtra(ctx context.Context, tx *ent.Tx) erro
 		AppUserExtra.
 		Query().
 		Where(
-			entappuserextra.AppID(uuid.MustParse(h.AppID)),
-			entappuserextra.UserID(uuid.MustParse(*h.ID)),
+			entappuserextra.AppID(h.AppID),
+			entappuserextra.UserID(*h.ID),
 		).
 		ForUpdate().
 		Only(ctx)
@@ -67,8 +65,8 @@ func (h *deleteHandler) deleteAppUserControl(ctx context.Context, tx *ent.Tx) er
 		AppUserControl.
 		Query().
 		Where(
-			entappusercontrol.AppID(uuid.MustParse(h.AppID)),
-			entappusercontrol.UserID(uuid.MustParse(*h.ID)),
+			entappusercontrol.AppID(h.AppID),
+			entappusercontrol.UserID(*h.ID),
 		).
 		ForUpdate().
 		Only(ctx)
@@ -93,8 +91,8 @@ func (h *deleteHandler) deleteAppUserSecret(ctx context.Context, tx *ent.Tx) err
 		AppUserSecret.
 		Query().
 		Where(
-			entappusersecret.AppID(uuid.MustParse(h.AppID)),
-			entappusersecret.UserID(uuid.MustParse(*h.ID)),
+			entappusersecret.AppID(h.AppID),
+			entappusersecret.UserID(*h.ID),
 		).
 		ForUpdate().
 		Only(ctx)
@@ -119,8 +117,8 @@ func (h *deleteHandler) deleteAppUserThirdParty(ctx context.Context, tx *ent.Tx)
 		AppUserThirdParty.
 		Query().
 		Where(
-			entappuserthirdparty.AppID(uuid.MustParse(h.AppID)),
-			entappuserthirdparty.UserID(uuid.MustParse(*h.ID)),
+			entappuserthirdparty.AppID(h.AppID),
+			entappuserthirdparty.UserID(*h.ID),
 		).
 		ForUpdate().
 		Only(ctx)
@@ -145,8 +143,8 @@ func (h *deleteHandler) deleteAppRoleUser(ctx context.Context, tx *ent.Tx) error
 		AppRoleUser.
 		Query().
 		Where(
-			entapproleuser.AppID(uuid.MustParse(h.AppID)),
-			entapproleuser.UserID(uuid.MustParse(*h.ID)),
+			entapproleuser.AppID(h.AppID),
+			entapproleuser.UserID(*h.ID),
 		).
 		ForUpdate().
 		Only(ctx)

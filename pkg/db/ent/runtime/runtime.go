@@ -525,7 +525,7 @@ func init() {
 	// appuserthirdpartyDescThirdPartyID is the schema descriptor for third_party_id field.
 	appuserthirdpartyDescThirdPartyID := appuserthirdpartyFields[4].Descriptor()
 	// appuserthirdparty.DefaultThirdPartyID holds the default value on creation for the third_party_id field.
-	appuserthirdparty.DefaultThirdPartyID = appuserthirdpartyDescThirdPartyID.Default.(string)
+	appuserthirdparty.DefaultThirdPartyID = appuserthirdpartyDescThirdPartyID.Default.(func() uuid.UUID)
 	// appuserthirdpartyDescThirdPartyUsername is the schema descriptor for third_party_username field.
 	appuserthirdpartyDescThirdPartyUsername := appuserthirdpartyFields[5].Descriptor()
 	// appuserthirdparty.DefaultThirdPartyUsername holds the default value on creation for the third_party_username field.
@@ -534,8 +534,6 @@ func init() {
 	appuserthirdpartyDescThirdPartyAvatar := appuserthirdpartyFields[6].Descriptor()
 	// appuserthirdparty.DefaultThirdPartyAvatar holds the default value on creation for the third_party_avatar field.
 	appuserthirdparty.DefaultThirdPartyAvatar = appuserthirdpartyDescThirdPartyAvatar.Default.(string)
-	// appuserthirdparty.ThirdPartyAvatarValidator is a validator for the "third_party_avatar" field. It is called by the builders before save.
-	appuserthirdparty.ThirdPartyAvatarValidator = appuserthirdpartyDescThirdPartyAvatar.Validators[0].(func(string) error)
 	// appuserthirdpartyDescID is the schema descriptor for id field.
 	appuserthirdpartyDescID := appuserthirdpartyFields[0].Descriptor()
 	// appuserthirdparty.DefaultID holds the default value on creation for the id field.

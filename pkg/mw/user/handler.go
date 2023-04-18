@@ -45,7 +45,7 @@ type Handler struct {
 	RoleIDs            []uuid.UUID
 	Kol                *bool
 	KolConfirmed       *bool
-	ActionCredits      *string
+	ActionCredits      *decimal.Decimal
 	Account            *string
 	AccountType        *basetypes.SignMethod
 	Conds              *npool.Conds
@@ -484,10 +484,11 @@ func WithActionCredits(credits *string) func(context.Context, *Handler) error {
 		if credits == nil {
 			return nil
 		}
-		if _, err := decimal.NewFromString(*credits); err != nil {
-			return fmt.Errorf("invalid credits")
+		_credits, err := decimal.NewFromString(*credits)
+		if err != nil {
+			return err
 		}
-		h.ActionCredits = credits
+		h.ActionCredits = &_credits
 		return nil
 	}
 }

@@ -3,32 +3,19 @@ package user
 import (
 	"context"
 
-	"github.com/NpoolPlatform/appuser-manager/pkg/encrypt"
-
-	appusersecretcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appusersecret"
-	appuserthirdpartycrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuserthirdparty"
-
-	appusersecretamgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appusersecret"
-	appuserthirdpartymgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuserthirdparty"
-
-	"github.com/NpoolPlatform/appuser-manager/pkg/db"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/encrypt"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
-	appusermgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
-	appusercontrolmgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appusercontrol"
-	appuserextramgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuserextra"
+	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
+	userthirdpartycrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/3rdparty"
+	userctrlcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/control"
+	userextracrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/extra"
+	usersecretcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/secret"
 
-	appusercrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuser"
-	appusercontrolcrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appusercontrol"
-	appuserextracrud "github.com/NpoolPlatform/appuser-manager/pkg/crud/appuserextra"
-	entappusercontrol "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusercontrol"
-	entappuserextra "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserextra"
-	entappusersecret "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appusersecret"
-	entappuserthirdparty "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserthirdparty"
-
-	"github.com/google/uuid"
+	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 )
 
 type updateHandler struct {
@@ -36,9 +23,9 @@ type updateHandler struct {
 }
 
 func (h *updateHandler) updateAppUser(ctx context.Context, tx *ent.Tx) error {
-	if _, err := appusercrud.UpdateSet(
-		tx.AppUser.UpdateOneID(uuid.MustParse(*h.ID)),
-		&appusermgrpb.AppUserReq{
+	if _, err := usercrud.UpdateSet(
+		tx.AppUser.UpdateOneID(*h.ID),
+		&usercrud.Req{
 			PhoneNO:       h.PhoneNO,
 			EmailAddress:  h.EmailAddress,
 			ImportFromApp: h.ImportedFromAppID,
@@ -49,22 +36,24 @@ func (h *updateHandler) updateAppUser(ctx context.Context, tx *ent.Tx) error {
 }
 
 func (h *updateHandler) updateAppUserExtra(ctx context.Context, tx *ent.Tx) error {
-	info, err := tx.
-		AppUserExtra.
-		Query().
-		Where(
-			entappuserextra.AppID(uuid.MustParse(h.AppID)),
-			entappuserextra.UserID(uuid.MustParse(*h.ID)),
-		).
-		ForUpdate().
-		Only(ctx)
+	stm, err := userextracrud.SetQueryConds(
+		tx.AppUserExtra.Query(),
+		&userextracrud.Conds{
+			AppID:  &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+			UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.ID},
+		},
+	)
+	if err != nil {
+		return err
+	}
+	info, err := stm.ForUpdate().Only(ctx)
 	if err != nil {
 		if !ent.IsNotFound(err) {
 			return err
 		}
 	}
 
-	req := &appuserextramgrpb.AppUserExtraReq{
+	req := &userextracrud.Req{
 		AppID:         &h.AppID,
 		UserID:        h.ID,
 		FirstName:     h.FirstName,
@@ -82,7 +71,7 @@ func (h *updateHandler) updateAppUserExtra(ctx context.Context, tx *ent.Tx) erro
 	}
 
 	if info == nil {
-		if _, err = appuserextracrud.CreateSet(
+		if _, err = userextracrud.CreateSet(
 			tx.AppUserExtra.Create(),
 			req,
 		).Save(ctx); err != nil {
@@ -91,29 +80,39 @@ func (h *updateHandler) updateAppUserExtra(ctx context.Context, tx *ent.Tx) erro
 		return nil
 	}
 
-	if _, err = appuserextracrud.UpdateSet(info, req).Save(ctx); err != nil {
+	_stm, err := userextracrud.UpdateSet(
+		ctx,
+		info.Update(),
+		req,
+	)
+	if err != nil {
+		return err
+	}
+	if _, err := _stm.Save(ctx); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (h *updateHandler) updateAppUserControl(ctx context.Context, tx *ent.Tx) error {
-	info, err := tx.
-		AppUserControl.
-		Query().
-		Where(
-			entappusercontrol.AppID(uuid.MustParse(h.AppID)),
-			entappusercontrol.UserID(uuid.MustParse(*h.ID)),
-		).
-		ForUpdate().
-		Only(ctx)
+	stm, err := userctrlcrud.SetQueryConds(
+		tx.AppUserControl.Query(),
+		&userctrlcrud.Conds{
+			AppID:  &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+			UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.ID},
+		},
+	)
+	if err != nil {
+		return err
+	}
+	info, err := stm.ForUpdate().Only(ctx)
 	if err != nil {
 		if !ent.IsNotFound(err) {
 			return err
 		}
 	}
 
-	req := &appusercontrolmgrpb.AppUserControlReq{
+	req := &userctrlcrud.Req{
 		AppID:              &h.AppID,
 		UserID:             h.ID,
 		GoogleAuthVerified: h.GoogleAuthVerified,
@@ -123,7 +122,7 @@ func (h *updateHandler) updateAppUserControl(ctx context.Context, tx *ent.Tx) er
 	}
 
 	if info == nil {
-		if _, err := appusercontrolcrud.CreateSet(
+		if _, err := userctrlcrud.CreateSet(
 			tx.AppUserControl.Create(),
 			req,
 		).Save(ctx); err != nil {
@@ -132,7 +131,10 @@ func (h *updateHandler) updateAppUserControl(ctx context.Context, tx *ent.Tx) er
 		return nil
 	}
 
-	if _, err = appusercontrolcrud.UpdateSet(info, req).Save(ctx); err != nil {
+	if _, err = userctrlcrud.UpdateSet(
+		info.Update(),
+		req,
+	).Save(ctx); err != nil {
 		return err
 	}
 	return nil
@@ -152,22 +154,24 @@ func (h *updateHandler) updateAppUserSecret(ctx context.Context, tx *ent.Tx) err
 		password = &passwordStr
 	}
 
-	info, err := tx.
-		AppUserSecret.
-		Query().
-		Where(
-			entappusersecret.AppID(uuid.MustParse(h.AppID)),
-			entappusersecret.UserID(uuid.MustParse(*h.ID)),
-		).
-		ForUpdate().
-		Only(ctx)
+	stm, err := usersecretcrud.SetQueryConds(
+		tx.AppUserSecret.Query(),
+		&usersecretcrud.Conds{
+			AppID:  &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+			UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.ID},
+		},
+	)
+	if err != nil {
+		return err
+	}
+	info, err := stm.ForUpdate().Only(ctx)
 	if err != nil {
 		return err
 	}
 
-	if _, err = appusersecretcrud.UpdateSet(
-		info,
-		&appusersecretamgrpb.AppUserSecretReq{
+	if _, err = usersecretcrud.UpdateSet(
+		info.Update(),
+		&usersecretcrud.Req{
 			PasswordHash: password,
 			Salt:         salt,
 			GoogleSecret: h.GoogleSecret,
@@ -178,15 +182,17 @@ func (h *updateHandler) updateAppUserSecret(ctx context.Context, tx *ent.Tx) err
 }
 
 func (h *updateHandler) updateAppUserThirdParty(ctx context.Context, tx *ent.Tx) error {
-	info, err := tx.
-		AppUserThirdParty.
-		Query().
-		Where(
-			entappuserthirdparty.AppID(uuid.MustParse(h.AppID)),
-			entappuserthirdparty.UserID(uuid.MustParse(*h.ID)),
-		).
-		ForUpdate().
-		Only(ctx)
+	stm, err := userthirdpartycrud.SetQueryConds(
+		tx.AppUserThirdParty.Query(),
+		&userthirdpartycrud.Conds{
+			AppID:  &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+			UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.ID},
+		},
+	)
+	if err != nil {
+		return err
+	}
+	info, err := stm.ForUpdate().Only(ctx)
 	if err != nil {
 		if !ent.IsNotFound(err) {
 			return err
@@ -197,7 +203,7 @@ func (h *updateHandler) updateAppUserThirdParty(ctx context.Context, tx *ent.Tx)
 		return nil
 	}
 
-	req := &appuserthirdpartymgrpb.AppUserThirdPartyReq{
+	req := &userthirdpartycrud.Req{
 		AppID:              &h.AppID,
 		UserID:             h.ID,
 		ThirdPartyID:       h.ThirdPartyID,
@@ -207,7 +213,7 @@ func (h *updateHandler) updateAppUserThirdParty(ctx context.Context, tx *ent.Tx)
 	}
 
 	if info == nil {
-		if _, err := appuserthirdpartycrud.CreateSet(
+		if _, err := userthirdpartycrud.CreateSet(
 			tx.AppUserThirdParty.Create(),
 			req,
 		).Save(ctx); err != nil {
@@ -216,7 +222,10 @@ func (h *updateHandler) updateAppUserThirdParty(ctx context.Context, tx *ent.Tx)
 		return nil
 	}
 
-	if _, err = appuserthirdpartycrud.UpdateSet(info, req).Save(ctx); err != nil {
+	if _, err = userthirdpartycrud.UpdateSet(
+		info.Update(),
+		req,
+	).Save(ctx); err != nil {
 		return err
 	}
 	return nil

@@ -13,7 +13,7 @@ import (
 )
 
 func (s *Server) ExistAuth(ctx context.Context, in *npool.ExistAuthRequest) (*npool.ExistAuthResponse, error) {
-	handler, err := auth1.NewHandler(
+	_handler, err := auth1.NewHandler(
 		ctx,
 		handler.WithAppID(in.GetAppID()),
 		handler.WithUserID(in.UserID),
@@ -28,7 +28,7 @@ func (s *Server) ExistAuth(ctx context.Context, in *npool.ExistAuthRequest) (*np
 		)
 		return &npool.ExistAuthResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-	exist, err := handler.ExistAuth(ctx)
+	exist, err := _handler.ExistAuth(ctx)
 	if err != nil {
 		logger.Sugar().Errorw(
 			"ExistAuth",

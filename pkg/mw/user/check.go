@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/NpoolPlatform/appuser-manager/pkg/db"
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 
 	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
 	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"

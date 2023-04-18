@@ -11,8 +11,6 @@ import (
 	"time"
 
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
-	commonpb "github.com/NpoolPlatform/message/npool"
-	mgrpb "github.com/NpoolPlatform/message/npool/appuser/mgr/v2/appuser"
 
 	"bou.ke/monkey"
 	"github.com/NpoolPlatform/go-service-framework/pkg/config"
@@ -186,8 +184,8 @@ func getUser(t *testing.T) {
 }
 
 func getUsers(t *testing.T) {
-	infos, _, err := GetUsers(context.Background(), &mgrpb.Conds{
-		AppID: &commonpb.StringVal{
+	infos, _, err := GetUsers(context.Background(), &npool.Conds{
+		AppID: &basetypes.StringVal{
 			Op:    cruder.EQ,
 			Value: ret.AppID,
 		},

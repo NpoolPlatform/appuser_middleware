@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/NpoolPlatform/appuser-manager/pkg/db/ent"
-	entappuserextra "github.com/NpoolPlatform/appuser-manager/pkg/db/ent/appuserextra"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
+	entappuserextra "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserextra"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 
 	"github.com/google/uuid"

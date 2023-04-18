@@ -37,22 +37,24 @@ func (AppUserThirdParty) Fields() []ent.Field {
 			Default(func() uuid.UUID {
 				return uuid.UUID{}
 			}),
-		field.String("third_party_user_id").
+		field.
+			String("third_party_user_id").
 			Optional().
 			Default(""),
 		field.
-			String("third_party_id").
+			UUID("third_party_id", uuid.UUID{}).
 			Optional().
-			Default(""),
+			Default(func() uuid.UUID {
+				return uuid.UUID{}
+			}),
 		field.
 			String("third_party_username").
 			Optional().
 			Default(""),
 		field.
-			String("third_party_avatar").
+			Text("third_party_avatar").
 			Optional().
-			Default("").
-			MaxLen(1024), // nolint
+			Default(""),
 	}
 }
 
