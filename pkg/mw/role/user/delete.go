@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
@@ -13,11 +12,12 @@ import (
 )
 
 func (h *Handler) DeleteUser(ctx context.Context) (*npool.User, error) {
-	if h.ID == nil {
-		return nil, fmt.Errorf("invalid id")
+	info, err := h.GetUser(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		now := uint32(time.Now().Unix())
 		if _, err := usercrud.UpdateSet(
 			cli.AppRoleUser.UpdateOneID(*h.ID),
@@ -34,5 +34,5 @@ func (h *Handler) DeleteUser(ctx context.Context) (*npool.User, error) {
 		return nil, err
 	}
 
-	return h.GetUser(ctx)
+	return info, nil
 }
