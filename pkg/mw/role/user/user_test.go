@@ -88,9 +88,9 @@ func setup(t *testing.T) func(*testing.T) {
 	assert.NotNil(t, user1)
 
 	return func(*testing.T) {
-		ah.DeleteApp(context.Background())
-		rh.DeleteRole(context.Background())
-		uh.DeleteUser(context.Background())
+		_, _ = ah.DeleteApp(context.Background())
+		_, _ = rh.DeleteRole(context.Background())
+		_, _ = uh.DeleteUser(context.Background())
 	}
 }
 

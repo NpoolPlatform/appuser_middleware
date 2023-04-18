@@ -55,7 +55,7 @@ func setup(t *testing.T) func(*testing.T) {
 	assert.NotNil(t, app1)
 
 	return func(*testing.T) {
-		ah.DeleteApp(context.Background())
+		_, _ = ah.DeleteApp(context.Background())
 	}
 }
 
