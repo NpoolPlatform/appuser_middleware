@@ -28,7 +28,7 @@ func (h *updateHandler) updateAppUser(ctx context.Context, tx *ent.Tx) error {
 		&usercrud.Req{
 			PhoneNO:       h.PhoneNO,
 			EmailAddress:  h.EmailAddress,
-			ImportFromApp: h.ImportedFromAppID,
+			ImportFromApp: h.ImportFromAppID,
 		}).Save(ctx); err != nil {
 		return err
 	}

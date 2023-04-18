@@ -99,26 +99,6 @@ func GetUsers(ctx context.Context, conds *npool.Conds, offset, limit int32) ([]*
 	return infos.([]*npool.User), total, nil
 }
 
-func GetManyUsers(ctx context.Context, ids []string) ([]*npool.User, uint32, error) {
-	var total uint32
-
-	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
-		resp, err := cli.GetManyUsers(ctx, &npool.GetManyUsersRequest{
-			IDs: ids,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		total = resp.GetTotal()
-		return resp.Infos, nil
-	})
-	if err != nil {
-		return nil, 0, err
-	}
-	return infos.([]*npool.User), total, nil
-}
-
 func VerifyAccount(
 	ctx context.Context,
 	appID, account string,
@@ -157,6 +137,25 @@ func VerifyUser(
 			AppID:        appID,
 			UserID:       userID,
 			PasswordHash: passwordHash,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return info.(*npool.User), nil
+}
+
+func DeleteUser(ctx context.Context, appID, userID string) (*npool.User, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.DeleteUser(ctx, &npool.DeleteUserRequest{
+			Info: &npool.UserReq{
+				ID:    &userID,
+				AppID: &appID,
+			},
 		})
 		if err != nil {
 			return nil, err
