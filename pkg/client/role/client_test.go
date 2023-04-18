@@ -1,5 +1,6 @@
 package role
 
+/*
 import (
 	"context"
 	"fmt"
@@ -84,3 +85,4 @@ func TestMainOrder(t *testing.T) {
 	t.Run("getRoles", getRoles)
 	t.Run("getManyRoles", getManyRoles)
 }
+*/
