@@ -14,7 +14,7 @@ import (
 func (s *Server) GetRole(ctx context.Context, in *npool.GetRoleRequest) (*npool.GetRoleResponse, error) {
 	handler, err := role1.NewHandler(
 		ctx,
-		role1.WithID(in.GetID()),
+		role1.WithID(&in.ID),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

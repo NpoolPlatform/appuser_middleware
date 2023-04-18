@@ -17,6 +17,7 @@ type Req struct {
 	Description *string
 	Default     *bool
 	Genesis     *bool
+	DeletedAt   *uint32
 }
 
 func CreateSet(c *ent.AppRoleCreate, req *Req) *ent.AppRoleCreate {
@@ -53,6 +54,9 @@ func UpdateSet(u *ent.AppRoleUpdateOne, req *Req) *ent.AppRoleUpdateOne {
 	}
 	if req.Default != nil {
 		u.SetDefault(*req.Default)
+	}
+	if req.DeletedAt != nil {
+		u.SetDeletedAt(*req.DeletedAt)
 	}
 	return u
 }
