@@ -28,6 +28,38 @@ func do(ctx context.Context, fn func(_ctx context.Context, cli npool.MiddlewareC
 	return fn(_ctx, cli)
 }
 
+func CreateRole(ctx context.Context, req *npool.RoleReq) (*npool.Role, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.CreateRole(ctx, &npool.CreateRoleRequest{
+			Info: req,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return info.(*npool.Role), nil
+}
+
+func UpdateRole(ctx context.Context, req *npool.RoleReq) (*npool.Role, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.UpdateRole(ctx, &npool.UpdateRoleRequest{
+			Info: req,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return info.(*npool.Role), nil
+}
+
 func GetRole(ctx context.Context, id string) (*npool.Role, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetRole(ctx, &npool.GetRoleRequest{
@@ -62,4 +94,22 @@ func GetRoles(ctx context.Context, conds *npool.Conds, offset, limit int32) ([]*
 		return nil, 0, err
 	}
 	return infos.([]*npool.Role), total, nil
+}
+
+func DeleteRole(ctx context.Context, id string) (*npool.Role, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.DeleteRole(ctx, &npool.DeleteRoleRequest{
+			Info: &npool.RoleReq{
+				ID: &id,
+			},
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return info.(*npool.Role), nil
 }
