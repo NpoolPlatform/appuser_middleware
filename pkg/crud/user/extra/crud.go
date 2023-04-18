@@ -153,7 +153,7 @@ func SetQueryConds(q *ent.AppUserExtraQuery, conds *Conds) (*ent.AppUserExtraQue
 		}
 	}
 	if conds.AppID != nil {
-		id, ok := conds.ID.Val.(uuid.UUID)
+		id, ok := conds.AppID.Val.(uuid.UUID)
 		if !ok {
 			return nil, fmt.Errorf("invalid appid")
 		}
@@ -165,7 +165,7 @@ func SetQueryConds(q *ent.AppUserExtraQuery, conds *Conds) (*ent.AppUserExtraQue
 		}
 	}
 	if conds.UserID != nil {
-		id, ok := conds.ID.Val.(uuid.UUID)
+		id, ok := conds.UserID.Val.(uuid.UUID)
 		if !ok {
 			return nil, fmt.Errorf("invalid userid")
 		}

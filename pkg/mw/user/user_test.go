@@ -17,6 +17,8 @@ import (
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/testinit"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
+
+	app "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
 )
 
 func init() {
@@ -62,61 +64,65 @@ var (
 	}
 )
 
-func creatUser(t *testing.T) {
-	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)           //nolint
-	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000) //nolint
-	var (
-		strVal = "AAA"
-		req    = npool.UserReq{
-			ID:                 &ret.ID,
-			AppID:              &ret.AppID,
-			EmailAddress:       &ret.EmailAddress,
-			PhoneNO:            &ret.PhoneNO,
-			ImportedFromAppID:  &ret.ImportedFromAppID,
-			Username:           &ret.Username,
-			AddressFields:      uuidSlice,
-			Gender:             &ret.Gender,
-			PostalCode:         &ret.PostalCode,
-			Age:                &ret.Age,
-			Birthday:           &ret.Birthday,
-			Avatar:             &ret.Avatar,
-			Organization:       &ret.Organization,
-			FirstName:          &ret.FirstName,
-			LastName:           &ret.LastName,
-			IDNumber:           &ret.IDNumber,
-			GoogleAuthVerified: &ret.GoogleAuthVerified,
-			SigninVerifyType:   &signType,
-			PasswordHash:       &strVal,
-			GoogleSecret:       &appID,
-			ThirdPartyID:       &strVal,
-			ThirdPartyUserID:   &strVal,
-			ThirdPartyUsername: &strVal,
-			ThirdPartyAvatar:   &strVal,
-			Banned:             &ret.Banned,
-			BanMessage:         &ret.BanMessage,
-		}
-		ret1 = npool.User{
-			ID:                  ret.ID,
-			AppID:               ret.AppID,
-			EmailAddress:        ret.EmailAddress,
-			PhoneNO:             ret.PhoneNO,
-			ImportedFromAppID:   ret.ImportedFromAppID,
-			ActionCredits:       ret.ActionCredits,
-			AddressFieldsString: "[]",
-			AddressFields:       []string{},
-			SigninVerifyTypeStr: basetypes.SignMethod_Email.String(),
-			SigninVerifyType:    basetypes.SignMethod_Email,
-		}
+func setupUser(t *testing.T) func(*testing.T) {
+	ah, err := app.NewHandler(
+		context.Background(),
+		app.WithID(&ret.AppID),
+		app.WithCreatedBy(ret.ID),
+		app.WithName(&ret.AppID),
 	)
+	assert.Nil(t, err)
+	assert.NotNil(t, ah)
+	app1, err := ah.CreateApp(context.Background())
+	assert.Nil(t, err)
+	assert.NotNil(t, app1)
+
+	ah1, err := app.NewHandler(
+		context.Background(),
+		app.WithID(&ret.ImportedFromAppID),
+		app.WithCreatedBy(ret.ID),
+		app.WithName(&ret.ImportedFromAppID),
+	)
+	assert.Nil(t, err)
+	assert.NotNil(t, ah1)
+	app2, err := ah1.CreateApp(context.Background())
+	assert.Nil(t, err)
+	assert.NotNil(t, app2)
+
+	return func(*testing.T) {
+		ah.DeleteApp(context.Background())
+		ah1.DeleteApp(context.Background())
+	}
+}
+
+func creatUser(t *testing.T) {
+	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+1000000)           //nolint
+	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+1000000) //nolint
+	ret.ImportedFromAppName = ret.ImportedFromAppID
+	ret1 := npool.User{
+		ID:                  ret.ID,
+		AppID:               ret.AppID,
+		EmailAddress:        ret.EmailAddress,
+		PhoneNO:             ret.PhoneNO,
+		ImportedFromAppID:   ret.ImportedFromAppID,
+		ImportedFromAppName: ret.ImportedFromAppID,
+		ActionCredits:       ret.ActionCredits,
+		AddressFieldsString: "[]",
+		AddressFields:       []string{},
+		SigninVerifyTypeStr: basetypes.SignMethod_Email.String(),
+		SigninVerifyType:    basetypes.SignMethod_Email,
+	}
+
+	passwordHash := uuid.NewString()
 
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(req.ID),
-		WithAppID(req.GetAppID()),
-		WithPhoneNO(req.PhoneNO),
-		WithEmailAddress(req.EmailAddress),
-		WithImportedFromAppID(req.ImportedFromAppID),
-		WithPasswordHash(req.PasswordHash),
+		WithID(&ret.ID),
+		WithAppID(ret.GetAppID()),
+		WithPhoneNO(&ret.PhoneNO),
+		WithEmailAddress(&ret.EmailAddress),
+		WithImportedFromAppID(&ret.ImportedFromAppID),
+		WithPasswordHash(&passwordHash),
 	)
 	assert.Nil(t, err)
 
@@ -256,6 +262,10 @@ func TestUser(t *testing.T) {
 	if runByGithubAction, err := strconv.ParseBool(os.Getenv("RUN_BY_GITHUB_ACTION")); err == nil && runByGithubAction {
 		return
 	}
+
+	teardown := setupUser(t)
+	defer teardown(t)
+
 	t.Run("creatUser", creatUser)
 	t.Run("updateUser", updateUser)
 	t.Run("getUser", getUser)

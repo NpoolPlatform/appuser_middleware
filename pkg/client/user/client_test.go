@@ -26,6 +26,9 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/testinit"
 
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
+
+	appmwcli "github.com/NpoolPlatform/appuser-middleware/pkg/client/app"
+	appmwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 )
 
 func init() {
@@ -70,9 +73,39 @@ var (
 	}
 )
 
+func setupUser(t *testing.T) func(*testing.T) {
+	app1, err := appmwcli.CreateApp(
+		context.Background(),
+		&appmwpb.AppReq{
+			ID:        &ret.AppID,
+			CreatedBy: &ret.ID,
+			Name:      &ret.AppID,
+		},
+	)
+	assert.Nil(t, err)
+	assert.NotNil(t, app1)
+
+	app2, err := appmwcli.CreateApp(
+		context.Background(),
+		&appmwpb.AppReq{
+			ID:        &ret.ImportedFromAppID,
+			CreatedBy: &ret.ID,
+			Name:      &ret.ImportedFromAppID,
+		},
+	)
+	assert.Nil(t, err)
+	assert.NotNil(t, app2)
+
+	return func(*testing.T) {
+		_, _ = appmwcli.DeleteApp(context.Background(), ret.AppID)
+		_, _ = appmwcli.DeleteApp(context.Background(), ret.ImportedFromAppID)
+	}
+}
+
 func creatUser(t *testing.T) {
 	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)           //nolint
 	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000) //nolint
+	ret.ImportedFromAppName = ret.ImportedFromAppID
 	var (
 		id                = ret.ID
 		appID             = ret.AppID
@@ -112,6 +145,7 @@ func creatUser(t *testing.T) {
 			EmailAddress:        ret.EmailAddress,
 			PhoneNO:             ret.PhoneNO,
 			ImportedFromAppID:   ret.ImportedFromAppID,
+			ImportedFromAppName: ret.ImportedFromAppName,
 			ActionCredits:       ret.ActionCredits,
 			AddressFieldsString: "[]",
 			AddressFields:       nil,
@@ -212,6 +246,9 @@ func TestUser(t *testing.T) {
 	monkey.Patch(grpc2.GetGRPCConn, func(service string, tags ...string) (*grpc.ClientConn, error) {
 		return grpc.Dial(fmt.Sprintf("localhost:%v", gport), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	})
+
+	teardown := setupUser(t)
+	defer teardown(t)
 
 	t.Run("creatUser", creatUser)
 	t.Run("updateUser", updateUser)

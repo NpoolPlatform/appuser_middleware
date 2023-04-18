@@ -35,7 +35,7 @@ func (h *Handler) checkAccountExist(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		if !exist {
+		if exist {
 			return fmt.Errorf("user already exist")
 		}
 		return nil
