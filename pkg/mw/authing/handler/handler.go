@@ -16,15 +16,18 @@ type Handler struct {
 	RoleID   *uuid.UUID
 	Method   string
 	Resource string
-	Conds    interface{}
 	Offset   int32
 	Limit    int32
 }
 
-func NewHandler(ctx context.Context, options ...func(context.Context, *Handler) error) (*Handler, error) {
+func NewHandler(ctx context.Context, options ...interface{}) (*Handler, error) {
 	handler := &Handler{}
 	for _, opt := range options {
-		if err := opt(ctx, handler); err != nil {
+		_opt, ok := opt.(func(context.Context, *Handler) error)
+		if !ok {
+			continue
+		}
+		if err := _opt(ctx, handler); err != nil {
 			return nil, err
 		}
 	}
@@ -104,13 +107,6 @@ func WithResource(resource string) func(context.Context, *Handler) error {
 			return fmt.Errorf("resource %v invalid", resource)
 		}
 		h.Resource = resource
-		return nil
-	}
-}
-
-func WithConds(conds interface{}) func(context.Context, *Handler) error {
-	return func(ctx context.Context, h *Handler) error {
-		h.Conds = conds
 		return nil
 	}
 }

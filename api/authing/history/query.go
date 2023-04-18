@@ -13,9 +13,9 @@ import (
 )
 
 func (s *Server) GetHistories(ctx context.Context, in *npool.GetHistoriesRequest) (*npool.GetHistoriesResponse, error) {
-	h, err := handler.NewHandler(
+	handler, err := history1.NewHandler(
 		ctx,
-		handler.WithConds(in.GetConds()),
+		history1.WithConds(in.GetConds()),
 		handler.WithOffset(in.GetOffset()),
 		handler.WithLimit(in.GetLimit()),
 	)
@@ -27,10 +27,7 @@ func (s *Server) GetHistories(ctx context.Context, in *npool.GetHistoriesRequest
 		)
 		return &npool.GetHistoriesResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-	_handler := &history1.Handler{
-		Handler: h,
-	}
-	infos, total, err := _handler.GetHistories(ctx)
+	infos, total, err := handler.GetHistories(ctx)
 	if err != nil {
 		logger.Sugar().Errorw(
 			"GetHistories",

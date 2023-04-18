@@ -14,13 +14,14 @@ import (
 
 func (s *Server) CreateHistory(ctx context.Context, in *npool.CreateHistoryRequest) (*npool.CreateHistoryResponse, error) {
 	req := in.GetInfo()
-	h, err := handler.NewHandler(
+	handler, err := history1.NewHandler(
 		ctx,
 		handler.WithID(req.ID),
 		handler.WithAppID(req.GetAppID()),
 		handler.WithUserID(req.UserID),
 		handler.WithResource(req.GetResource()),
 		handler.WithMethod(req.GetMethod()),
+		history1.WithAllowed(req.GetAllowed()),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
@@ -30,10 +31,7 @@ func (s *Server) CreateHistory(ctx context.Context, in *npool.CreateHistoryReque
 		)
 		return &npool.CreateHistoryResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-	_handler := (&history1.Handler{
-		Handler: h,
-	}).WithAllowed(req.GetAllowed())
-	info, err := _handler.CreateHistory(ctx)
+	info, err := handler.CreateHistory(ctx)
 	if err != nil {
 		logger.Sugar().Errorw(
 			"CreateHistory",
