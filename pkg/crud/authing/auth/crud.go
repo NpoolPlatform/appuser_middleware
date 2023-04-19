@@ -11,12 +11,13 @@ import (
 )
 
 type Req struct {
-	ID       *uuid.UUID
-	AppID    *uuid.UUID
-	RoleID   *uuid.UUID
-	UserID   *uuid.UUID
-	Resource *string
-	Method   *string
+	ID        *uuid.UUID
+	AppID     *uuid.UUID
+	RoleID    *uuid.UUID
+	UserID    *uuid.UUID
+	Resource  *string
+	Method    *string
+	DeletedAt *uint32
 }
 
 func CreateSet(c *ent.AuthCreate, req *Req) *ent.AuthCreate {
@@ -41,7 +42,16 @@ func CreateSet(c *ent.AuthCreate, req *Req) *ent.AuthCreate {
 	return c
 }
 
-func UpdateSet(u *ent.AuthUpdateOne, in *Req) *ent.AuthUpdateOne {
+func UpdateSet(u *ent.AuthUpdateOne, req *Req) *ent.AuthUpdateOne {
+	if req.Resource != nil {
+		u.SetResource(*req.Resource)
+	}
+	if req.Method != nil {
+		u.SetMethod(*req.Method)
+	}
+	if req.DeletedAt != nil {
+		u.SetDeletedAt(*req.DeletedAt)
+	}
 	return u
 }
 

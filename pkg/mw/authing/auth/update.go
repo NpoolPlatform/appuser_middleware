@@ -2,25 +2,23 @@ package auth
 
 import (
 	"context"
+	"fmt"
 
 	authcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/authing/auth"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/auth"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
-
-	"github.com/google/uuid"
 )
 
-func (h *Handler) CreateAuth(ctx context.Context) (*npool.Auth, error) {
-	id := uuid.New()
+func (h *Handler) UpdateAuth(ctx context.Context) (*npool.Auth, error) {
 	if h.ID == nil {
-		h.ID = &id
+		return nil, fmt.Errorf("invalid id")
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if _, err := authcrud.CreateSet(
-			cli.Auth.Create(),
+		if _, err := authcrud.UpdateSet(
+			cli.Auth.UpdateOneID(*h.ID),
 			&authcrud.Req{
 				ID:       h.ID,
 				AppID:    &h.AppID,

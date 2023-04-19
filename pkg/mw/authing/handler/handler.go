@@ -14,8 +14,8 @@ type Handler struct {
 	AppID    uuid.UUID
 	UserID   *uuid.UUID
 	RoleID   *uuid.UUID
-	Method   string
-	Resource string
+	Method   *string
+	Resource *string
 	Offset   int32
 	Limit    int32
 }
@@ -87,24 +87,30 @@ func WithUserID(id *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithMethod(method string) func(context.Context, *Handler) error {
+func WithMethod(method *string) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		switch method {
+		if method == nil {
+			return nil
+		}
+		switch *method {
 		case "POST":
 		case "GET":
 		default:
-			return fmt.Errorf("method %v invalid", method)
+			return fmt.Errorf("method %v invalid", *method)
 		}
 		h.Method = method
 		return nil
 	}
 }
 
-func WithResource(resource string) func(context.Context, *Handler) error {
+func WithResource(resource *string) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
+		if resource == nil {
+			return nil
+		}
 		const leastResourceLen = 3
-		if len(resource) < leastResourceLen {
-			return fmt.Errorf("resource %v invalid", resource)
+		if len(*resource) < leastResourceLen {
+			return fmt.Errorf("resource %v invalid", *resource)
 		}
 		h.Resource = resource
 		return nil
