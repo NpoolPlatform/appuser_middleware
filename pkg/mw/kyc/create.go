@@ -32,7 +32,6 @@ func (h *Handler) CreateKyc(ctx context.Context) (*npool.Kyc, error) {
 				SelfieImg:    h.SelfieImg,
 				EntityType:   h.EntityType,
 				ReviewID:     h.ReviewID,
-				State:        h.State,
 			},
 		).Save(_ctx); err != nil {
 			return err
