@@ -37,8 +37,8 @@ func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*
 		user1.WithKol(req.Kol),
 		user1.WithKolConfirmed(req.KolConfirmed),
 		user1.WithActionCredits(req.ActionCredits),
-		app1.WithBanned(req.Banned),
-		app1.WithBanMessage(req.BanMessage),
+		user1.WithBanned(req.Banned),
+		user1.WithBanMessage(req.BanMessage),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
