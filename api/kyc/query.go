@@ -3,69 +3,69 @@ package kyc
 import (
 	"context"
 
-	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
+	kyc1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/kyc"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
-	"go.opentelemetry.io/otel"
-	scodes "go.opentelemetry.io/otel/codes"
-
-	ckyc "github.com/NpoolPlatform/appuser-middleware/pkg/converter/v1/kyc"
-	mkyc "github.com/NpoolPlatform/appuser-middleware/pkg/mw/kyc"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/kyc"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"github.com/google/uuid"
 )
 
 func (s *Server) GetKyc(ctx context.Context, in *npool.GetKycRequest) (*npool.GetKycResponse, error) {
-	var err error
-
-	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetKyc")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
-
-	if _, err := uuid.Parse(in.GetID()); err != nil {
-		logger.Sugar().Errorw("GetKyc", "error", err)
-		return &npool.GetKycResponse{}, status.Error(codes.InvalidArgument, "ID is invalid")
-	}
-
-	info, err := mkyc.GetKyc(ctx, in.GetID())
+	handler, err := kyc1.NewHandler(
+		ctx,
+		kyc1.WithID(&in.ID),
+	)
 	if err != nil {
-		logger.Sugar().Errorw("GetKyc", "error", err)
-		return &npool.GetKycResponse{}, status.Error(codes.Internal, "fail get kyc")
+		logger.Sugar().Errorw(
+			"GetKyc",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.GetKycResponse{}, status.Error(codes.Aborted, err.Error())
+	}
+	info, err := handler.GetKyc(ctx)
+	if err != nil {
+		logger.Sugar().Errorw(
+			"GetKyc",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.GetKycResponse{}, status.Error(codes.Aborted, err.Error())
 	}
 
 	return &npool.GetKycResponse{
-		Info: ckyc.Ent2Grpc(info),
+		Info: info,
 	}, nil
 }
 
 func (s *Server) GetKycs(ctx context.Context, in *npool.GetKycsRequest) (*npool.GetKycsResponse, error) {
-	var err error
-
-	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetKycs")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
-
-	infos, total, err := mkyc.GetKycs(ctx, in.GetConds(), in.GetOffset(), in.GetLimit())
+	handler, err := kyc1.NewHandler(
+		ctx,
+		kyc1.WithConds(in.GetConds()),
+		kyc1.WithOffset(in.GetOffset()),
+		kyc1.WithLimit(in.GetLimit()),
+	)
 	if err != nil {
-		logger.Sugar().Errorw("GetKycs", "error", err)
-		return &npool.GetKycsResponse{}, status.Error(codes.Internal, "fail get kycs")
+		logger.Sugar().Errorw(
+			"GetKycs",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.GetKycsResponse{}, status.Error(codes.Aborted, err.Error())
+	}
+	infos, total, err := handler.GetKycs(ctx)
+	if err != nil {
+		logger.Sugar().Errorw(
+			"GetKycs",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.GetKycsResponse{}, status.Error(codes.Aborted, err.Error())
 	}
 
 	return &npool.GetKycsResponse{
-		Infos: ckyc.Ent2GrpcMany(infos),
+		Infos: infos,
 		Total: total,
 	}, nil
 }

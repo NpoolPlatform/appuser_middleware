@@ -9,7 +9,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/api/kyc"
 	"github.com/NpoolPlatform/appuser-middleware/api/role"
 	roleuser "github.com/NpoolPlatform/appuser-middleware/api/role/user"
-	"github.com/NpoolPlatform/appuser-middleware/api/subscriber"
+	// "github.com/NpoolPlatform/appuser-middleware/api/subscriber"
 	"github.com/NpoolPlatform/appuser-middleware/api/user"
 
 	appusermw "github.com/NpoolPlatform/message/npool/appuser/mw/v1"
@@ -25,7 +25,7 @@ type Service struct {
 func Register(server grpc.ServiceRegistrar) {
 	appusermw.RegisterMiddlewareServer(server, &Service{})
 	app.Register(server)
-	subscriber.Register(server)
+	// subscriber.Register(server)
 	user.Register(server)
 	role.Register(server)
 	roleuser.Register(server)

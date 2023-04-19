@@ -5,8 +5,8 @@ import (
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/kyc"
-
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/google/uuid"
 )
@@ -25,69 +25,67 @@ type Req struct {
 	State        *basetypes.KycState
 }
 
-func CreateSet(c *ent.KycCreate, info *Req) *ent.KycCreate {
-	if info.ID != nil {
-		c.SetID(uuid.MustParse(info.GetID()))
+func CreateSet(c *ent.KycCreate, req *Req) *ent.KycCreate {
+	if req.ID != nil {
+		c.SetID(*req.ID)
 	}
-	if info.AppID != nil {
-		c.SetAppID(uuid.MustParse(info.GetAppID()))
+	if req.AppID != nil {
+		c.SetAppID(*req.AppID)
 	}
-	if info.UserID != nil {
-		c.SetUserID(uuid.MustParse(info.GetUserID()))
+	if req.UserID != nil {
+		c.SetUserID(*req.UserID)
 	}
-	if info.DocumentType != nil {
-		c.SetDocumentType(info.GetDocumentType().String())
+	if req.DocumentType != nil {
+		c.SetDocumentType(req.DocumentType.String())
 	}
-	if info.IDNumber != nil {
-		c.SetIDNumber(info.GetIDNumber())
+	if req.IDNumber != nil {
+		c.SetIDNumber(*req.IDNumber)
 	}
-	if info.FrontImg != nil {
-		c.SetFrontImg(info.GetFrontImg())
+	if req.FrontImg != nil {
+		c.SetFrontImg(*req.FrontImg)
 	}
-	if info.BackImg != nil {
-		c.SetBackImg(info.GetBackImg())
+	if req.BackImg != nil {
+		c.SetBackImg(*req.BackImg)
 	}
-	if info.SelfieImg != nil {
-		c.SetSelfieImg(info.GetSelfieImg())
+	if req.SelfieImg != nil {
+		c.SetSelfieImg(*req.SelfieImg)
 	}
-	if info.EntityType != nil {
-		c.SetEntityType(info.GetEntityType().String())
+	if req.EntityType != nil {
+		c.SetEntityType(req.EntityType.String())
 	}
-	if info.ReviewID != nil {
-		c.SetReviewID(uuid.MustParse(info.GetReviewID()))
+	if req.ReviewID != nil {
+		c.SetReviewID(*req.ReviewID)
 	}
-	if info.State != nil {
-		c.SetState(info.GetState().String())
+	if req.State != nil {
+		c.SetState(req.State.String())
 	}
 	return c
 }
 
-func UpdateSet(info *ent.Kyc, in *Req) *ent.KycUpdateOne {
-	u := info.Update()
-
-	if in.DocumentType != nil {
-		u.SetDocumentType(in.GetDocumentType().String())
+func UpdateSet(u *ent.KycUpdateOne, req *Req) *ent.KycUpdateOne {
+	if req.DocumentType != nil {
+		u.SetDocumentType(req.DocumentType.String())
 	}
-	if in.IDNumber != nil {
-		u.SetIDNumber(in.GetIDNumber())
+	if req.IDNumber != nil {
+		u.SetIDNumber(*req.IDNumber)
 	}
-	if in.FrontImg != nil {
-		u.SetFrontImg(in.GetFrontImg())
+	if req.FrontImg != nil {
+		u.SetFrontImg(*req.FrontImg)
 	}
-	if in.BackImg != nil {
-		u.SetBackImg(in.GetBackImg())
+	if req.BackImg != nil {
+		u.SetBackImg(*req.BackImg)
 	}
-	if in.SelfieImg != nil {
-		u.SetSelfieImg(in.GetSelfieImg())
+	if req.SelfieImg != nil {
+		u.SetSelfieImg(*req.SelfieImg)
 	}
-	if in.EntityType != nil {
-		u.SetEntityType(in.GetEntityType().String())
+	if req.EntityType != nil {
+		u.SetEntityType(req.EntityType.String())
 	}
-	if in.ReviewID != nil {
-		u.SetReviewID(uuid.MustParse(in.GetReviewID()))
+	if req.ReviewID != nil {
+		u.SetReviewID(*req.ReviewID)
 	}
-	if in.State != nil {
-		u.SetState(in.GetState().String())
+	if req.State != nil {
+		u.SetState(req.State.String())
 	}
 	return u
 }
@@ -98,101 +96,111 @@ type Conds struct {
 	UserID       *cruder.Cond
 	DocumentType *cruder.Cond
 	IDNumber     *cruder.Cond
-	FrontImg     *cruder.Cond
-	BackImg      *cruder.Cond
-	SelfieImg    *cruder.Cond
 	EntityType   *cruder.Cond
 	ReviewID     *cruder.Cond
 	State        *cruder.Cond
 }
 
 //nolint
-func SetQueryConds(q *ent.KyeQuery, conds *Conds) (*ent.KycQuery, error) {
-	stm := cli.Kyc.Query()
-
+func SetQueryConds(q *ent.KycQuery, conds *Conds) (*ent.KycQuery, error) {
 	if conds == nil {
-		return stm, nil
+		return q, nil
 	}
-
 	if conds.ID != nil {
-		id, err := uuid.Parse(conds.GetID().GetValue())
-		if err != nil {
-			return nil, err
+		id, ok := conds.ID.Val.(uuid.UUID)
+		if !ok {
+			return nil, fmt.Errorf("invalid id")
 		}
-		switch conds.GetID().GetOp() {
+		switch conds.ID.Op {
 		case cruder.EQ:
-			stm.Where(kyc.ID(id))
+			q.Where(kyc.ID(id))
 		default:
 			return nil, fmt.Errorf("invalid kyc field")
 		}
 	}
-
 	if conds.AppID != nil {
-		appID, err := uuid.Parse(conds.GetAppID().GetValue())
-		if err != nil {
-			return nil, err
+		id, ok := conds.AppID.Val.(uuid.UUID)
+		if !ok {
+			return nil, fmt.Errorf("invalid appid")
 		}
-
-		switch conds.GetAppID().GetOp() {
+		switch conds.AppID.Op {
 		case cruder.EQ:
-			stm.Where(kyc.AppID(appID))
+			q.Where(kyc.AppID(id))
 		default:
 			return nil, fmt.Errorf("invalid kyc field")
 		}
 	}
-
 	if conds.UserID != nil {
-		userID, err := uuid.Parse(conds.GetUserID().GetValue())
-		if err != nil {
-			return nil, err
+		id, ok := conds.UserID.Val.(uuid.UUID)
+		if !ok {
+			return nil, fmt.Errorf("invalid userid")
 		}
-
-		switch conds.GetUserID().GetOp() {
+		switch conds.UserID.Op {
 		case cruder.EQ:
-			stm.Where(kyc.UserID(userID))
+			q.Where(kyc.UserID(id))
 		default:
 			return nil, fmt.Errorf("invalid kyc field")
 		}
 	}
-
-	if conds.ReviewID != nil {
-		reviewID, err := uuid.Parse(conds.GetReviewID().GetValue())
-		if err != nil {
-			return nil, err
-		}
-		switch conds.GetReviewID().GetOp() {
-		case cruder.EQ:
-			stm.Where(kyc.ReviewID(reviewID))
-		default:
-			return nil, fmt.Errorf("invalid kyc field")
-		}
-	}
-
 	if conds.IDNumber != nil {
-		switch conds.GetIDNumber().GetOp() {
+		idNumber, ok := conds.IDNumber.Val.(string)
+		if !ok {
+			return nil, fmt.Errorf("invalid id number")
+		}
+		switch conds.IDNumber.Op {
 		case cruder.EQ:
-			stm.Where(kyc.IDNumber(conds.GetIDNumber().GetValue()))
+			q.Where(kyc.IDNumber(idNumber))
 		default:
 			return nil, fmt.Errorf("invalid kyc field")
 		}
 	}
-
 	if conds.DocumentType != nil {
-		switch conds.GetDocumentType().GetOp() {
+		docType, ok := conds.DocumentType.Val.(basetypes.KycDocumentType)
+		if !ok {
+			return nil, fmt.Errorf("invalid document type")
+		}
+		switch conds.DocumentType.Op {
 		case cruder.EQ:
-			stm.Where(kyc.DocumentType(conds.GetDocumentType().GetValue()))
+			q.Where(kyc.DocumentType(docType.String()))
 		default:
 			return nil, fmt.Errorf("invalid kyc field")
 		}
 	}
-
 	if conds.EntityType != nil {
-		switch conds.GetEntityType().GetOp() {
+		entType, ok := conds.EntityType.Val.(basetypes.KycEntityType)
+		if !ok {
+			return nil, fmt.Errorf("invalid entity type")
+		}
+		switch conds.EntityType.Op {
 		case cruder.EQ:
-			stm.Where(kyc.EntityType(conds.GetEntityType().GetValue()))
+			q.Where(kyc.EntityType(entType.String()))
 		default:
 			return nil, fmt.Errorf("invalid kyc field")
 		}
 	}
-	return stm, nil
+	if conds.ReviewID != nil {
+		id, ok := conds.ReviewID.Val.(uuid.UUID)
+		if !ok {
+			return nil, fmt.Errorf("invalid reviewid")
+		}
+		switch conds.ReviewID.Op {
+		case cruder.EQ:
+			q.Where(kyc.ReviewID(id))
+		default:
+			return nil, fmt.Errorf("invalid kyc field")
+		}
+	}
+	if conds.State != nil {
+		state, ok := conds.State.Val.(basetypes.KycState)
+		if !ok {
+			return nil, fmt.Errorf("invalid entity type")
+		}
+		switch conds.State.Op {
+		case cruder.EQ:
+			q.Where(kyc.State(state.String()))
+		default:
+			return nil, fmt.Errorf("invalid kyc field")
+		}
+	}
+	return q, nil
 }
