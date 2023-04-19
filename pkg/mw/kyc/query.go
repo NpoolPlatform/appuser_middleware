@@ -2,103 +2,32 @@ package kyc
 
 import (
 	"context"
-
-	entappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuser"
+	"fmt"
 
 	"entgo.io/ent/dialect/sql"
-	crudkyc "github.com/NpoolPlatform/appuser-middleware/pkg/crud/kyc"
+	kyccrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/kyc"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
+
 	entapp "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
+	entappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuser"
 	entkyc "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/kyc"
-	servicename "github.com/NpoolPlatform/appuser-middleware/pkg/servicename"
-	commontracer "github.com/NpoolPlatform/appuser-middleware/pkg/tracer"
-	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
-	"github.com/NpoolPlatform/message/npool/appuser/mw/v1/kyc"
-	"github.com/google/uuid"
-	"go.opentelemetry.io/otel"
-	scodes "go.opentelemetry.io/otel/codes"
+
+	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/kyc"
 )
 
-func GetKyc(ctx context.Context, id string) (*kyc.Kyc, error) {
-	var err error
-	var infos []*kyc.Kyc
-
-	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetKycs")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
-
-	span = commontracer.TraceID(span, id)
-	span = commontracer.TraceInvoker(span, "kyc", "db", "CRUD")
-
-	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
-		stm := cli.
-			Kyc.
-			Query().
-			Where(
-				entkyc.ID(uuid.MustParse(id)),
-			)
-		return join(stm).
-			Scan(ctx, &infos)
-	})
-	if err != nil {
-		logger.Sugar().Errorw("GetKyc", "error", err)
-		return nil, err
-	}
-
-	return infos[0], nil
+type queryHandler struct {
+	*Handler
+	stm   *ent.KycSelect
+	infos []*npool.Kyc
+	total uint32
 }
 
-func GetKycs(ctx context.Context, conds *kyc.Conds, offset, limit int32) ([]*kyc.Kyc, uint32, error) {
-	var err error
-	infos := []*kyc.Kyc{}
-	var total int
-
-	_, span := otel.Tracer(servicename.ServiceDomain).Start(ctx, "GetKycs")
-	defer span.End()
-	defer func() {
-		if err != nil {
-			span.SetStatus(scodes.Error, err.Error())
-			span.RecordError(err)
-		}
-	}()
-
-	span = commontracer.TraceOffsetLimit(span, int(offset), int(limit))
-	span = commontracer.TraceInvoker(span, "kyc", "db", "CRUD")
-
-	err = db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
-		stm, err := crudkyc.SetQueryConds(conds.GetConds(), cli)
-		if err != nil {
-			return err
-		}
-
-		total, err = stm.Count(ctx)
-		if err != nil {
-			return err
-		}
-
-		stm.
-			Offset(int(offset)).
-			Limit(int(limit))
-		return join(stm).
-			Scan(ctx, &infos)
-	})
-	if err != nil {
-		logger.Sugar().Errorw("GetKycs", "error", err)
-		return nil, 0, err
-	}
-
-	return infos, uint32(total), nil
-}
-
-func join(stm *ent.KycQuery) *ent.KycSelect {
-	return stm.Select(
+func (h *queryHandler) selectKyc(stm *ent.KycQuery) {
+	h.stm = stm.Select(
 		entkyc.FieldID,
+		entkyc.FieldAppID,
+		entkyc.FieldUserID,
 		entkyc.FieldDocumentType,
 		entkyc.FieldIDNumber,
 		entkyc.FieldFrontImg,
@@ -109,30 +38,124 @@ func join(stm *ent.KycQuery) *ent.KycSelect {
 		entkyc.FieldState,
 		entkyc.FieldCreatedAt,
 		entkyc.FieldUpdatedAt,
-		entkyc.FieldAppID,
-		entkyc.FieldUserID,
-	).Modify(func(s *sql.Selector) {
-		t1 := sql.Table(entapp.Table)
-		s.
-			LeftJoin(t1).
-			On(
-				s.C(entkyc.FieldAppID),
-				t1.C(entapp.FieldID),
-			).
-			AppendSelect(
-				sql.As(t1.C(entapp.FieldName), "app_name"),
-				sql.As(t1.C(entapp.FieldLogo), "app_logo"),
-			)
-		t2 := sql.Table(entappuser.Table)
-		s.
-			LeftJoin(t2).
-			On(
-				s.C(entkyc.FieldUserID),
-				t2.C(entappuser.FieldID),
-			).
-			AppendSelect(
-				sql.As(t2.C(entappuser.FieldEmailAddress), "email_address"),
-				sql.As(t2.C(entappuser.FieldPhoneNo), "phone_no"),
-			)
+	)
+}
+
+func (h *queryHandler) queryKyc(cli *ent.Client) error {
+	if h.ID == nil {
+		return fmt.Errorf("invalid kycid")
+	}
+
+	h.selectKyc(
+		cli.Kyc.
+			Query().
+			Where(
+				entkyc.ID(*h.ID),
+				entkyc.DeletedAt(0),
+			),
+	)
+	return nil
+}
+
+func (h *queryHandler) queryKycs(cli *ent.Client) error {
+	stm, err := kyccrud.SetQueryConds(cli.Kyc.Query(), h.Conds)
+	if err != nil {
+		return err
+	}
+	h.selectKyc(stm)
+	return nil
+}
+
+func (h *queryHandler) queryJoinApp(s *sql.Selector) {
+	t := sql.Table(entapp.Table)
+	s.LeftJoin(t).
+		On(
+			s.C(entkyc.FieldAppID),
+			t.C(entapp.FieldID),
+		).
+		AppendSelect(
+			sql.As(t.C(entapp.FieldName), "app_name"),
+			sql.As(t.C(entapp.FieldLogo), "app_logo"),
+		)
+}
+
+func (h *queryHandler) queryJoinAppUser(s *sql.Selector) {
+	t := sql.Table(entappuser.Table)
+	s.LeftJoin(t).
+		On(
+			s.C(entkyc.FieldAppID),
+			t.C(entappuser.FieldAppID),
+		).
+		On(
+			s.C(entkyc.FieldUserID),
+			t.C(entappuser.FieldID),
+		).
+		AppendSelect(
+			sql.As(t.C(entappuser.FieldEmailAddress), "email_address"),
+			sql.As(t.C(entappuser.FieldPhoneNo), "phone_no"),
+		)
+}
+
+func (h *queryHandler) queryJoin() {
+	h.stm.Modify(func(s *sql.Selector) {
+		h.queryJoinApp(s)
+		h.queryJoinAppUser(s)
 	})
+}
+
+func (h *queryHandler) scan(ctx context.Context) error {
+	return h.stm.Scan(ctx, &h.infos)
+}
+
+func (h *Handler) GetKyc(ctx context.Context) (*npool.Kyc, error) {
+	handler := &queryHandler{
+		Handler: h,
+	}
+
+	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		if err := handler.queryKyc(cli); err != nil {
+			return err
+		}
+		handler.queryJoin()
+		if err := handler.scan(ctx); err != nil {
+			return nil
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(handler.infos) == 0 {
+		return nil, nil
+	}
+	if len(handler.infos) > 1 {
+		return nil, fmt.Errorf("too many record")
+	}
+
+	return handler.infos[0], nil
+}
+
+func (h *Handler) GetKycs(ctx context.Context) ([]*npool.Kyc, uint32, error) {
+	handler := &queryHandler{
+		Handler: h,
+	}
+
+	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		if err := handler.queryKycs(cli); err != nil {
+			return err
+		}
+		handler.queryJoin()
+		handler.stm.
+			Offset(int(h.Offset)).
+			Limit(int(h.Limit))
+		if err := handler.scan(ctx); err != nil {
+			return nil
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return handler.infos, handler.total, nil
 }

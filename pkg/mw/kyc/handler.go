@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/const"
-	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
+	kyccrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/kyc"
 	app "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/kyc"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
@@ -13,7 +13,6 @@ import (
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 )
 
 type Handler struct {
@@ -22,15 +21,15 @@ type Handler struct {
 	UserID       uuid.UUID
 	DocumentType *basetypes.KycDocumentType
 	IDNumber     *string
-	FromImg      *string
+	FrontImg     *string
 	BackImg      *string
 	SelfieImg    *string
 	EntityType   *basetypes.KycEntityType
 	ReviewID     *uuid.UUID
 	State        *basetypes.KycState
-	// Conds        *kyccrud.Conds
-	Offset int32
-	Limit  int32
+	Conds        *kyccrud.Conds
+	Offset       int32
+	Limit        int32
 }
 
 func NewHandler(ctx context.Context, options ...func(context.Context, *Handler) error) (*Handler, error) {
@@ -176,16 +175,15 @@ func WithReviewID(id *string) func(context.Context, *Handler) error {
 	}
 }
 
-/*
 func WithState(state *basetypes.KycState) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if state == nil {
 			return nil
 		}
 		switch *state {
-		case basetypes.KycStaet_Approved:
-		case basetypes.KycStaet_Reviewing:
-		case basetypes.KycStaet_Rejected:
+		case basetypes.KycState_Approved:
+		case basetypes.KycState_Reviewing:
+		case basetypes.KycState_Rejected:
 		default:
 			return fmt.Errorf("invalid state")
 		}
@@ -196,7 +194,7 @@ func WithState(state *basetypes.KycState) func(context.Context, *Handler) error 
 
 func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		h.Conds = &usercrud.Conds{}
+		h.Conds = &kyccrud.Conds{}
 		if conds == nil {
 			return nil
 		}
@@ -212,45 +210,59 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 			if err != nil {
 				return err
 			}
-			h.Conds.AppID = &cruder.Cond{Op: conds.GetAppID().GetOp(), Val: id}
-		}
-		if conds.PhoneNO != nil {
-			h.Conds.PhoneNO = &cruder.Cond{
-				Op:  conds.GetPhoneNO().GetOp(),
-				Val: conds.GetPhoneNO().GetValue(),
+			h.Conds.AppID = &cruder.Cond{
+				Op: conds.GetAppID().GetOp(), Val: id,
 			}
 		}
-		if conds.EmailAddress != nil {
-			h.Conds.EmailAddress = &cruder.Cond{
-				Op:  conds.GetEmailAddress().GetOp(),
-				Val: conds.GetEmailAddress().GetValue(),
-			}
-		}
-		if conds.ImportFromApp != nil {
-			id, err := uuid.Parse(conds.GetImportFromApp().GetValue())
+		if conds.UserID != nil {
+			id, err := uuid.Parse(conds.GetUserID().GetValue())
 			if err != nil {
 				return err
 			}
-			h.Conds.ImportFromApp = &cruder.Cond{
-				Op:  conds.GetImportFromApp().GetOp(),
+			h.Conds.UserID = &cruder.Cond{
+				Op: conds.GetUserID().GetOp(), Val: id,
+			}
+		}
+		if conds.DocumentType != nil {
+			docType := conds.GetDocumentType().GetValue()
+			h.Conds.DocumentType = &cruder.Cond{
+				Op:  conds.GetDocumentType().GetOp(),
+				Val: basetypes.KycDocumentType(docType),
+			}
+		}
+		if conds.IDNumber != nil {
+			h.Conds.IDNumber = &cruder.Cond{
+				Op:  conds.GetIDNumber().GetOp(),
+				Val: conds.GetIDNumber().GetValue(),
+			}
+		}
+		if conds.EntityType != nil {
+			entType := conds.GetEntityType().GetValue()
+			h.Conds.EntityType = &cruder.Cond{
+				Op:  conds.GetEntityType().GetOp(),
+				Val: basetypes.KycEntityType(entType),
+			}
+		}
+		if conds.ReviewID != nil {
+			id, err := uuid.Parse(conds.GetReviewID().GetValue())
+			if err != nil {
+				return err
+			}
+			h.Conds.ReviewID = &cruder.Cond{
+				Op:  conds.GetReviewID().GetOp(),
 				Val: id,
 			}
 		}
-		if len(conds.GetIDs().GetValue()) > 0 {
-			ids := []uuid.UUID{}
-			for _, id := range conds.GetIDs().GetValue() {
-				_id, err := uuid.Parse(id)
-				if err != nil {
-					return err
-				}
-				ids = append(ids, _id)
+		if conds.State != nil {
+			state := conds.GetState().GetValue()
+			h.Conds.State = &cruder.Cond{
+				Op:  conds.GetState().GetOp(),
+				Val: basetypes.KycState(state),
 			}
-			h.Conds.IDs = &cruder.Cond{Op: conds.GetIDs().GetOp(), Val: ids}
 		}
 		return nil
 	}
 }
-*/
 
 func WithOffset(offset int32) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
