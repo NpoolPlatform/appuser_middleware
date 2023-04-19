@@ -27,6 +27,22 @@ func do(ctx context.Context, fn func(_ctx context.Context, cli npool.MiddlewareC
 	return fn(_ctx, cli)
 }
 
+func CreateHistory(ctx context.Context, req *npool.HistoryReq) (*npool.History, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.CreateHistory(ctx, &npool.CreateHistoryRequest{
+			Info: req,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return info.(*npool.History), nil
+}
+
 func GetHistories(ctx context.Context, conds *npool.Conds, offset, limit int32) ([]*npool.History, uint32, error) {
 	var total uint32
 
