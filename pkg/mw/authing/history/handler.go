@@ -10,7 +10,7 @@ import (
 type Handler struct {
 	*handler.Handler
 	Conds   *npool.Conds
-	Allowed bool
+	Allowed *bool
 }
 
 func NewHandler(ctx context.Context, options ...interface{}) (*Handler, error) {
@@ -34,7 +34,7 @@ func NewHandler(ctx context.Context, options ...interface{}) (*Handler, error) {
 	return h, nil
 }
 
-func WithAllowed(allowed bool) func(context.Context, *Handler) error {
+func WithAllowed(allowed *bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.Allowed = allowed
 		return nil

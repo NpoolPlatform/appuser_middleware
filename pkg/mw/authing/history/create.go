@@ -25,9 +25,9 @@ func (h *Handler) CreateHistory(ctx context.Context) (*npool.History, error) {
 				ID:       h.ID,
 				AppID:    &h.AppID,
 				UserID:   h.UserID,
-				Resource: &h.Resource,
-				Method:   &h.Method,
-				Allowed:  &h.Allowed,
+				Resource: h.Resource,
+				Method:   h.Method,
+				Allowed:  h.Allowed,
 			},
 		).Save(_ctx); err != nil {
 			return err

@@ -20,8 +20,8 @@ func (s *Server) CreateAuth(ctx context.Context, in *npool.CreateAuthRequest) (*
 		handler.WithAppID(req.GetAppID()),
 		handler.WithRoleID(req.RoleID),
 		handler.WithUserID(req.UserID),
-		handler.WithResource(req.GetResource()),
-		handler.WithMethod(req.GetMethod()),
+		handler.WithResource(req.Resource),
+		handler.WithMethod(req.Method),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
