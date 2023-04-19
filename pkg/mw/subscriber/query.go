@@ -49,7 +49,7 @@ func (h *queryHandler) querySubscriber(cli *ent.Client) error {
 	return nil
 }
 
-func (h *queryHandler) querySubscribers(cli *ent.Client) error {
+func (h *queryHandler) querySubscriberes(cli *ent.Client) error {
 	stm, err := subscribercrud.SetQueryConds(cli.Subscriber.Query(), h.Conds)
 	if err != nil {
 		return err
@@ -108,13 +108,13 @@ func (h *Handler) GetSubscriber(ctx context.Context) (*npool.Subscriber, error) 
 	return handler.infos[0], nil
 }
 
-func (h *Handler) GetSubscribers(ctx context.Context) ([]*npool.Subscriber, uint32, error) {
+func (h *Handler) GetSubscriberes(ctx context.Context) ([]*npool.Subscriber, uint32, error) {
 	handler := &queryHandler{
 		Handler: h,
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.querySubscribers(cli); err != nil {
+		if err := handler.querySubscriberes(cli); err != nil {
 			return err
 		}
 		handler.queryJoin()
