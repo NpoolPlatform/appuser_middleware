@@ -14,6 +14,7 @@ type Req struct {
 	AppID        *uuid.UUID
 	EmailAddress *string
 	Registered   *bool
+	DeletedAt    *uint32
 }
 
 func CreateSet(c *ent.SubscriberCreate, req *Req) *ent.SubscriberCreate {
@@ -33,6 +34,9 @@ func CreateSet(c *ent.SubscriberCreate, req *Req) *ent.SubscriberCreate {
 func UpdateSet(u *ent.SubscriberUpdateOne, req *Req) *ent.SubscriberUpdateOne {
 	if req.Registered != nil {
 		u.SetRegistered(*req.Registered)
+	}
+	if req.DeletedAt != nil {
+		u.SetDeletedAt(*req.DeletedAt)
 	}
 	return u
 }
@@ -97,5 +101,6 @@ func SetQueryConds(q *ent.SubscriberQuery, conds *Conds) (*ent.SubscriberQuery, 
 			return nil, fmt.Errorf("invalid subscriber field")
 		}
 	}
+	q.Where(entsubscriber.DeletedAt(0))
 	return q, nil
 }

@@ -2,6 +2,7 @@ package subscriber
 
 import (
 	"context"
+	"time"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
@@ -17,11 +18,12 @@ func (h *Handler) DeleteSubscriber(ctx context.Context) (*npool.Subscriber, erro
 	}
 
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		now := uint32(time.Now().Unix())
 		if _, err := subscribercrud.UpdateSet(
 			cli.Subscriber.UpdateOneID(*h.ID),
 			&subscribercrud.Req{
-				ID:         h.ID,
-				Registered: h.Registered,
+				ID:        h.ID,
+				DeletedAt: &now,
 			},
 		).Save(_ctx); err != nil {
 			if !ent.IsNotFound(err) {
