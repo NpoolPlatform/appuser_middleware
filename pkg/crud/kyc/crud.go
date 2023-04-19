@@ -57,9 +57,7 @@ func CreateSet(c *ent.KycCreate, req *Req) *ent.KycCreate {
 	if req.ReviewID != nil {
 		c.SetReviewID(*req.ReviewID)
 	}
-	if req.State != nil {
-		c.SetState(req.State.String())
-	}
+	c.SetState(basetypes.KycState_Reviewing.String())
 	return c
 }
 

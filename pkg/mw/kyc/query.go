@@ -14,6 +14,7 @@ import (
 	entkyc "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/kyc"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/kyc"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 )
 
 type queryHandler struct {
@@ -107,6 +108,14 @@ func (h *queryHandler) scan(ctx context.Context) error {
 	return h.stm.Scan(ctx, &h.infos)
 }
 
+func (h *queryHandler) formalize() {
+	for _, info := range h.infos {
+		info.DocumentType = basetypes.KycDocumentType(basetypes.KycDocumentType_value[info.DocumentTypeStr])
+		info.EntityType = basetypes.KycEntityType(basetypes.KycEntityType_value[info.EntityTypeStr])
+		info.State = basetypes.KycState(basetypes.KycState_value[info.StateStr])
+	}
+}
+
 func (h *Handler) GetKyc(ctx context.Context) (*npool.Kyc, error) {
 	handler := &queryHandler{
 		Handler: h,
@@ -132,6 +141,8 @@ func (h *Handler) GetKyc(ctx context.Context) (*npool.Kyc, error) {
 		return nil, fmt.Errorf("too many record")
 	}
 
+	handler.formalize()
+
 	return handler.infos[0], nil
 }
 
@@ -156,6 +167,8 @@ func (h *Handler) GetKycs(ctx context.Context) ([]*npool.Kyc, uint32, error) {
 	if err != nil {
 		return nil, 0, err
 	}
+
+	handler.formalize()
 
 	return handler.infos, handler.total, nil
 }

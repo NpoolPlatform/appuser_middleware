@@ -1,4 +1,4 @@
-package user
+package kyc
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 
-	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/role/user"
+	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/kyc"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
@@ -18,7 +18,6 @@ import (
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	app "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
-	role "github.com/NpoolPlatform/appuser-middleware/pkg/mw/role"
 	user "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user"
 )
 
@@ -32,16 +31,25 @@ func init() {
 }
 
 var (
-	ret = npool.User{
-		ID:        uuid.NewString(),
-		CreatedBy: uuid.NewString(),
-		Role:      uuid.NewString(),
-		AppID:     uuid.NewString(),
-		UserID:    uuid.NewString(),
+	ret = npool.Kyc{
+		ID:              uuid.NewString(),
+		AppID:           uuid.NewString(),
+		UserID:          uuid.NewString(),
+		DocumentType:    basetypes.KycDocumentType_IDCard,
+		DocumentTypeStr: basetypes.KycDocumentType_IDCard.String(),
+		IDNumber:        uuid.NewString(),
+		FrontImg:        uuid.NewString(),
+		BackImg:         uuid.NewString(),
+		SelfieImg:       uuid.NewString(),
+		EntityType:      basetypes.KycEntityType_Individual,
+		EntityTypeStr:   basetypes.KycEntityType_Individual.String(),
+		ReviewID:        uuid.NewString(),
+		State:           basetypes.KycState_Reviewing,
+		StateStr:        basetypes.KycState_Reviewing.String(),
 	}
 )
 
-func setupUser(t *testing.T) func(*testing.T) {
+func setupKyc(t *testing.T) func(*testing.T) {
 	ah, err := app.NewHandler(
 		context.Background(),
 		app.WithID(&ret.AppID),
@@ -53,19 +61,6 @@ func setupUser(t *testing.T) func(*testing.T) {
 	app1, err := ah.CreateApp(context.Background())
 	assert.Nil(t, err)
 	assert.NotNil(t, app1)
-
-	rh, err := role.NewHandler(
-		context.Background(),
-		role.WithID(&ret.Role),
-		role.WithAppID(ret.GetAppID()),
-		role.WithCreatedBy(&ret.CreatedBy),
-		role.WithRole(&ret.Role),
-	)
-	assert.Nil(t, err)
-	assert.NotNil(t, rh)
-	role1, err := rh.CreateRole(context.Background())
-	assert.Nil(t, err)
-	assert.NotNil(t, role1)
 
 	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+1000000)           //nolint
 	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+1000000) //nolint
@@ -89,56 +84,76 @@ func setupUser(t *testing.T) func(*testing.T) {
 
 	return func(*testing.T) {
 		_, _ = ah.DeleteApp(context.Background())
-		_, _ = rh.DeleteRole(context.Background())
 		_, _ = uh.DeleteUser(context.Background())
 	}
 }
 
-func creatUser(t *testing.T) {
+func createKyc(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
 		WithID(&ret.ID),
-		WithAppID(ret.AppID),
-		WithRoleID(&ret.Role),
-		WithUserID(&ret.UserID),
+		WithAppID(ret.GetAppID()),
+		WithUserID(ret.GetUserID()),
+		WithDocumentType(&ret.DocumentType),
+		WithIDNumber(&ret.IDNumber),
+		WithFrontImg(&ret.FrontImg),
+		WithBackImg(&ret.BackImg),
+		WithSelfieImg(&ret.SelfieImg),
+		WithEntityType(&ret.EntityType),
+		WithReviewID(&ret.ReviewID),
 	)
 	assert.Nil(t, err)
 
-	info, err := handler.CreateUser(context.Background())
+	info, err := handler.CreateKyc(context.Background())
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
+		ret.UpdatedAt = info.UpdatedAt
 		assert.Equal(t, info, &ret)
 	}
 }
 
-func updateUser(t *testing.T) {
+func updateKyc(t *testing.T) {
+	ret.State = basetypes.KycState_Approved
+	ret.StateStr = basetypes.KycState_Approved.String()
+	ret.FrontImg = uuid.NewString()
+	ret.BackImg = uuid.NewString()
+	ret.SelfieImg = uuid.NewString()
+
 	handler, err := NewHandler(
 		context.Background(),
 		WithID(&ret.ID),
-		WithRoleID(&ret.Role),
+		WithDocumentType(&ret.DocumentType),
+		WithIDNumber(&ret.IDNumber),
+		WithFrontImg(&ret.FrontImg),
+		WithBackImg(&ret.BackImg),
+		WithSelfieImg(&ret.SelfieImg),
+		WithEntityType(&ret.EntityType),
+		WithReviewID(&ret.ReviewID),
+		WithState(&ret.State),
 	)
 	assert.Nil(t, err)
 
-	info, err := handler.UpdateUser(context.Background())
+	info, err := handler.UpdateKyc(context.Background())
+	if assert.Nil(t, err) {
+		ret.UpdatedAt = info.UpdatedAt
+		assert.Equal(t, info, &ret)
+	}
+}
+
+func getKyc(t *testing.T) {
+	handler, err := NewHandler(
+		context.Background(),
+		WithID(&ret.ID),
+	)
+	assert.Nil(t, err)
+
+	info, err := handler.GetKyc(context.Background())
 	if assert.Nil(t, err) {
 		assert.Equal(t, info, &ret)
 	}
 }
 
-func getUser(t *testing.T) {
-	handler, err := NewHandler(
-		context.Background(),
-		WithID(&ret.ID),
-	)
-	assert.Nil(t, err)
-
-	info, err := handler.GetUser(context.Background())
-	if assert.Nil(t, err) {
-		assert.Equal(t, info, &ret)
-	}
-}
-
-func getUsers(t *testing.T) {
+func getKycs(t *testing.T) {
 	conds := &npool.Conds{
 		AppID: &basetypes.StringVal{Op: cruder.EQ, Value: ret.AppID},
 	}
@@ -151,40 +166,40 @@ func getUsers(t *testing.T) {
 	)
 	assert.Nil(t, err)
 
-	infos, _, err := handler.GetUsers(context.Background())
+	infos, _, err := handler.GetKycs(context.Background())
 	if !assert.Nil(t, err) {
 		assert.NotEqual(t, len(infos), 0)
 	}
 }
 
-func deleteUser(t *testing.T) {
+func deleteKyc(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
 		WithID(&ret.ID),
 	)
 	assert.Nil(t, err)
 
-	info, err := handler.DeleteUser(context.Background())
+	info, err := handler.DeleteKyc(context.Background())
 	if assert.Nil(t, err) {
 		assert.Equal(t, info, &ret)
 	}
 
-	info, err = handler.GetUser(context.Background())
+	info, err = handler.GetKyc(context.Background())
 	assert.Nil(t, err)
 	assert.Nil(t, info)
 }
 
-func TestUser(t *testing.T) {
+func TestKyc(t *testing.T) {
 	if runByGithubAction, err := strconv.ParseBool(os.Getenv("RUN_BY_GITHUB_ACTION")); err == nil && runByGithubAction {
 		return
 	}
 
-	teardown := setupUser(t)
+	teardown := setupKyc(t)
 	defer teardown(t)
 
-	t.Run("creatUser", creatUser)
-	t.Run("updateUser", updateUser)
-	t.Run("getUser", getUser)
-	t.Run("getUsers", getUsers)
-	t.Run("deleteUser", deleteUser)
+	t.Run("createKyc", createKyc)
+	t.Run("updateKyc", updateKyc)
+	t.Run("getKyc", getKyc)
+	t.Run("getKycs", getKycs)
+	t.Run("deleteKyc", deleteKyc)
 }

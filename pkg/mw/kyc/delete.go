@@ -2,7 +2,6 @@ package kyc
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
@@ -13,11 +12,12 @@ import (
 )
 
 func (h *Handler) DeleteKyc(ctx context.Context) (*npool.Kyc, error) {
-	if h.ID == nil {
-		return nil, fmt.Errorf("invalid id")
+	info, err := h.GetKyc(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		now := uint32(time.Now().Unix())
 		if _, err := kyccrud.UpdateSet(
 			cli.Kyc.UpdateOneID(*h.ID),
@@ -34,5 +34,5 @@ func (h *Handler) DeleteKyc(ctx context.Context) (*npool.Kyc, error) {
 		return nil, err
 	}
 
-	return h.GetKyc(ctx)
+	return info, nil
 }
