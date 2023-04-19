@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/const"
+	appcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/app"
+	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
@@ -31,7 +33,7 @@ type Handler struct {
 	Maintaining              *bool
 	CommitButtonTargets      []string
 	UserID                   *uuid.UUID
-	Conds                    *npool.Conds
+	Conds                    *appcrud.Conds
 	Offset                   int32
 	Limit                    int32
 }
@@ -296,7 +298,50 @@ func WithLimit(limit int32) func(context.Context, *Handler) error {
 
 func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		h.Conds = conds
+		h.Conds = &appcrud.Conds{}
+		if conds == nil {
+			return nil
+		}
+		if conds.ID != nil {
+			id, err := uuid.Parse(conds.GetID().GetValue())
+			if err != nil {
+				return err
+			}
+			h.Conds.ID = &cruder.Cond{
+				Op:  conds.GetID().GetOp(),
+				Val: id,
+			}
+		}
+		if conds.IDs != nil {
+			ids := []uuid.UUID{}
+			for _, id := range conds.GetIDs().GetValue() {
+				_id, err := uuid.Parse(id)
+				if err != nil {
+					return err
+				}
+				ids = append(ids, _id)
+			}
+			h.Conds.IDs = &cruder.Cond{
+				Op:  conds.GetIDs().GetOp(),
+				Val: ids,
+			}
+		}
+		if conds.CreatedBy != nil {
+			id, err := uuid.Parse(conds.GetCreatedBy().GetValue())
+			if err != nil {
+				return err
+			}
+			h.Conds.CreatedBy = &cruder.Cond{
+				Op:  conds.GetCreatedBy().GetOp(),
+				Val: id,
+			}
+		}
+		if conds.Name != nil {
+			h.Conds.Name = &cruder.Cond{
+				Op:  conds.GetName().GetOp(),
+				Val: conds.GetName().GetValue(),
+			}
+		}
 		return nil
 	}
 }
