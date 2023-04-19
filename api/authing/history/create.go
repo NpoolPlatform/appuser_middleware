@@ -19,9 +19,9 @@ func (s *Server) CreateHistory(ctx context.Context, in *npool.CreateHistoryReque
 		handler.WithID(req.ID),
 		handler.WithAppID(req.GetAppID()),
 		handler.WithUserID(req.UserID),
-		handler.WithResource(req.GetResource()),
-		handler.WithMethod(req.GetMethod()),
-		history1.WithAllowed(req.GetAllowed()),
+		handler.WithResource(req.Resource),
+		handler.WithMethod(req.Method),
+		history1.WithAllowed(req.Allowed),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

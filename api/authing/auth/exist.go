@@ -17,8 +17,8 @@ func (s *Server) ExistAuth(ctx context.Context, in *npool.ExistAuthRequest) (*np
 		ctx,
 		handler.WithAppID(in.GetAppID()),
 		handler.WithUserID(in.UserID),
-		handler.WithResource(in.GetResource()),
-		handler.WithMethod(in.GetMethod()),
+		handler.WithResource(&in.Resource),
+		handler.WithMethod(&in.Method),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

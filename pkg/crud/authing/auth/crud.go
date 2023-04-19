@@ -30,7 +30,7 @@ func CreateSet(c *ent.AuthCreate, req *Req) *ent.AuthCreate {
 	if req.RoleID != nil {
 		c.SetRoleID(*req.RoleID)
 	}
-	if req.UserID != nil {
+	if req.UserID != nil && req.RoleID == nil {
 		c.SetUserID(*req.UserID)
 	}
 	if req.Resource != nil {
@@ -141,5 +141,6 @@ func SetQueryConds(q *ent.AuthQuery, conds *Conds) (*ent.AuthQuery, error) {
 			return nil, fmt.Errorf("invalid auth field")
 		}
 	}
+	q.Where(entauth.DeletedAt(0))
 	return q, nil
 }
