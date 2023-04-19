@@ -1,5 +1,5 @@
 //nolint:nolintlint,dupl
-package role
+package user
 
 import (
 	"context"
