@@ -1,4 +1,4 @@
-package authing
+package auth
 
 import (
 	"context"
@@ -25,6 +25,22 @@ func do(ctx context.Context, fn func(_ctx context.Context, cli npool.MiddlewareC
 	cli := npool.NewMiddlewareClient(conn)
 
 	return fn(_ctx, cli)
+}
+
+func CreateAuth(ctx context.Context, req *npool.AuthReq) (*npool.Auth, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.CreateAuth(ctx, &npool.CreateAuthRequest{
+			Info: req,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return info.(*npool.Auth), nil
 }
 
 func ExistAuth(ctx context.Context, appID string, userID *string, resource, method string) (bool, error) {
@@ -81,4 +97,20 @@ func GetAuths(ctx context.Context, appID string, offset, limit int32) ([]*npool.
 		return nil, 0, err
 	}
 	return infos.([]*npool.Auth), total, nil
+}
+
+func DeleteAuth(ctx context.Context, req *npool.AuthReq) (*npool.Auth, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.DeleteAuth(ctx, &npool.DeleteAuthRequest{
+			Info: req,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return info.(*npool.Auth), nil
 }
