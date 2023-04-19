@@ -29,6 +29,8 @@ func (s *Server) UpdateApp(ctx context.Context, in *npool.UpdateAppRequest) (*np
 		app1.WithMaxTypedCouponsPerOrder(req.MaxTypedCouponsPerOrder),
 		app1.WithMaintaining(req.Maintaining),
 		app1.WithCommitButtonTargets(req.GetCommitButtonTargets()),
+		app1.WithBanned(req.Banned),
+		app1.WithBanMessage(req.BanMessage),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
