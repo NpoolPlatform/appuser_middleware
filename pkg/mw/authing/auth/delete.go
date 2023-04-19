@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	authcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/authing/auth"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/auth"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
@@ -20,11 +21,14 @@ func (h *Handler) DeleteAuth(ctx context.Context) (*npool.Auth, error) {
 	}
 
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if _, err := cli.
-			Auth.
-			UpdateOneID(*h.ID).
-			SetDeletedAt(uint32(time.Now().Unix())).
-			Save(_ctx); err != nil {
+		now := uint32(time.Now().Unix())
+		if _, err := authcrud.UpdateSet(
+			cli.Auth.UpdateOneID(*h.ID),
+			&authcrud.Req{
+				ID:        h.ID,
+				DeletedAt: &now,
+			},
+		).Save(_ctx); err != nil {
 			return err
 		}
 		return nil

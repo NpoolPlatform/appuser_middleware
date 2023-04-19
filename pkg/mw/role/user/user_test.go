@@ -147,12 +147,12 @@ func getUsers(t *testing.T) {
 		context.Background(),
 		WithConds(conds),
 		WithOffset(0),
-		WithLimit(0),
+		WithLimit(1),
 	)
 	assert.Nil(t, err)
 
 	infos, _, err := handler.GetUsers(context.Background())
-	if !assert.Nil(t, err) {
+	if assert.Nil(t, err) {
 		assert.NotEqual(t, len(infos), 0)
 	}
 }

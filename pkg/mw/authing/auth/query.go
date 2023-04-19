@@ -8,6 +8,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 
+	authcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/authing/auth"
 	entapp "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
 	entapprole "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approle"
 	entappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuser"
@@ -51,12 +52,10 @@ func (h *queryHandler) queryAuth(cli *ent.Client) error {
 }
 
 func (h *queryHandler) queryAuths(ctx context.Context, cli *ent.Client) error {
-	stm := cli.
-		Auth.
-		Query().
-		Where(
-			entauth.AppID(h.AppID),
-		)
+	stm, err := authcrud.SetQueryConds(cli.Auth.Query(), h.Conds)
+	if err != nil {
+		return err
+	}
 
 	total, err := stm.Count(ctx)
 	if err != nil {
