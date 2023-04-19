@@ -113,9 +113,6 @@ func WithDescription(description *string) func(context.Context, *Handler) error 
 
 func WithDefault(defautl *bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		if defautl == nil {
-			return nil
-		}
 		h.Default = defautl
 		return nil
 	}
@@ -123,9 +120,6 @@ func WithDefault(defautl *bool) func(context.Context, *Handler) error {
 
 func WithGenesis(genesis *bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		if genesis == nil {
-			return nil
-		}
 		h.Genesis = genesis
 		return nil
 	}
