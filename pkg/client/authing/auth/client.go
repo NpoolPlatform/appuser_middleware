@@ -78,12 +78,12 @@ func GetAuth(ctx context.Context, id string) (*npool.Auth, error) {
 	return info.(*npool.Auth), nil
 }
 
-func GetAuths(ctx context.Context, appID string, offset, limit int32) ([]*npool.Auth, uint32, error) {
+func GetAuths(ctx context.Context, conds *npool.Conds, offset, limit int32) ([]*npool.Auth, uint32, error) {
 	var total uint32
 
 	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetAuths(ctx, &npool.GetAuthsRequest{
-			AppID:  appID,
+			Conds:  conds,
 			Offset: offset,
 			Limit:  limit,
 		})
@@ -99,10 +99,12 @@ func GetAuths(ctx context.Context, appID string, offset, limit int32) ([]*npool.
 	return infos.([]*npool.Auth), total, nil
 }
 
-func DeleteAuth(ctx context.Context, req *npool.AuthReq) (*npool.Auth, error) {
+func DeleteAuth(ctx context.Context, id string) (*npool.Auth, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.DeleteAuth(ctx, &npool.DeleteAuthRequest{
-			Info: req,
+			Info: &npool.AuthReq{
+				ID: &id,
+			},
 		})
 		if err != nil {
 			return nil, err

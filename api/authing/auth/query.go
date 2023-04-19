@@ -43,7 +43,7 @@ func (s *Server) GetAuth(ctx context.Context, in *npool.GetAuthRequest) (*npool.
 func (s *Server) GetAuths(ctx context.Context, in *npool.GetAuthsRequest) (*npool.GetAuthsResponse, error) {
 	_handler, err := auth1.NewHandler(
 		ctx,
-		handler.WithAppID(in.GetAppID()),
+		auth1.WithConds(in.GetConds()),
 		handler.WithOffset(in.GetOffset()),
 		handler.WithLimit(in.GetLimit()),
 	)
