@@ -1,7 +1,10 @@
+//nolint:dupl
 package user
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
@@ -11,6 +14,7 @@ import (
 
 	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
 	userthirdpartycrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/3rdparty"
+	banappusercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/ban"
 	userctrlcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/control"
 	userextracrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/extra"
 	usersecretcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/secret"
@@ -231,6 +235,59 @@ func (h *updateHandler) updateAppUserThirdParty(ctx context.Context, tx *ent.Tx)
 	return nil
 }
 
+func (h *updateHandler) updateBanAppUser(ctx context.Context, tx *ent.Tx) error {
+	if h.Banned == nil {
+		return nil
+	}
+	if h.ID == nil {
+		return fmt.Errorf("invalid id")
+	}
+
+	stm, err := banappusercrud.SetQueryConds(
+		tx.BanAppUser.Query(),
+		&banappusercrud.Conds{
+			AppID:  &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+			UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.ID},
+		})
+	if err != nil {
+		return err
+	}
+
+	info, err := stm.Only(ctx)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return err
+		}
+	}
+
+	if *h.Banned && info == nil {
+		if _, err := banappusercrud.CreateSet(
+			tx.BanAppUser.Create(),
+			&banappusercrud.Req{
+				AppID:   &h.AppID,
+				UserID:  h.ID,
+				Message: h.BanMessage,
+			},
+		).Save(ctx); err != nil {
+			return err
+		}
+	} else if !*h.Banned && info != nil {
+		now := uint32(time.Now().Unix())
+		if _, err := banappusercrud.UpdateSet(
+			tx.BanAppUser.UpdateOneID(info.ID),
+			&banappusercrud.Req{
+				AppID:     &h.AppID,
+				UserID:    h.ID,
+				DeletedAt: &now,
+			},
+		).Save(ctx); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (h *Handler) UpdateUser(ctx context.Context) (*npool.User, error) {
 	_, err := h.GetUser(ctx)
 	if err != nil {
@@ -255,6 +312,9 @@ func (h *Handler) UpdateUser(ctx context.Context) (*npool.User, error) {
 			return err
 		}
 		if err := handler.updateAppUserThirdParty(ctx, tx); err != nil {
+			return err
+		}
+		if err := handler.updateBanAppUser(ctx, tx); err != nil {
 			return err
 		}
 		return nil

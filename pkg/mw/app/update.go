@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
@@ -83,11 +84,10 @@ func (h *updateHandler) updateAppCtrl(ctx context.Context, tx *ent.Tx) error {
 	return nil
 }
 
-func (h *updateHandler) createBanApp(ctx context.Context, tx *ent.Tx) error {
-	if h.Banned == nil || !*h.Banned {
+func (h *updateHandler) updateBanApp(ctx context.Context, tx *ent.Tx) error {
+	if h.Banned == nil {
 		return nil
 	}
-
 	if h.ID == nil {
 		return fmt.Errorf("invalid id")
 	}
@@ -107,17 +107,28 @@ func (h *updateHandler) createBanApp(ctx context.Context, tx *ent.Tx) error {
 			return err
 		}
 	}
-	if info != nil {
-		return nil
-	}
 
-	if _, err := banappcrud.CreateSet(
-		tx.BanApp.Create(),
-		&banappcrud.Req{
-			AppID: h.ID,
-		},
-	).Save(ctx); err != nil {
-		return err
+	if *h.Banned && info == nil {
+		if _, err := banappcrud.CreateSet(
+			tx.BanApp.Create(),
+			&banappcrud.Req{
+				AppID:   h.ID,
+				Message: h.BanMessage,
+			},
+		).Save(ctx); err != nil {
+			return err
+		}
+	} else if !*h.Banned && info != nil {
+		now := uint32(time.Now().Unix())
+		if _, err := banappcrud.UpdateSet(
+			tx.BanApp.UpdateOneID(info.ID),
+			&banappcrud.Req{
+				ID:        &info.ID,
+				DeletedAt: &now,
+			},
+		).Save(ctx); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -135,7 +146,7 @@ func (h *Handler) UpdateApp(ctx context.Context) (*npool.App, error) {
 		if err := handler.updateAppCtrl(ctx, tx); err != nil {
 			return err
 		}
-		if err := handler.createBanApp(ctx, tx); err != nil {
+		if err := handler.updateBanApp(ctx, tx); err != nil {
 			return err
 		}
 		return nil
