@@ -16,7 +16,6 @@ func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*
 	handler, err := user1.NewHandler(
 		ctx,
 		user1.WithID(req.ID),
-		user1.WithAppID(req.GetAppID()),
 		user1.WithRoleID(req.RoleID),
 	)
 	if err != nil {
