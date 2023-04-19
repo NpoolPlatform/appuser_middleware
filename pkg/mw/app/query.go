@@ -16,8 +16,6 @@ import (
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
-
-	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 )
 
 type queryHandler struct {
@@ -57,7 +55,6 @@ func (h *queryHandler) queryApp(cli *ent.Client) error {
 
 func (h *queryHandler) queryApps(ctx context.Context, cli *ent.Client) (err error) {
 	stm := cli.App.Query()
-
 	if len(h.IDs) > 0 {
 		stm.Where(
 			entapp.IDIn(h.IDs...),
@@ -68,24 +65,9 @@ func (h *queryHandler) queryApps(ctx context.Context, cli *ent.Client) (err erro
 			entapp.CreatedBy(*h.UserID),
 		)
 	}
-	if h.Conds != nil {
-		conds := &appcrud.Conds{}
-		if h.Conds.ID != nil {
-			conds.ID = &cruder.Cond{Op: h.Conds.ID.Op, Val: h.Conds.ID.Value}
-		}
-		if h.Conds.IDs != nil {
-			conds.IDs = &cruder.Cond{Op: h.Conds.IDs.Op, Val: h.Conds.IDs.Value}
-		}
-		if h.Conds.CreatedBy != nil {
-			conds.CreatedBy = &cruder.Cond{Op: h.Conds.CreatedBy.Op, Val: h.Conds.CreatedBy.Value}
-		}
-		if h.Conds.Name != nil {
-			conds.Name = &cruder.Cond{Op: h.Conds.Name.Op, Val: h.Conds.Name.Value}
-		}
-		stm, err = appcrud.SetQueryConds(stm, conds)
-		if err != nil {
-			return err
-		}
+	stm, err = appcrud.SetQueryConds(stm, h.Conds)
+	if err != nil {
+		return err
 	}
 
 	total, err := stm.Count(ctx)
