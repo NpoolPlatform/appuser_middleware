@@ -23,6 +23,7 @@ type Req struct {
 	EntityType   *basetypes.KycEntityType
 	ReviewID     *uuid.UUID
 	State        *basetypes.KycState
+	DeletedAt    *uint32
 }
 
 func CreateSet(c *ent.KycCreate, req *Req) *ent.KycCreate {
@@ -86,6 +87,9 @@ func UpdateSet(u *ent.KycUpdateOne, req *Req) *ent.KycUpdateOne {
 	}
 	if req.State != nil {
 		u.SetState(req.State.String())
+	}
+	if req.DeletedAt != nil {
+		u.SetDeletedAt(*req.DeletedAt)
 	}
 	return u
 }
