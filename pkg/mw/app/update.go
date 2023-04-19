@@ -8,8 +8,10 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 
 	appcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/app"
+	banappcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/app/ban"
 	ctrlcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/app/control"
 	entappctrl "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appcontrol"
+	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 )
 
@@ -81,6 +83,46 @@ func (h *updateHandler) updateAppCtrl(ctx context.Context, tx *ent.Tx) error {
 	return nil
 }
 
+func (h *updateHandler) createBanApp(ctx context.Context, tx *ent.Tx) error {
+	if h.Banned == nil || !*h.Banned {
+		return nil
+	}
+
+	if h.ID == nil {
+		return fmt.Errorf("invalid id")
+	}
+
+	stm, err := banappcrud.SetQueryConds(
+		tx.BanApp.Query(),
+		&banappcrud.Conds{
+			AppID: &cruder.Cond{Op: cruder.EQ, Val: *h.ID},
+		})
+	if err != nil {
+		return err
+	}
+
+	info, err := stm.Only(ctx)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return err
+		}
+	}
+	if info != nil {
+		return nil
+	}
+
+	if _, err := banappcrud.CreateSet(
+		tx.BanApp.Create(),
+		&banappcrud.Req{
+			AppID: h.ID,
+		},
+	).Save(ctx); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (h *Handler) UpdateApp(ctx context.Context) (*npool.App, error) {
 	handler := &updateHandler{
 		Handler: h,
@@ -91,6 +133,9 @@ func (h *Handler) UpdateApp(ctx context.Context) (*npool.App, error) {
 			return err
 		}
 		if err := handler.updateAppCtrl(ctx, tx); err != nil {
+			return err
+		}
+		if err := handler.createBanApp(ctx, tx); err != nil {
 			return err
 		}
 		return nil
