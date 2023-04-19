@@ -41,18 +41,18 @@ func init() {
 }
 
 var (
-	uuidSlice     = []string{uuid.NewString()}
-	uuidSliceS, _ = json.Marshal(uuidSlice)
-	appID         = uuid.NewString()
-	ret           = npool.User{
+	addressFields     = []string{uuid.NewString()}
+	addressFieldsS, _ = json.Marshal(addressFields)
+	appID             = uuid.NewString()
+	ret               = npool.User{
 		ID:                    uuid.NewString(),
 		AppID:                 appID,
 		EmailAddress:          "aaa@aaa.aaa",
 		PhoneNO:               "+8613612203133",
 		ImportedFromAppID:     uuid.NewString(),
 		Username:              "amwnrekadsf.are-",
-		AddressFieldsString:   string(uuidSliceS),
-		AddressFields:         uuidSlice,
+		AddressFieldsString:   string(addressFieldsS),
+		AddressFields:         addressFields,
 		Gender:                uuid.NewString(),
 		PostalCode:            uuid.NewString(),
 		Age:                   100,
@@ -118,7 +118,7 @@ func creatUser(t *testing.T) {
 			PhoneNO:            &ret.PhoneNO,
 			ImportedFromAppID:  &importedFromAppID,
 			Username:           &ret.Username,
-			AddressFields:      uuidSlice,
+			AddressFields:      addressFields,
 			Gender:             &ret.Gender,
 			PostalCode:         &ret.PostalCode,
 			Age:                &ret.Age,
@@ -177,7 +177,7 @@ func updateUser(t *testing.T) {
 			PhoneNO:            &ret.PhoneNO,
 			ImportedFromAppID:  &ret.ImportedFromAppID,
 			Username:           &ret.Username,
-			AddressFields:      uuidSlice,
+			AddressFields:      addressFields,
 			Gender:             &ret.Gender,
 			PostalCode:         &ret.PostalCode,
 			Age:                &ret.Age,
