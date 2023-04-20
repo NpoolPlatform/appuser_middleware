@@ -3,6 +3,7 @@ package role
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
@@ -94,6 +95,30 @@ func GetRoles(ctx context.Context, conds *npool.Conds, offset, limit int32) ([]*
 		return nil, 0, err
 	}
 	return infos.([]*npool.Role), total, nil
+}
+
+func GetRoleOnly(ctx context.Context, conds *npool.Conds) (*npool.Role, error) {
+	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.GetRoles(ctx, &npool.GetRolesRequest{
+			Conds:  conds,
+			Offset: 0,
+			Limit:  2,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Infos, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(infos.([]*npool.Role)) == 0 {
+		return nil, nil
+	}
+	if len(infos.([]*npool.Role)) > 1 {
+		return nil, fmt.Errorf("too many record")
+	}
+	return infos.([]*npool.Role)[0], nil
 }
 
 func DeleteRole(ctx context.Context, id string) (*npool.Role, error) {
