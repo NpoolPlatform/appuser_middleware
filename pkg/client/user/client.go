@@ -149,6 +149,39 @@ func VerifyUser(
 	return info.(*npool.User), nil
 }
 
+func ExistUser(ctx context.Context, appID, userID string) (bool, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.ExistUser(ctx, &npool.ExistUserRequest{
+			AppID:  appID,
+			UserID: userID,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return false, err
+	}
+	return info.(bool), nil
+}
+
+func ExistUserConds(ctx context.Context, conds *npool.Conds) (bool, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.ExistUserConds(ctx, &npool.ExistUserCondsRequest{
+			Conds: conds,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return false, err
+	}
+	return info.(bool), nil
+}
+
 func DeleteUser(ctx context.Context, appID, userID string) (*npool.User, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.DeleteUser(ctx, &npool.DeleteUserRequest{
