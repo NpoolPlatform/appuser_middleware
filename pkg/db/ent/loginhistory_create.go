@@ -135,6 +135,20 @@ func (lhc *LoginHistoryCreate) SetNillableLocation(s *string) *LoginHistoryCreat
 	return lhc
 }
 
+// SetLoginType sets the "login_type" field.
+func (lhc *LoginHistoryCreate) SetLoginType(s string) *LoginHistoryCreate {
+	lhc.mutation.SetLoginType(s)
+	return lhc
+}
+
+// SetNillableLoginType sets the "login_type" field if the given value is not nil.
+func (lhc *LoginHistoryCreate) SetNillableLoginType(s *string) *LoginHistoryCreate {
+	if s != nil {
+		lhc.SetLoginType(*s)
+	}
+	return lhc
+}
+
 // SetID sets the "id" field.
 func (lhc *LoginHistoryCreate) SetID(u uuid.UUID) *LoginHistoryCreate {
 	lhc.mutation.SetID(u)
@@ -275,6 +289,10 @@ func (lhc *LoginHistoryCreate) defaults() error {
 		v := loginhistory.DefaultLocation
 		lhc.mutation.SetLocation(v)
 	}
+	if _, ok := lhc.mutation.LoginType(); !ok {
+		v := loginhistory.DefaultLoginType
+		lhc.mutation.SetLoginType(v)
+	}
 	if _, ok := lhc.mutation.ID(); !ok {
 		if loginhistory.DefaultID == nil {
 			return fmt.Errorf("ent: uninitialized loginhistory.DefaultID (forgotten import ent/runtime?)")
@@ -396,6 +414,14 @@ func (lhc *LoginHistoryCreate) createSpec() (*LoginHistory, *sqlgraph.CreateSpec
 			Column: loginhistory.FieldLocation,
 		})
 		_node.Location = value
+	}
+	if value, ok := lhc.mutation.LoginType(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: loginhistory.FieldLoginType,
+		})
+		_node.LoginType = value
 	}
 	return _node, _spec
 }
@@ -592,6 +618,24 @@ func (u *LoginHistoryUpsert) UpdateLocation() *LoginHistoryUpsert {
 // ClearLocation clears the value of the "location" field.
 func (u *LoginHistoryUpsert) ClearLocation() *LoginHistoryUpsert {
 	u.SetNull(loginhistory.FieldLocation)
+	return u
+}
+
+// SetLoginType sets the "login_type" field.
+func (u *LoginHistoryUpsert) SetLoginType(v string) *LoginHistoryUpsert {
+	u.Set(loginhistory.FieldLoginType, v)
+	return u
+}
+
+// UpdateLoginType sets the "login_type" field to the value that was provided on create.
+func (u *LoginHistoryUpsert) UpdateLoginType() *LoginHistoryUpsert {
+	u.SetExcluded(loginhistory.FieldLoginType)
+	return u
+}
+
+// ClearLoginType clears the value of the "login_type" field.
+func (u *LoginHistoryUpsert) ClearLoginType() *LoginHistoryUpsert {
+	u.SetNull(loginhistory.FieldLoginType)
 	return u
 }
 
@@ -810,6 +854,27 @@ func (u *LoginHistoryUpsertOne) UpdateLocation() *LoginHistoryUpsertOne {
 func (u *LoginHistoryUpsertOne) ClearLocation() *LoginHistoryUpsertOne {
 	return u.Update(func(s *LoginHistoryUpsert) {
 		s.ClearLocation()
+	})
+}
+
+// SetLoginType sets the "login_type" field.
+func (u *LoginHistoryUpsertOne) SetLoginType(v string) *LoginHistoryUpsertOne {
+	return u.Update(func(s *LoginHistoryUpsert) {
+		s.SetLoginType(v)
+	})
+}
+
+// UpdateLoginType sets the "login_type" field to the value that was provided on create.
+func (u *LoginHistoryUpsertOne) UpdateLoginType() *LoginHistoryUpsertOne {
+	return u.Update(func(s *LoginHistoryUpsert) {
+		s.UpdateLoginType()
+	})
+}
+
+// ClearLoginType clears the value of the "login_type" field.
+func (u *LoginHistoryUpsertOne) ClearLoginType() *LoginHistoryUpsertOne {
+	return u.Update(func(s *LoginHistoryUpsert) {
+		s.ClearLoginType()
 	})
 }
 
@@ -1194,6 +1259,27 @@ func (u *LoginHistoryUpsertBulk) UpdateLocation() *LoginHistoryUpsertBulk {
 func (u *LoginHistoryUpsertBulk) ClearLocation() *LoginHistoryUpsertBulk {
 	return u.Update(func(s *LoginHistoryUpsert) {
 		s.ClearLocation()
+	})
+}
+
+// SetLoginType sets the "login_type" field.
+func (u *LoginHistoryUpsertBulk) SetLoginType(v string) *LoginHistoryUpsertBulk {
+	return u.Update(func(s *LoginHistoryUpsert) {
+		s.SetLoginType(v)
+	})
+}
+
+// UpdateLoginType sets the "login_type" field to the value that was provided on create.
+func (u *LoginHistoryUpsertBulk) UpdateLoginType() *LoginHistoryUpsertBulk {
+	return u.Update(func(s *LoginHistoryUpsert) {
+		s.UpdateLoginType()
+	})
+}
+
+// ClearLoginType clears the value of the "login_type" field.
+func (u *LoginHistoryUpsertBulk) ClearLoginType() *LoginHistoryUpsertBulk {
+	return u.Update(func(s *LoginHistoryUpsert) {
+		s.ClearLoginType()
 	})
 }
 

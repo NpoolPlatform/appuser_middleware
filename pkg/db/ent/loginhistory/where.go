@@ -135,6 +135,13 @@ func Location(v string) predicate.LoginHistory {
 	})
 }
 
+// LoginType applies equality check predicate on the "login_type" field. It's identical to LoginTypeEQ.
+func LoginType(v string) predicate.LoginHistory {
+	return predicate.LoginHistory(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldLoginType), v))
+	})
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v uint32) predicate.LoginHistory {
 	return predicate.LoginHistory(func(s *sql.Selector) {
@@ -819,6 +826,119 @@ func LocationEqualFold(v string) predicate.LoginHistory {
 func LocationContainsFold(v string) predicate.LoginHistory {
 	return predicate.LoginHistory(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldLocation), v))
+	})
+}
+
+// LoginTypeEQ applies the EQ predicate on the "login_type" field.
+func LoginTypeEQ(v string) predicate.LoginHistory {
+	return predicate.LoginHistory(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldLoginType), v))
+	})
+}
+
+// LoginTypeNEQ applies the NEQ predicate on the "login_type" field.
+func LoginTypeNEQ(v string) predicate.LoginHistory {
+	return predicate.LoginHistory(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldLoginType), v))
+	})
+}
+
+// LoginTypeIn applies the In predicate on the "login_type" field.
+func LoginTypeIn(vs ...string) predicate.LoginHistory {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.LoginHistory(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldLoginType), v...))
+	})
+}
+
+// LoginTypeNotIn applies the NotIn predicate on the "login_type" field.
+func LoginTypeNotIn(vs ...string) predicate.LoginHistory {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.LoginHistory(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldLoginType), v...))
+	})
+}
+
+// LoginTypeGT applies the GT predicate on the "login_type" field.
+func LoginTypeGT(v string) predicate.LoginHistory {
+	return predicate.LoginHistory(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldLoginType), v))
+	})
+}
+
+// LoginTypeGTE applies the GTE predicate on the "login_type" field.
+func LoginTypeGTE(v string) predicate.LoginHistory {
+	return predicate.LoginHistory(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldLoginType), v))
+	})
+}
+
+// LoginTypeLT applies the LT predicate on the "login_type" field.
+func LoginTypeLT(v string) predicate.LoginHistory {
+	return predicate.LoginHistory(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldLoginType), v))
+	})
+}
+
+// LoginTypeLTE applies the LTE predicate on the "login_type" field.
+func LoginTypeLTE(v string) predicate.LoginHistory {
+	return predicate.LoginHistory(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldLoginType), v))
+	})
+}
+
+// LoginTypeContains applies the Contains predicate on the "login_type" field.
+func LoginTypeContains(v string) predicate.LoginHistory {
+	return predicate.LoginHistory(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldLoginType), v))
+	})
+}
+
+// LoginTypeHasPrefix applies the HasPrefix predicate on the "login_type" field.
+func LoginTypeHasPrefix(v string) predicate.LoginHistory {
+	return predicate.LoginHistory(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldLoginType), v))
+	})
+}
+
+// LoginTypeHasSuffix applies the HasSuffix predicate on the "login_type" field.
+func LoginTypeHasSuffix(v string) predicate.LoginHistory {
+	return predicate.LoginHistory(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldLoginType), v))
+	})
+}
+
+// LoginTypeIsNil applies the IsNil predicate on the "login_type" field.
+func LoginTypeIsNil() predicate.LoginHistory {
+	return predicate.LoginHistory(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldLoginType)))
+	})
+}
+
+// LoginTypeNotNil applies the NotNil predicate on the "login_type" field.
+func LoginTypeNotNil() predicate.LoginHistory {
+	return predicate.LoginHistory(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldLoginType)))
+	})
+}
+
+// LoginTypeEqualFold applies the EqualFold predicate on the "login_type" field.
+func LoginTypeEqualFold(v string) predicate.LoginHistory {
+	return predicate.LoginHistory(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldLoginType), v))
+	})
+}
+
+// LoginTypeContainsFold applies the ContainsFold predicate on the "login_type" field.
+func LoginTypeContainsFold(v string) predicate.LoginHistory {
+	return predicate.LoginHistory(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldLoginType), v))
 	})
 }
 

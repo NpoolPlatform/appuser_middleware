@@ -358,6 +358,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			loginhistory.FieldClientIP:  {Type: field.TypeString, Column: loginhistory.FieldClientIP},
 			loginhistory.FieldUserAgent: {Type: field.TypeString, Column: loginhistory.FieldUserAgent},
 			loginhistory.FieldLocation:  {Type: field.TypeString, Column: loginhistory.FieldLocation},
+			loginhistory.FieldLoginType: {Type: field.TypeString, Column: loginhistory.FieldLoginType},
 		},
 	}
 	graph.Nodes[15] = &sqlgraph.Node{
@@ -1682,6 +1683,11 @@ func (f *LoginHistoryFilter) WhereUserAgent(p entql.StringP) {
 // WhereLocation applies the entql string predicate on the location field.
 func (f *LoginHistoryFilter) WhereLocation(p entql.StringP) {
 	f.Where(p.Field(loginhistory.FieldLocation))
+}
+
+// WhereLoginType applies the entql string predicate on the login_type field.
+func (f *LoginHistoryFilter) WhereLoginType(p entql.StringP) {
+	f.Where(p.Field(loginhistory.FieldLoginType))
 }
 
 // addPredicate implements the predicateAdder interface.

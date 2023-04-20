@@ -28,6 +28,8 @@ const (
 	FieldUserAgent = "user_agent"
 	// FieldLocation holds the string denoting the location field in the database.
 	FieldLocation = "location"
+	// FieldLoginType holds the string denoting the login_type field in the database.
+	FieldLoginType = "login_type"
 	// Table holds the table name of the loginhistory in the database.
 	Table = "login_histories"
 )
@@ -43,6 +45,7 @@ var Columns = []string{
 	FieldClientIP,
 	FieldUserAgent,
 	FieldLocation,
+	FieldLoginType,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -82,6 +85,8 @@ var (
 	DefaultUserAgent string
 	// DefaultLocation holds the default value on creation for the "location" field.
 	DefaultLocation string
+	// DefaultLoginType holds the default value on creation for the "login_type" field.
+	DefaultLoginType string
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )

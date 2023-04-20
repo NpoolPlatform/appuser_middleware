@@ -13318,6 +13318,7 @@ type LoginHistoryMutation struct {
 	client_ip     *string
 	user_agent    *string
 	location      *string
+	login_type    *string
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*LoginHistory, error)
@@ -13841,6 +13842,55 @@ func (m *LoginHistoryMutation) ResetLocation() {
 	delete(m.clearedFields, loginhistory.FieldLocation)
 }
 
+// SetLoginType sets the "login_type" field.
+func (m *LoginHistoryMutation) SetLoginType(s string) {
+	m.login_type = &s
+}
+
+// LoginType returns the value of the "login_type" field in the mutation.
+func (m *LoginHistoryMutation) LoginType() (r string, exists bool) {
+	v := m.login_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLoginType returns the old "login_type" field's value of the LoginHistory entity.
+// If the LoginHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LoginHistoryMutation) OldLoginType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLoginType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLoginType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLoginType: %w", err)
+	}
+	return oldValue.LoginType, nil
+}
+
+// ClearLoginType clears the value of the "login_type" field.
+func (m *LoginHistoryMutation) ClearLoginType() {
+	m.login_type = nil
+	m.clearedFields[loginhistory.FieldLoginType] = struct{}{}
+}
+
+// LoginTypeCleared returns if the "login_type" field was cleared in this mutation.
+func (m *LoginHistoryMutation) LoginTypeCleared() bool {
+	_, ok := m.clearedFields[loginhistory.FieldLoginType]
+	return ok
+}
+
+// ResetLoginType resets all changes to the "login_type" field.
+func (m *LoginHistoryMutation) ResetLoginType() {
+	m.login_type = nil
+	delete(m.clearedFields, loginhistory.FieldLoginType)
+}
+
 // Where appends a list predicates to the LoginHistoryMutation builder.
 func (m *LoginHistoryMutation) Where(ps ...predicate.LoginHistory) {
 	m.predicates = append(m.predicates, ps...)
@@ -13860,7 +13910,7 @@ func (m *LoginHistoryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LoginHistoryMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.created_at != nil {
 		fields = append(fields, loginhistory.FieldCreatedAt)
 	}
@@ -13884,6 +13934,9 @@ func (m *LoginHistoryMutation) Fields() []string {
 	}
 	if m.location != nil {
 		fields = append(fields, loginhistory.FieldLocation)
+	}
+	if m.login_type != nil {
+		fields = append(fields, loginhistory.FieldLoginType)
 	}
 	return fields
 }
@@ -13909,6 +13962,8 @@ func (m *LoginHistoryMutation) Field(name string) (ent.Value, bool) {
 		return m.UserAgent()
 	case loginhistory.FieldLocation:
 		return m.Location()
+	case loginhistory.FieldLoginType:
+		return m.LoginType()
 	}
 	return nil, false
 }
@@ -13934,6 +13989,8 @@ func (m *LoginHistoryMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldUserAgent(ctx)
 	case loginhistory.FieldLocation:
 		return m.OldLocation(ctx)
+	case loginhistory.FieldLoginType:
+		return m.OldLoginType(ctx)
 	}
 	return nil, fmt.Errorf("unknown LoginHistory field %s", name)
 }
@@ -13998,6 +14055,13 @@ func (m *LoginHistoryMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetLocation(v)
+		return nil
+	case loginhistory.FieldLoginType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLoginType(v)
 		return nil
 	}
 	return fmt.Errorf("unknown LoginHistory field %s", name)
@@ -14083,6 +14147,9 @@ func (m *LoginHistoryMutation) ClearedFields() []string {
 	if m.FieldCleared(loginhistory.FieldLocation) {
 		fields = append(fields, loginhistory.FieldLocation)
 	}
+	if m.FieldCleared(loginhistory.FieldLoginType) {
+		fields = append(fields, loginhistory.FieldLoginType)
+	}
 	return fields
 }
 
@@ -14111,6 +14178,9 @@ func (m *LoginHistoryMutation) ClearField(name string) error {
 		return nil
 	case loginhistory.FieldLocation:
 		m.ClearLocation()
+		return nil
+	case loginhistory.FieldLoginType:
+		m.ClearLoginType()
 		return nil
 	}
 	return fmt.Errorf("unknown LoginHistory nullable field %s", name)
@@ -14143,6 +14213,9 @@ func (m *LoginHistoryMutation) ResetField(name string) error {
 		return nil
 	case loginhistory.FieldLocation:
 		m.ResetLocation()
+		return nil
+	case loginhistory.FieldLoginType:
+		m.ResetLoginType()
 		return nil
 	}
 	return fmt.Errorf("unknown LoginHistory field %s", name)

@@ -184,6 +184,26 @@ func (lhu *LoginHistoryUpdate) ClearLocation() *LoginHistoryUpdate {
 	return lhu
 }
 
+// SetLoginType sets the "login_type" field.
+func (lhu *LoginHistoryUpdate) SetLoginType(s string) *LoginHistoryUpdate {
+	lhu.mutation.SetLoginType(s)
+	return lhu
+}
+
+// SetNillableLoginType sets the "login_type" field if the given value is not nil.
+func (lhu *LoginHistoryUpdate) SetNillableLoginType(s *string) *LoginHistoryUpdate {
+	if s != nil {
+		lhu.SetLoginType(*s)
+	}
+	return lhu
+}
+
+// ClearLoginType clears the value of the "login_type" field.
+func (lhu *LoginHistoryUpdate) ClearLoginType() *LoginHistoryUpdate {
+	lhu.mutation.ClearLoginType()
+	return lhu
+}
+
 // Mutation returns the LoginHistoryMutation object of the builder.
 func (lhu *LoginHistoryUpdate) Mutation() *LoginHistoryMutation {
 	return lhu.mutation
@@ -389,6 +409,19 @@ func (lhu *LoginHistoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: loginhistory.FieldLocation,
 		})
 	}
+	if value, ok := lhu.mutation.LoginType(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: loginhistory.FieldLoginType,
+		})
+	}
+	if lhu.mutation.LoginTypeCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: loginhistory.FieldLoginType,
+		})
+	}
 	_spec.Modifiers = lhu.modifiers
 	if n, err = sqlgraph.UpdateNodes(ctx, lhu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -562,6 +595,26 @@ func (lhuo *LoginHistoryUpdateOne) SetNillableLocation(s *string) *LoginHistoryU
 // ClearLocation clears the value of the "location" field.
 func (lhuo *LoginHistoryUpdateOne) ClearLocation() *LoginHistoryUpdateOne {
 	lhuo.mutation.ClearLocation()
+	return lhuo
+}
+
+// SetLoginType sets the "login_type" field.
+func (lhuo *LoginHistoryUpdateOne) SetLoginType(s string) *LoginHistoryUpdateOne {
+	lhuo.mutation.SetLoginType(s)
+	return lhuo
+}
+
+// SetNillableLoginType sets the "login_type" field if the given value is not nil.
+func (lhuo *LoginHistoryUpdateOne) SetNillableLoginType(s *string) *LoginHistoryUpdateOne {
+	if s != nil {
+		lhuo.SetLoginType(*s)
+	}
+	return lhuo
+}
+
+// ClearLoginType clears the value of the "login_type" field.
+func (lhuo *LoginHistoryUpdateOne) ClearLoginType() *LoginHistoryUpdateOne {
+	lhuo.mutation.ClearLoginType()
 	return lhuo
 }
 
@@ -798,6 +851,19 @@ func (lhuo *LoginHistoryUpdateOne) sqlSave(ctx context.Context) (_node *LoginHis
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Column: loginhistory.FieldLocation,
+		})
+	}
+	if value, ok := lhuo.mutation.LoginType(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: loginhistory.FieldLoginType,
+		})
+	}
+	if lhuo.mutation.LoginTypeCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: loginhistory.FieldLoginType,
 		})
 	}
 	_spec.Modifiers = lhuo.modifiers
