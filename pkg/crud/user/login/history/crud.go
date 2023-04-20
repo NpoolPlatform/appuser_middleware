@@ -58,9 +58,11 @@ type Conds struct {
 	AppID     *cruder.Cond
 	UserID    *cruder.Cond
 	LoginType *cruder.Cond
+	ClientIP  *cruder.Cond
+	Location  *cruder.Cond
 }
 
-func SetQueryConds(q *ent.LoginHistoryQuery, conds *Conds) (*ent.LoginHistoryQuery, error) {
+func SetQueryConds(q *ent.LoginHistoryQuery, conds *Conds) (*ent.LoginHistoryQuery, error) { //nolint
 	if conds == nil {
 		return q, nil
 	}
@@ -108,6 +110,30 @@ func SetQueryConds(q *ent.LoginHistoryQuery, conds *Conds) (*ent.LoginHistoryQue
 		switch conds.LoginType.Op {
 		case cruder.EQ:
 			q.Where(entloginhistory.LoginType(loginType.String()))
+		default:
+			return nil, fmt.Errorf("invalid login history field")
+		}
+	}
+	if conds.ClientIP != nil {
+		ip, ok := conds.ClientIP.Val.(string)
+		if !ok {
+			return nil, fmt.Errorf("invalid client ip")
+		}
+		switch conds.ClientIP.Op {
+		case cruder.EQ:
+			q.Where(entloginhistory.ClientIP(ip))
+		default:
+			return nil, fmt.Errorf("invalid login history field")
+		}
+	}
+	if conds.Location != nil {
+		loc, ok := conds.Location.Val.(string)
+		if !ok {
+			return nil, fmt.Errorf("invalid location")
+		}
+		switch conds.Location.Op {
+		case cruder.EQ:
+			q.Where(entloginhistory.Location(loc))
 		default:
 			return nil, fmt.Errorf("invalid login history field")
 		}
