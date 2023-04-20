@@ -33,6 +33,11 @@ func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*
 	}
 	info, err := handler.CreateUser(ctx)
 	if err != nil {
+		logger.Sugar().Errorw(
+			"CreateUser",
+			"Req", req,
+			"error", err,
+		)
 		return &npool.CreateUserResponse{}, status.Error(codes.Aborted, err.Error())
 	}
 

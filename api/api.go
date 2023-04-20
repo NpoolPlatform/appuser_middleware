@@ -5,12 +5,13 @@ import (
 
 	"github.com/NpoolPlatform/appuser-middleware/api/app"
 	"github.com/NpoolPlatform/appuser-middleware/api/authing/auth"
-	"github.com/NpoolPlatform/appuser-middleware/api/authing/history"
+	authhistory "github.com/NpoolPlatform/appuser-middleware/api/authing/history"
 	"github.com/NpoolPlatform/appuser-middleware/api/kyc"
 	"github.com/NpoolPlatform/appuser-middleware/api/role"
 	roleuser "github.com/NpoolPlatform/appuser-middleware/api/role/user"
 	"github.com/NpoolPlatform/appuser-middleware/api/subscriber"
 	"github.com/NpoolPlatform/appuser-middleware/api/user"
+	loginhistory "github.com/NpoolPlatform/appuser-middleware/api/user/login/history"
 
 	appusermw "github.com/NpoolPlatform/message/npool/appuser/mw/v1"
 
@@ -27,10 +28,11 @@ func Register(server grpc.ServiceRegistrar) {
 	app.Register(server)
 	subscriber.Register(server)
 	user.Register(server)
+	loginhistory.Register(server)
 	role.Register(server)
 	roleuser.Register(server)
 	auth.Register(server)
-	history.Register(server)
+	authhistory.Register(server)
 	kyc.Register(server)
 }
 
