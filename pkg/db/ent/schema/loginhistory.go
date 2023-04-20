@@ -4,7 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/mixin"
-
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 	"github.com/google/uuid"
 )
 
@@ -50,6 +50,10 @@ func (LoginHistory) Fields() []ent.Field {
 			String("location").
 			Optional().
 			Default(""),
+		field.
+			String("login_type").
+			Optional().
+			Default(basetypes.LoginType_FreshLogin.String()),
 	}
 }
 

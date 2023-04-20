@@ -834,6 +834,10 @@ func init() {
 	loginhistoryDescLocation := loginhistoryFields[5].Descriptor()
 	// loginhistory.DefaultLocation holds the default value on creation for the location field.
 	loginhistory.DefaultLocation = loginhistoryDescLocation.Default.(string)
+	// loginhistoryDescLoginType is the schema descriptor for login_type field.
+	loginhistoryDescLoginType := loginhistoryFields[6].Descriptor()
+	// loginhistory.DefaultLoginType holds the default value on creation for the login_type field.
+	loginhistory.DefaultLoginType = loginhistoryDescLoginType.Default.(string)
 	// loginhistoryDescID is the schema descriptor for id field.
 	loginhistoryDescID := loginhistoryFields[0].Descriptor()
 	// loginhistory.DefaultID holds the default value on creation for the id field.

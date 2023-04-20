@@ -307,6 +307,7 @@ var (
 		{Name: "client_ip", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "user_agent", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "location", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "login_type", Type: field.TypeString, Nullable: true, Default: "FreshLogin"},
 	}
 	// LoginHistoriesTable holds the schema information for the "login_histories" table.
 	LoginHistoriesTable = &schema.Table{

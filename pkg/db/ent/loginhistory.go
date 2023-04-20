@@ -32,6 +32,8 @@ type LoginHistory struct {
 	UserAgent string `json:"user_agent,omitempty"`
 	// Location holds the value of the "location" field.
 	Location string `json:"location,omitempty"`
+	// LoginType holds the value of the "login_type" field.
+	LoginType string `json:"login_type,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -41,7 +43,7 @@ func (*LoginHistory) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case loginhistory.FieldCreatedAt, loginhistory.FieldUpdatedAt, loginhistory.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
-		case loginhistory.FieldClientIP, loginhistory.FieldUserAgent, loginhistory.FieldLocation:
+		case loginhistory.FieldClientIP, loginhistory.FieldUserAgent, loginhistory.FieldLocation, loginhistory.FieldLoginType:
 			values[i] = new(sql.NullString)
 		case loginhistory.FieldID, loginhistory.FieldAppID, loginhistory.FieldUserID:
 			values[i] = new(uuid.UUID)
@@ -114,6 +116,12 @@ func (lh *LoginHistory) assignValues(columns []string, values []interface{}) err
 			} else if value.Valid {
 				lh.Location = value.String
 			}
+		case loginhistory.FieldLoginType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field login_type", values[i])
+			} else if value.Valid {
+				lh.LoginType = value.String
+			}
 		}
 	}
 	return nil
@@ -165,6 +173,9 @@ func (lh *LoginHistory) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("location=")
 	builder.WriteString(lh.Location)
+	builder.WriteString(", ")
+	builder.WriteString("login_type=")
+	builder.WriteString(lh.LoginType)
 	builder.WriteByte(')')
 	return builder.String()
 }
