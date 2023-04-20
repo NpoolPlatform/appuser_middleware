@@ -51,7 +51,7 @@ func prepare(mid, body string) (req interface{}, err error) {
 	switch mid {
 	case basetypes.MsgID_IncreaseUserActionCreditsReq.String():
 		req, err = user.Prepare(body)
-	case basetypes.MsgID_CreateLoginHistory.String():
+	case basetypes.MsgID_CreateLoginHistoryReq.String():
 		req, err = loginhistory.Prepare(body)
 	default:
 		return nil, nil
@@ -113,7 +113,7 @@ func statMsg(ctx context.Context, mid string, uid uuid.UUID, rid *uuid.UUID) (bo
 	switch mid {
 	case basetypes.MsgID_IncreaseUserActionCreditsReq.String():
 		fallthrough //nolint
-	case basetypes.MsgID_CreateLoginHistory.String():
+	case basetypes.MsgID_CreateLoginHistoryReq.String():
 		return statReq(ctx, mid, uid)
 	default:
 		return false, fmt.Errorf("invalid message")
@@ -147,7 +147,7 @@ func process(ctx context.Context, mid string, uid uuid.UUID, req interface{}) (e
 	switch mid {
 	case basetypes.MsgID_IncreaseUserActionCreditsReq.String():
 		err = user.Apply(ctx, req)
-	case basetypes.MsgID_CreateLoginHistory.String():
+	case basetypes.MsgID_CreateLoginHistoryReq.String():
 		err = loginhistory.Apply(ctx, req)
 	default:
 		return nil
