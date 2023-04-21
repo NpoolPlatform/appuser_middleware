@@ -44,6 +44,22 @@ func CreateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
 	return info.(*npool.App), nil
 }
 
+func CreateApps(ctx context.Context, reqs []*npool.AppReq) ([]*npool.App, error) {
+	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.CreateApps(ctx, &npool.CreateAppsRequest{
+			Infos: reqs,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Infos, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return infos.([]*npool.App), nil
+}
+
 func UpdateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.UpdateApp(ctx, &npool.UpdateAppRequest{
