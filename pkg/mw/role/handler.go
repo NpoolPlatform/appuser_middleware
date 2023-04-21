@@ -164,6 +164,17 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 		if conds.Genesis != nil {
 			h.Conds.Genesis = &cruder.Cond{Op: conds.GetGenesis().GetOp(), Val: conds.GetGenesis().GetValue()}
 		}
+		if len(conds.GetIDs().GetValue()) > 0 {
+			_ids := []uuid.UUID{}
+			for _, id := range conds.GetIDs().GetValue() {
+				_id, err := uuid.Parse(id)
+				if err != nil {
+					return err
+				}
+				_ids = append(_ids, _id)
+			}
+			h.Conds.IDs = &cruder.Cond{Op: conds.GetIDs().GetOp(), Val: _ids}
+		}
 		return nil
 	}
 }

@@ -63,6 +63,7 @@ func UpdateSet(u *ent.AppRoleUpdateOne, req *Req) *ent.AppRoleUpdateOne {
 
 type Conds struct {
 	ID        *cruder.Cond
+	IDs       *cruder.Cond
 	AppID     *cruder.Cond
 	CreatedBy *cruder.Cond
 	Role      *cruder.Cond
@@ -84,6 +85,18 @@ func SetQueryConds(q *ent.AppRoleQuery, conds *Conds) (*ent.AppRoleQuery, error)
 		switch conds.ID.Op {
 		case cruder.EQ:
 			q.Where(entapprole.ID(id))
+		default:
+			return nil, fmt.Errorf("invalid approle field")
+		}
+	}
+	if conds.IDs != nil {
+		ids, ok := conds.IDs.Val.([]uuid.UUID)
+		if !ok {
+			return nil, fmt.Errorf("invalid ids")
+		}
+		switch conds.IDs.Op {
+		case cruder.IN:
+			q.Where(entapprole.IDIn(ids...))
 		default:
 			return nil, fmt.Errorf("invalid approle field")
 		}
