@@ -22,6 +22,7 @@ type Handler struct {
 	Description *string
 	Default     *bool
 	Genesis     *bool
+	Reqs        []*npool.RoleReq
 	Conds       *rolecrud.Conds
 	Offset      int32
 	Limit       int32
@@ -192,6 +193,26 @@ func WithLimit(limit int32) func(context.Context, *Handler) error {
 			limit = constant.DefaultRowLimit
 		}
 		h.Limit = limit
+		return nil
+	}
+}
+
+func WithReqs(reqs []*npool.RoleReq) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		for _, req := range reqs {
+			if _, err := uuid.Parse(*req.CreatedBy); err != nil {
+				return err
+			}
+			if _, err := uuid.Parse(*req.AppID); err != nil {
+				return err
+			}
+			if req.ID != nil {
+				if _, err := uuid.Parse(*req.ID); err != nil {
+					return err
+				}
+			}
+		}
+		h.Reqs = reqs
 		return nil
 	}
 }

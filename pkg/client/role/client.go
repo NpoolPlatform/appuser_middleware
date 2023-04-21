@@ -45,6 +45,22 @@ func CreateRole(ctx context.Context, req *npool.RoleReq) (*npool.Role, error) {
 	return info.(*npool.Role), nil
 }
 
+func CreateRoles(ctx context.Context, reqs []*npool.RoleReq) ([]*npool.Role, error) {
+	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.CreateRoles(ctx, &npool.CreateRolesRequest{
+			Infos: reqs,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Infos, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return infos.([]*npool.Role), nil
+}
+
 func UpdateRole(ctx context.Context, req *npool.RoleReq) (*npool.Role, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.UpdateRole(ctx, &npool.UpdateRoleRequest{

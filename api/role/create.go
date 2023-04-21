@@ -44,3 +44,30 @@ func (s *Server) CreateRole(ctx context.Context, in *npool.CreateRoleRequest) (*
 		Info: info,
 	}, nil
 }
+
+func (s *Server) CreateRoles(ctx context.Context, in *npool.CreateRolesRequest) (*npool.CreateRolesResponse, error) {
+	handler, err := role1.NewHandler(
+		ctx,
+		role1.WithReqs(in.GetInfos()),
+	)
+	if err != nil {
+		logger.Sugar().Errorw(
+			"CreateRoles",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.CreateRolesResponse{}, status.Error(codes.Aborted, err.Error())
+	}
+	infos, err := handler.CreateRoles(ctx)
+	if err != nil {
+		logger.Sugar().Errorw(
+			"CreateRoles",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.CreateRolesResponse{}, status.Error(codes.Aborted, err.Error())
+	}
+	return &npool.CreateRolesResponse{
+		Infos: infos,
+	}, nil
+}
