@@ -6,10 +6,10 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 
-	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
-
 	appcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/app"
 	ctrlcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/app/control"
+	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
+	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 
 	"github.com/google/uuid"
 )
@@ -82,6 +82,61 @@ func (h *Handler) CreateApp(ctx context.Context) (info *npool.App, err error) {
 	return h.GetApp(ctx)
 }
 
-func CreateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
-	return nil, nil
+func (h *Handler) CreateApps(ctx context.Context) (infos []*npool.App, err error) {
+	ids := []uuid.UUID{}
+	err = db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {
+		for _, req := range h.Reqs {
+			id := uuid.New()
+			if req.ID != nil {
+				id = uuid.MustParse(*req.ID)
+			}
+
+			createdBy := uuid.MustParse(*req.CreatedBy)
+
+			if _, err := appcrud.CreateSet(
+				tx.App.Create(),
+				&appcrud.Req{
+					ID:          &id,
+					CreatedBy:   &createdBy,
+					Name:        req.Name,
+					Logo:        req.Logo,
+					Description: req.Description,
+				},
+			).Save(ctx); err != nil {
+				return err
+			}
+			if _, err := ctrlcrud.CreateSet(
+				tx.AppControl.Create(),
+				&ctrlcrud.Req{
+					AppID:                    &id,
+					SignupMethods:            req.SignupMethods,
+					ExtSigninMethods:         req.ExtSigninMethods,
+					RecaptchaMethod:          req.RecaptchaMethod,
+					KycEnable:                req.KycEnable,
+					SigninVerifyEnable:       req.SigninVerifyEnable,
+					InvitationCodeMust:       req.InvitationCodeMust,
+					CreateInvitationCodeWhen: req.CreateInvitationCodeWhen,
+					MaxTypedCouponsPerOrder:  req.MaxTypedCouponsPerOrder,
+					Maintaining:              req.Maintaining,
+					CommitButtonTargets:      req.CommitButtonTargets,
+				},
+			).Save(ctx); err != nil {
+				return err
+			}
+			ids = append(ids, id)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	h.Conds = &appcrud.Conds{
+		IDs: &cruder.Cond{Op: cruder.IN, Val: ids},
+	}
+	infos, _, err = h.GetApps(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return infos, nil
 }

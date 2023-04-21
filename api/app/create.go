@@ -53,3 +53,31 @@ func (s *Server) CreateApp(ctx context.Context, in *npool.CreateAppRequest) (*np
 		Info: info,
 	}, nil
 }
+
+func (s *Server) CreateApps(ctx context.Context, in *npool.CreateAppsRequest) (*npool.CreateAppsResponse, error) {
+	handler, err := app1.NewHandler(
+		ctx,
+		app1.WithReqs(in.GetInfos()),
+	)
+	if err != nil {
+		logger.Sugar().Errorw(
+			"CreateApps",
+			"In", in,
+			"error", err,
+		)
+		return &npool.CreateAppsResponse{}, status.Error(codes.Aborted, err.Error())
+	}
+	infos, err := handler.CreateApps(ctx)
+	if err != nil {
+		logger.Sugar().Errorw(
+			"CreateApps",
+			"In", in,
+			"error", err,
+		)
+		return &npool.CreateAppsResponse{}, status.Error(codes.Aborted, err.Error())
+	}
+
+	return &npool.CreateAppsResponse{
+		Infos: infos,
+	}, nil
+}

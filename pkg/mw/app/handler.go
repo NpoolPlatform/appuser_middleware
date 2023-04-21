@@ -33,6 +33,7 @@ type Handler struct {
 	Maintaining              *bool
 	CommitButtonTargets      []string
 	UserID                   *uuid.UUID
+	Reqs                     []*npool.AppReq
 	Conds                    *appcrud.Conds
 	Offset                   int32
 	Limit                    int32
@@ -342,6 +343,23 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 				Val: conds.GetName().GetValue(),
 			}
 		}
+		return nil
+	}
+}
+
+func WithReqs(reqs []*npool.AppReq) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		for _, req := range reqs {
+			if _, err := uuid.Parse(*req.CreatedBy); err != nil {
+				return err
+			}
+			if req.ID != nil {
+				if _, err := uuid.Parse(*req.ID); err != nil {
+					return err
+				}
+			}
+		}
+		h.Reqs = reqs
 		return nil
 	}
 }
