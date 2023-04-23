@@ -74,6 +74,7 @@ func (h *queryHandler) queryJoinAppRole(s *sql.Selector) {
 		t.C(entapprole.FieldDescription),
 		t.C(entapprole.FieldDefault),
 		t.C(entapprole.FieldGenesis),
+		sql.As(t.C(entapprole.FieldID), "role_id"),
 	)
 }
 
