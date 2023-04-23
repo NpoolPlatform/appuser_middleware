@@ -57,18 +57,24 @@ func (h *queryHandler) queryAppRoleUsers(cli *ent.Client) error {
 
 func (h *queryHandler) queryJoinAppRole(s *sql.Selector) {
 	t := sql.Table(entapprole.Table)
-	s.LeftJoin(t).
+	stm := s.LeftJoin(t).
 		On(
 			s.C(entapproleuser.FieldRoleID),
 			t.C(entapprole.FieldID),
-		).
-		AppendSelect(
-			t.C(entapprole.FieldCreatedBy),
-			t.C(entapprole.FieldRole),
-			t.C(entapprole.FieldDescription),
-			t.C(entapprole.FieldDefault),
-			t.C(entapprole.FieldGenesis),
 		)
+	if h.Conds.Genesis != nil {
+		stm.Where(
+			sql.EQ(t.C(entapprole.FieldGenesis), h.Conds.Genesis.Val.(bool)),
+		)
+	}
+
+	stm.AppendSelect(
+		t.C(entapprole.FieldCreatedBy),
+		t.C(entapprole.FieldRole),
+		t.C(entapprole.FieldDescription),
+		t.C(entapprole.FieldDefault),
+		t.C(entapprole.FieldGenesis),
+	)
 }
 
 func (h *queryHandler) queryJoinApp(s *sql.Selector) {
@@ -100,12 +106,18 @@ func (h *queryHandler) queryJoinAppUser(s *sql.Selector) {
 		)
 }
 
-func (h *queryHandler) queryJoin() {
+func (h *queryHandler) queryJoin(ctx context.Context) error {
 	h.stm.Modify(func(s *sql.Selector) {
 		h.queryJoinAppRole(s)
 		h.queryJoinApp(s)
 		h.queryJoinAppUser(s)
 	})
+	total, err := h.stm.Count(ctx)
+	if err != nil {
+		return err
+	}
+	h.total = uint32(total)
+	return nil
 }
 
 func (h *queryHandler) scan(ctx context.Context) error {
@@ -121,7 +133,9 @@ func (h *Handler) GetUser(ctx context.Context) (*npool.User, error) {
 		if err := handler.queryAppRoleUser(cli); err != nil {
 			return err
 		}
-		handler.queryJoin()
+		if err := handler.queryJoin(ctx); err != nil {
+			return err
+		}
 		if err := handler.scan(ctx); err != nil {
 			return nil
 		}
@@ -149,7 +163,9 @@ func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
 		if err := handler.queryAppRoleUsers(cli); err != nil {
 			return err
 		}
-		handler.queryJoin()
+		if err := handler.queryJoin(ctx); err != nil {
+			return err
+		}
 		if err := handler.scan(ctx); err != nil {
 			return err
 		}

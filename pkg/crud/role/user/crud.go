@@ -51,6 +51,7 @@ type Conds struct {
 	UserID  *cruder.Cond
 	AppIDs  *cruder.Cond
 	RoleIDs *cruder.Cond
+	Genesis *cruder.Cond
 }
 
 //nolint
