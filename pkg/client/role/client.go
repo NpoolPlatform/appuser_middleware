@@ -137,6 +137,38 @@ func GetRoleOnly(ctx context.Context, conds *npool.Conds) (*npool.Role, error) {
 	return infos.([]*npool.Role)[0], nil
 }
 
+func ExistRole(ctx context.Context, id string) (bool, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.ExistRole(ctx, &npool.ExistRoleRequest{
+			ID: id,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return false, err
+	}
+	return info.(bool), nil
+}
+
+func ExistRoleConds(ctx context.Context, conds *npool.Conds) (bool, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.ExistRoleConds(ctx, &npool.ExistRoleCondsRequest{
+			Conds: conds,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return false, err
+	}
+	return info.(bool), nil
+}
+
 func DeleteRole(ctx context.Context, id string) (*npool.Role, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.DeleteRole(ctx, &npool.DeleteRoleRequest{

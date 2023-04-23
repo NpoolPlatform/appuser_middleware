@@ -1,4 +1,4 @@
-package app
+package role
 
 import (
 	"context"
@@ -7,20 +7,20 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 
-	appcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/app"
-	entapp "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
+	rolecrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/role"
+	entapprole "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approle"
 )
 
-func (h *Handler) ExistApp(ctx context.Context) (exist bool, err error) {
+func (h *Handler) ExistRole(ctx context.Context) (exist bool, err error) {
 	if h.ID == nil {
 		return false, fmt.Errorf("invalid id")
 	}
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		exist, err = cli.
-			App.
+			AppRole.
 			Query().
 			Where(
-				entapp.ID(*h.ID),
+				entapprole.ID(*h.ID),
 			).
 			Exist(_ctx)
 		return err
@@ -31,9 +31,9 @@ func (h *Handler) ExistApp(ctx context.Context) (exist bool, err error) {
 	return exist, nil
 }
 
-func (h *Handler) ExistAppConds(ctx context.Context) (exist bool, err error) {
+func (h *Handler) ExistRoleConds(ctx context.Context) (exist bool, err error) {
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		stm, err := appcrud.SetQueryConds(cli.App.Query(), h.Conds)
+		stm, err := rolecrud.SetQueryConds(cli.AppRole.Query(), h.Conds)
 		if err != nil {
 			return err
 		}
