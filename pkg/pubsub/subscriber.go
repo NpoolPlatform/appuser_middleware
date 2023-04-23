@@ -10,6 +10,7 @@ import (
 
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
+	authhistory "github.com/NpoolPlatform/appuser-middleware/pkg/pubsub/authing/history"
 	user "github.com/NpoolPlatform/appuser-middleware/pkg/pubsub/user"
 	loginhistory "github.com/NpoolPlatform/appuser-middleware/pkg/pubsub/user/login/history"
 
@@ -53,6 +54,8 @@ func prepare(mid, body string) (req interface{}, err error) {
 		req, err = user.Prepare(body)
 	case basetypes.MsgID_CreateLoginHistoryReq.String():
 		req, err = loginhistory.Prepare(body)
+	case basetypes.MsgID_CreateAuthHistoryReq.String():
+		req, err = authhistory.Prepare(body)
 	default:
 		return nil, nil
 	}
@@ -114,6 +117,8 @@ func statMsg(ctx context.Context, mid string, uid uuid.UUID, rid *uuid.UUID) (bo
 	case basetypes.MsgID_IncreaseUserActionCreditsReq.String():
 		fallthrough //nolint
 	case basetypes.MsgID_CreateLoginHistoryReq.String():
+		fallthrough //nolint
+	case basetypes.MsgID_CreateAuthHistoryReq.String():
 		return statReq(ctx, mid, uid)
 	default:
 		return false, fmt.Errorf("invalid message")
@@ -149,6 +154,8 @@ func process(ctx context.Context, mid string, uid uuid.UUID, req interface{}) (e
 		err = user.Apply(ctx, req)
 	case basetypes.MsgID_CreateLoginHistoryReq.String():
 		err = loginhistory.Apply(ctx, req)
+	case basetypes.MsgID_CreateAuthHistoryReq.String():
+		err = authhistory.Apply(ctx, req)
 	default:
 		return nil
 	}
