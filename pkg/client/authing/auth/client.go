@@ -43,6 +43,22 @@ func CreateAuth(ctx context.Context, req *npool.AuthReq) (*npool.Auth, error) {
 	return info.(*npool.Auth), nil
 }
 
+func CreateAuths(ctx context.Context, reqs []*npool.AuthReq) ([]*npool.Auth, error) {
+	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.CreateAuths(ctx, &npool.CreateAuthsRequest{
+			Infos: reqs,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Infos, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return infos.([]*npool.Auth), nil
+}
+
 func ExistAuth(ctx context.Context, appID string, userID *string, resource, method string) (bool, error) {
 	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.ExistAuth(ctx, &npool.ExistAuthRequest{
