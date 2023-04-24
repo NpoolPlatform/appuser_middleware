@@ -106,7 +106,7 @@ func GetSubscriberOnly(ctx context.Context, conds *npool.Conds) (*npool.Subscrib
 		resp, err := cli.GetSubscriberes(ctx, &npool.GetSubscriberesRequest{
 			Conds:  conds,
 			Offset: 0,
-			Limit:  2,
+			Limit:  2, //nolint
 		})
 		if err != nil {
 			return nil, err

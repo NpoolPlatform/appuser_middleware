@@ -118,7 +118,7 @@ func GetRoleOnly(ctx context.Context, conds *npool.Conds) (*npool.Role, error) {
 		resp, err := cli.GetRoles(ctx, &npool.GetRolesRequest{
 			Conds:  conds,
 			Offset: 0,
-			Limit:  2,
+			Limit:  2, //nolint
 		})
 		if err != nil {
 			return nil, err

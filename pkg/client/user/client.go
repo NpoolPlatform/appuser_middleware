@@ -105,7 +105,7 @@ func GetUserOnly(ctx context.Context, conds *npool.Conds) (*npool.User, error) {
 		resp, err := cli.GetUsers(ctx, &npool.GetUsersRequest{
 			Conds:  conds,
 			Offset: 0,
-			Limit:  2,
+			Limit:  2, //nolint
 		})
 		if err != nil {
 			return nil, err
