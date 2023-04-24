@@ -101,6 +101,30 @@ func GetSubscriberes(ctx context.Context, conds *npool.Conds, offset, limit int3
 	return infos.([]*npool.Subscriber), total, nil
 }
 
+func GetSubscriberOnly(ctx context.Context, conds *npool.Conds) (*npool.Subscriber, error) {
+	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.GetSubscriberes(ctx, &npool.GetSubscriberesRequest{
+			Conds:  conds,
+			Offset: 0,
+			Limit:  2,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Infos, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(infos.([]*npool.Subscriber)) == 0 {
+		return nil, nil
+	}
+	if len(infos.([]*npool.Subscriber)) > 1 {
+		return nil, fmt.Errorf("too many record")
+	}
+	return infos.([]*npool.Subscriber)[0], nil
+}
+
 func DeleteSubscriber(ctx context.Context, id string) (*npool.Subscriber, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.DeleteSubscriber(ctx, &npool.DeleteSubscriberRequest{
