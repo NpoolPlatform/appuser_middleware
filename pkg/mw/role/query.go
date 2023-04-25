@@ -48,11 +48,16 @@ func (h *queryHandler) queryAppRole(cli *ent.Client) error {
 	return nil
 }
 
-func (h *queryHandler) queryAppRoles(cli *ent.Client) error {
+func (h *queryHandler) queryAppRoles(ctx context.Context, cli *ent.Client) error {
 	stm, err := rolecrud.SetQueryConds(cli.AppRole.Query(), h.Conds)
 	if err != nil {
 		return err
 	}
+	total, err := stm.Count(ctx)
+	if err != nil {
+		return err
+	}
+	h.total = uint32(total)
 	h.selectAppRole(stm)
 	return nil
 }
@@ -116,7 +121,7 @@ func (h *Handler) GetRoles(ctx context.Context) ([]*npool.Role, uint32, error) {
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryAppRoles(cli); err != nil {
+		if err := handler.queryAppRoles(ctx, cli); err != nil {
 			return err
 		}
 		handler.queryJoin()

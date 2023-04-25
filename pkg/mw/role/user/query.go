@@ -46,11 +46,16 @@ func (h *queryHandler) queryAppRoleUser(cli *ent.Client) error {
 	return nil
 }
 
-func (h *queryHandler) queryAppRoleUsers(cli *ent.Client) error {
+func (h *queryHandler) queryAppRoleUsers(ctx context.Context, cli *ent.Client) error {
 	stm, err := roleusercrud.SetQueryConds(cli.AppRoleUser.Query(), h.Conds)
 	if err != nil {
 		return err
 	}
+	total, err := stm.Count(ctx)
+	if err != nil {
+		return err
+	}
+	h.total = uint32(total)
 	h.selectAppRoleUser(stm)
 	return nil
 }
@@ -172,7 +177,7 @@ func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryAppRoleUsers(cli); err != nil {
+		if err := handler.queryAppRoleUsers(ctx, cli); err != nil {
 			return err
 		}
 		if err := handler.queryJoin(ctx); err != nil {
