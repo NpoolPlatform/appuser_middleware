@@ -131,5 +131,6 @@ func SetQueryConds(q *ent.AuthHistoryQuery, conds *Conds) (*ent.AuthHistoryQuery
 			return nil, fmt.Errorf("invalid app field")
 		}
 	}
+	q.Where(entauthhistory.DeletedAt(0))
 	return q, nil
 }

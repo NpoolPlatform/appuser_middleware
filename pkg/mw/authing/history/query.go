@@ -56,11 +56,6 @@ func (h *queryHistoryHandler) queryAuthHistories(ctx context.Context, cli *ent.C
 	if err != nil {
 		return err
 	}
-	stm.Where(
-		entauthhistory.AppID(h.AppID),
-		entauthhistory.DeletedAt(0),
-	)
-
 	total, err := stm.Count(ctx)
 	if err != nil {
 		return err
@@ -146,7 +141,7 @@ func (h *Handler) GetHistories(ctx context.Context) ([]*npool.History, uint32, e
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryAuthHistories(ctx, cli.Debug()); err != nil {
+		if err := handler.queryAuthHistories(ctx, cli); err != nil {
 			return nil
 		}
 		handler.queryJoin()
