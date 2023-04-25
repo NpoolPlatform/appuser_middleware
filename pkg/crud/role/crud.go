@@ -65,6 +65,7 @@ type Conds struct {
 	ID        *cruder.Cond
 	IDs       *cruder.Cond
 	AppID     *cruder.Cond
+	AppIDs    *cruder.Cond
 	CreatedBy *cruder.Cond
 	Role      *cruder.Cond
 	Default   *cruder.Cond
@@ -109,6 +110,18 @@ func SetQueryConds(q *ent.AppRoleQuery, conds *Conds) (*ent.AppRoleQuery, error)
 		switch conds.AppID.Op {
 		case cruder.EQ:
 			q.Where(entapprole.AppID(id))
+		default:
+			return nil, fmt.Errorf("invalid approle field")
+		}
+	}
+	if conds.AppIDs != nil {
+		ids, ok := conds.AppIDs.Val.([]uuid.UUID)
+		if !ok {
+			return nil, fmt.Errorf("invalid appids")
+		}
+		switch conds.AppIDs.Op {
+		case cruder.IN:
+			q.Where(entapprole.AppIDIn(ids...))
 		default:
 			return nil, fmt.Errorf("invalid approle field")
 		}
