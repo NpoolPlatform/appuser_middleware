@@ -108,6 +108,9 @@ func (h *queryHandler) queryJoinBanApp(s *sql.Selector) {
 			s.C(entapp.FieldID),
 			t.C(entbanapp.FieldAppID),
 		).
+		Where(
+			sql.EQ(t.C(entbanapp.FieldDeletedAt), 0),
+		).
 		AppendSelect(
 			sql.As(t.C(entbanapp.FieldAppID), "ban_app_id"),
 			sql.As(t.C(entbanapp.FieldMessage), "ban_message"),
