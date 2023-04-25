@@ -55,6 +55,9 @@ func UpdateSet(u *ent.AppRoleUpdateOne, req *Req) *ent.AppRoleUpdateOne {
 	if req.Default != nil {
 		u.SetDefault(*req.Default)
 	}
+	if req.Genesis != nil {
+		u.SetGenesis(*req.Genesis)
+	}
 	if req.DeletedAt != nil {
 		u.SetDeletedAt(*req.DeletedAt)
 	}
