@@ -108,7 +108,7 @@ func SetQueryConds(q *ent.AppRoleUserQuery, conds *Conds) (*ent.AppRoleUserQuery
 		}
 	}
 	if conds.RoleID != nil {
-		id, ok := conds.ID.Val.(uuid.UUID)
+		id, ok := conds.RoleID.Val.(uuid.UUID)
 		if !ok {
 			return nil, fmt.Errorf("invalid id")
 		}
