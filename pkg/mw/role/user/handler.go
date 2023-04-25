@@ -141,6 +141,12 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error { //nol
 			}
 			h.Conds.RoleIDs = &cruder.Cond{Op: conds.GetRoleIDs().GetOp(), Val: ids}
 		}
+		if conds.Genesis != nil {
+			h.Conds.Genesis = &cruder.Cond{
+				Op:  conds.GetGenesis().GetOp(),
+				Val: conds.GetGenesis().GetValue(),
+			}
+		}
 		return nil
 	}
 }
