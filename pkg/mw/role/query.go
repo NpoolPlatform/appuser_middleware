@@ -99,7 +99,7 @@ func (h *Handler) GetRole(ctx context.Context) (*npool.Role, error) {
 		handler.queryJoin()
 		handler.stm.
 			Offset(int(handler.Offset)).
-			Limit(2).
+			Limit(2). //nolint
 			Modify(func(s *sql.Selector) {})
 		if err := handler.scan(ctx); err != nil {
 			return nil
