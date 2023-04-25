@@ -79,7 +79,7 @@ func SetQueryConds(q *ent.AppUserQuery, conds *Conds) (*ent.AppUserQuery, error)
 			return nil, fmt.Errorf("invalid ids")
 		}
 		if len(ids) > 0 {
-			switch conds.ID.Op {
+			switch conds.IDs.Op {
 			case cruder.IN:
 				q.Where(entappuser.IDIn(ids...))
 			default:
