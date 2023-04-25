@@ -62,7 +62,7 @@ func (h *queryHandler) queryJoinAppRole(s *sql.Selector) {
 			s.C(entapproleuser.FieldRoleID),
 			t.C(entapprole.FieldID),
 		)
-	if h.Conds.Genesis != nil {
+	if h.Conds != nil && h.Conds.Genesis != nil {
 		stm.Where(
 			sql.EQ(t.C(entapprole.FieldGenesis), h.Conds.Genesis.Val.(bool)),
 		)
@@ -107,8 +107,15 @@ func (h *queryHandler) queryJoinAppUser(s *sql.Selector) {
 		)
 }
 
+func (h *queryHandler) queryJoinSelect(s *sql.Selector) {
+	h.stm.Select(
+		entapproleuser.FieldID,
+	)
+}
+
 func (h *queryHandler) queryJoin(ctx context.Context) error {
 	h.stm.Modify(func(s *sql.Selector) {
+		h.queryJoinSelect(s)
 		h.queryJoinAppRole(s)
 		h.queryJoinApp(s)
 		h.queryJoinAppUser(s)
@@ -137,6 +144,10 @@ func (h *Handler) GetUser(ctx context.Context) (*npool.User, error) {
 		if err := handler.queryJoin(ctx); err != nil {
 			return err
 		}
+		handler.stm = handler.stm.
+			Offset(int(handler.Offset)).
+			Limit(1).
+			Modify(func(s *sql.Selector) {})
 		if err := handler.scan(ctx); err != nil {
 			return nil
 		}
@@ -167,6 +178,10 @@ func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
 		if err := handler.queryJoin(ctx); err != nil {
 			return err
 		}
+		handler.stm = handler.stm.
+			Offset(int(handler.Offset)).
+			Limit(int(handler.Limit)).
+			Modify(func(s *sql.Selector) {})
 		if err := handler.scan(ctx); err != nil {
 			return err
 		}

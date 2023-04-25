@@ -87,6 +87,8 @@ func setupUser(t *testing.T) func(*testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, user1)
 
+	ret.RoleID = ret.Role
+
 	return func(*testing.T) {
 		_, _ = ah.DeleteApp(context.Background())
 		_, _ = rh.DeleteRole(context.Background())
@@ -105,7 +107,7 @@ func creatUser(t *testing.T) {
 	assert.Nil(t, err)
 
 	info, err := handler.CreateUser(context.Background())
-	if assert.Nil(t, err) {
+	if assert.Nil(t, err) && assert.NotNil(t, info) {
 		ret.CreatedAt = info.CreatedAt
 		assert.Equal(t, info, &ret)
 	}
