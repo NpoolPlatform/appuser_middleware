@@ -107,7 +107,7 @@ func (h *queryHandler) queryJoinAppUser(s *sql.Selector) {
 		)
 }
 
-func (h *queryHandler) queryJoinSelect(s *sql.Selector) {
+func (h *queryHandler) queryJoinSelect() {
 	h.stm.Select(
 		entapproleuser.FieldID,
 	)
@@ -115,7 +115,7 @@ func (h *queryHandler) queryJoinSelect(s *sql.Selector) {
 
 func (h *queryHandler) queryJoin(ctx context.Context) error {
 	h.stm.Modify(func(s *sql.Selector) {
-		h.queryJoinSelect(s)
+		h.queryJoinSelect()
 		h.queryJoinAppRole(s)
 		h.queryJoinApp(s)
 		h.queryJoinAppUser(s)

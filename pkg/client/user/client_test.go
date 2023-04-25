@@ -45,31 +45,32 @@ var (
 	addressFieldsS, _ = json.Marshal(addressFields)
 	appID             = uuid.NewString()
 	ret               = npool.User{
-		ID:                    uuid.NewString(),
-		AppID:                 appID,
-		EmailAddress:          "aaa@aaa.aaa",
-		PhoneNO:               "+8613612203133",
-		ImportedFromAppID:     uuid.NewString(),
-		Username:              "amwnrekadsf.are-",
-		AddressFieldsString:   string(addressFieldsS),
-		AddressFields:         addressFields,
-		Gender:                uuid.NewString(),
-		PostalCode:            uuid.NewString(),
-		Age:                   100,
-		Birthday:              uint32(time.Now().Unix()),
-		Avatar:                uuid.NewString(),
-		Organization:          uuid.NewString(),
-		FirstName:             uuid.NewString(),
-		LastName:              uuid.NewString(),
-		IDNumber:              uuid.NewString(),
-		GoogleAuthVerifiedInt: 1,
-		GoogleAuthVerified:    true,
-		SigninVerifyType:      basetypes.SignMethod_Email,
-		SigninVerifyTypeStr:   basetypes.SignMethod_Email.String(),
-		GoogleSecret:          appID,
-		HasGoogleSecret:       true,
-		Roles:                 []string{""},
-		ActionCredits:         "0",
+		ID:                  uuid.NewString(),
+		AppID:               appID,
+		EmailAddress:        "aaa@aaa.aaa",
+		PhoneNO:             "+8613612203133",
+		ImportedFromAppID:   uuid.NewString(),
+		Username:            "amwnrekadsf.are-",
+		AddressFieldsString: string(addressFieldsS),
+		AddressFields:       addressFields,
+		Gender:              uuid.NewString(),
+		PostalCode:          uuid.NewString(),
+		Age:                 100,
+		Birthday:            uint32(time.Now().Unix()),
+		Avatar:              uuid.NewString(),
+		Organization:        uuid.NewString(),
+		FirstName:           uuid.NewString(),
+		LastName:            uuid.NewString(),
+		IDNumber:            uuid.NewString(),
+		GoogleAuthVerified:  true,
+		SigninVerifyType:    basetypes.SignMethod_Email,
+		SigninVerifyTypeStr: basetypes.SignMethod_Email.String(),
+		GoogleSecret:        appID,
+		HasGoogleSecret:     true,
+		Roles:               []string{""},
+		ActionCredits:       "0",
+		Banned:              true,
+		BanMessage:          uuid.NewString(),
 	}
 )
 
@@ -165,6 +166,7 @@ func creatUser(t *testing.T) {
 func updateUser(t *testing.T) {
 	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)           //nolint
 	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000) //nolint
+	ret.BanAppUserID = ret.ID
 	var (
 		appID   = ret.AppID
 		strVal  = "AAA"

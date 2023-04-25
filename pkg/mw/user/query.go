@@ -139,7 +139,7 @@ func (h *queryHandler) queryJoinBanAppUser(s *sql.Selector) {
 			t.C(entbanappuser.FieldUserID),
 		).
 		AppendSelect(
-			sql.As(t.C(entbanappuser.FieldID), "ban_app_user_id"),
+			sql.As(t.C(entbanappuser.FieldUserID), "ban_app_user_id"),
 			sql.As(t.C(entbanappuser.FieldMessage), "ban_message"),
 		)
 }
@@ -206,6 +206,7 @@ func (h *queryHandler) queryUserRoles(ctx context.Context) error {
 			Query().
 			Where(
 				entapproleuser.UserIDIn(uids...),
+				entapproleuser.DeletedAt(0),
 			).
 			Select(
 				entapproleuser.FieldUserID,
@@ -246,10 +247,10 @@ func (h *queryHandler) formalize() {
 			info.ActionCredits = decimal.NewFromInt(0).String()
 			continue
 		}
+		info.Banned = info.ID == info.BanAppUserID
 		info.ActionCredits = credits.String()
 		_ = json.Unmarshal([]byte(info.AddressFieldsString), &info.AddressFields)
 		info.SigninVerifyType = basetypes.SignMethod(basetypes.SignMethod_value[info.SigninVerifyTypeStr])
-		info.GoogleAuthVerified = info.GoogleAuthVerifiedInt > 0
 	}
 }
 
