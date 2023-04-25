@@ -74,7 +74,7 @@ func SetQueryConds(q *ent.AppUserQuery, conds *Conds) (*ent.AppUserQuery, error)
 		}
 	}
 	if conds.IDs != nil {
-		ids, ok := conds.ID.Val.([]uuid.UUID)
+		ids, ok := conds.IDs.Val.([]uuid.UUID)
 		if !ok {
 			return nil, fmt.Errorf("invalid ids")
 		}
