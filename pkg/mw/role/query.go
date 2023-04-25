@@ -97,6 +97,10 @@ func (h *Handler) GetRole(ctx context.Context) (*npool.Role, error) {
 			return err
 		}
 		handler.queryJoin()
+		handler.stm.
+			Offset(int(handler.Offset)).
+			Limit(2).
+			Modify(func(s *sql.Selector) {})
 		if err := handler.scan(ctx); err != nil {
 			return nil
 		}
@@ -125,6 +129,10 @@ func (h *Handler) GetRoles(ctx context.Context) ([]*npool.Role, uint32, error) {
 			return err
 		}
 		handler.queryJoin()
+		handler.stm.
+			Offset(int(handler.Offset)).
+			Limit(int(handler.Limit)).
+			Modify(func(s *sql.Selector) {})
 		if err := handler.scan(ctx); err != nil {
 			return nil
 		}

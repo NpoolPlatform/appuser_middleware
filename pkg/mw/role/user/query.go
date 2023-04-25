@@ -151,7 +151,7 @@ func (h *Handler) GetUser(ctx context.Context) (*npool.User, error) {
 		}
 		handler.stm = handler.stm.
 			Offset(int(handler.Offset)).
-			Limit(1).
+			Limit(2).
 			Modify(func(s *sql.Selector) {})
 		if err := handler.scan(ctx); err != nil {
 			return nil
