@@ -109,7 +109,7 @@ func (h *queryHandler) queryJoinBanApp(s *sql.Selector) {
 			t.C(entbanapp.FieldAppID),
 		).
 		AppendSelect(
-			sql.As(t.C(entbanapp.FieldID), "ban_app_id"),
+			sql.As(t.C(entbanapp.FieldAppID), "ban_app_id"),
 			sql.As(t.C(entbanapp.FieldMessage), "ban_message"),
 		)
 }

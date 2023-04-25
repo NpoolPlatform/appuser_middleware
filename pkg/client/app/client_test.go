@@ -43,7 +43,6 @@ var (
 		Name:                        uuid.NewString(),
 		Logo:                        uuid.NewString(),
 		Description:                 uuid.NewString(),
-		Banned:                      false,
 		SignupMethodsStr:            signupMethodsStr,
 		SignupMethods:               signupMethods,
 		ExtSigninMethodsStr:         extSigninMethodsStr,
@@ -96,6 +95,9 @@ func creatApp(t *testing.T) {
 }
 
 func updateApp(t *testing.T) {
+	ret.BanAppID = ret.ID
+	ret.Banned = true
+	ret.BanMessage = uuid.NewString()
 	var (
 		boolVal                 = true
 		createIvCodeWhen        = basetypes.CreateInvitationCodeWhen_SetToKol
