@@ -131,9 +131,6 @@ func WithDescription(description *string) func(context.Context, *Handler) error 
 
 func WithBanned(banned *bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		if banned == nil {
-			return nil
-		}
 		h.Banned = banned
 		return nil
 	}
@@ -141,13 +138,6 @@ func WithBanned(banned *bool) func(context.Context, *Handler) error {
 
 func WithBanMessage(message *string) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		if message == nil {
-			return nil
-		}
-		const leastBanMessageLen = 10
-		if len(*message) < leastBanMessageLen {
-			return fmt.Errorf("ban message %v too short", *message)
-		}
 		h.BanMessage = message
 		return nil
 	}
