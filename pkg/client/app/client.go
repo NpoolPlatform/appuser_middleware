@@ -103,9 +103,7 @@ func GetApps(ctx context.Context, conds *npool.Conds, offset, limit int32) ([]*n
 		if err != nil {
 			return nil, err
 		}
-
-		total = uint32(len(resp.GetInfos()))
-
+		total = resp.Total
 		return resp.Infos, nil
 	})
 	if err != nil {
