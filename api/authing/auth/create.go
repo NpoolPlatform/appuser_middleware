@@ -45,3 +45,31 @@ func (s *Server) CreateAuth(ctx context.Context, in *npool.CreateAuthRequest) (*
 		Info: info,
 	}, nil
 }
+
+func (s *Server) CreateAuths(ctx context.Context, in *npool.CreateAuthsRequest) (*npool.CreateAuthsResponse, error) {
+	_handler, err := auth1.NewHandler(
+		ctx,
+		auth1.WithReqs(in.GetInfos()),
+	)
+	if err != nil {
+		logger.Sugar().Errorw(
+			"CreateAuths",
+			"In", in,
+			"error", err,
+		)
+		return &npool.CreateAuthsResponse{}, status.Error(codes.Aborted, err.Error())
+	}
+	infos, err := _handler.CreateAuths(ctx)
+	if err != nil {
+		logger.Sugar().Errorw(
+			"CreateAuths",
+			"In", in,
+			"error", err,
+		)
+		return &npool.CreateAuthsResponse{}, status.Error(codes.Aborted, err.Error())
+	}
+
+	return &npool.CreateAuthsResponse{
+		Infos: infos,
+	}, nil
+}
