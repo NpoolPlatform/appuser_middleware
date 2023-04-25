@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"fmt"
 
 	authcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/authing/auth"
 	handler "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing/handler"
@@ -15,6 +16,7 @@ import (
 type Handler struct {
 	*handler.Handler
 	Conds *authcrud.Conds
+	Reqs  []*npool.AuthReq
 }
 
 func NewHandler(ctx context.Context, options ...interface{}) (*Handler, error) {
@@ -84,6 +86,39 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 				Val: conds.GetMethod().GetValue(),
 			}
 		}
+		return nil
+	}
+}
+
+func WithReqs(reqs []*npool.AuthReq) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		for _, req := range reqs {
+			if req.ID != nil {
+				if _, err := uuid.Parse(*req.ID); err != nil {
+					return err
+				}
+			}
+			if _, err := uuid.Parse(*req.AppID); err != nil {
+				return err
+			}
+			if _, err := uuid.Parse(*req.UserID); err != nil {
+				return err
+			}
+			if _, err := uuid.Parse(*req.RoleID); err != nil {
+				return err
+			}
+			const leastResourceLen = 3
+			if len(*req.Resource) < leastResourceLen {
+				return fmt.Errorf("resource %v invalid", *req.Resource)
+			}
+			switch *req.Method {
+			case "POST":
+			case "GET":
+			default:
+				return fmt.Errorf("method %v invalid", *req.Method)
+			}
+		}
+		h.Reqs = reqs
 		return nil
 	}
 }
