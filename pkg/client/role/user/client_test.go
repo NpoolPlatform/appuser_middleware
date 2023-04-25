@@ -91,6 +91,8 @@ func setupUser(t *testing.T) func(*testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, user1)
 
+	ret.RoleID = ret.Role
+
 	return func(*testing.T) {
 		_, _ = ah.DeleteApp(context.Background())
 		_, _ = rh.DeleteRole(context.Background())
