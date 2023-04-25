@@ -58,11 +58,18 @@ func (h *queryHandler) queryKyc(cli *ent.Client) error {
 	return nil
 }
 
-func (h *queryHandler) queryKycs(cli *ent.Client) error {
+func (h *queryHandler) queryKycs(ctx context.Context, cli *ent.Client) error {
 	stm, err := kyccrud.SetQueryConds(cli.Kyc.Query(), h.Conds)
 	if err != nil {
 		return err
 	}
+
+	total, err := stm.Count(ctx)
+	if err != nil {
+		return err
+	}
+	h.total = uint32(total)
+
 	h.selectKyc(stm)
 	return nil
 }
@@ -152,7 +159,7 @@ func (h *Handler) GetKycs(ctx context.Context) ([]*npool.Kyc, uint32, error) {
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryKycs(cli); err != nil {
+		if err := handler.queryKycs(ctx, cli); err != nil {
 			return err
 		}
 		handler.queryJoin()
