@@ -8,6 +8,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 
+	historycrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/authing/history"
 	entapp "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
 	entappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuser"
 	entauth "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/auth"
@@ -44,18 +45,21 @@ func (h *queryHistoryHandler) queryAuthHistory(cli *ent.Client) error {
 			Query().
 			Where(
 				entauthhistory.ID(*h.ID),
+				entauthhistory.DeletedAt(0),
 			),
 	)
 	return nil
 }
 
 func (h *queryHistoryHandler) queryAuthHistories(ctx context.Context, cli *ent.Client) error {
-	stm := cli.
-		AuthHistory.
-		Query().
-		Where(
-			entauthhistory.AppID(h.AppID),
-		)
+	stm, err := historycrud.SetQueryConds(cli.AuthHistory.Query(), h.Conds)
+	if err != nil {
+		return err
+	}
+	stm.Where(
+		entauthhistory.AppID(h.AppID),
+		entauthhistory.DeletedAt(0),
+	)
 
 	total, err := stm.Count(ctx)
 	if err != nil {
@@ -142,7 +146,7 @@ func (h *Handler) GetHistories(ctx context.Context) ([]*npool.History, uint32, e
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryAuthHistories(ctx, cli); err != nil {
+		if err := handler.queryAuthHistories(ctx, cli.Debug()); err != nil {
 			return nil
 		}
 		handler.queryJoin()
