@@ -139,7 +139,7 @@ func (h *queryHandler) queryJoinBanAppUser(s *sql.Selector) {
 			t.C(entbanappuser.FieldUserID),
 		).
 		AppendSelect(
-			sql.As(t.C(entbanappuser.FieldID), "ban_app_user_id"),
+			sql.As(t.C(entbanappuser.FieldUserID), "ban_app_user_id"),
 			sql.As(t.C(entbanappuser.FieldMessage), "ban_message"),
 		)
 }
@@ -206,6 +206,7 @@ func (h *queryHandler) queryUserRoles(ctx context.Context) error {
 			Query().
 			Where(
 				entapproleuser.UserIDIn(uids...),
+				entapproleuser.DeletedAt(0),
 			).
 			Select(
 				entapproleuser.FieldUserID,
