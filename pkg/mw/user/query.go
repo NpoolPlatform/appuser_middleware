@@ -249,8 +249,6 @@ func (h *queryHandler) formalize() {
 			info.ActionCredits = credits.String()
 		}
 		info.SigninVerifyType = basetypes.SignMethod(basetypes.SignMethod_value[info.SigninVerifyTypeStr])
-		info.GoogleAuthVerified = info.GoogleAuthVerifiedInt > 0
-
 		_ = json.Unmarshal([]byte(info.AddressFieldsString), &info.AddressFields)
 		info.Banned = info.BanAppUserID != ""
 

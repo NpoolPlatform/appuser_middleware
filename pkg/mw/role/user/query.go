@@ -149,9 +149,10 @@ func (h *Handler) GetUser(ctx context.Context) (*npool.User, error) {
 		if err := handler.queryJoin(ctx); err != nil {
 			return err
 		}
+		const limit = 2
 		handler.stm = handler.stm.
 			Offset(int(handler.Offset)).
-			Limit(2). //nolint
+			Limit(limit).
 			Modify(func(s *sql.Selector) {})
 		if err := handler.scan(ctx); err != nil {
 			return nil
