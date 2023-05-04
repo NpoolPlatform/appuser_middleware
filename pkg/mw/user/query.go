@@ -251,7 +251,6 @@ func (h *queryHandler) formalize() {
 		info.SigninVerifyType = basetypes.SignMethod(basetypes.SignMethod_value[info.SigninVerifyTypeStr])
 		_ = json.Unmarshal([]byte(info.AddressFieldsString), &info.AddressFields)
 		info.Banned = info.BanAppUserID != ""
-
 		info.State = basetypes.KycState(basetypes.KycState_value[info.KycStateStr])
 	}
 }
