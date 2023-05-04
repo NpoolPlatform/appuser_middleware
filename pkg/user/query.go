@@ -276,9 +276,9 @@ func (h *queryHandler) formalize() {
 		credits, err := decimal.NewFromString(info.ActionCredits)
 		if err != nil {
 			info.ActionCredits = decimal.NewFromInt(0).String()
-			continue
+		} else {
+			info.ActionCredits = credits.String()
 		}
-		info.ActionCredits = credits.String()
 		info.SigninVerifyType = basetypes.SignMethod(basetypes.SignMethod_value[info.SigninVerifyTypeStr])
 		info.GoogleAuthVerified = info.GoogleAuthVerifiedInt > 0
 
