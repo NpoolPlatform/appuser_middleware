@@ -89,6 +89,5 @@ func SetQueryConds(q *ent.BanAppUserQuery, conds *Conds) (*ent.BanAppUserQuery, 
 			return nil, fmt.Errorf("invalid banapp field")
 		}
 	}
-	q.Where(entbanappuser.DeletedAt(0))
 	return q, nil
 }
