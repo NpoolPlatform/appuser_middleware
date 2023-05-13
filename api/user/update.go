@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 
-	user1 "github.com/NpoolPlatform/appuser-middleware/pkg/user"
+	user1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
@@ -19,7 +19,7 @@ func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*
 		user1.WithAppID(req.GetAppID()),
 		user1.WithPhoneNO(req.PhoneNO),
 		user1.WithEmailAddress(req.EmailAddress),
-		user1.WithImportedFromAppID(req.ImportedFromAppID),
+		user1.WithImportFromAppID(req.ImportedFromAppID),
 		user1.WithPasswordHash(req.PasswordHash),
 		user1.WithFirstName(req.FirstName),
 		user1.WithLastName(req.LastName),
@@ -38,6 +38,8 @@ func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*
 		user1.WithKolConfirmed(req.KolConfirmed),
 		user1.WithActionCredits(req.ActionCredits),
 		user1.WithSigninVerifyType(req.SigninVerifyType),
+		user1.WithBanned(req.Banned),
+		user1.WithBanMessage(req.BanMessage),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

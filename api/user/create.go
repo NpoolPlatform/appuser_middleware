@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 
-	user1 "github.com/NpoolPlatform/appuser-middleware/pkg/user"
+	user1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
@@ -19,7 +19,7 @@ func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*
 		user1.WithAppID(req.GetAppID()),
 		user1.WithPhoneNO(req.PhoneNO),
 		user1.WithEmailAddress(req.EmailAddress),
-		user1.WithImportedFromAppID(req.ImportedFromAppID),
+		user1.WithImportFromAppID(req.ImportedFromAppID),
 		user1.WithPasswordHash(req.PasswordHash),
 		user1.WithRoleIDs(req.GetRoleIDs()),
 	)
@@ -33,6 +33,11 @@ func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*
 	}
 	info, err := handler.CreateUser(ctx)
 	if err != nil {
+		logger.Sugar().Errorw(
+			"CreateUser",
+			"Req", req,
+			"error", err,
+		)
 		return &npool.CreateUserResponse{}, status.Error(codes.Aborted, err.Error())
 	}
 

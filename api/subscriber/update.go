@@ -3,24 +3,37 @@ package subscriber
 import (
 	"context"
 
+	subscriber1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/subscriber"
+	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/subscriber"
-
-	mgrapi "github.com/NpoolPlatform/appuser-manager/api/subscriber"
-
-	subscriber1 "github.com/NpoolPlatform/appuser-middleware/pkg/subscriber"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 func (s *Server) UpdateSubscriber(ctx context.Context, in *npool.UpdateSubscriberRequest) (*npool.UpdateSubscriberResponse, error) {
-	if err := mgrapi.Validate(in.GetInfo()); err != nil {
-		return &npool.UpdateSubscriberResponse{}, status.Error(codes.InvalidArgument, err.Error())
-	}
-
-	info, err := subscriber1.UpdateSubscriber(ctx, in.GetInfo())
+	req := in.GetInfo()
+	handler, err := subscriber1.NewHandler(
+		ctx,
+		subscriber1.WithID(req.ID),
+		subscriber1.WithRegistered(req.Registered),
+	)
 	if err != nil {
-		return &npool.UpdateSubscriberResponse{}, status.Error(codes.Internal, err.Error())
+		logger.Sugar().Errorw(
+			"UpdateSubscriber",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.UpdateSubscriberResponse{}, status.Error(codes.Aborted, err.Error())
+	}
+	info, err := handler.UpdateSubscriber(ctx)
+	if err != nil {
+		logger.Sugar().Errorw(
+			"UpdateSubscriber",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.UpdateSubscriberResponse{}, status.Error(codes.Aborted, err.Error())
 	}
 
 	return &npool.UpdateSubscriberResponse{

@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 
-	app1 "github.com/NpoolPlatform/appuser-middleware/pkg/app"
+	app1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 
 	"google.golang.org/grpc/codes"
@@ -13,9 +13,10 @@ import (
 )
 
 func (s *Server) DeleteApp(ctx context.Context, in *npool.DeleteAppRequest) (*npool.DeleteAppResponse, error) {
+	id := in.GetInfo().GetID()
 	handler, err := app1.NewHandler(
 		ctx,
-		app1.WithID(in.GetInfo().GetID()),
+		app1.WithID(&id),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
