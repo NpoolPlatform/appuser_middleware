@@ -45,7 +45,7 @@ func (h *Handler) CreateAuth(ctx context.Context) (*npool.Auth, error) {
 func (h *Handler) CreateAuths(ctx context.Context) ([]*npool.Auth, error) {
 	ids := []uuid.UUID{}
 
-	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+	err := db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {
 		for _, req := range h.Reqs {
 			id := uuid.New()
 			if req.ID != nil {
@@ -57,7 +57,7 @@ func (h *Handler) CreateAuths(ctx context.Context) ([]*npool.Auth, error) {
 			userID := uuid.MustParse(*req.UserID)
 
 			if _, err := authcrud.CreateSet(
-				cli.Auth.Create(),
+				tx.Auth.Create(),
 				&authcrud.Req{
 					ID:       &id,
 					AppID:    &appID,
@@ -80,6 +80,8 @@ func (h *Handler) CreateAuths(ctx context.Context) ([]*npool.Auth, error) {
 	h.Conds = &authcrud.Conds{
 		IDs: &cruder.Cond{Op: cruder.IN, Val: ids},
 	}
+	h.Offset = 0
+	h.Limit = int32(len(ids))
 	infos, _, err := h.GetAuths(ctx)
 	if err != nil {
 		return nil, err
