@@ -6,6 +6,7 @@ import (
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
+	entapprole "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approle"
 
 	rolecrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/role"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/role"
@@ -16,9 +17,22 @@ func (h *Handler) UpdateRole(ctx context.Context) (*npool.Role, error) {
 		return nil, fmt.Errorf("invalid id")
 	}
 
-	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+	err := db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {
+		info, err := tx.
+			AppRole.
+			Query().
+			Where(
+				entapprole.ID(*h.ID),
+				entapprole.DeletedAt(0),
+			).
+			ForUpdate().
+			Only(_ctx)
+		if err != nil {
+			return err
+		}
+
 		if _, err := rolecrud.UpdateSet(
-			cli.AppRole.UpdateOneID(*h.ID),
+			info.Update(),
 			&rolecrud.Req{
 				ID:          h.ID,
 				CreatedBy:   h.CreatedBy,
