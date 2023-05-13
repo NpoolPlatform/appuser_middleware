@@ -33,19 +33,24 @@ func (h *queryHandler) selectSubscriber(stm *ent.SubscriberQuery) {
 	)
 }
 
-func (h *queryHandler) querySubscriber(cli *ent.Client) error {
+func (h *queryHandler) querySubscriber(ctx context.Context, cli *ent.Client) error {
 	if h.ID == nil {
 		return fmt.Errorf("invalid subscriber id")
 	}
 
-	h.selectSubscriber(
-		cli.Subscriber.
-			Query().
-			Where(
-				entsubscriber.ID(*h.ID),
-				entsubscriber.DeletedAt(0),
-			),
-	)
+	stm := cli.Subscriber.
+		Query().
+		Where(
+			entsubscriber.ID(*h.ID),
+			entsubscriber.DeletedAt(0),
+		)
+	_total, err := stm.Count(ctx)
+	if err != nil {
+		return err
+	}
+	h.total = uint32(_total)
+
+	h.selectSubscriber(stm)
 	return nil
 }
 
@@ -86,7 +91,7 @@ func (h *Handler) GetSubscriber(ctx context.Context) (*npool.Subscriber, error) 
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.querySubscriber(cli); err != nil {
+		if err := handler.querySubscriber(_ctx, cli); err != nil {
 			return err
 		}
 		handler.queryJoin()
