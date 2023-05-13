@@ -473,9 +473,6 @@ func WithKol(kol *bool) func(context.Context, *Handler) error {
 
 func WithKolConfirmed(confirmed *bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		if confirmed == nil {
-			return nil
-		}
 		h.KolConfirmed = confirmed
 		return nil
 	}
