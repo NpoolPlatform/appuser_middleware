@@ -141,6 +141,7 @@ func (h *queryHandler) queryJoinBanAppUser(s *sql.Selector) {
 		AppendSelect(
 			sql.As(t.C(entbanappuser.FieldUserID), "ban_app_user_id"),
 			sql.As(t.C(entbanappuser.FieldMessage), "ban_message"),
+			sql.As(t.C(entbanappuser.FieldDeletedAt), "ban_deleted_at"),
 		)
 }
 
@@ -250,7 +251,7 @@ func (h *queryHandler) formalize() {
 		}
 		info.SigninVerifyType = basetypes.SignMethod(basetypes.SignMethod_value[info.SigninVerifyTypeStr])
 		_ = json.Unmarshal([]byte(info.AddressFieldsString), &info.AddressFields)
-		info.Banned = info.BanAppUserID != ""
+		info.Banned = info.BanAppUserID != "" && info.BanDeletedAt == 0
 		info.State = basetypes.KycState(basetypes.KycState_value[info.KycStateStr])
 	}
 }

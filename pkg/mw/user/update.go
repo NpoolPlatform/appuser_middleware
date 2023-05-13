@@ -260,29 +260,38 @@ func (h *updateHandler) updateBanAppUser(ctx context.Context, tx *ent.Tx) error 
 		}
 	}
 
-	if *h.Banned && info == nil {
-		if _, err := banappusercrud.CreateSet(
-			tx.BanAppUser.Create(),
-			&banappusercrud.Req{
-				AppID:   &h.AppID,
-				UserID:  h.ID,
-				Message: h.BanMessage,
-			},
-		).Save(ctx); err != nil {
-			return err
+	if info != nil {
+		now := uint32(0)
+		if !*h.Banned {
+			now = uint32(time.Now().Unix())
 		}
-	} else if !*h.Banned && info != nil {
-		now := uint32(time.Now().Unix())
 		if _, err := banappusercrud.UpdateSet(
 			tx.BanAppUser.UpdateOneID(info.ID),
 			&banappusercrud.Req{
 				AppID:     &h.AppID,
 				UserID:    h.ID,
 				DeletedAt: &now,
+				Message:   h.BanMessage,
 			},
 		).Save(ctx); err != nil {
 			return err
 		}
+		return nil
+	}
+
+	if !*h.Banned {
+		return nil
+	}
+
+	if _, err := banappusercrud.CreateSet(
+		tx.BanAppUser.Create(),
+		&banappusercrud.Req{
+			AppID:   &h.AppID,
+			UserID:  h.ID,
+			Message: h.BanMessage,
+		},
+	).Save(ctx); err != nil {
+		return err
 	}
 
 	return nil

@@ -16,6 +16,7 @@ type Req struct {
 	EmailAddress  *string
 	PhoneNO       *string
 	ImportFromApp *uuid.UUID
+	DeletedAt     *uint32
 }
 
 func CreateSet(c *ent.AppUserCreate, req *Req) *ent.AppUserCreate {
@@ -43,6 +44,9 @@ func UpdateSet(u *ent.AppUserUpdateOne, req *Req) *ent.AppUserUpdateOne {
 	}
 	if req.PhoneNO != nil {
 		u.SetPhoneNo(*req.PhoneNO)
+	}
+	if req.DeletedAt != nil {
+		u.SetDeletedAt(*req.DeletedAt)
 	}
 	return u
 }

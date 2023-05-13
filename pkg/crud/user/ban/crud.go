@@ -37,6 +37,9 @@ func UpdateSet(u *ent.BanAppUserUpdateOne, req *Req) *ent.BanAppUserUpdateOne {
 	if req.Message != nil {
 		u.SetMessage(*req.Message)
 	}
+	if req.DeletedAt != nil {
+		u.SetDeletedAt(*req.DeletedAt)
+	}
 	return u
 }
 
