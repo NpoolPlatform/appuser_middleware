@@ -192,6 +192,7 @@ func WithRecaptchaMethod(method *basetypes.RecaptchaMethod) func(context.Context
 		}
 		switch *method {
 		case basetypes.RecaptchaMethod_GoogleRecaptchaV3:
+		case basetypes.RecaptchaMethod_NoRecaptcha:
 		default:
 			return fmt.Errorf("recaptcha method %v invalid", *method)
 		}
