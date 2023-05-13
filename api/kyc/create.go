@@ -3,6 +3,7 @@ package kyc
 import (
 	"context"
 
+	common "github.com/NpoolPlatform/appuser-middleware/api/common"
 	kyc1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/kyc"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/kyc"
@@ -35,6 +36,18 @@ func (s *Server) CreateKyc(ctx context.Context, in *npool.CreateKycRequest) (*np
 		)
 		return &npool.CreateKycResponse{}, status.Error(codes.Aborted, err.Error())
 	}
+
+	if req.UserID != nil {
+		if err := common.ValidateUser(ctx, req.GetAppID(), req.GetUserID()); err != nil {
+			logger.Sugar().Errorw(
+				"CreateAuth",
+				"In", in,
+				"Error", err,
+			)
+			return &npool.CreateKycResponse{}, status.Error(codes.Aborted, err.Error())
+		}
+	}
+
 	info, err := handler.CreateKyc(ctx)
 	if err != nil {
 		logger.Sugar().Errorw(

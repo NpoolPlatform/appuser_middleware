@@ -34,20 +34,11 @@ func (s *Server) CreateAuth(ctx context.Context, in *npool.CreateAuthRequest) (*
 	}
 
 	if req.UserID != nil {
-		exist, err := common.ExistUser(ctx, req.GetAppID(), req.GetUserID())
-		if err != nil {
+		if err := common.ValidateUser(ctx, req.GetAppID(), req.GetUserID()); err != nil {
 			logger.Sugar().Errorw(
 				"CreateAuth",
 				"In", in,
 				"Error", err,
-			)
-			return &npool.CreateAuthResponse{}, status.Error(codes.Aborted, err.Error())
-		}
-		if !exist {
-			logger.Sugar().Errorw(
-				"CreateAuth",
-				"In", in,
-				"Error", "User not exists",
 			)
 			return &npool.CreateAuthResponse{}, status.Error(codes.Aborted, err.Error())
 		}

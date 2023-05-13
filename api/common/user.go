@@ -2,18 +2,26 @@ package common
 
 import (
 	"context"
+	"fmt"
 
 	user "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user"
 )
 
-func ExistUser(ctx context.Context, appID, userID string) (bool, error) {
+func ValidateUser(ctx context.Context, appID, userID string) error {
 	handler, err := user.NewHandler(
 		ctx,
 		user.WithAppID(appID),
 		user.WithID(&userID),
 	)
 	if err != nil {
-		return false, err
+		return err
 	}
-	return handler.ExistUserConds(ctx)
+	exist, err := handler.ExistUserConds(ctx)
+	if err != nil {
+		return err
+	}
+	if !exist {
+		return fmt.Errorf("user not exists")
+	}
+	return nil
 }
