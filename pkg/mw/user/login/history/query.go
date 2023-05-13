@@ -53,11 +53,17 @@ func (h *queryHandler) queryHistory(cli *ent.Client) error {
 	return nil
 }
 
-func (h *queryHandler) queryLoginHistories(cli *ent.Client) error {
+func (h *queryHandler) queryLoginHistories(ctx context.Context, cli *ent.Client) error {
 	stm, err := historycrud.SetQueryConds(cli.LoginHistory.Query(), h.Conds)
 	if err != nil {
 		return err
 	}
+	total, err := stm.Count(ctx)
+	if err != nil {
+		return err
+	}
+	h.total = uint32(total)
+
 	h.selectHistory(stm)
 	return nil
 }
@@ -145,7 +151,7 @@ func (h *Handler) GetHistories(ctx context.Context) ([]*npool.History, uint32, e
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryLoginHistories(cli); err != nil {
+		if err := handler.queryLoginHistories(_ctx, cli); err != nil {
 			return err
 		}
 		handler.queryJoin()
