@@ -7,6 +7,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 
 	kyccrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/kyc"
+	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/kyc"
 
 	"github.com/google/uuid"
@@ -19,6 +20,28 @@ func (h *Handler) CreateKyc(ctx context.Context) (*npool.Kyc, error) {
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		stm, err := kyccrud.SetQueryConds(
+			cli.Kyc.Query(),
+			&kyccrud.Conds{
+				AppID:  &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+				UserID: &cruder.Cond{Op: cruder.EQ, Val: h.UserID},
+			},
+		)
+		if err != nil {
+			return err
+		}
+
+		info, err := stm.Only(_ctx)
+		if err != nil {
+			if !ent.IsNotFound(err) {
+				return err
+			}
+		}
+		if info != nil {
+			h.ID = &info.ID
+			return nil
+		}
+
 		if _, err := kyccrud.CreateSet(
 			cli.Kyc.Create(),
 			&kyccrud.Req{
