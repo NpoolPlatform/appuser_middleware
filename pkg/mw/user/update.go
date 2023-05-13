@@ -260,6 +260,8 @@ func (h *updateHandler) updateBanAppUser(ctx context.Context, tx *ent.Tx) error 
 		}
 	}
 
+	fmt.Printf("banned=%v,info=%v,err=%v,app_id=%v,user_id=%v\n", *h.Banned, info, err, h.AppID, h.ID)
+
 	if info != nil {
 		now := uint32(0)
 		if !*h.Banned {

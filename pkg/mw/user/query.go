@@ -138,6 +138,10 @@ func (h *queryHandler) queryJoinBanAppUser(s *sql.Selector) {
 			s.C(entappuser.FieldID),
 			t.C(entbanappuser.FieldUserID),
 		).
+		On(
+			s.C(entappuser.FieldDeletedAt),
+			t.C(entbanappuser.FieldDeletedAt),
+		).
 		AppendSelect(
 			sql.As(t.C(entbanappuser.FieldUserID), "ban_app_user_id"),
 			sql.As(t.C(entbanappuser.FieldMessage), "ban_message"),
@@ -262,7 +266,7 @@ func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 	}
 
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryAppUser(cli); err != nil {
+		if err := handler.queryAppUser(cli.Debug()); err != nil {
 			return err
 		}
 		handler.queryJoin()

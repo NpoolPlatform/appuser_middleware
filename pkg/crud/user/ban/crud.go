@@ -80,7 +80,7 @@ func SetQueryConds(q *ent.BanAppUserQuery, conds *Conds) (*ent.BanAppUserQuery, 
 	if conds.UserID != nil {
 		id, ok := conds.UserID.Val.(uuid.UUID)
 		if !ok {
-			return nil, fmt.Errorf("invalid appid")
+			return nil, fmt.Errorf("invalid userid")
 		}
 		switch conds.UserID.Op {
 		case cruder.EQ:
@@ -89,5 +89,6 @@ func SetQueryConds(q *ent.BanAppUserQuery, conds *Conds) (*ent.BanAppUserQuery, 
 			return nil, fmt.Errorf("invalid banapp field")
 		}
 	}
+	q.Where(entbanappuser.DeletedAt(0))
 	return q, nil
 }
