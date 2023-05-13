@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
-
-	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
 	entappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuser"
+	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 )
 
 func (h *Handler) ExistUser(ctx context.Context) (exist bool, err error) {
@@ -32,6 +32,14 @@ func (h *Handler) ExistUser(ctx context.Context) (exist bool, err error) {
 }
 
 func (h *Handler) ExistUserConds(ctx context.Context) (exist bool, err error) {
+	if h.Conds == nil {
+		h.Conds = &usercrud.Conds{}
+	}
+	h.Conds.AppID = &cruder.Cond{Op: cruder.EQ, Val: h.AppID}
+	if h.ID != nil {
+		h.Conds.ID = &cruder.Cond{Op: cruder.EQ, Val: *h.ID}
+	}
+
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		stm, err := usercrud.SetQueryConds(cli.AppUser.Query(), h.Conds)
 		if err != nil {
