@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 
+	common "github.com/NpoolPlatform/appuser-middleware/api/common"
 	auth1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing/auth"
 	handler "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing/handler"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
@@ -31,6 +32,27 @@ func (s *Server) CreateAuth(ctx context.Context, in *npool.CreateAuthRequest) (*
 		)
 		return &npool.CreateAuthResponse{}, status.Error(codes.Aborted, err.Error())
 	}
+
+	if req.UserID != nil {
+		exist, err := common.ExistUser(ctx, req.GetAppID(), req.GetUserID())
+		if err != nil {
+			logger.Sugar().Errorw(
+				"CreateAuth",
+				"In", in,
+				"Error", err,
+			)
+			return &npool.CreateAuthResponse{}, status.Error(codes.Aborted, err.Error())
+		}
+		if !exist {
+			logger.Sugar().Errorw(
+				"CreateAuth",
+				"In", in,
+				"Error", "User not exists",
+			)
+			return &npool.CreateAuthResponse{}, status.Error(codes.Aborted, err.Error())
+		}
+	}
+
 	info, err := _handler.CreateAuth(ctx)
 	if err != nil {
 		logger.Sugar().Errorw(

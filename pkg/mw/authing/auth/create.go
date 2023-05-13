@@ -2,10 +2,8 @@ package auth
 
 import (
 	"context"
-	"fmt"
 
 	authcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/authing/auth"
-	user "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user"
 	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/auth"
 
@@ -15,41 +13,10 @@ import (
 	"github.com/google/uuid"
 )
 
-type createHandler struct {
-	*Handler
-}
-
-func (h *createHandler) existUser(ctx context.Context) (bool, error) {
-	userID := h.UserID.String()
-
-	handler, err := user.NewHandler(
-		ctx,
-		user.WithAppID(h.AppID.String()),
-		user.WithID(&userID),
-	)
-	if err != nil {
-		return false, err
-	}
-	return handler.ExistUserConds(ctx)
-}
-
 func (h *Handler) CreateAuth(ctx context.Context) (*npool.Auth, error) {
 	id := uuid.New()
 	if h.ID == nil {
 		h.ID = &id
-	}
-
-	handler := &createHandler{
-		Handler: h,
-	}
-	if h.UserID != nil {
-		exist, err := handler.existUser(ctx)
-		if err != nil {
-			return nil, err
-		}
-		if !exist {
-			return nil, fmt.Errorf("invalid user")
-		}
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
