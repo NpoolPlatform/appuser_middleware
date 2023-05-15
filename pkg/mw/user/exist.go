@@ -35,7 +35,6 @@ func (h *Handler) ExistUserConds(ctx context.Context) (exist bool, err error) {
 	if h.Conds == nil {
 		h.Conds = &usercrud.Conds{}
 	}
-	h.Conds.AppID = &cruder.Cond{Op: cruder.EQ, Val: h.AppID}
 	if h.ID != nil {
 		h.Conds.ID = &cruder.Cond{Op: cruder.EQ, Val: *h.ID}
 	}
