@@ -47,7 +47,7 @@ func WithTx(ctx context.Context, fn func(ctx context.Context, tx *ent.Tx) error)
 		return err
 	}
 
-	tx, err := cli.Debug().Tx(ctx)
+	tx, err := cli.Tx(ctx)
 	if err != nil {
 		return fmt.Errorf("fail get client transaction: %v", err)
 	}

@@ -266,7 +266,7 @@ func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 	}
 
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryAppUser(cli.Debug()); err != nil {
+		if err := handler.queryAppUser(cli); err != nil {
 			return err
 		}
 		handler.queryJoin()
