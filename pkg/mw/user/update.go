@@ -123,6 +123,7 @@ func (h *updateHandler) updateAppUserControl(ctx context.Context, tx *ent.Tx) er
 		SigninVerifyType:   h.SigninVerifyType,
 		Kol:                h.Kol,
 		KolConfirmed:       h.KolConfirmed,
+		SelectedLangID:     h.SelectedLangID,
 	}
 
 	if info == nil {

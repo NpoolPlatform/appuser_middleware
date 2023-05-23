@@ -36,6 +36,7 @@ func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*
 		user1.WithGoogleAuthVerified(req.GoogleAuthVerified),
 		user1.WithKol(req.Kol),
 		user1.WithKolConfirmed(req.KolConfirmed),
+		user1.WithSelectedLangID(req.SelectedLangID),
 		user1.WithActionCredits(req.ActionCredits),
 		user1.WithSigninVerifyType(req.SigninVerifyType),
 		user1.WithBanned(req.Banned),

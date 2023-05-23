@@ -32,6 +32,8 @@ const (
 	FieldKol = "kol"
 	// FieldKolConfirmed holds the string denoting the kol_confirmed field in the database.
 	FieldKolConfirmed = "kol_confirmed"
+	// FieldSelectedLangID holds the string denoting the selected_lang_id field in the database.
+	FieldSelectedLangID = "selected_lang_id"
 	// Table holds the table name of the appusercontrol in the database.
 	Table = "app_user_controls"
 )
@@ -49,6 +51,7 @@ var Columns = []string{
 	FieldSigninVerifyType,
 	FieldKol,
 	FieldKolConfirmed,
+	FieldSelectedLangID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -92,6 +95,8 @@ var (
 	DefaultKol bool
 	// DefaultKolConfirmed holds the default value on creation for the "kol_confirmed" field.
 	DefaultKolConfirmed bool
+	// DefaultSelectedLangID holds the default value on creation for the "selected_lang_id" field.
+	DefaultSelectedLangID func() uuid.UUID
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )

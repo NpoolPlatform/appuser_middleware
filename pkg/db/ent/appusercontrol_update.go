@@ -212,6 +212,26 @@ func (aucu *AppUserControlUpdate) SetNillableKolConfirmed(b *bool) *AppUserContr
 	return aucu
 }
 
+// SetSelectedLangID sets the "selected_lang_id" field.
+func (aucu *AppUserControlUpdate) SetSelectedLangID(u uuid.UUID) *AppUserControlUpdate {
+	aucu.mutation.SetSelectedLangID(u)
+	return aucu
+}
+
+// SetNillableSelectedLangID sets the "selected_lang_id" field if the given value is not nil.
+func (aucu *AppUserControlUpdate) SetNillableSelectedLangID(u *uuid.UUID) *AppUserControlUpdate {
+	if u != nil {
+		aucu.SetSelectedLangID(*u)
+	}
+	return aucu
+}
+
+// ClearSelectedLangID clears the value of the "selected_lang_id" field.
+func (aucu *AppUserControlUpdate) ClearSelectedLangID() *AppUserControlUpdate {
+	aucu.mutation.ClearSelectedLangID()
+	return aucu
+}
+
 // Mutation returns the AppUserControlMutation object of the builder.
 func (aucu *AppUserControlUpdate) Mutation() *AppUserControlMutation {
 	return aucu.mutation
@@ -431,6 +451,19 @@ func (aucu *AppUserControlUpdate) sqlSave(ctx context.Context) (n int, err error
 			Column: appusercontrol.FieldKolConfirmed,
 		})
 	}
+	if value, ok := aucu.mutation.SelectedLangID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: appusercontrol.FieldSelectedLangID,
+		})
+	}
+	if aucu.mutation.SelectedLangIDCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Column: appusercontrol.FieldSelectedLangID,
+		})
+	}
 	_spec.Modifiers = aucu.modifiers
 	if n, err = sqlgraph.UpdateNodes(ctx, aucu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -632,6 +665,26 @@ func (aucuo *AppUserControlUpdateOne) SetNillableKolConfirmed(b *bool) *AppUserC
 	if b != nil {
 		aucuo.SetKolConfirmed(*b)
 	}
+	return aucuo
+}
+
+// SetSelectedLangID sets the "selected_lang_id" field.
+func (aucuo *AppUserControlUpdateOne) SetSelectedLangID(u uuid.UUID) *AppUserControlUpdateOne {
+	aucuo.mutation.SetSelectedLangID(u)
+	return aucuo
+}
+
+// SetNillableSelectedLangID sets the "selected_lang_id" field if the given value is not nil.
+func (aucuo *AppUserControlUpdateOne) SetNillableSelectedLangID(u *uuid.UUID) *AppUserControlUpdateOne {
+	if u != nil {
+		aucuo.SetSelectedLangID(*u)
+	}
+	return aucuo
+}
+
+// ClearSelectedLangID clears the value of the "selected_lang_id" field.
+func (aucuo *AppUserControlUpdateOne) ClearSelectedLangID() *AppUserControlUpdateOne {
+	aucuo.mutation.ClearSelectedLangID()
 	return aucuo
 }
 
@@ -882,6 +935,19 @@ func (aucuo *AppUserControlUpdateOne) sqlSave(ctx context.Context) (_node *AppUs
 			Type:   field.TypeBool,
 			Value:  value,
 			Column: appusercontrol.FieldKolConfirmed,
+		})
+	}
+	if value, ok := aucuo.mutation.SelectedLangID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: appusercontrol.FieldSelectedLangID,
+		})
+	}
+	if aucuo.mutation.SelectedLangIDCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Column: appusercontrol.FieldSelectedLangID,
 		})
 	}
 	_spec.Modifiers = aucuo.modifiers

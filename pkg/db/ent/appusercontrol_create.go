@@ -163,6 +163,20 @@ func (aucc *AppUserControlCreate) SetNillableKolConfirmed(b *bool) *AppUserContr
 	return aucc
 }
 
+// SetSelectedLangID sets the "selected_lang_id" field.
+func (aucc *AppUserControlCreate) SetSelectedLangID(u uuid.UUID) *AppUserControlCreate {
+	aucc.mutation.SetSelectedLangID(u)
+	return aucc
+}
+
+// SetNillableSelectedLangID sets the "selected_lang_id" field if the given value is not nil.
+func (aucc *AppUserControlCreate) SetNillableSelectedLangID(u *uuid.UUID) *AppUserControlCreate {
+	if u != nil {
+		aucc.SetSelectedLangID(*u)
+	}
+	return aucc
+}
+
 // SetID sets the "id" field.
 func (aucc *AppUserControlCreate) SetID(u uuid.UUID) *AppUserControlCreate {
 	aucc.mutation.SetID(u)
@@ -311,6 +325,13 @@ func (aucc *AppUserControlCreate) defaults() error {
 		v := appusercontrol.DefaultKolConfirmed
 		aucc.mutation.SetKolConfirmed(v)
 	}
+	if _, ok := aucc.mutation.SelectedLangID(); !ok {
+		if appusercontrol.DefaultSelectedLangID == nil {
+			return fmt.Errorf("ent: uninitialized appusercontrol.DefaultSelectedLangID (forgotten import ent/runtime?)")
+		}
+		v := appusercontrol.DefaultSelectedLangID()
+		aucc.mutation.SetSelectedLangID(v)
+	}
 	if _, ok := aucc.mutation.ID(); !ok {
 		if appusercontrol.DefaultID == nil {
 			return fmt.Errorf("ent: uninitialized appusercontrol.DefaultID (forgotten import ent/runtime?)")
@@ -454,6 +475,14 @@ func (aucc *AppUserControlCreate) createSpec() (*AppUserControl, *sqlgraph.Creat
 			Column: appusercontrol.FieldKolConfirmed,
 		})
 		_node.KolConfirmed = value
+	}
+	if value, ok := aucc.mutation.SelectedLangID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: appusercontrol.FieldSelectedLangID,
+		})
+		_node.SelectedLangID = value
 	}
 	return _node, _spec
 }
@@ -674,6 +703,24 @@ func (u *AppUserControlUpsert) SetKolConfirmed(v bool) *AppUserControlUpsert {
 // UpdateKolConfirmed sets the "kol_confirmed" field to the value that was provided on create.
 func (u *AppUserControlUpsert) UpdateKolConfirmed() *AppUserControlUpsert {
 	u.SetExcluded(appusercontrol.FieldKolConfirmed)
+	return u
+}
+
+// SetSelectedLangID sets the "selected_lang_id" field.
+func (u *AppUserControlUpsert) SetSelectedLangID(v uuid.UUID) *AppUserControlUpsert {
+	u.Set(appusercontrol.FieldSelectedLangID, v)
+	return u
+}
+
+// UpdateSelectedLangID sets the "selected_lang_id" field to the value that was provided on create.
+func (u *AppUserControlUpsert) UpdateSelectedLangID() *AppUserControlUpsert {
+	u.SetExcluded(appusercontrol.FieldSelectedLangID)
+	return u
+}
+
+// ClearSelectedLangID clears the value of the "selected_lang_id" field.
+func (u *AppUserControlUpsert) ClearSelectedLangID() *AppUserControlUpsert {
+	u.SetNull(appusercontrol.FieldSelectedLangID)
 	return u
 }
 
@@ -920,6 +967,27 @@ func (u *AppUserControlUpsertOne) SetKolConfirmed(v bool) *AppUserControlUpsertO
 func (u *AppUserControlUpsertOne) UpdateKolConfirmed() *AppUserControlUpsertOne {
 	return u.Update(func(s *AppUserControlUpsert) {
 		s.UpdateKolConfirmed()
+	})
+}
+
+// SetSelectedLangID sets the "selected_lang_id" field.
+func (u *AppUserControlUpsertOne) SetSelectedLangID(v uuid.UUID) *AppUserControlUpsertOne {
+	return u.Update(func(s *AppUserControlUpsert) {
+		s.SetSelectedLangID(v)
+	})
+}
+
+// UpdateSelectedLangID sets the "selected_lang_id" field to the value that was provided on create.
+func (u *AppUserControlUpsertOne) UpdateSelectedLangID() *AppUserControlUpsertOne {
+	return u.Update(func(s *AppUserControlUpsert) {
+		s.UpdateSelectedLangID()
+	})
+}
+
+// ClearSelectedLangID clears the value of the "selected_lang_id" field.
+func (u *AppUserControlUpsertOne) ClearSelectedLangID() *AppUserControlUpsertOne {
+	return u.Update(func(s *AppUserControlUpsert) {
+		s.ClearSelectedLangID()
 	})
 }
 
@@ -1332,6 +1400,27 @@ func (u *AppUserControlUpsertBulk) SetKolConfirmed(v bool) *AppUserControlUpsert
 func (u *AppUserControlUpsertBulk) UpdateKolConfirmed() *AppUserControlUpsertBulk {
 	return u.Update(func(s *AppUserControlUpsert) {
 		s.UpdateKolConfirmed()
+	})
+}
+
+// SetSelectedLangID sets the "selected_lang_id" field.
+func (u *AppUserControlUpsertBulk) SetSelectedLangID(v uuid.UUID) *AppUserControlUpsertBulk {
+	return u.Update(func(s *AppUserControlUpsert) {
+		s.SetSelectedLangID(v)
+	})
+}
+
+// UpdateSelectedLangID sets the "selected_lang_id" field to the value that was provided on create.
+func (u *AppUserControlUpsertBulk) UpdateSelectedLangID() *AppUserControlUpsertBulk {
+	return u.Update(func(s *AppUserControlUpsert) {
+		s.UpdateSelectedLangID()
+	})
+}
+
+// ClearSelectedLangID clears the value of the "selected_lang_id" field.
+func (u *AppUserControlUpsertBulk) ClearSelectedLangID() *AppUserControlUpsertBulk {
+	return u.Update(func(s *AppUserControlUpsert) {
+		s.ClearSelectedLangID()
 	})
 }
 

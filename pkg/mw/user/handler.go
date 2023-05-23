@@ -49,6 +49,7 @@ type Handler struct {
 	Kol                *bool
 	KolConfirmed       *bool
 	ActionCredits      *decimal.Decimal
+	SelectedLangID     *uuid.UUID
 	Account            *string
 	AccountType        *basetypes.SignMethod
 	Conds              *usercrud.Conds
@@ -488,6 +489,20 @@ func WithActionCredits(credits *string) func(context.Context, *Handler) error {
 			return err
 		}
 		h.ActionCredits = &_credits
+		return nil
+	}
+}
+
+func WithSelectedLangID(id *string) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if id == nil {
+			return nil
+		}
+		_id, err := uuid.Parse(*id)
+		if err != nil {
+			return err
+		}
+		h.SelectedLangID = &_id
 		return nil
 	}
 }

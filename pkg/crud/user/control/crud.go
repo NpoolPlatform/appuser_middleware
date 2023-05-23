@@ -18,6 +18,7 @@ type Req struct {
 	SigninVerifyType   *basetypes.SignMethod
 	Kol                *bool
 	KolConfirmed       *bool
+	SelectedLangID     *uuid.UUID
 }
 
 func CreateSet(c *ent.AppUserControlCreate, req *Req) *ent.AppUserControlCreate {
@@ -42,6 +43,9 @@ func CreateSet(c *ent.AppUserControlCreate, req *Req) *ent.AppUserControlCreate 
 	if req.KolConfirmed != nil {
 		c.SetKolConfirmed(*req.KolConfirmed)
 	}
+	if req.SelectedLangID != nil {
+		c.SetSelectedLangID(*req.SelectedLangID)
+	}
 	return c
 }
 
@@ -57,6 +61,9 @@ func UpdateSet(u *ent.AppUserControlUpdateOne, req *Req) *ent.AppUserControlUpda
 	}
 	if req.KolConfirmed != nil {
 		u.SetKolConfirmed(*req.KolConfirmed)
+	}
+	if req.SelectedLangID != nil {
+		u.SetSelectedLangID(*req.SelectedLangID)
 	}
 	return u
 }

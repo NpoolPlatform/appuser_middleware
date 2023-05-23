@@ -159,6 +159,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			appusercontrol.FieldSigninVerifyType:                   {Type: field.TypeString, Column: appusercontrol.FieldSigninVerifyType},
 			appusercontrol.FieldKol:                                {Type: field.TypeBool, Column: appusercontrol.FieldKol},
 			appusercontrol.FieldKolConfirmed:                       {Type: field.TypeBool, Column: appusercontrol.FieldKolConfirmed},
+			appusercontrol.FieldSelectedLangID:                     {Type: field.TypeUUID, Column: appusercontrol.FieldSelectedLangID},
 		},
 	}
 	graph.Nodes[6] = &sqlgraph.Node{
@@ -913,6 +914,11 @@ func (f *AppUserControlFilter) WhereKol(p entql.BoolP) {
 // WhereKolConfirmed applies the entql bool predicate on the kol_confirmed field.
 func (f *AppUserControlFilter) WhereKolConfirmed(p entql.BoolP) {
 	f.Where(p.Field(appusercontrol.FieldKolConfirmed))
+}
+
+// WhereSelectedLangID applies the entql [16]byte predicate on the selected_lang_id field.
+func (f *AppUserControlFilter) WhereSelectedLangID(p entql.ValueP) {
+	f.Where(p.Field(appusercontrol.FieldSelectedLangID))
 }
 
 // addPredicate implements the predicateAdder interface.

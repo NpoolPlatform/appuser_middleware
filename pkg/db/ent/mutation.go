@@ -4807,6 +4807,7 @@ type AppUserControlMutation struct {
 	signin_verify_type                     *string
 	kol                                    *bool
 	kol_confirmed                          *bool
+	selected_lang_id                       *uuid.UUID
 	clearedFields                          map[string]struct{}
 	done                                   bool
 	oldValue                               func(context.Context) (*AppUserControl, error)
@@ -5402,6 +5403,55 @@ func (m *AppUserControlMutation) ResetKolConfirmed() {
 	m.kol_confirmed = nil
 }
 
+// SetSelectedLangID sets the "selected_lang_id" field.
+func (m *AppUserControlMutation) SetSelectedLangID(u uuid.UUID) {
+	m.selected_lang_id = &u
+}
+
+// SelectedLangID returns the value of the "selected_lang_id" field in the mutation.
+func (m *AppUserControlMutation) SelectedLangID() (r uuid.UUID, exists bool) {
+	v := m.selected_lang_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSelectedLangID returns the old "selected_lang_id" field's value of the AppUserControl entity.
+// If the AppUserControl object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AppUserControlMutation) OldSelectedLangID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSelectedLangID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSelectedLangID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSelectedLangID: %w", err)
+	}
+	return oldValue.SelectedLangID, nil
+}
+
+// ClearSelectedLangID clears the value of the "selected_lang_id" field.
+func (m *AppUserControlMutation) ClearSelectedLangID() {
+	m.selected_lang_id = nil
+	m.clearedFields[appusercontrol.FieldSelectedLangID] = struct{}{}
+}
+
+// SelectedLangIDCleared returns if the "selected_lang_id" field was cleared in this mutation.
+func (m *AppUserControlMutation) SelectedLangIDCleared() bool {
+	_, ok := m.clearedFields[appusercontrol.FieldSelectedLangID]
+	return ok
+}
+
+// ResetSelectedLangID resets all changes to the "selected_lang_id" field.
+func (m *AppUserControlMutation) ResetSelectedLangID() {
+	m.selected_lang_id = nil
+	delete(m.clearedFields, appusercontrol.FieldSelectedLangID)
+}
+
 // Where appends a list predicates to the AppUserControlMutation builder.
 func (m *AppUserControlMutation) Where(ps ...predicate.AppUserControl) {
 	m.predicates = append(m.predicates, ps...)
@@ -5421,7 +5471,7 @@ func (m *AppUserControlMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AppUserControlMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.created_at != nil {
 		fields = append(fields, appusercontrol.FieldCreatedAt)
 	}
@@ -5452,6 +5502,9 @@ func (m *AppUserControlMutation) Fields() []string {
 	if m.kol_confirmed != nil {
 		fields = append(fields, appusercontrol.FieldKolConfirmed)
 	}
+	if m.selected_lang_id != nil {
+		fields = append(fields, appusercontrol.FieldSelectedLangID)
+	}
 	return fields
 }
 
@@ -5480,6 +5533,8 @@ func (m *AppUserControlMutation) Field(name string) (ent.Value, bool) {
 		return m.Kol()
 	case appusercontrol.FieldKolConfirmed:
 		return m.KolConfirmed()
+	case appusercontrol.FieldSelectedLangID:
+		return m.SelectedLangID()
 	}
 	return nil, false
 }
@@ -5509,6 +5564,8 @@ func (m *AppUserControlMutation) OldField(ctx context.Context, name string) (ent
 		return m.OldKol(ctx)
 	case appusercontrol.FieldKolConfirmed:
 		return m.OldKolConfirmed(ctx)
+	case appusercontrol.FieldSelectedLangID:
+		return m.OldSelectedLangID(ctx)
 	}
 	return nil, fmt.Errorf("unknown AppUserControl field %s", name)
 }
@@ -5587,6 +5644,13 @@ func (m *AppUserControlMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetKolConfirmed(v)
+		return nil
+	case appusercontrol.FieldSelectedLangID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSelectedLangID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown AppUserControl field %s", name)
@@ -5672,6 +5736,9 @@ func (m *AppUserControlMutation) ClearedFields() []string {
 	if m.FieldCleared(appusercontrol.FieldSigninVerifyType) {
 		fields = append(fields, appusercontrol.FieldSigninVerifyType)
 	}
+	if m.FieldCleared(appusercontrol.FieldSelectedLangID) {
+		fields = append(fields, appusercontrol.FieldSelectedLangID)
+	}
 	return fields
 }
 
@@ -5700,6 +5767,9 @@ func (m *AppUserControlMutation) ClearField(name string) error {
 		return nil
 	case appusercontrol.FieldSigninVerifyType:
 		m.ClearSigninVerifyType()
+		return nil
+	case appusercontrol.FieldSelectedLangID:
+		m.ClearSelectedLangID()
 		return nil
 	}
 	return fmt.Errorf("unknown AppUserControl nullable field %s", name)
@@ -5738,6 +5808,9 @@ func (m *AppUserControlMutation) ResetField(name string) error {
 		return nil
 	case appusercontrol.FieldKolConfirmed:
 		m.ResetKolConfirmed()
+		return nil
+	case appusercontrol.FieldSelectedLangID:
+		m.ResetSelectedLangID()
 		return nil
 	}
 	return fmt.Errorf("unknown AppUserControl field %s", name)

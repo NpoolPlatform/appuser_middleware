@@ -54,6 +54,10 @@ func (AppUserControl) Fields() []ent.Field {
 			Default(false),
 		field.Bool("kol_confirmed").
 			Default(false),
+		field.
+			UUID("selected_lang_id", uuid.UUID{}).
+			Optional().
+			Default(uuid.New),
 	}
 }
 

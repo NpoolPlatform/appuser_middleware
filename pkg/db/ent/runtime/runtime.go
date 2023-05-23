@@ -362,6 +362,10 @@ func init() {
 	appusercontrolDescKolConfirmed := appusercontrolFields[7].Descriptor()
 	// appusercontrol.DefaultKolConfirmed holds the default value on creation for the kol_confirmed field.
 	appusercontrol.DefaultKolConfirmed = appusercontrolDescKolConfirmed.Default.(bool)
+	// appusercontrolDescSelectedLangID is the schema descriptor for selected_lang_id field.
+	appusercontrolDescSelectedLangID := appusercontrolFields[8].Descriptor()
+	// appusercontrol.DefaultSelectedLangID holds the default value on creation for the selected_lang_id field.
+	appusercontrol.DefaultSelectedLangID = appusercontrolDescSelectedLangID.Default.(func() uuid.UUID)
 	// appusercontrolDescID is the schema descriptor for id field.
 	appusercontrolDescID := appusercontrolFields[0].Descriptor()
 	// appusercontrol.DefaultID holds the default value on creation for the id field.

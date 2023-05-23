@@ -149,6 +149,13 @@ func KolConfirmed(v bool) predicate.AppUserControl {
 	})
 }
 
+// SelectedLangID applies equality check predicate on the "selected_lang_id" field. It's identical to SelectedLangIDEQ.
+func SelectedLangID(v uuid.UUID) predicate.AppUserControl {
+	return predicate.AppUserControl(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldSelectedLangID), v))
+	})
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v uint32) predicate.AppUserControl {
 	return predicate.AppUserControl(func(s *sql.Selector) {
@@ -691,6 +698,84 @@ func KolConfirmedEQ(v bool) predicate.AppUserControl {
 func KolConfirmedNEQ(v bool) predicate.AppUserControl {
 	return predicate.AppUserControl(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldKolConfirmed), v))
+	})
+}
+
+// SelectedLangIDEQ applies the EQ predicate on the "selected_lang_id" field.
+func SelectedLangIDEQ(v uuid.UUID) predicate.AppUserControl {
+	return predicate.AppUserControl(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldSelectedLangID), v))
+	})
+}
+
+// SelectedLangIDNEQ applies the NEQ predicate on the "selected_lang_id" field.
+func SelectedLangIDNEQ(v uuid.UUID) predicate.AppUserControl {
+	return predicate.AppUserControl(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldSelectedLangID), v))
+	})
+}
+
+// SelectedLangIDIn applies the In predicate on the "selected_lang_id" field.
+func SelectedLangIDIn(vs ...uuid.UUID) predicate.AppUserControl {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AppUserControl(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldSelectedLangID), v...))
+	})
+}
+
+// SelectedLangIDNotIn applies the NotIn predicate on the "selected_lang_id" field.
+func SelectedLangIDNotIn(vs ...uuid.UUID) predicate.AppUserControl {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AppUserControl(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldSelectedLangID), v...))
+	})
+}
+
+// SelectedLangIDGT applies the GT predicate on the "selected_lang_id" field.
+func SelectedLangIDGT(v uuid.UUID) predicate.AppUserControl {
+	return predicate.AppUserControl(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldSelectedLangID), v))
+	})
+}
+
+// SelectedLangIDGTE applies the GTE predicate on the "selected_lang_id" field.
+func SelectedLangIDGTE(v uuid.UUID) predicate.AppUserControl {
+	return predicate.AppUserControl(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldSelectedLangID), v))
+	})
+}
+
+// SelectedLangIDLT applies the LT predicate on the "selected_lang_id" field.
+func SelectedLangIDLT(v uuid.UUID) predicate.AppUserControl {
+	return predicate.AppUserControl(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldSelectedLangID), v))
+	})
+}
+
+// SelectedLangIDLTE applies the LTE predicate on the "selected_lang_id" field.
+func SelectedLangIDLTE(v uuid.UUID) predicate.AppUserControl {
+	return predicate.AppUserControl(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldSelectedLangID), v))
+	})
+}
+
+// SelectedLangIDIsNil applies the IsNil predicate on the "selected_lang_id" field.
+func SelectedLangIDIsNil() predicate.AppUserControl {
+	return predicate.AppUserControl(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldSelectedLangID)))
+	})
+}
+
+// SelectedLangIDNotNil applies the NotNil predicate on the "selected_lang_id" field.
+func SelectedLangIDNotNil() predicate.AppUserControl {
+	return predicate.AppUserControl(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldSelectedLangID)))
 	})
 }
 

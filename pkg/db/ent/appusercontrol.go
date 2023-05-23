@@ -36,6 +36,8 @@ type AppUserControl struct {
 	Kol bool `json:"kol,omitempty"`
 	// KolConfirmed holds the value of the "kol_confirmed" field.
 	KolConfirmed bool `json:"kol_confirmed,omitempty"`
+	// SelectedLangID holds the value of the "selected_lang_id" field.
+	SelectedLangID uuid.UUID `json:"selected_lang_id,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -49,7 +51,7 @@ func (*AppUserControl) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullInt64)
 		case appusercontrol.FieldSigninVerifyType:
 			values[i] = new(sql.NullString)
-		case appusercontrol.FieldID, appusercontrol.FieldAppID, appusercontrol.FieldUserID:
+		case appusercontrol.FieldID, appusercontrol.FieldAppID, appusercontrol.FieldUserID, appusercontrol.FieldSelectedLangID:
 			values[i] = new(uuid.UUID)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type AppUserControl", columns[i])
@@ -132,6 +134,12 @@ func (auc *AppUserControl) assignValues(columns []string, values []interface{}) 
 			} else if value.Valid {
 				auc.KolConfirmed = value.Bool
 			}
+		case appusercontrol.FieldSelectedLangID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field selected_lang_id", values[i])
+			} else if value != nil {
+				auc.SelectedLangID = *value
+			}
 		}
 	}
 	return nil
@@ -189,6 +197,9 @@ func (auc *AppUserControl) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("kol_confirmed=")
 	builder.WriteString(fmt.Sprintf("%v", auc.KolConfirmed))
+	builder.WriteString(", ")
+	builder.WriteString("selected_lang_id=")
+	builder.WriteString(fmt.Sprintf("%v", auc.SelectedLangID))
 	builder.WriteByte(')')
 	return builder.String()
 }
