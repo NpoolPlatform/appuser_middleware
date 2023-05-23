@@ -22,6 +22,7 @@ import (
 
 	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
 
+	uuid1 "github.com/NpoolPlatform/go-service-framework/pkg/const/uuid"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
@@ -115,6 +116,7 @@ func (h *queryHandler) queryJoinAppUserControl(s *sql.Selector) {
 			t.C(entappusercontrol.FieldSigninVerifyType),
 			t.C(entappusercontrol.FieldKol),
 			t.C(entappusercontrol.FieldKolConfirmed),
+			t.C(entappusercontrol.FieldSelectedLangID),
 		)
 }
 
@@ -257,6 +259,13 @@ func (h *queryHandler) formalize() {
 		_ = json.Unmarshal([]byte(info.AddressFieldsString), &info.AddressFields)
 		info.Banned = info.BanAppUserID != "" && info.BanDeletedAt == 0
 		info.State = basetypes.KycState(basetypes.KycState_value[info.KycStateStr])
+		if info.SelectedLangID != nil {
+			if *info.SelectedLangID == uuid1.InvalidUUIDStr {
+				info.SelectedLangID = nil
+			} else if _, err := uuid.Parse(*info.SelectedLangID); err != nil {
+				info.SelectedLangID = nil
+			}
+		}
 	}
 }
 
