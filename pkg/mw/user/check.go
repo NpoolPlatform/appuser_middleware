@@ -13,7 +13,7 @@ import (
 
 func (h *Handler) checkAccountExist(ctx context.Context) error {
 	if h.PhoneNO == nil && h.EmailAddress == nil {
-		return fmt.Errorf("invalid account")
+		return nil
 	}
 
 	conds := &usercrud.Conds{
