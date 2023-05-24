@@ -57,7 +57,9 @@ func (AppUserControl) Fields() []ent.Field {
 		field.
 			UUID("selected_lang_id", uuid.UUID{}).
 			Optional().
-			Default(uuid.New),
+			Default(func() uuid.UUID {
+				return uuid.UUID{}
+			}),
 	}
 }
 
