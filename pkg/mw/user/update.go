@@ -301,13 +301,19 @@ func (h *updateHandler) updateBanAppUser(ctx context.Context, tx *ent.Tx) error 
 }
 
 func (h *Handler) UpdateUser(ctx context.Context) (*npool.User, error) {
-	if err := h.checkAccountExist(ctx); err != nil {
-		return nil, err
-	}
-
-	_, err := h.GetUser(ctx)
+	info, err := h.GetUser(ctx)
 	if err != nil {
 		return nil, err
+	}
+	if info == nil {
+		return nil, fmt.Errorf("invalid user")
+	}
+
+	if (h.EmailAddress != nil && info.EmailAddress != *h.EmailAddress) ||
+		(h.PhoneNO != nil && info.PhoneNO != *h.PhoneNO) {
+		if err := h.checkAccountExist(ctx); err != nil {
+			return nil, err
+		}
 	}
 
 	handler := &updateHandler{
