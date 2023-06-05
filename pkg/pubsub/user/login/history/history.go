@@ -67,7 +67,7 @@ func createHistory(ctx context.Context, req *historymwpb.HistoryReq) error {
 
 	if len(infos) > 0 {
 		req.Location = &infos[0].Location
-	} else if loc, err := getIPLocation(*req.ClientIP); err != nil {
+	} else if loc, err := getIPLocation(*req.ClientIP); err == nil {
 		req.Location = &loc
 	}
 
