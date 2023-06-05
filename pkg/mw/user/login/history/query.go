@@ -156,6 +156,7 @@ func (h *Handler) GetHistories(ctx context.Context) ([]*npool.History, uint32, e
 		}
 		handler.queryJoin()
 		handler.stm.
+			Order(ent.Desc(entloginhistory.FieldUpdatedAt)).
 			Offset(int(h.Offset)).
 			Limit(int(h.Limit))
 		if err := handler.scan(ctx); err != nil {
