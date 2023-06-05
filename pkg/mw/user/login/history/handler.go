@@ -180,6 +180,18 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 				Val: basetypes.LoginType(conds.GetLoginType().GetValue()),
 			}
 		}
+		if conds.ClientIP != nil {
+			h.Conds.ClientIP = &cruder.Cond{
+				Op:  conds.GetClientIP().GetOp(),
+				Val: conds.GetClientIP().GetValue(),
+			}
+		}
+		if conds.Location != nil {
+			h.Conds.Location = &cruder.Cond{
+				Op:  conds.GetLocation().GetOp(),
+				Val: conds.GetLocation().GetValue(),
+			}
+		}
 		return nil
 	}
 }

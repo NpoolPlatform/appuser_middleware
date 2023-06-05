@@ -134,6 +134,8 @@ func SetQueryConds(q *ent.LoginHistoryQuery, conds *Conds) (*ent.LoginHistoryQue
 		switch conds.Location.Op {
 		case cruder.EQ:
 			q.Where(entloginhistory.Location(loc))
+		case cruder.NEQ:
+			q.Where(entloginhistory.LocationNEQ(loc))
 		default:
 			return nil, fmt.Errorf("invalid login history field")
 		}
