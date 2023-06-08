@@ -134,9 +134,6 @@ func (h *Handler) GetKyc(ctx context.Context) (*npool.Kyc, error) {
 		}
 		handler.queryJoin()
 		if err := handler.scan(ctx); err != nil {
-			if ent.IsNotFound(err) {
-				return nil
-			}
 			return err
 		}
 		return nil
