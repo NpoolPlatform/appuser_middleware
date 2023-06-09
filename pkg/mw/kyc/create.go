@@ -2,6 +2,7 @@ package kyc
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
@@ -38,8 +39,7 @@ func (h *Handler) CreateKyc(ctx context.Context) (*npool.Kyc, error) {
 			}
 		}
 		if info != nil {
-			h.ID = &info.ID
-			return nil
+			return fmt.Errorf("kyc exist")
 		}
 
 		if _, err := kyccrud.CreateSet(
