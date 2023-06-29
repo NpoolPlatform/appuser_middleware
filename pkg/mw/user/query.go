@@ -158,6 +158,9 @@ func (h *queryHandler) queryJoinKyc(s *sql.Selector) {
 			s.C(entappuser.FieldID),
 			t.C(entkyc.FieldUserID),
 		).
+		OnP(
+			sql.EQ(t.C(entkyc.FieldDeletedAt), 0),
+		).
 		AppendSelect(
 			sql.As(t.C(entkyc.FieldState), "kyc_state"),
 		)
@@ -291,7 +294,7 @@ func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 		return nil, nil
 	}
 	if len(handler.infos) > 1 {
-		return nil, fmt.Errorf("too many records")
+		return nil, fmt.Errorf("too many records: %v", handler.infos)
 	}
 
 	if err := handler.queryUserRoles(ctx); err != nil {
