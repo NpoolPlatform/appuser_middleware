@@ -2,6 +2,7 @@ package role
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
@@ -9,6 +10,9 @@ import (
 	rolecrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/role"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/role"
+
+	redis2 "github.com/NpoolPlatform/go-service-framework/pkg/redis"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/google/uuid"
 )
@@ -19,7 +23,31 @@ func (h *Handler) CreateRole(ctx context.Context) (*npool.Role, error) {
 		h.ID = &id
 	}
 
+	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateRole, h.AppID, *h.Role)
+	if err := redis2.TryLock(key, 0); err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = redis2.Unlock(key)
+	}()
+
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		stm, err := rolecrud.SetQueryConds(cli.AppRole.Query(), &rolecrud.Conds{
+			AppID: &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+			Role:  &cruder.Cond{Op: cruder.EQ, Val: *h.Role},
+		})
+		if err != nil {
+			return err
+		}
+
+		exist, err := stm.Exist(_ctx)
+		if err != nil {
+			return err
+		}
+		if exist {
+			return fmt.Errorf("role exist")
+		}
+
 		if _, err := rolecrud.CreateSet(
 			cli.AppRole.Create(),
 			&rolecrud.Req{
@@ -53,6 +81,31 @@ func (h *Handler) CreateRoles(ctx context.Context) ([]*npool.Role, error) {
 			}
 			appID := uuid.MustParse(*req.AppID)
 			createdBy := uuid.MustParse(*req.CreatedBy)
+
+			key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateRole, appID, *req.Role)
+			if err := redis2.TryLock(key, 0); err != nil {
+				return err
+			}
+
+			stm, err := rolecrud.SetQueryConds(cli.AppRole.Query(), &rolecrud.Conds{
+				AppID: &cruder.Cond{Op: cruder.EQ, Val: appID},
+				Role:  &cruder.Cond{Op: cruder.EQ, Val: *req.Role},
+			})
+			if err != nil {
+				_ = redis2.Unlock(key)
+				return err
+			}
+
+			exist, err := stm.Exist(_ctx)
+			if err != nil {
+				_ = redis2.Unlock(key)
+				return err
+			}
+			if exist {
+				_ = redis2.Unlock(key)
+				return fmt.Errorf("role exist")
+			}
+
 			if _, err := rolecrud.CreateSet(
 				cli.AppRole.Create(),
 				&rolecrud.Req{
@@ -65,8 +118,10 @@ func (h *Handler) CreateRoles(ctx context.Context) ([]*npool.Role, error) {
 					Genesis:     req.Genesis,
 				},
 			).Save(ctx); err != nil {
+				_ = redis2.Unlock(key)
 				return err
 			}
+			_ = redis2.Unlock(key)
 			ids = append(ids, id)
 		}
 		return nil
