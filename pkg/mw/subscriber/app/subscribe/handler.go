@@ -1,4 +1,4 @@
-package subscriber
+package appsubscribe
 
 import (
 	"context"
