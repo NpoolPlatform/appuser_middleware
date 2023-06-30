@@ -10,6 +10,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/api/role"
 	roleuser "github.com/NpoolPlatform/appuser-middleware/api/role/user"
 	"github.com/NpoolPlatform/appuser-middleware/api/subscriber"
+	appsubscribe "github.com/NpoolPlatform/appuser-middleware/api/subscriber/app/subscribe"
 	"github.com/NpoolPlatform/appuser-middleware/api/user"
 	loginhistory "github.com/NpoolPlatform/appuser-middleware/api/user/login/history"
 
@@ -27,6 +28,7 @@ func Register(server grpc.ServiceRegistrar) {
 	appusermw.RegisterMiddlewareServer(server, &Service{})
 	app.Register(server)
 	subscriber.Register(server)
+	appsubscribe.Register(server)
 	user.Register(server)
 	loginhistory.Register(server)
 	role.Register(server)
