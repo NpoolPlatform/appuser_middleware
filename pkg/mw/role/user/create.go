@@ -11,6 +11,9 @@ import (
 	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/role/user"
 
+	redis2 "github.com/NpoolPlatform/go-service-framework/pkg/redis"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
+
 	"github.com/google/uuid"
 )
 
@@ -22,6 +25,14 @@ func (h *Handler) CreateUser(ctx context.Context) (*npool.User, error) {
 	if h.RoleID == nil || h.UserID == nil {
 		return nil, fmt.Errorf("invalid roleid or userid")
 	}
+
+	key := fmt.Sprintf("%v:%v:%v:%v", basetypes.Prefix_PrefixCreateRoleUser, h.AppID, *h.RoleID, *h.UserID)
+	if err := redis2.TryLock(key, 0); err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = redis2.Unlock(key)
+	}()
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		stm, err := usercrud.SetQueryConds(
