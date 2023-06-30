@@ -2,10 +2,13 @@ package auth
 
 import (
 	"context"
+	"fmt"
 
 	authcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/authing/auth"
+	redis2 "github.com/NpoolPlatform/go-service-framework/pkg/redis"
 	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/auth"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
@@ -19,7 +22,23 @@ func (h *Handler) CreateAuth(ctx context.Context) (*npool.Auth, error) {
 		h.ID = &id
 	}
 
-	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateAuth, *h.Resource, *h.Method)
+	if err := redis2.TryLock(key, 0); err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = redis2.Unlock(key)
+	}()
+
+	exist, err := h.ExistAuth(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if exist {
+		return nil, fmt.Errorf("auth exist")
+	}
+
+	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		if _, err := authcrud.CreateSet(
 			cli.Auth.Create(),
 			&authcrud.Req{
