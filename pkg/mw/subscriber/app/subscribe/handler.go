@@ -117,6 +117,13 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 			}
 			h.Conds.AppID = &cruder.Cond{Op: conds.GetAppID().GetOp(), Val: id}
 		}
+		if conds.SubscribeAppID != nil {
+			id, err := uuid.Parse(conds.GetSubscribeAppID().GetValue())
+			if err != nil {
+				return err
+			}
+			h.Conds.SubscribeAppID = &cruder.Cond{Op: conds.GetSubscribeAppID().GetOp(), Val: id}
+		}
 		return nil
 	}
 }
