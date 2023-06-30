@@ -11,6 +11,9 @@ import (
 	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/kyc"
 
+	redis2 "github.com/NpoolPlatform/go-service-framework/pkg/redis"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
+
 	"github.com/google/uuid"
 )
 
@@ -19,6 +22,14 @@ func (h *Handler) CreateKyc(ctx context.Context) (*npool.Kyc, error) {
 	if h.ID == nil {
 		h.ID = &id
 	}
+
+	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateUser, h.AppID, h.UserID)
+	if err := redis2.TryLock(key, 0); err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = redis2.Unlock(key)
+	}()
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		stm, err := kyccrud.SetQueryConds(
