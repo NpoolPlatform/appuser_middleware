@@ -2,12 +2,17 @@ package appsubscribe
 
 import (
 	"context"
+	"fmt"
 
-	appsubscribecrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/subscriber/app/subscribe"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
+
+	appsubscribecrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/subscriber/app/subscribe"
 	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/subscriber/app/subscribe"
+
+	redis2 "github.com/NpoolPlatform/go-service-framework/pkg/redis"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/google/uuid"
 )
@@ -18,12 +23,20 @@ func (h *Handler) CreateAppSubscribe(ctx context.Context) (*npool.AppSubscribe, 
 		h.ID = &id
 	}
 
+	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateAppSubscribe, h.AppID, h.SubscribeAppID)
+	if err := redis2.TryLock(key, 0); err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = redis2.Unlock(key)
+	}()
+
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		stm, err := appsubscribecrud.SetQueryConds(
 			cli.AppSubscribe.Query(),
 			&appsubscribecrud.Conds{
-				AppID:        &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
-				EmailAddress: &cruder.Cond{Op: cruder.EQ, Val: *h.EmailAddress},
+				AppID:          &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+				SubscribeAppID: &cruder.Cond{Op: cruder.EQ, Val: h.SubscribeAppID},
 			},
 		)
 		if err != nil {
@@ -44,9 +57,9 @@ func (h *Handler) CreateAppSubscribe(ctx context.Context) (*npool.AppSubscribe, 
 		if _, err := appsubscribecrud.CreateSet(
 			cli.AppSubscribe.Create(),
 			&appsubscribecrud.Req{
-				ID:           h.ID,
-				AppID:        &h.AppID,
-				EmailAddress: h.EmailAddress,
+				ID:             h.ID,
+				AppID:          &h.AppID,
+				SubscribeAppID: &h.SubscribeAppID,
 			},
 		).Save(_ctx); err != nil {
 			return err

@@ -37,8 +37,9 @@ func UpdateSet(u *ent.AppSubscribeUpdateOne, req *Req) *ent.AppSubscribeUpdateOn
 }
 
 type Conds struct {
-	ID    *cruder.Cond
-	AppID *cruder.Cond
+	ID             *cruder.Cond
+	AppID          *cruder.Cond
+	SubscribeAppID *cruder.Cond
 }
 
 //nolint:nolintlint,gocyclo
@@ -55,7 +56,7 @@ func SetQueryConds(q *ent.AppSubscribeQuery, conds *Conds) (*ent.AppSubscribeQue
 		case cruder.EQ:
 			q.Where(entappsubscribe.ID(id))
 		default:
-			return nil, fmt.Errorf("invalid subscriber field")
+			return nil, fmt.Errorf("invalid appsubscribe field")
 		}
 	}
 	if conds.AppID != nil {
@@ -67,7 +68,19 @@ func SetQueryConds(q *ent.AppSubscribeQuery, conds *Conds) (*ent.AppSubscribeQue
 		case cruder.EQ:
 			q.Where(entappsubscribe.AppID(id))
 		default:
-			return nil, fmt.Errorf("invalid subscriber field")
+			return nil, fmt.Errorf("invalid appsubscribe field")
+		}
+	}
+	if conds.SubscribeAppID != nil {
+		id, ok := conds.AppID.Val.(uuid.UUID)
+		if !ok {
+			return nil, fmt.Errorf("invalid subscribe appid")
+		}
+		switch conds.SubscribeAppID.Op {
+		case cruder.EQ:
+			q.Where(entappsubscribe.SubscribeAppID(id))
+		default:
+			return nil, fmt.Errorf("invalid appsubscribe field")
 		}
 	}
 	q.Where(entappsubscribe.DeletedAt(0))
