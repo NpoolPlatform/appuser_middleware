@@ -105,7 +105,7 @@ func setupUser(t *testing.T) func(*testing.T) {
 
 func creatUser(t *testing.T) {
 	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)           //nolint
-	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000) //nolint
+	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+30000) //nolint
 	ret.ImportedFromAppName = ret.ImportedFromAppID
 	var (
 		id                = ret.ID
@@ -165,7 +165,7 @@ func creatUser(t *testing.T) {
 
 func updateUser(t *testing.T) {
 	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)           //nolint
-	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000) //nolint
+	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+40000) //nolint
 	ret.BanAppUserID = ret.ID
 	var (
 		appID   = ret.AppID
