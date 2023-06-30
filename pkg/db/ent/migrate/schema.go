@@ -84,6 +84,21 @@ var (
 		Columns:    AppRoleUsersColumns,
 		PrimaryKey: []*schema.Column{AppRoleUsersColumns[0]},
 	}
+	// AppSubscribesColumns holds the columns for the "app_subscribes" table.
+	AppSubscribesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "created_at", Type: field.TypeUint32},
+		{Name: "updated_at", Type: field.TypeUint32},
+		{Name: "deleted_at", Type: field.TypeUint32},
+		{Name: "app_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "subscribe_app_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// AppSubscribesTable holds the schema information for the "app_subscribes" table.
+	AppSubscribesTable = &schema.Table{
+		Name:       "app_subscribes",
+		Columns:    AppSubscribesColumns,
+		PrimaryKey: []*schema.Column{AppSubscribesColumns[0]},
+	}
 	// AppUsersColumns holds the columns for the "app_users" table.
 	AppUsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
@@ -368,6 +383,7 @@ var (
 		AppControlsTable,
 		AppRolesTable,
 		AppRoleUsersTable,
+		AppSubscribesTable,
 		AppUsersTable,
 		AppUserControlsTable,
 		AppUserExtrasTable,

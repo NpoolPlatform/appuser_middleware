@@ -9,6 +9,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appcontrol"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approle"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approleuser"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appsubscribe"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuser"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appusercontrol"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserextra"
@@ -258,6 +259,46 @@ func init() {
 	approleuserDescID := approleuserFields[0].Descriptor()
 	// approleuser.DefaultID holds the default value on creation for the id field.
 	approleuser.DefaultID = approleuserDescID.Default.(func() uuid.UUID)
+	appsubscribeMixin := schema.AppSubscribe{}.Mixin()
+	appsubscribe.Policy = privacy.NewPolicies(appsubscribeMixin[0], schema.AppSubscribe{})
+	appsubscribe.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := appsubscribe.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	appsubscribeMixinFields0 := appsubscribeMixin[0].Fields()
+	_ = appsubscribeMixinFields0
+	appsubscribeFields := schema.AppSubscribe{}.Fields()
+	_ = appsubscribeFields
+	// appsubscribeDescCreatedAt is the schema descriptor for created_at field.
+	appsubscribeDescCreatedAt := appsubscribeMixinFields0[0].Descriptor()
+	// appsubscribe.DefaultCreatedAt holds the default value on creation for the created_at field.
+	appsubscribe.DefaultCreatedAt = appsubscribeDescCreatedAt.Default.(func() uint32)
+	// appsubscribeDescUpdatedAt is the schema descriptor for updated_at field.
+	appsubscribeDescUpdatedAt := appsubscribeMixinFields0[1].Descriptor()
+	// appsubscribe.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	appsubscribe.DefaultUpdatedAt = appsubscribeDescUpdatedAt.Default.(func() uint32)
+	// appsubscribe.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	appsubscribe.UpdateDefaultUpdatedAt = appsubscribeDescUpdatedAt.UpdateDefault.(func() uint32)
+	// appsubscribeDescDeletedAt is the schema descriptor for deleted_at field.
+	appsubscribeDescDeletedAt := appsubscribeMixinFields0[2].Descriptor()
+	// appsubscribe.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	appsubscribe.DefaultDeletedAt = appsubscribeDescDeletedAt.Default.(func() uint32)
+	// appsubscribeDescAppID is the schema descriptor for app_id field.
+	appsubscribeDescAppID := appsubscribeFields[1].Descriptor()
+	// appsubscribe.DefaultAppID holds the default value on creation for the app_id field.
+	appsubscribe.DefaultAppID = appsubscribeDescAppID.Default.(func() uuid.UUID)
+	// appsubscribeDescSubscribeAppID is the schema descriptor for subscribe_app_id field.
+	appsubscribeDescSubscribeAppID := appsubscribeFields[2].Descriptor()
+	// appsubscribe.DefaultSubscribeAppID holds the default value on creation for the subscribe_app_id field.
+	appsubscribe.DefaultSubscribeAppID = appsubscribeDescSubscribeAppID.Default.(func() uuid.UUID)
+	// appsubscribeDescID is the schema descriptor for id field.
+	appsubscribeDescID := appsubscribeFields[0].Descriptor()
+	// appsubscribe.DefaultID holds the default value on creation for the id field.
+	appsubscribe.DefaultID = appsubscribeDescID.Default.(func() uuid.UUID)
 	appuserMixin := schema.AppUser{}.Mixin()
 	appuser.Policy = privacy.NewPolicies(appuserMixin[0], schema.AppUser{})
 	appuser.Hooks[0] = func(next ent.Mutator) ent.Mutator {

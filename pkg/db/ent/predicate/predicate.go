@@ -18,6 +18,9 @@ type AppRole func(*sql.Selector)
 // AppRoleUser is the predicate function for approleuser builders.
 type AppRoleUser func(*sql.Selector)
 
+// AppSubscribe is the predicate function for appsubscribe builders.
+type AppSubscribe func(*sql.Selector)
+
 // AppUser is the predicate function for appuser builders.
 type AppUser func(*sql.Selector)
 
