@@ -8,7 +8,9 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/encrypt"
 
+	redis2 "github.com/NpoolPlatform/go-service-framework/pkg/redis"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	roleusercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/role/user"
 	subscribercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/subscriber"
@@ -23,6 +25,22 @@ import (
 
 type createHandler struct {
 	*Handler
+}
+
+func (h *createHandler) account() (string, error) {
+	switch *h.AccountType {
+	case basetypes.SignMethod_Email:
+		if h.EmailAddress == nil {
+			return "", fmt.Errorf("invalid email address")
+		}
+		return *h.EmailAddress, nil
+	case basetypes.SignMethod_Mobile:
+		if h.PhoneNO == nil {
+			return "", fmt.Errorf("invalid phone no")
+		}
+		return *h.PhoneNO, nil
+	}
+	return "", fmt.Errorf("invalid accounttype")
 }
 
 func (h *createHandler) createAppUser(ctx context.Context, tx *ent.Tx) error {
@@ -186,6 +204,19 @@ func (h *Handler) CreateUser(ctx context.Context) (info *npool.User, err error) 
 	handler := &createHandler{
 		Handler: h,
 	}
+
+	account, err := handler.account()
+	if err != nil {
+		return nil, err
+	}
+
+	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateUser, *h.AccountType, account)
+	if err := redis2.TryLock(key, 0); err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = redis2.Unlock(key)
+	}()
 
 	if err := h.checkAccountExist(ctx); err != nil {
 		return nil, err
