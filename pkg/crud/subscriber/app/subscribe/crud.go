@@ -72,7 +72,7 @@ func SetQueryConds(q *ent.AppSubscribeQuery, conds *Conds) (*ent.AppSubscribeQue
 		}
 	}
 	if conds.SubscribeAppID != nil {
-		id, ok := conds.AppID.Val.(uuid.UUID)
+		id, ok := conds.SubscribeAppID.Val.(uuid.UUID)
 		if !ok {
 			return nil, fmt.Errorf("invalid subscribe appid")
 		}

@@ -13,6 +13,13 @@ import (
 
 func (s *Server) CreateAppSubscribe(ctx context.Context, in *npool.CreateAppSubscribeRequest) (*npool.CreateAppSubscribeResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"CreateAppSubscribe",
+			"In", in,
+		)
+		return &npool.CreateAppSubscribeResponse{}, status.Error(codes.Aborted, "invalid req")
+	}
 	handler, err := appsubscribe1.NewHandler(
 		ctx,
 		appsubscribe1.WithID(req.ID),

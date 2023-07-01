@@ -23,6 +23,10 @@ func (h *Handler) CreateAppSubscribe(ctx context.Context) (*npool.AppSubscribe, 
 		h.ID = &id
 	}
 
+	if h.AppID == h.SubscribeAppID {
+		return nil, fmt.Errorf("cannot subscribe self")
+	}
+
 	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateAppSubscribe, h.AppID, h.SubscribeAppID)
 	if err := redis2.TryLock(key, 0); err != nil {
 		return nil, err
