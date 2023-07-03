@@ -17,6 +17,10 @@ import (
 )
 
 func (h *Handler) CreateSubscriber(ctx context.Context) (*npool.Subscriber, error) {
+	if h.EmailAddress == nil {
+		return nil, fmt.Errorf("invalid email address")
+	}
+
 	id := uuid.New()
 	if h.ID == nil {
 		h.ID = &id
