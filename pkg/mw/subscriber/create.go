@@ -2,6 +2,7 @@ package subscriber
 
 import (
 	"context"
+	"fmt"
 
 	subscribercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/subscriber"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
@@ -9,14 +10,29 @@ import (
 	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/subscriber"
 
+	redis2 "github.com/NpoolPlatform/go-service-framework/pkg/redis"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
+
 	"github.com/google/uuid"
 )
 
 func (h *Handler) CreateSubscriber(ctx context.Context) (*npool.Subscriber, error) {
+	if h.EmailAddress == nil {
+		return nil, fmt.Errorf("invalid email address")
+	}
+
 	id := uuid.New()
 	if h.ID == nil {
 		h.ID = &id
 	}
+
+	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateSubscriber, h.AppID, *h.EmailAddress)
+	if err := redis2.TryLock(key, 0); err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = redis2.Unlock(key)
+	}()
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		stm, err := subscribercrud.SetQueryConds(

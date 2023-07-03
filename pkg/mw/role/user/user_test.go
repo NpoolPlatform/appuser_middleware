@@ -68,7 +68,7 @@ func setupUser(t *testing.T) func(*testing.T) {
 	assert.NotNil(t, role1)
 
 	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+1000000)           //nolint
-	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+1000000) //nolint
+	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+7000000) //nolint
 	passwordHash := uuid.NewString()
 
 	ret.AppName = ret.AppID

@@ -32,6 +32,7 @@ type hooks struct {
 	AppControl        []ent.Hook
 	AppRole           []ent.Hook
 	AppRoleUser       []ent.Hook
+	AppSubscribe      []ent.Hook
 	AppUser           []ent.Hook
 	AppUserControl    []ent.Hook
 	AppUserExtra      []ent.Hook

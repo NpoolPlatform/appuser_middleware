@@ -61,6 +61,19 @@ func (f AppRoleUserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 	return f(ctx, mv)
 }
 
+// The AppSubscribeFunc type is an adapter to allow the use of ordinary
+// function as AppSubscribe mutator.
+type AppSubscribeFunc func(context.Context, *ent.AppSubscribeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AppSubscribeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.AppSubscribeMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AppSubscribeMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The AppUserFunc type is an adapter to allow the use of ordinary
 // function as AppUser mutator.
 type AppUserFunc func(context.Context, *ent.AppUserMutation) (ent.Value, error)

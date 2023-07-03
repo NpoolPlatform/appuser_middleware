@@ -14,6 +14,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appcontrol"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approle"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approleuser"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appsubscribe"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuser"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appusercontrol"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserextra"
@@ -51,6 +52,7 @@ func columnChecker(table string) func(string) error {
 		appcontrol.Table:        appcontrol.ValidColumn,
 		approle.Table:           approle.ValidColumn,
 		approleuser.Table:       approleuser.ValidColumn,
+		appsubscribe.Table:      appsubscribe.ValidColumn,
 		appuser.Table:           appuser.ValidColumn,
 		appusercontrol.Table:    appusercontrol.ValidColumn,
 		appuserextra.Table:      appuserextra.ValidColumn,

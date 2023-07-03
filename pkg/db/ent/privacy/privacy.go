@@ -246,6 +246,30 @@ func (f AppRoleUserMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mut
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.AppRoleUserMutation", m)
 }
 
+// The AppSubscribeQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type AppSubscribeQueryRuleFunc func(context.Context, *ent.AppSubscribeQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f AppSubscribeQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.AppSubscribeQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.AppSubscribeQuery", q)
+}
+
+// The AppSubscribeMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type AppSubscribeMutationRuleFunc func(context.Context, *ent.AppSubscribeMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f AppSubscribeMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.AppSubscribeMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.AppSubscribeMutation", m)
+}
+
 // The AppUserQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type AppUserQueryRuleFunc func(context.Context, *ent.AppUserQuery) error
@@ -601,6 +625,8 @@ func queryFilter(q ent.Query) (Filter, error) {
 		return q.Filter(), nil
 	case *ent.AppRoleUserQuery:
 		return q.Filter(), nil
+	case *ent.AppSubscribeQuery:
+		return q.Filter(), nil
 	case *ent.AppUserQuery:
 		return q.Filter(), nil
 	case *ent.AppUserControlQuery:
@@ -641,6 +667,8 @@ func mutationFilter(m ent.Mutation) (Filter, error) {
 	case *ent.AppRoleMutation:
 		return m.Filter(), nil
 	case *ent.AppRoleUserMutation:
+		return m.Filter(), nil
+	case *ent.AppSubscribeMutation:
 		return m.Filter(), nil
 	case *ent.AppUserMutation:
 		return m.Filter(), nil

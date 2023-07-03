@@ -97,7 +97,7 @@ func setupUser(t *testing.T) func(*testing.T) {
 
 func creatUser(t *testing.T) {
 	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+1000000)           //nolint
-	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+1000000) //nolint
+	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+4000000) //nolint
 	ret.ImportedFromAppName = ret.ImportedFromAppID
 	ret1 := npool.User{
 		ID:                  ret.ID,

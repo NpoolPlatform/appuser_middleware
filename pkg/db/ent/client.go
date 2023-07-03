@@ -15,6 +15,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appcontrol"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approle"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approleuser"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appsubscribe"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuser"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appusercontrol"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserextra"
@@ -46,6 +47,8 @@ type Client struct {
 	AppRole *AppRoleClient
 	// AppRoleUser is the client for interacting with the AppRoleUser builders.
 	AppRoleUser *AppRoleUserClient
+	// AppSubscribe is the client for interacting with the AppSubscribe builders.
+	AppSubscribe *AppSubscribeClient
 	// AppUser is the client for interacting with the AppUser builders.
 	AppUser *AppUserClient
 	// AppUserControl is the client for interacting with the AppUserControl builders.
@@ -89,6 +92,7 @@ func (c *Client) init() {
 	c.AppControl = NewAppControlClient(c.config)
 	c.AppRole = NewAppRoleClient(c.config)
 	c.AppRoleUser = NewAppRoleUserClient(c.config)
+	c.AppSubscribe = NewAppSubscribeClient(c.config)
 	c.AppUser = NewAppUserClient(c.config)
 	c.AppUserControl = NewAppUserControlClient(c.config)
 	c.AppUserExtra = NewAppUserExtraClient(c.config)
@@ -139,6 +143,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		AppControl:        NewAppControlClient(cfg),
 		AppRole:           NewAppRoleClient(cfg),
 		AppRoleUser:       NewAppRoleUserClient(cfg),
+		AppSubscribe:      NewAppSubscribeClient(cfg),
 		AppUser:           NewAppUserClient(cfg),
 		AppUserControl:    NewAppUserControlClient(cfg),
 		AppUserExtra:      NewAppUserExtraClient(cfg),
@@ -175,6 +180,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		AppControl:        NewAppControlClient(cfg),
 		AppRole:           NewAppRoleClient(cfg),
 		AppRoleUser:       NewAppRoleUserClient(cfg),
+		AppSubscribe:      NewAppSubscribeClient(cfg),
 		AppUser:           NewAppUserClient(cfg),
 		AppUserControl:    NewAppUserControlClient(cfg),
 		AppUserExtra:      NewAppUserExtraClient(cfg),
@@ -221,6 +227,7 @@ func (c *Client) Use(hooks ...Hook) {
 	c.AppControl.Use(hooks...)
 	c.AppRole.Use(hooks...)
 	c.AppRoleUser.Use(hooks...)
+	c.AppSubscribe.Use(hooks...)
 	c.AppUser.Use(hooks...)
 	c.AppUserControl.Use(hooks...)
 	c.AppUserExtra.Use(hooks...)
@@ -598,6 +605,97 @@ func (c *AppRoleUserClient) GetX(ctx context.Context, id uuid.UUID) *AppRoleUser
 func (c *AppRoleUserClient) Hooks() []Hook {
 	hooks := c.hooks.AppRoleUser
 	return append(hooks[:len(hooks):len(hooks)], approleuser.Hooks[:]...)
+}
+
+// AppSubscribeClient is a client for the AppSubscribe schema.
+type AppSubscribeClient struct {
+	config
+}
+
+// NewAppSubscribeClient returns a client for the AppSubscribe from the given config.
+func NewAppSubscribeClient(c config) *AppSubscribeClient {
+	return &AppSubscribeClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `appsubscribe.Hooks(f(g(h())))`.
+func (c *AppSubscribeClient) Use(hooks ...Hook) {
+	c.hooks.AppSubscribe = append(c.hooks.AppSubscribe, hooks...)
+}
+
+// Create returns a builder for creating a AppSubscribe entity.
+func (c *AppSubscribeClient) Create() *AppSubscribeCreate {
+	mutation := newAppSubscribeMutation(c.config, OpCreate)
+	return &AppSubscribeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of AppSubscribe entities.
+func (c *AppSubscribeClient) CreateBulk(builders ...*AppSubscribeCreate) *AppSubscribeCreateBulk {
+	return &AppSubscribeCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for AppSubscribe.
+func (c *AppSubscribeClient) Update() *AppSubscribeUpdate {
+	mutation := newAppSubscribeMutation(c.config, OpUpdate)
+	return &AppSubscribeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AppSubscribeClient) UpdateOne(as *AppSubscribe) *AppSubscribeUpdateOne {
+	mutation := newAppSubscribeMutation(c.config, OpUpdateOne, withAppSubscribe(as))
+	return &AppSubscribeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AppSubscribeClient) UpdateOneID(id uuid.UUID) *AppSubscribeUpdateOne {
+	mutation := newAppSubscribeMutation(c.config, OpUpdateOne, withAppSubscribeID(id))
+	return &AppSubscribeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for AppSubscribe.
+func (c *AppSubscribeClient) Delete() *AppSubscribeDelete {
+	mutation := newAppSubscribeMutation(c.config, OpDelete)
+	return &AppSubscribeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AppSubscribeClient) DeleteOne(as *AppSubscribe) *AppSubscribeDeleteOne {
+	return c.DeleteOneID(as.ID)
+}
+
+// DeleteOne returns a builder for deleting the given entity by its id.
+func (c *AppSubscribeClient) DeleteOneID(id uuid.UUID) *AppSubscribeDeleteOne {
+	builder := c.Delete().Where(appsubscribe.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AppSubscribeDeleteOne{builder}
+}
+
+// Query returns a query builder for AppSubscribe.
+func (c *AppSubscribeClient) Query() *AppSubscribeQuery {
+	return &AppSubscribeQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a AppSubscribe entity by its id.
+func (c *AppSubscribeClient) Get(ctx context.Context, id uuid.UUID) (*AppSubscribe, error) {
+	return c.Query().Where(appsubscribe.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AppSubscribeClient) GetX(ctx context.Context, id uuid.UUID) *AppSubscribe {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *AppSubscribeClient) Hooks() []Hook {
+	hooks := c.hooks.AppSubscribe
+	return append(hooks[:len(hooks):len(hooks)], appsubscribe.Hooks[:]...)
 }
 
 // AppUserClient is a client for the AppUser schema.

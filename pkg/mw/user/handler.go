@@ -136,6 +136,9 @@ func WithPhoneNO(phoneNO *string) func(context.Context, *Handler) error {
 		if err := validatePhoneNO(*phoneNO); err != nil {
 			return err
 		}
+		accountType := basetypes.SignMethod_Mobile
+		h.Account = phoneNO
+		h.AccountType = &accountType
 		h.PhoneNO = phoneNO
 		return nil
 	}
@@ -149,6 +152,10 @@ func WithEmailAddress(emailAddress *string) func(context.Context, *Handler) erro
 		if err := validateEmailAddress(*emailAddress); err != nil {
 			return err
 		}
+
+		accountType := basetypes.SignMethod_Email
+		h.Account = emailAddress
+		h.AccountType = &accountType
 		h.EmailAddress = emailAddress
 		return nil
 	}
