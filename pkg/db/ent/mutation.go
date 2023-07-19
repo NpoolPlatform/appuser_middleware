@@ -3161,7 +3161,6 @@ func (m *AppOAuthThirdPartyMutation) ResetField(name string) error {
 		return nil
 	case appoauththirdparty.FieldClientID:
 		m.ResetClientID()
-		return nil
 	case appoauththirdparty.FieldClientSecret:
 		m.ResetClientSecret()
 		return nil
@@ -3172,8 +3171,6 @@ func (m *AppOAuthThirdPartyMutation) ResetField(name string) error {
 		m.ResetSalt()
 		return nil
 	}
-	return fmt.Errorf("unknown AppOAuthThirdParty field %s", name)
-}
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *AppOAuthThirdPartyMutation) AddedEdges() []string {
