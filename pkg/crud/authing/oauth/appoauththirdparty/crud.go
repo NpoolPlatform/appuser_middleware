@@ -51,7 +51,6 @@ func CreateSet(c *ent.AppOAuthThirdPartyCreate, req *Req) *ent.AppOAuthThirdPart
 func UpdateSet(u *ent.AppOAuthThirdPartyUpdateOne, req *Req) *ent.AppOAuthThirdPartyUpdateOne {
 	if req.ClientID != nil {
 		u.SetClientID(*req.ClientID)
-	}
 	if req.ClientSecret != nil {
 		u.SetClientSecret(*req.ClientSecret)
 	}
@@ -62,8 +61,6 @@ func UpdateSet(u *ent.AppOAuthThirdPartyUpdateOne, req *Req) *ent.AppOAuthThirdP
 		u.SetSalt(*req.Salt)
 	}
 	if req.DeletedAt != nil {
-		u.SetDeletedAt(*req.DeletedAt)
-	}
 	return u
 }
 
