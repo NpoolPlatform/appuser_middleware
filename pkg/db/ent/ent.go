@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appcontrol"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appoauththirdparty"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approle"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approleuser"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appsubscribe"
@@ -26,6 +27,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/banappuser"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/kyc"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/loginhistory"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/oauththirdparty"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/pubsubmessage"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/subscriber"
 )
@@ -48,24 +50,26 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
-		app.Table:               app.ValidColumn,
-		appcontrol.Table:        appcontrol.ValidColumn,
-		approle.Table:           approle.ValidColumn,
-		approleuser.Table:       approleuser.ValidColumn,
-		appsubscribe.Table:      appsubscribe.ValidColumn,
-		appuser.Table:           appuser.ValidColumn,
-		appusercontrol.Table:    appusercontrol.ValidColumn,
-		appuserextra.Table:      appuserextra.ValidColumn,
-		appusersecret.Table:     appusersecret.ValidColumn,
-		appuserthirdparty.Table: appuserthirdparty.ValidColumn,
-		auth.Table:              auth.ValidColumn,
-		authhistory.Table:       authhistory.ValidColumn,
-		banapp.Table:            banapp.ValidColumn,
-		banappuser.Table:        banappuser.ValidColumn,
-		kyc.Table:               kyc.ValidColumn,
-		loginhistory.Table:      loginhistory.ValidColumn,
-		pubsubmessage.Table:     pubsubmessage.ValidColumn,
-		subscriber.Table:        subscriber.ValidColumn,
+		app.Table:                app.ValidColumn,
+		appcontrol.Table:         appcontrol.ValidColumn,
+		appoauththirdparty.Table: appoauththirdparty.ValidColumn,
+		approle.Table:            approle.ValidColumn,
+		approleuser.Table:        approleuser.ValidColumn,
+		appsubscribe.Table:       appsubscribe.ValidColumn,
+		appuser.Table:            appuser.ValidColumn,
+		appusercontrol.Table:     appusercontrol.ValidColumn,
+		appuserextra.Table:       appuserextra.ValidColumn,
+		appusersecret.Table:      appusersecret.ValidColumn,
+		appuserthirdparty.Table:  appuserthirdparty.ValidColumn,
+		auth.Table:               auth.ValidColumn,
+		authhistory.Table:        authhistory.ValidColumn,
+		banapp.Table:             banapp.ValidColumn,
+		banappuser.Table:         banappuser.ValidColumn,
+		kyc.Table:                kyc.ValidColumn,
+		loginhistory.Table:       loginhistory.ValidColumn,
+		oauththirdparty.Table:    oauththirdparty.ValidColumn,
+		pubsubmessage.Table:      pubsubmessage.ValidColumn,
+		subscriber.Table:         subscriber.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {

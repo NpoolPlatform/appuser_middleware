@@ -35,6 +35,19 @@ func (f AppControlFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, 
 	return f(ctx, mv)
 }
 
+// The AppOAuthThirdPartyFunc type is an adapter to allow the use of ordinary
+// function as AppOAuthThirdParty mutator.
+type AppOAuthThirdPartyFunc func(context.Context, *ent.AppOAuthThirdPartyMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AppOAuthThirdPartyFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.AppOAuthThirdPartyMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AppOAuthThirdPartyMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The AppRoleFunc type is an adapter to allow the use of ordinary
 // function as AppRole mutator.
 type AppRoleFunc func(context.Context, *ent.AppRoleMutation) (ent.Value, error)
@@ -213,6 +226,19 @@ func (f LoginHistoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value
 	mv, ok := m.(*ent.LoginHistoryMutation)
 	if !ok {
 		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.LoginHistoryMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The OAuthThirdPartyFunc type is an adapter to allow the use of ordinary
+// function as OAuthThirdParty mutator.
+type OAuthThirdPartyFunc func(context.Context, *ent.OAuthThirdPartyMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f OAuthThirdPartyFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.OAuthThirdPartyMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OAuthThirdPartyMutation", m)
 	}
 	return f(ctx, mv)
 }

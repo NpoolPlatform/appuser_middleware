@@ -18,6 +18,8 @@ type Tx struct {
 	App *AppClient
 	// AppControl is the client for interacting with the AppControl builders.
 	AppControl *AppControlClient
+	// AppOAuthThirdParty is the client for interacting with the AppOAuthThirdParty builders.
+	AppOAuthThirdParty *AppOAuthThirdPartyClient
 	// AppRole is the client for interacting with the AppRole builders.
 	AppRole *AppRoleClient
 	// AppRoleUser is the client for interacting with the AppRoleUser builders.
@@ -46,6 +48,8 @@ type Tx struct {
 	Kyc *KycClient
 	// LoginHistory is the client for interacting with the LoginHistory builders.
 	LoginHistory *LoginHistoryClient
+	// OAuthThirdParty is the client for interacting with the OAuthThirdParty builders.
+	OAuthThirdParty *OAuthThirdPartyClient
 	// PubsubMessage is the client for interacting with the PubsubMessage builders.
 	PubsubMessage *PubsubMessageClient
 	// Subscriber is the client for interacting with the Subscriber builders.
@@ -187,6 +191,7 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.App = NewAppClient(tx.config)
 	tx.AppControl = NewAppControlClient(tx.config)
+	tx.AppOAuthThirdParty = NewAppOAuthThirdPartyClient(tx.config)
 	tx.AppRole = NewAppRoleClient(tx.config)
 	tx.AppRoleUser = NewAppRoleUserClient(tx.config)
 	tx.AppSubscribe = NewAppSubscribeClient(tx.config)
@@ -201,6 +206,7 @@ func (tx *Tx) init() {
 	tx.BanAppUser = NewBanAppUserClient(tx.config)
 	tx.Kyc = NewKycClient(tx.config)
 	tx.LoginHistory = NewLoginHistoryClient(tx.config)
+	tx.OAuthThirdParty = NewOAuthThirdPartyClient(tx.config)
 	tx.PubsubMessage = NewPubsubMessageClient(tx.config)
 	tx.Subscriber = NewSubscriberClient(tx.config)
 }

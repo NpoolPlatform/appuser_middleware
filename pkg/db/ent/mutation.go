@@ -10,6 +10,7 @@ import (
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appcontrol"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appoauththirdparty"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approle"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approleuser"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appsubscribe"
@@ -24,6 +25,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/banappuser"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/kyc"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/loginhistory"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/oauththirdparty"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/predicate"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/pubsubmessage"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/subscriber"
@@ -42,24 +44,26 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeApp               = "App"
-	TypeAppControl        = "AppControl"
-	TypeAppRole           = "AppRole"
-	TypeAppRoleUser       = "AppRoleUser"
-	TypeAppSubscribe      = "AppSubscribe"
-	TypeAppUser           = "AppUser"
-	TypeAppUserControl    = "AppUserControl"
-	TypeAppUserExtra      = "AppUserExtra"
-	TypeAppUserSecret     = "AppUserSecret"
-	TypeAppUserThirdParty = "AppUserThirdParty"
-	TypeAuth              = "Auth"
-	TypeAuthHistory       = "AuthHistory"
-	TypeBanApp            = "BanApp"
-	TypeBanAppUser        = "BanAppUser"
-	TypeKyc               = "Kyc"
-	TypeLoginHistory      = "LoginHistory"
-	TypePubsubMessage     = "PubsubMessage"
-	TypeSubscriber        = "Subscriber"
+	TypeApp                = "App"
+	TypeAppControl         = "AppControl"
+	TypeAppOAuthThirdParty = "AppOAuthThirdParty"
+	TypeAppRole            = "AppRole"
+	TypeAppRoleUser        = "AppRoleUser"
+	TypeAppSubscribe       = "AppSubscribe"
+	TypeAppUser            = "AppUser"
+	TypeAppUserControl     = "AppUserControl"
+	TypeAppUserExtra       = "AppUserExtra"
+	TypeAppUserSecret      = "AppUserSecret"
+	TypeAppUserThirdParty  = "AppUserThirdParty"
+	TypeAuth               = "Auth"
+	TypeAuthHistory        = "AuthHistory"
+	TypeBanApp             = "BanApp"
+	TypeBanAppUser         = "BanAppUser"
+	TypeKyc                = "Kyc"
+	TypeLoginHistory       = "LoginHistory"
+	TypeOAuthThirdParty    = "OAuthThirdParty"
+	TypePubsubMessage      = "PubsubMessage"
+	TypeSubscriber         = "Subscriber"
 )
 
 // AppMutation represents an operation that mutates the App nodes in the graph.
@@ -2249,6 +2253,682 @@ func (m *AppControlMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *AppControlMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown AppControl edge %s", name)
+}
+
+// AppOAuthThirdPartyMutation represents an operation that mutates the AppOAuthThirdParty nodes in the graph.
+type AppOAuthThirdPartyMutation struct {
+	config
+	op             Op
+	typ            string
+	id             *uuid.UUID
+	created_at     *uint32
+	addcreated_at  *int32
+	updated_at     *uint32
+	addupdated_at  *int32
+	deleted_at     *uint32
+	adddeleted_at  *int32
+	app_id         *uuid.UUID
+	third_party_id *uuid.UUID
+	clearedFields  map[string]struct{}
+	done           bool
+	oldValue       func(context.Context) (*AppOAuthThirdParty, error)
+	predicates     []predicate.AppOAuthThirdParty
+}
+
+var _ ent.Mutation = (*AppOAuthThirdPartyMutation)(nil)
+
+// appoauththirdpartyOption allows management of the mutation configuration using functional options.
+type appoauththirdpartyOption func(*AppOAuthThirdPartyMutation)
+
+// newAppOAuthThirdPartyMutation creates new mutation for the AppOAuthThirdParty entity.
+func newAppOAuthThirdPartyMutation(c config, op Op, opts ...appoauththirdpartyOption) *AppOAuthThirdPartyMutation {
+	m := &AppOAuthThirdPartyMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeAppOAuthThirdParty,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withAppOAuthThirdPartyID sets the ID field of the mutation.
+func withAppOAuthThirdPartyID(id uuid.UUID) appoauththirdpartyOption {
+	return func(m *AppOAuthThirdPartyMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *AppOAuthThirdParty
+		)
+		m.oldValue = func(ctx context.Context) (*AppOAuthThirdParty, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().AppOAuthThirdParty.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withAppOAuthThirdParty sets the old AppOAuthThirdParty of the mutation.
+func withAppOAuthThirdParty(node *AppOAuthThirdParty) appoauththirdpartyOption {
+	return func(m *AppOAuthThirdPartyMutation) {
+		m.oldValue = func(context.Context) (*AppOAuthThirdParty, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m AppOAuthThirdPartyMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m AppOAuthThirdPartyMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of AppOAuthThirdParty entities.
+func (m *AppOAuthThirdPartyMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *AppOAuthThirdPartyMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *AppOAuthThirdPartyMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().AppOAuthThirdParty.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *AppOAuthThirdPartyMutation) SetCreatedAt(u uint32) {
+	m.created_at = &u
+	m.addcreated_at = nil
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *AppOAuthThirdPartyMutation) CreatedAt() (r uint32, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the AppOAuthThirdParty entity.
+// If the AppOAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AppOAuthThirdPartyMutation) OldCreatedAt(ctx context.Context) (v uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// AddCreatedAt adds u to the "created_at" field.
+func (m *AppOAuthThirdPartyMutation) AddCreatedAt(u int32) {
+	if m.addcreated_at != nil {
+		*m.addcreated_at += u
+	} else {
+		m.addcreated_at = &u
+	}
+}
+
+// AddedCreatedAt returns the value that was added to the "created_at" field in this mutation.
+func (m *AppOAuthThirdPartyMutation) AddedCreatedAt() (r int32, exists bool) {
+	v := m.addcreated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *AppOAuthThirdPartyMutation) ResetCreatedAt() {
+	m.created_at = nil
+	m.addcreated_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *AppOAuthThirdPartyMutation) SetUpdatedAt(u uint32) {
+	m.updated_at = &u
+	m.addupdated_at = nil
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *AppOAuthThirdPartyMutation) UpdatedAt() (r uint32, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the AppOAuthThirdParty entity.
+// If the AppOAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AppOAuthThirdPartyMutation) OldUpdatedAt(ctx context.Context) (v uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// AddUpdatedAt adds u to the "updated_at" field.
+func (m *AppOAuthThirdPartyMutation) AddUpdatedAt(u int32) {
+	if m.addupdated_at != nil {
+		*m.addupdated_at += u
+	} else {
+		m.addupdated_at = &u
+	}
+}
+
+// AddedUpdatedAt returns the value that was added to the "updated_at" field in this mutation.
+func (m *AppOAuthThirdPartyMutation) AddedUpdatedAt() (r int32, exists bool) {
+	v := m.addupdated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *AppOAuthThirdPartyMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+	m.addupdated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *AppOAuthThirdPartyMutation) SetDeletedAt(u uint32) {
+	m.deleted_at = &u
+	m.adddeleted_at = nil
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *AppOAuthThirdPartyMutation) DeletedAt() (r uint32, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the AppOAuthThirdParty entity.
+// If the AppOAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AppOAuthThirdPartyMutation) OldDeletedAt(ctx context.Context) (v uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// AddDeletedAt adds u to the "deleted_at" field.
+func (m *AppOAuthThirdPartyMutation) AddDeletedAt(u int32) {
+	if m.adddeleted_at != nil {
+		*m.adddeleted_at += u
+	} else {
+		m.adddeleted_at = &u
+	}
+}
+
+// AddedDeletedAt returns the value that was added to the "deleted_at" field in this mutation.
+func (m *AppOAuthThirdPartyMutation) AddedDeletedAt() (r int32, exists bool) {
+	v := m.adddeleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *AppOAuthThirdPartyMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	m.adddeleted_at = nil
+}
+
+// SetAppID sets the "app_id" field.
+func (m *AppOAuthThirdPartyMutation) SetAppID(u uuid.UUID) {
+	m.app_id = &u
+}
+
+// AppID returns the value of the "app_id" field in the mutation.
+func (m *AppOAuthThirdPartyMutation) AppID() (r uuid.UUID, exists bool) {
+	v := m.app_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAppID returns the old "app_id" field's value of the AppOAuthThirdParty entity.
+// If the AppOAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AppOAuthThirdPartyMutation) OldAppID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAppID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAppID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAppID: %w", err)
+	}
+	return oldValue.AppID, nil
+}
+
+// ClearAppID clears the value of the "app_id" field.
+func (m *AppOAuthThirdPartyMutation) ClearAppID() {
+	m.app_id = nil
+	m.clearedFields[appoauththirdparty.FieldAppID] = struct{}{}
+}
+
+// AppIDCleared returns if the "app_id" field was cleared in this mutation.
+func (m *AppOAuthThirdPartyMutation) AppIDCleared() bool {
+	_, ok := m.clearedFields[appoauththirdparty.FieldAppID]
+	return ok
+}
+
+// ResetAppID resets all changes to the "app_id" field.
+func (m *AppOAuthThirdPartyMutation) ResetAppID() {
+	m.app_id = nil
+	delete(m.clearedFields, appoauththirdparty.FieldAppID)
+}
+
+// SetThirdPartyID sets the "third_party_id" field.
+func (m *AppOAuthThirdPartyMutation) SetThirdPartyID(u uuid.UUID) {
+	m.third_party_id = &u
+}
+
+// ThirdPartyID returns the value of the "third_party_id" field in the mutation.
+func (m *AppOAuthThirdPartyMutation) ThirdPartyID() (r uuid.UUID, exists bool) {
+	v := m.third_party_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldThirdPartyID returns the old "third_party_id" field's value of the AppOAuthThirdParty entity.
+// If the AppOAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AppOAuthThirdPartyMutation) OldThirdPartyID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldThirdPartyID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldThirdPartyID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldThirdPartyID: %w", err)
+	}
+	return oldValue.ThirdPartyID, nil
+}
+
+// ClearThirdPartyID clears the value of the "third_party_id" field.
+func (m *AppOAuthThirdPartyMutation) ClearThirdPartyID() {
+	m.third_party_id = nil
+	m.clearedFields[appoauththirdparty.FieldThirdPartyID] = struct{}{}
+}
+
+// ThirdPartyIDCleared returns if the "third_party_id" field was cleared in this mutation.
+func (m *AppOAuthThirdPartyMutation) ThirdPartyIDCleared() bool {
+	_, ok := m.clearedFields[appoauththirdparty.FieldThirdPartyID]
+	return ok
+}
+
+// ResetThirdPartyID resets all changes to the "third_party_id" field.
+func (m *AppOAuthThirdPartyMutation) ResetThirdPartyID() {
+	m.third_party_id = nil
+	delete(m.clearedFields, appoauththirdparty.FieldThirdPartyID)
+}
+
+// Where appends a list predicates to the AppOAuthThirdPartyMutation builder.
+func (m *AppOAuthThirdPartyMutation) Where(ps ...predicate.AppOAuthThirdParty) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// Op returns the operation name.
+func (m *AppOAuthThirdPartyMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (AppOAuthThirdParty).
+func (m *AppOAuthThirdPartyMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *AppOAuthThirdPartyMutation) Fields() []string {
+	fields := make([]string, 0, 5)
+	if m.created_at != nil {
+		fields = append(fields, appoauththirdparty.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, appoauththirdparty.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, appoauththirdparty.FieldDeletedAt)
+	}
+	if m.app_id != nil {
+		fields = append(fields, appoauththirdparty.FieldAppID)
+	}
+	if m.third_party_id != nil {
+		fields = append(fields, appoauththirdparty.FieldThirdPartyID)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *AppOAuthThirdPartyMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case appoauththirdparty.FieldCreatedAt:
+		return m.CreatedAt()
+	case appoauththirdparty.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case appoauththirdparty.FieldDeletedAt:
+		return m.DeletedAt()
+	case appoauththirdparty.FieldAppID:
+		return m.AppID()
+	case appoauththirdparty.FieldThirdPartyID:
+		return m.ThirdPartyID()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *AppOAuthThirdPartyMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case appoauththirdparty.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case appoauththirdparty.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case appoauththirdparty.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case appoauththirdparty.FieldAppID:
+		return m.OldAppID(ctx)
+	case appoauththirdparty.FieldThirdPartyID:
+		return m.OldThirdPartyID(ctx)
+	}
+	return nil, fmt.Errorf("unknown AppOAuthThirdParty field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *AppOAuthThirdPartyMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case appoauththirdparty.FieldCreatedAt:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case appoauththirdparty.FieldUpdatedAt:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case appoauththirdparty.FieldDeletedAt:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case appoauththirdparty.FieldAppID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAppID(v)
+		return nil
+	case appoauththirdparty.FieldThirdPartyID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetThirdPartyID(v)
+		return nil
+	}
+	return fmt.Errorf("unknown AppOAuthThirdParty field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *AppOAuthThirdPartyMutation) AddedFields() []string {
+	var fields []string
+	if m.addcreated_at != nil {
+		fields = append(fields, appoauththirdparty.FieldCreatedAt)
+	}
+	if m.addupdated_at != nil {
+		fields = append(fields, appoauththirdparty.FieldUpdatedAt)
+	}
+	if m.adddeleted_at != nil {
+		fields = append(fields, appoauththirdparty.FieldDeletedAt)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *AppOAuthThirdPartyMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case appoauththirdparty.FieldCreatedAt:
+		return m.AddedCreatedAt()
+	case appoauththirdparty.FieldUpdatedAt:
+		return m.AddedUpdatedAt()
+	case appoauththirdparty.FieldDeletedAt:
+		return m.AddedDeletedAt()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *AppOAuthThirdPartyMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case appoauththirdparty.FieldCreatedAt:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCreatedAt(v)
+		return nil
+	case appoauththirdparty.FieldUpdatedAt:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUpdatedAt(v)
+		return nil
+	case appoauththirdparty.FieldDeletedAt:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown AppOAuthThirdParty numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *AppOAuthThirdPartyMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(appoauththirdparty.FieldAppID) {
+		fields = append(fields, appoauththirdparty.FieldAppID)
+	}
+	if m.FieldCleared(appoauththirdparty.FieldThirdPartyID) {
+		fields = append(fields, appoauththirdparty.FieldThirdPartyID)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *AppOAuthThirdPartyMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *AppOAuthThirdPartyMutation) ClearField(name string) error {
+	switch name {
+	case appoauththirdparty.FieldAppID:
+		m.ClearAppID()
+		return nil
+	case appoauththirdparty.FieldThirdPartyID:
+		m.ClearThirdPartyID()
+		return nil
+	}
+	return fmt.Errorf("unknown AppOAuthThirdParty nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *AppOAuthThirdPartyMutation) ResetField(name string) error {
+	switch name {
+	case appoauththirdparty.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case appoauththirdparty.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case appoauththirdparty.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case appoauththirdparty.FieldAppID:
+		m.ResetAppID()
+		return nil
+	case appoauththirdparty.FieldThirdPartyID:
+		m.ResetThirdPartyID()
+		return nil
+	}
+	return fmt.Errorf("unknown AppOAuthThirdParty field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *AppOAuthThirdPartyMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *AppOAuthThirdPartyMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *AppOAuthThirdPartyMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *AppOAuthThirdPartyMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *AppOAuthThirdPartyMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *AppOAuthThirdPartyMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *AppOAuthThirdPartyMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown AppOAuthThirdParty unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *AppOAuthThirdPartyMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown AppOAuthThirdParty edge %s", name)
 }
 
 // AppRoleMutation represents an operation that mutates the AppRole nodes in the graph.
@@ -15018,6 +15698,1120 @@ func (m *LoginHistoryMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *LoginHistoryMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown LoginHistory edge %s", name)
+}
+
+// OAuthThirdPartyMutation represents an operation that mutates the OAuthThirdParty nodes in the graph.
+type OAuthThirdPartyMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *uuid.UUID
+	created_at       *uint32
+	addcreated_at    *int32
+	updated_at       *uint32
+	addupdated_at    *int32
+	deleted_at       *uint32
+	adddeleted_at    *int32
+	client_id        *string
+	client_secret    *string
+	client_name      *string
+	client_tag       *string
+	client_logo_url  *string
+	client_oauth_url *string
+	response_type    *string
+	scope            *string
+	clearedFields    map[string]struct{}
+	done             bool
+	oldValue         func(context.Context) (*OAuthThirdParty, error)
+	predicates       []predicate.OAuthThirdParty
+}
+
+var _ ent.Mutation = (*OAuthThirdPartyMutation)(nil)
+
+// oauththirdpartyOption allows management of the mutation configuration using functional options.
+type oauththirdpartyOption func(*OAuthThirdPartyMutation)
+
+// newOAuthThirdPartyMutation creates new mutation for the OAuthThirdParty entity.
+func newOAuthThirdPartyMutation(c config, op Op, opts ...oauththirdpartyOption) *OAuthThirdPartyMutation {
+	m := &OAuthThirdPartyMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeOAuthThirdParty,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withOAuthThirdPartyID sets the ID field of the mutation.
+func withOAuthThirdPartyID(id uuid.UUID) oauththirdpartyOption {
+	return func(m *OAuthThirdPartyMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *OAuthThirdParty
+		)
+		m.oldValue = func(ctx context.Context) (*OAuthThirdParty, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().OAuthThirdParty.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withOAuthThirdParty sets the old OAuthThirdParty of the mutation.
+func withOAuthThirdParty(node *OAuthThirdParty) oauththirdpartyOption {
+	return func(m *OAuthThirdPartyMutation) {
+		m.oldValue = func(context.Context) (*OAuthThirdParty, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m OAuthThirdPartyMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m OAuthThirdPartyMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of OAuthThirdParty entities.
+func (m *OAuthThirdPartyMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *OAuthThirdPartyMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *OAuthThirdPartyMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().OAuthThirdParty.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *OAuthThirdPartyMutation) SetCreatedAt(u uint32) {
+	m.created_at = &u
+	m.addcreated_at = nil
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *OAuthThirdPartyMutation) CreatedAt() (r uint32, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the OAuthThirdParty entity.
+// If the OAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OAuthThirdPartyMutation) OldCreatedAt(ctx context.Context) (v uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// AddCreatedAt adds u to the "created_at" field.
+func (m *OAuthThirdPartyMutation) AddCreatedAt(u int32) {
+	if m.addcreated_at != nil {
+		*m.addcreated_at += u
+	} else {
+		m.addcreated_at = &u
+	}
+}
+
+// AddedCreatedAt returns the value that was added to the "created_at" field in this mutation.
+func (m *OAuthThirdPartyMutation) AddedCreatedAt() (r int32, exists bool) {
+	v := m.addcreated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *OAuthThirdPartyMutation) ResetCreatedAt() {
+	m.created_at = nil
+	m.addcreated_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *OAuthThirdPartyMutation) SetUpdatedAt(u uint32) {
+	m.updated_at = &u
+	m.addupdated_at = nil
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *OAuthThirdPartyMutation) UpdatedAt() (r uint32, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the OAuthThirdParty entity.
+// If the OAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OAuthThirdPartyMutation) OldUpdatedAt(ctx context.Context) (v uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// AddUpdatedAt adds u to the "updated_at" field.
+func (m *OAuthThirdPartyMutation) AddUpdatedAt(u int32) {
+	if m.addupdated_at != nil {
+		*m.addupdated_at += u
+	} else {
+		m.addupdated_at = &u
+	}
+}
+
+// AddedUpdatedAt returns the value that was added to the "updated_at" field in this mutation.
+func (m *OAuthThirdPartyMutation) AddedUpdatedAt() (r int32, exists bool) {
+	v := m.addupdated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *OAuthThirdPartyMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+	m.addupdated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *OAuthThirdPartyMutation) SetDeletedAt(u uint32) {
+	m.deleted_at = &u
+	m.adddeleted_at = nil
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *OAuthThirdPartyMutation) DeletedAt() (r uint32, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the OAuthThirdParty entity.
+// If the OAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OAuthThirdPartyMutation) OldDeletedAt(ctx context.Context) (v uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// AddDeletedAt adds u to the "deleted_at" field.
+func (m *OAuthThirdPartyMutation) AddDeletedAt(u int32) {
+	if m.adddeleted_at != nil {
+		*m.adddeleted_at += u
+	} else {
+		m.adddeleted_at = &u
+	}
+}
+
+// AddedDeletedAt returns the value that was added to the "deleted_at" field in this mutation.
+func (m *OAuthThirdPartyMutation) AddedDeletedAt() (r int32, exists bool) {
+	v := m.adddeleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *OAuthThirdPartyMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	m.adddeleted_at = nil
+}
+
+// SetClientID sets the "client_id" field.
+func (m *OAuthThirdPartyMutation) SetClientID(s string) {
+	m.client_id = &s
+}
+
+// ClientID returns the value of the "client_id" field in the mutation.
+func (m *OAuthThirdPartyMutation) ClientID() (r string, exists bool) {
+	v := m.client_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldClientID returns the old "client_id" field's value of the OAuthThirdParty entity.
+// If the OAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OAuthThirdPartyMutation) OldClientID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldClientID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldClientID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldClientID: %w", err)
+	}
+	return oldValue.ClientID, nil
+}
+
+// ClearClientID clears the value of the "client_id" field.
+func (m *OAuthThirdPartyMutation) ClearClientID() {
+	m.client_id = nil
+	m.clearedFields[oauththirdparty.FieldClientID] = struct{}{}
+}
+
+// ClientIDCleared returns if the "client_id" field was cleared in this mutation.
+func (m *OAuthThirdPartyMutation) ClientIDCleared() bool {
+	_, ok := m.clearedFields[oauththirdparty.FieldClientID]
+	return ok
+}
+
+// ResetClientID resets all changes to the "client_id" field.
+func (m *OAuthThirdPartyMutation) ResetClientID() {
+	m.client_id = nil
+	delete(m.clearedFields, oauththirdparty.FieldClientID)
+}
+
+// SetClientSecret sets the "client_secret" field.
+func (m *OAuthThirdPartyMutation) SetClientSecret(s string) {
+	m.client_secret = &s
+}
+
+// ClientSecret returns the value of the "client_secret" field in the mutation.
+func (m *OAuthThirdPartyMutation) ClientSecret() (r string, exists bool) {
+	v := m.client_secret
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldClientSecret returns the old "client_secret" field's value of the OAuthThirdParty entity.
+// If the OAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OAuthThirdPartyMutation) OldClientSecret(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldClientSecret is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldClientSecret requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldClientSecret: %w", err)
+	}
+	return oldValue.ClientSecret, nil
+}
+
+// ClearClientSecret clears the value of the "client_secret" field.
+func (m *OAuthThirdPartyMutation) ClearClientSecret() {
+	m.client_secret = nil
+	m.clearedFields[oauththirdparty.FieldClientSecret] = struct{}{}
+}
+
+// ClientSecretCleared returns if the "client_secret" field was cleared in this mutation.
+func (m *OAuthThirdPartyMutation) ClientSecretCleared() bool {
+	_, ok := m.clearedFields[oauththirdparty.FieldClientSecret]
+	return ok
+}
+
+// ResetClientSecret resets all changes to the "client_secret" field.
+func (m *OAuthThirdPartyMutation) ResetClientSecret() {
+	m.client_secret = nil
+	delete(m.clearedFields, oauththirdparty.FieldClientSecret)
+}
+
+// SetClientName sets the "client_name" field.
+func (m *OAuthThirdPartyMutation) SetClientName(s string) {
+	m.client_name = &s
+}
+
+// ClientName returns the value of the "client_name" field in the mutation.
+func (m *OAuthThirdPartyMutation) ClientName() (r string, exists bool) {
+	v := m.client_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldClientName returns the old "client_name" field's value of the OAuthThirdParty entity.
+// If the OAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OAuthThirdPartyMutation) OldClientName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldClientName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldClientName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldClientName: %w", err)
+	}
+	return oldValue.ClientName, nil
+}
+
+// ClearClientName clears the value of the "client_name" field.
+func (m *OAuthThirdPartyMutation) ClearClientName() {
+	m.client_name = nil
+	m.clearedFields[oauththirdparty.FieldClientName] = struct{}{}
+}
+
+// ClientNameCleared returns if the "client_name" field was cleared in this mutation.
+func (m *OAuthThirdPartyMutation) ClientNameCleared() bool {
+	_, ok := m.clearedFields[oauththirdparty.FieldClientName]
+	return ok
+}
+
+// ResetClientName resets all changes to the "client_name" field.
+func (m *OAuthThirdPartyMutation) ResetClientName() {
+	m.client_name = nil
+	delete(m.clearedFields, oauththirdparty.FieldClientName)
+}
+
+// SetClientTag sets the "client_tag" field.
+func (m *OAuthThirdPartyMutation) SetClientTag(s string) {
+	m.client_tag = &s
+}
+
+// ClientTag returns the value of the "client_tag" field in the mutation.
+func (m *OAuthThirdPartyMutation) ClientTag() (r string, exists bool) {
+	v := m.client_tag
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldClientTag returns the old "client_tag" field's value of the OAuthThirdParty entity.
+// If the OAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OAuthThirdPartyMutation) OldClientTag(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldClientTag is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldClientTag requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldClientTag: %w", err)
+	}
+	return oldValue.ClientTag, nil
+}
+
+// ClearClientTag clears the value of the "client_tag" field.
+func (m *OAuthThirdPartyMutation) ClearClientTag() {
+	m.client_tag = nil
+	m.clearedFields[oauththirdparty.FieldClientTag] = struct{}{}
+}
+
+// ClientTagCleared returns if the "client_tag" field was cleared in this mutation.
+func (m *OAuthThirdPartyMutation) ClientTagCleared() bool {
+	_, ok := m.clearedFields[oauththirdparty.FieldClientTag]
+	return ok
+}
+
+// ResetClientTag resets all changes to the "client_tag" field.
+func (m *OAuthThirdPartyMutation) ResetClientTag() {
+	m.client_tag = nil
+	delete(m.clearedFields, oauththirdparty.FieldClientTag)
+}
+
+// SetClientLogoURL sets the "client_logo_url" field.
+func (m *OAuthThirdPartyMutation) SetClientLogoURL(s string) {
+	m.client_logo_url = &s
+}
+
+// ClientLogoURL returns the value of the "client_logo_url" field in the mutation.
+func (m *OAuthThirdPartyMutation) ClientLogoURL() (r string, exists bool) {
+	v := m.client_logo_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldClientLogoURL returns the old "client_logo_url" field's value of the OAuthThirdParty entity.
+// If the OAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OAuthThirdPartyMutation) OldClientLogoURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldClientLogoURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldClientLogoURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldClientLogoURL: %w", err)
+	}
+	return oldValue.ClientLogoURL, nil
+}
+
+// ClearClientLogoURL clears the value of the "client_logo_url" field.
+func (m *OAuthThirdPartyMutation) ClearClientLogoURL() {
+	m.client_logo_url = nil
+	m.clearedFields[oauththirdparty.FieldClientLogoURL] = struct{}{}
+}
+
+// ClientLogoURLCleared returns if the "client_logo_url" field was cleared in this mutation.
+func (m *OAuthThirdPartyMutation) ClientLogoURLCleared() bool {
+	_, ok := m.clearedFields[oauththirdparty.FieldClientLogoURL]
+	return ok
+}
+
+// ResetClientLogoURL resets all changes to the "client_logo_url" field.
+func (m *OAuthThirdPartyMutation) ResetClientLogoURL() {
+	m.client_logo_url = nil
+	delete(m.clearedFields, oauththirdparty.FieldClientLogoURL)
+}
+
+// SetClientOauthURL sets the "client_oauth_url" field.
+func (m *OAuthThirdPartyMutation) SetClientOauthURL(s string) {
+	m.client_oauth_url = &s
+}
+
+// ClientOauthURL returns the value of the "client_oauth_url" field in the mutation.
+func (m *OAuthThirdPartyMutation) ClientOauthURL() (r string, exists bool) {
+	v := m.client_oauth_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldClientOauthURL returns the old "client_oauth_url" field's value of the OAuthThirdParty entity.
+// If the OAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OAuthThirdPartyMutation) OldClientOauthURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldClientOauthURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldClientOauthURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldClientOauthURL: %w", err)
+	}
+	return oldValue.ClientOauthURL, nil
+}
+
+// ClearClientOauthURL clears the value of the "client_oauth_url" field.
+func (m *OAuthThirdPartyMutation) ClearClientOauthURL() {
+	m.client_oauth_url = nil
+	m.clearedFields[oauththirdparty.FieldClientOauthURL] = struct{}{}
+}
+
+// ClientOauthURLCleared returns if the "client_oauth_url" field was cleared in this mutation.
+func (m *OAuthThirdPartyMutation) ClientOauthURLCleared() bool {
+	_, ok := m.clearedFields[oauththirdparty.FieldClientOauthURL]
+	return ok
+}
+
+// ResetClientOauthURL resets all changes to the "client_oauth_url" field.
+func (m *OAuthThirdPartyMutation) ResetClientOauthURL() {
+	m.client_oauth_url = nil
+	delete(m.clearedFields, oauththirdparty.FieldClientOauthURL)
+}
+
+// SetResponseType sets the "response_type" field.
+func (m *OAuthThirdPartyMutation) SetResponseType(s string) {
+	m.response_type = &s
+}
+
+// ResponseType returns the value of the "response_type" field in the mutation.
+func (m *OAuthThirdPartyMutation) ResponseType() (r string, exists bool) {
+	v := m.response_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldResponseType returns the old "response_type" field's value of the OAuthThirdParty entity.
+// If the OAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OAuthThirdPartyMutation) OldResponseType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldResponseType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldResponseType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldResponseType: %w", err)
+	}
+	return oldValue.ResponseType, nil
+}
+
+// ClearResponseType clears the value of the "response_type" field.
+func (m *OAuthThirdPartyMutation) ClearResponseType() {
+	m.response_type = nil
+	m.clearedFields[oauththirdparty.FieldResponseType] = struct{}{}
+}
+
+// ResponseTypeCleared returns if the "response_type" field was cleared in this mutation.
+func (m *OAuthThirdPartyMutation) ResponseTypeCleared() bool {
+	_, ok := m.clearedFields[oauththirdparty.FieldResponseType]
+	return ok
+}
+
+// ResetResponseType resets all changes to the "response_type" field.
+func (m *OAuthThirdPartyMutation) ResetResponseType() {
+	m.response_type = nil
+	delete(m.clearedFields, oauththirdparty.FieldResponseType)
+}
+
+// SetScope sets the "scope" field.
+func (m *OAuthThirdPartyMutation) SetScope(s string) {
+	m.scope = &s
+}
+
+// Scope returns the value of the "scope" field in the mutation.
+func (m *OAuthThirdPartyMutation) Scope() (r string, exists bool) {
+	v := m.scope
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldScope returns the old "scope" field's value of the OAuthThirdParty entity.
+// If the OAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OAuthThirdPartyMutation) OldScope(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldScope is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldScope requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldScope: %w", err)
+	}
+	return oldValue.Scope, nil
+}
+
+// ClearScope clears the value of the "scope" field.
+func (m *OAuthThirdPartyMutation) ClearScope() {
+	m.scope = nil
+	m.clearedFields[oauththirdparty.FieldScope] = struct{}{}
+}
+
+// ScopeCleared returns if the "scope" field was cleared in this mutation.
+func (m *OAuthThirdPartyMutation) ScopeCleared() bool {
+	_, ok := m.clearedFields[oauththirdparty.FieldScope]
+	return ok
+}
+
+// ResetScope resets all changes to the "scope" field.
+func (m *OAuthThirdPartyMutation) ResetScope() {
+	m.scope = nil
+	delete(m.clearedFields, oauththirdparty.FieldScope)
+}
+
+// Where appends a list predicates to the OAuthThirdPartyMutation builder.
+func (m *OAuthThirdPartyMutation) Where(ps ...predicate.OAuthThirdParty) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// Op returns the operation name.
+func (m *OAuthThirdPartyMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (OAuthThirdParty).
+func (m *OAuthThirdPartyMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *OAuthThirdPartyMutation) Fields() []string {
+	fields := make([]string, 0, 11)
+	if m.created_at != nil {
+		fields = append(fields, oauththirdparty.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, oauththirdparty.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, oauththirdparty.FieldDeletedAt)
+	}
+	if m.client_id != nil {
+		fields = append(fields, oauththirdparty.FieldClientID)
+	}
+	if m.client_secret != nil {
+		fields = append(fields, oauththirdparty.FieldClientSecret)
+	}
+	if m.client_name != nil {
+		fields = append(fields, oauththirdparty.FieldClientName)
+	}
+	if m.client_tag != nil {
+		fields = append(fields, oauththirdparty.FieldClientTag)
+	}
+	if m.client_logo_url != nil {
+		fields = append(fields, oauththirdparty.FieldClientLogoURL)
+	}
+	if m.client_oauth_url != nil {
+		fields = append(fields, oauththirdparty.FieldClientOauthURL)
+	}
+	if m.response_type != nil {
+		fields = append(fields, oauththirdparty.FieldResponseType)
+	}
+	if m.scope != nil {
+		fields = append(fields, oauththirdparty.FieldScope)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *OAuthThirdPartyMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case oauththirdparty.FieldCreatedAt:
+		return m.CreatedAt()
+	case oauththirdparty.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case oauththirdparty.FieldDeletedAt:
+		return m.DeletedAt()
+	case oauththirdparty.FieldClientID:
+		return m.ClientID()
+	case oauththirdparty.FieldClientSecret:
+		return m.ClientSecret()
+	case oauththirdparty.FieldClientName:
+		return m.ClientName()
+	case oauththirdparty.FieldClientTag:
+		return m.ClientTag()
+	case oauththirdparty.FieldClientLogoURL:
+		return m.ClientLogoURL()
+	case oauththirdparty.FieldClientOauthURL:
+		return m.ClientOauthURL()
+	case oauththirdparty.FieldResponseType:
+		return m.ResponseType()
+	case oauththirdparty.FieldScope:
+		return m.Scope()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *OAuthThirdPartyMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case oauththirdparty.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case oauththirdparty.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case oauththirdparty.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case oauththirdparty.FieldClientID:
+		return m.OldClientID(ctx)
+	case oauththirdparty.FieldClientSecret:
+		return m.OldClientSecret(ctx)
+	case oauththirdparty.FieldClientName:
+		return m.OldClientName(ctx)
+	case oauththirdparty.FieldClientTag:
+		return m.OldClientTag(ctx)
+	case oauththirdparty.FieldClientLogoURL:
+		return m.OldClientLogoURL(ctx)
+	case oauththirdparty.FieldClientOauthURL:
+		return m.OldClientOauthURL(ctx)
+	case oauththirdparty.FieldResponseType:
+		return m.OldResponseType(ctx)
+	case oauththirdparty.FieldScope:
+		return m.OldScope(ctx)
+	}
+	return nil, fmt.Errorf("unknown OAuthThirdParty field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *OAuthThirdPartyMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case oauththirdparty.FieldCreatedAt:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case oauththirdparty.FieldUpdatedAt:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case oauththirdparty.FieldDeletedAt:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case oauththirdparty.FieldClientID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetClientID(v)
+		return nil
+	case oauththirdparty.FieldClientSecret:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetClientSecret(v)
+		return nil
+	case oauththirdparty.FieldClientName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetClientName(v)
+		return nil
+	case oauththirdparty.FieldClientTag:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetClientTag(v)
+		return nil
+	case oauththirdparty.FieldClientLogoURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetClientLogoURL(v)
+		return nil
+	case oauththirdparty.FieldClientOauthURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetClientOauthURL(v)
+		return nil
+	case oauththirdparty.FieldResponseType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetResponseType(v)
+		return nil
+	case oauththirdparty.FieldScope:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetScope(v)
+		return nil
+	}
+	return fmt.Errorf("unknown OAuthThirdParty field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *OAuthThirdPartyMutation) AddedFields() []string {
+	var fields []string
+	if m.addcreated_at != nil {
+		fields = append(fields, oauththirdparty.FieldCreatedAt)
+	}
+	if m.addupdated_at != nil {
+		fields = append(fields, oauththirdparty.FieldUpdatedAt)
+	}
+	if m.adddeleted_at != nil {
+		fields = append(fields, oauththirdparty.FieldDeletedAt)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *OAuthThirdPartyMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case oauththirdparty.FieldCreatedAt:
+		return m.AddedCreatedAt()
+	case oauththirdparty.FieldUpdatedAt:
+		return m.AddedUpdatedAt()
+	case oauththirdparty.FieldDeletedAt:
+		return m.AddedDeletedAt()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *OAuthThirdPartyMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case oauththirdparty.FieldCreatedAt:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCreatedAt(v)
+		return nil
+	case oauththirdparty.FieldUpdatedAt:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUpdatedAt(v)
+		return nil
+	case oauththirdparty.FieldDeletedAt:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown OAuthThirdParty numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *OAuthThirdPartyMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(oauththirdparty.FieldClientID) {
+		fields = append(fields, oauththirdparty.FieldClientID)
+	}
+	if m.FieldCleared(oauththirdparty.FieldClientSecret) {
+		fields = append(fields, oauththirdparty.FieldClientSecret)
+	}
+	if m.FieldCleared(oauththirdparty.FieldClientName) {
+		fields = append(fields, oauththirdparty.FieldClientName)
+	}
+	if m.FieldCleared(oauththirdparty.FieldClientTag) {
+		fields = append(fields, oauththirdparty.FieldClientTag)
+	}
+	if m.FieldCleared(oauththirdparty.FieldClientLogoURL) {
+		fields = append(fields, oauththirdparty.FieldClientLogoURL)
+	}
+	if m.FieldCleared(oauththirdparty.FieldClientOauthURL) {
+		fields = append(fields, oauththirdparty.FieldClientOauthURL)
+	}
+	if m.FieldCleared(oauththirdparty.FieldResponseType) {
+		fields = append(fields, oauththirdparty.FieldResponseType)
+	}
+	if m.FieldCleared(oauththirdparty.FieldScope) {
+		fields = append(fields, oauththirdparty.FieldScope)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *OAuthThirdPartyMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *OAuthThirdPartyMutation) ClearField(name string) error {
+	switch name {
+	case oauththirdparty.FieldClientID:
+		m.ClearClientID()
+		return nil
+	case oauththirdparty.FieldClientSecret:
+		m.ClearClientSecret()
+		return nil
+	case oauththirdparty.FieldClientName:
+		m.ClearClientName()
+		return nil
+	case oauththirdparty.FieldClientTag:
+		m.ClearClientTag()
+		return nil
+	case oauththirdparty.FieldClientLogoURL:
+		m.ClearClientLogoURL()
+		return nil
+	case oauththirdparty.FieldClientOauthURL:
+		m.ClearClientOauthURL()
+		return nil
+	case oauththirdparty.FieldResponseType:
+		m.ClearResponseType()
+		return nil
+	case oauththirdparty.FieldScope:
+		m.ClearScope()
+		return nil
+	}
+	return fmt.Errorf("unknown OAuthThirdParty nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *OAuthThirdPartyMutation) ResetField(name string) error {
+	switch name {
+	case oauththirdparty.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case oauththirdparty.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case oauththirdparty.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case oauththirdparty.FieldClientID:
+		m.ResetClientID()
+		return nil
+	case oauththirdparty.FieldClientSecret:
+		m.ResetClientSecret()
+		return nil
+	case oauththirdparty.FieldClientName:
+		m.ResetClientName()
+		return nil
+	case oauththirdparty.FieldClientTag:
+		m.ResetClientTag()
+		return nil
+	case oauththirdparty.FieldClientLogoURL:
+		m.ResetClientLogoURL()
+		return nil
+	case oauththirdparty.FieldClientOauthURL:
+		m.ResetClientOauthURL()
+		return nil
+	case oauththirdparty.FieldResponseType:
+		m.ResetResponseType()
+		return nil
+	case oauththirdparty.FieldScope:
+		m.ResetScope()
+		return nil
+	}
+	return fmt.Errorf("unknown OAuthThirdParty field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *OAuthThirdPartyMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *OAuthThirdPartyMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *OAuthThirdPartyMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *OAuthThirdPartyMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *OAuthThirdPartyMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *OAuthThirdPartyMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *OAuthThirdPartyMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown OAuthThirdParty unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *OAuthThirdPartyMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown OAuthThirdParty edge %s", name)
 }
 
 // PubsubMessageMutation represents an operation that mutates the PubsubMessage nodes in the graph.

@@ -49,6 +49,21 @@ var (
 		Columns:    AppControlsColumns,
 		PrimaryKey: []*schema.Column{AppControlsColumns[0]},
 	}
+	// AppOauthThirdPartiesColumns holds the columns for the "app_oauth_third_parties" table.
+	AppOauthThirdPartiesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "created_at", Type: field.TypeUint32},
+		{Name: "updated_at", Type: field.TypeUint32},
+		{Name: "deleted_at", Type: field.TypeUint32},
+		{Name: "app_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "third_party_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// AppOauthThirdPartiesTable holds the schema information for the "app_oauth_third_parties" table.
+	AppOauthThirdPartiesTable = &schema.Table{
+		Name:       "app_oauth_third_parties",
+		Columns:    AppOauthThirdPartiesColumns,
+		PrimaryKey: []*schema.Column{AppOauthThirdPartiesColumns[0]},
+	}
 	// AppRolesColumns holds the columns for the "app_roles" table.
 	AppRolesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
@@ -331,6 +346,27 @@ var (
 		Columns:    LoginHistoriesColumns,
 		PrimaryKey: []*schema.Column{LoginHistoriesColumns[0]},
 	}
+	// OauthThirdPartiesColumns holds the columns for the "oauth_third_parties" table.
+	OauthThirdPartiesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "created_at", Type: field.TypeUint32},
+		{Name: "updated_at", Type: field.TypeUint32},
+		{Name: "deleted_at", Type: field.TypeUint32},
+		{Name: "client_id", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "client_secret", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "client_name", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "client_tag", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "client_logo_url", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "client_oauth_url", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "response_type", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "scope", Type: field.TypeString, Nullable: true, Default: ""},
+	}
+	// OauthThirdPartiesTable holds the schema information for the "oauth_third_parties" table.
+	OauthThirdPartiesTable = &schema.Table{
+		Name:       "oauth_third_parties",
+		Columns:    OauthThirdPartiesColumns,
+		PrimaryKey: []*schema.Column{OauthThirdPartiesColumns[0]},
+	}
 	// PubsubMessagesColumns holds the columns for the "pubsub_messages" table.
 	PubsubMessagesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
@@ -381,6 +417,7 @@ var (
 	Tables = []*schema.Table{
 		AppsTable,
 		AppControlsTable,
+		AppOauthThirdPartiesTable,
 		AppRolesTable,
 		AppRoleUsersTable,
 		AppSubscribesTable,
@@ -395,6 +432,7 @@ var (
 		BanAppUsersTable,
 		KycsTable,
 		LoginHistoriesTable,
+		OauthThirdPartiesTable,
 		PubsubMessagesTable,
 		SubscribersTable,
 	}
