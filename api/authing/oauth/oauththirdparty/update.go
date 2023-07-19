@@ -17,6 +17,8 @@ func (s *Server) UpdateOAuthThirdParty(ctx context.Context, in *npool.UpdateOAut
 	handler, err := oauththirdparty1.NewHandler(
 		ctx,
 		oauththirdparty1.WithID(req.ID),
+		oauththirdparty1.WithClientID(req.ClientID),
+		oauththirdparty1.WithClientSecret(req.ClientSecret),
 		oauththirdparty1.WithClientName(req.ClientName),
 		oauththirdparty1.WithClientTag(req.ClientTag),
 		oauththirdparty1.WithClientLogoURL(req.ClientLogoURL),

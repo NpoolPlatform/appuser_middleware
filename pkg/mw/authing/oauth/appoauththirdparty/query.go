@@ -2,17 +2,14 @@ package appoauththirdparty
 
 import (
 	"context"
-	"encoding/hex"
 	"fmt"
 
 	"entgo.io/ent/dialect/sql"
 
-	"github.com/NpoolPlatform/appuser-middleware/pkg/aes"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 	entappoauththirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appoauththirdparty"
 	entoauththirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/oauththirdparty"
-	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	appoauththirdpartycrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/authing/oauth/appoauththirdparty"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/oauth/appoauththirdparty"
@@ -54,16 +51,12 @@ func (h *queryHandler) queryJoinMyself(s *sql.Selector) {
 	s.AppendSelect(
 		t.C(entappoauththirdparty.FieldAppID),
 		t.C(entappoauththirdparty.FieldThirdPartyID),
-		t.C(entappoauththirdparty.FieldClientID),
-		t.C(entappoauththirdparty.FieldClientSecret),
-		t.C(entappoauththirdparty.FieldCallbackURL),
-		t.C(entappoauththirdparty.FieldSalt),
 		t.C(entappoauththirdparty.FieldCreatedAt),
 		t.C(entappoauththirdparty.FieldUpdatedAt),
 	)
 }
 
-func (h *queryHandler) queryJoinOAuthThirdParty(s *sql.Selector) error {
+func (h *queryHandler) queryJoinOAuthThirdParty(s *sql.Selector) error { //nolint
 	t := sql.Table(entoauththirdparty.Table)
 	s.LeftJoin(t).
 		On(
@@ -74,17 +67,9 @@ func (h *queryHandler) queryJoinOAuthThirdParty(s *sql.Selector) error {
 			sql.EQ(t.C(entoauththirdparty.FieldDeletedAt), 0),
 		)
 
-	if h.Conds != nil && h.Conds.ClientName != nil {
-		clientName, ok := h.Conds.ClientName.Val.(basetypes.SignMethod)
-		if !ok {
-			return fmt.Errorf("invalid oauth clientName")
-		}
-		s.Where(
-			sql.EQ(t.C(entoauththirdparty.FieldClientName), clientName.String()),
-		)
-	}
-
 	s.AppendSelect(
+		sql.As(t.C(entoauththirdparty.FieldClientID), "client_id"),
+		sql.As(t.C(entoauththirdparty.FieldClientSecret), "client_secret"),
 		sql.As(t.C(entoauththirdparty.FieldClientName), "client_name"),
 		sql.As(t.C(entoauththirdparty.FieldClientTag), "client_tag"),
 		sql.As(t.C(entoauththirdparty.FieldClientLogoURL), "client_logo_url"),
@@ -117,37 +102,6 @@ func (h *queryHandler) scan(ctx context.Context) error {
 	return h.stmSelect.Scan(ctx, &h.infos)
 }
 
-func (h *queryHandler) formalize() error {
-	isDecryptSecret := false
-	if h.Conds != nil && h.Conds.DecryptSecret != nil {
-		decryptSecret, ok := h.Conds.DecryptSecret.Val.(bool)
-		if !ok {
-			return fmt.Errorf("invalid oauth decryptsecret")
-		}
-		isDecryptSecret = decryptSecret
-	}
-
-	for _, info := range h.infos {
-		info.ClientName = basetypes.SignMethod(basetypes.SignMethod_value[info.ClientNameStr])
-		if isDecryptSecret {
-			ClientSecretBytes, err := hex.DecodeString(info.ClientSecret)
-			if err != nil {
-				return fmt.Errorf("secret err")
-			}
-			clientSecret, err := aes.AesDecrypt([]byte(info.Salt), ClientSecretBytes)
-			if err != nil {
-				return err
-			}
-			info.ClientSecret = string(clientSecret)
-		}
-		if info.Salt != "" {
-			info.Salt = ""
-		}
-	}
-
-	return nil
-}
-
 func (h *Handler) GetOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdParty, error) {
 	if h.ID == nil {
 		return nil, fmt.Errorf("invalid id")
@@ -172,9 +126,6 @@ func (h *Handler) GetOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdPart
 	}
 	if len(handler.infos) > 1 {
 		return nil, fmt.Errorf("too many records")
-	}
-	if err := handler.formalize(); err != nil {
-		return nil, err
 	}
 
 	return handler.infos[0], nil
@@ -214,9 +165,6 @@ func (h *Handler) GetOAuthThirdParties(ctx context.Context) ([]*npool.OAuthThird
 		return handler.scan(_ctx)
 	})
 	if err != nil {
-		return nil, 0, err
-	}
-	if err := handler.formalize(); err != nil {
 		return nil, 0, err
 	}
 

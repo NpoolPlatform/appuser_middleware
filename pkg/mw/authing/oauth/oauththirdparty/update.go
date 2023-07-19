@@ -30,7 +30,7 @@ func (h *Handler) UpdateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 		handler, err := NewHandler(
 			ctx,
 			WithConds(&npool.Conds{
-				ClientName: &basetypes.Int32Val{Op: cruder.EQ, Value: int32(*h.ClientName)},
+				ClientName: &basetypes.StringVal{Op: cruder.EQ, Value: *h.ClientName},
 			}),
 		)
 		if err != nil {
@@ -63,6 +63,8 @@ func (h *Handler) UpdateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 		if _, err := oauththirdpartycrud.UpdateSet(
 			user.Update(),
 			&oauththirdpartycrud.Req{
+				ClientID:       h.ClientID,
+				ClientSecret:   h.ClientSecret,
 				ClientName:     h.ClientName,
 				ClientTag:      h.ClientTag,
 				ClientLogoURL:  h.ClientLogoURL,
@@ -79,5 +81,5 @@ func (h *Handler) UpdateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 		return nil, err
 	}
 
-	return h.GetOAuthThirdParty(ctx)
+	return info, nil
 }

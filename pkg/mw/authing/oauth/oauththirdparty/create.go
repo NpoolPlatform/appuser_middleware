@@ -22,6 +22,12 @@ type createHandler struct {
 }
 
 func (h *createHandler) validtate() error {
+	if h.ClientID == nil {
+		return fmt.Errorf("invalid clientid")
+	}
+	if h.ClientSecret == nil {
+		return fmt.Errorf("invalid clientsecret")
+	}
 	if h.ClientName == nil {
 		return fmt.Errorf("invalid clientname")
 	}
@@ -62,7 +68,7 @@ func (h *Handler) CreateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 	_handler, err := NewHandler(
 		ctx,
 		WithConds(&npool.Conds{
-			ClientName: &basetypes.Int32Val{Op: cruder.EQ, Value: int32(*h.ClientName)},
+			ClientName: &basetypes.StringVal{Op: cruder.EQ, Value: *h.ClientName},
 		}),
 	)
 	if err != nil {
@@ -86,6 +92,8 @@ func (h *Handler) CreateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 			tx.OAuthThirdParty.Create(),
 			&oauththirdpartycrud.Req{
 				ID:             h.ID,
+				ClientID:       h.ClientID,
+				ClientSecret:   h.ClientSecret,
 				ClientName:     h.ClientName,
 				ClientTag:      h.ClientTag,
 				ClientLogoURL:  h.ClientLogoURL,

@@ -1,4 +1,4 @@
-//nolint:nolintlint,dupl
+//nolint:dupl
 package auth
 
 import (
@@ -6,7 +6,6 @@ import (
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 	entoauththirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/oauththirdparty"
-	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	"github.com/google/uuid"
@@ -14,7 +13,9 @@ import (
 
 type Req struct {
 	ID             *uuid.UUID
-	ClientName     *basetypes.SignMethod
+	ClientID       *string
+	ClientSecret   *string
+	ClientName     *string
 	ClientTag      *string
 	ClientLogoURL  *string
 	ClientOAuthURL *string
@@ -27,8 +28,14 @@ func CreateSet(c *ent.OAuthThirdPartyCreate, req *Req) *ent.OAuthThirdPartyCreat
 	if req.ID != nil {
 		c.SetID(*req.ID)
 	}
+	if req.ClientID != nil {
+		c.SetClientID(*req.ClientID)
+	}
+	if req.ClientSecret != nil {
+		c.SetClientSecret(*req.ClientSecret)
+	}
 	if req.ClientName != nil {
-		c.SetClientName(req.ClientName.String())
+		c.SetClientName(*req.ClientName)
 	}
 	if req.ClientTag != nil {
 		c.SetClientTag(*req.ClientTag)
@@ -49,8 +56,14 @@ func CreateSet(c *ent.OAuthThirdPartyCreate, req *Req) *ent.OAuthThirdPartyCreat
 }
 
 func UpdateSet(u *ent.OAuthThirdPartyUpdateOne, req *Req) *ent.OAuthThirdPartyUpdateOne {
+	if req.ClientID != nil {
+		u.SetClientID(*req.ClientID)
+	}
+	if req.ClientSecret != nil {
+		u.SetClientSecret(*req.ClientSecret)
+	}
 	if req.ClientName != nil {
-		u.SetClientName(req.ClientName.String())
+		u.SetClientName(*req.ClientName)
 	}
 	if req.ClientTag != nil {
 		u.SetClientTag(*req.ClientTag)
@@ -74,13 +87,15 @@ func UpdateSet(u *ent.OAuthThirdPartyUpdateOne, req *Req) *ent.OAuthThirdPartyUp
 }
 
 type Conds struct {
-	ID            *cruder.Cond
-	IDs           *cruder.Cond
-	ClientName    *cruder.Cond
-	ClientTag     *cruder.Cond
-	DecryptSecret *cruder.Cond
+	ID           *cruder.Cond
+	IDs          *cruder.Cond
+	ClientID     *cruder.Cond
+	ClientSecret *cruder.Cond
+	ClientName   *cruder.Cond
+	ClientTag    *cruder.Cond
 }
 
+//nolint
 func SetQueryConds(q *ent.OAuthThirdPartyQuery, conds *Conds) (*ent.OAuthThirdPartyQuery, error) {
 	if conds == nil {
 		return q, nil
@@ -109,14 +124,26 @@ func SetQueryConds(q *ent.OAuthThirdPartyQuery, conds *Conds) (*ent.OAuthThirdPa
 			return nil, fmt.Errorf("invalid auth field")
 		}
 	}
+	if conds.ClientSecret != nil {
+		res, ok := conds.ClientSecret.Val.(string)
+		if !ok {
+			return nil, fmt.Errorf("invalid clientsecret")
+		}
+		switch conds.ClientSecret.Op {
+		case cruder.EQ:
+			q.Where(entoauththirdparty.ClientSecret(res))
+		default:
+			return nil, fmt.Errorf("invalid auth field")
+		}
+	}
 	if conds.ClientName != nil {
-		clientName, ok := conds.ClientName.Val.(basetypes.SignMethod)
+		res, ok := conds.ClientName.Val.(string)
 		if !ok {
 			return nil, fmt.Errorf("invalid clientname")
 		}
 		switch conds.ClientName.Op {
 		case cruder.EQ:
-			q.Where(entoauththirdparty.ClientName(clientName.String()))
+			q.Where(entoauththirdparty.ClientName(res))
 		default:
 			return nil, fmt.Errorf("invalid auth field")
 		}
