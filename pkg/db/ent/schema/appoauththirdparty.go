@@ -37,22 +37,6 @@ func (AppOAuthThirdParty) Fields() []ent.Field {
 			Default(func() uuid.UUID {
 				return uuid.UUID{}
 			}),
-		field.
-			String("client_id").
-			Optional().
-			Default(""),
-		field.
-			String("client_secret").
-			Optional().
-			Default(""),
-		field.
-			String("callback_url").
-			Optional().
-			Default(""),
-		field.
-			String("salt").
-			Optional().
-			Default(""),
 	}
 }
 
