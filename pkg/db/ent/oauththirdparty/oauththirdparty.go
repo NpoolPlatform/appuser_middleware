@@ -22,6 +22,8 @@ const (
 	FieldClientID = "client_id"
 	// FieldClientSecret holds the string denoting the client_secret field in the database.
 	FieldClientSecret = "client_secret"
+	// FieldCallbackURL holds the string denoting the callback_url field in the database.
+	FieldCallbackURL = "callback_url"
 	// FieldClientName holds the string denoting the client_name field in the database.
 	FieldClientName = "client_name"
 	// FieldClientTag holds the string denoting the client_tag field in the database.
@@ -46,6 +48,7 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldClientID,
 	FieldClientSecret,
+	FieldCallbackURL,
 	FieldClientName,
 	FieldClientTag,
 	FieldClientLogoURL,
@@ -85,6 +88,8 @@ var (
 	DefaultClientID string
 	// DefaultClientSecret holds the default value on creation for the "client_secret" field.
 	DefaultClientSecret string
+	// DefaultCallbackURL holds the default value on creation for the "callback_url" field.
+	DefaultCallbackURL string
 	// DefaultClientName holds the default value on creation for the "client_name" field.
 	DefaultClientName string
 	// DefaultClientTag holds the default value on creation for the "client_tag" field.

@@ -965,28 +965,32 @@ func init() {
 	oauththirdpartyDescClientSecret := oauththirdpartyFields[2].Descriptor()
 	// oauththirdparty.DefaultClientSecret holds the default value on creation for the client_secret field.
 	oauththirdparty.DefaultClientSecret = oauththirdpartyDescClientSecret.Default.(string)
+	// oauththirdpartyDescCallbackURL is the schema descriptor for callback_url field.
+	oauththirdpartyDescCallbackURL := oauththirdpartyFields[3].Descriptor()
+	// oauththirdparty.DefaultCallbackURL holds the default value on creation for the callback_url field.
+	oauththirdparty.DefaultCallbackURL = oauththirdpartyDescCallbackURL.Default.(string)
 	// oauththirdpartyDescClientName is the schema descriptor for client_name field.
-	oauththirdpartyDescClientName := oauththirdpartyFields[3].Descriptor()
+	oauththirdpartyDescClientName := oauththirdpartyFields[4].Descriptor()
 	// oauththirdparty.DefaultClientName holds the default value on creation for the client_name field.
 	oauththirdparty.DefaultClientName = oauththirdpartyDescClientName.Default.(string)
 	// oauththirdpartyDescClientTag is the schema descriptor for client_tag field.
-	oauththirdpartyDescClientTag := oauththirdpartyFields[4].Descriptor()
+	oauththirdpartyDescClientTag := oauththirdpartyFields[5].Descriptor()
 	// oauththirdparty.DefaultClientTag holds the default value on creation for the client_tag field.
 	oauththirdparty.DefaultClientTag = oauththirdpartyDescClientTag.Default.(string)
 	// oauththirdpartyDescClientLogoURL is the schema descriptor for client_logo_url field.
-	oauththirdpartyDescClientLogoURL := oauththirdpartyFields[5].Descriptor()
+	oauththirdpartyDescClientLogoURL := oauththirdpartyFields[6].Descriptor()
 	// oauththirdparty.DefaultClientLogoURL holds the default value on creation for the client_logo_url field.
 	oauththirdparty.DefaultClientLogoURL = oauththirdpartyDescClientLogoURL.Default.(string)
 	// oauththirdpartyDescClientOauthURL is the schema descriptor for client_oauth_url field.
-	oauththirdpartyDescClientOauthURL := oauththirdpartyFields[6].Descriptor()
+	oauththirdpartyDescClientOauthURL := oauththirdpartyFields[7].Descriptor()
 	// oauththirdparty.DefaultClientOauthURL holds the default value on creation for the client_oauth_url field.
 	oauththirdparty.DefaultClientOauthURL = oauththirdpartyDescClientOauthURL.Default.(string)
 	// oauththirdpartyDescResponseType is the schema descriptor for response_type field.
-	oauththirdpartyDescResponseType := oauththirdpartyFields[7].Descriptor()
+	oauththirdpartyDescResponseType := oauththirdpartyFields[8].Descriptor()
 	// oauththirdparty.DefaultResponseType holds the default value on creation for the response_type field.
 	oauththirdparty.DefaultResponseType = oauththirdpartyDescResponseType.Default.(string)
 	// oauththirdpartyDescScope is the schema descriptor for scope field.
-	oauththirdpartyDescScope := oauththirdpartyFields[8].Descriptor()
+	oauththirdpartyDescScope := oauththirdpartyFields[9].Descriptor()
 	// oauththirdparty.DefaultScope holds the default value on creation for the scope field.
 	oauththirdparty.DefaultScope = oauththirdpartyDescScope.Default.(string)
 	// oauththirdpartyDescID is the schema descriptor for id field.

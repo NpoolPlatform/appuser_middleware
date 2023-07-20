@@ -34,6 +34,10 @@ func (OAuthThirdParty) Fields() []ent.Field {
 			Optional().
 			Default(""),
 		field.
+			String("callback_url").
+			Optional().
+			Default(""),
+		field.
 			String("client_name").
 			Optional().
 			Default(""),

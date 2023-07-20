@@ -417,6 +417,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			oauththirdparty.FieldDeletedAt:      {Type: field.TypeUint32, Column: oauththirdparty.FieldDeletedAt},
 			oauththirdparty.FieldClientID:       {Type: field.TypeString, Column: oauththirdparty.FieldClientID},
 			oauththirdparty.FieldClientSecret:   {Type: field.TypeString, Column: oauththirdparty.FieldClientSecret},
+			oauththirdparty.FieldCallbackURL:    {Type: field.TypeString, Column: oauththirdparty.FieldCallbackURL},
 			oauththirdparty.FieldClientName:     {Type: field.TypeString, Column: oauththirdparty.FieldClientName},
 			oauththirdparty.FieldClientTag:      {Type: field.TypeString, Column: oauththirdparty.FieldClientTag},
 			oauththirdparty.FieldClientLogoURL:  {Type: field.TypeString, Column: oauththirdparty.FieldClientLogoURL},
@@ -1952,6 +1953,11 @@ func (f *OAuthThirdPartyFilter) WhereClientID(p entql.StringP) {
 // WhereClientSecret applies the entql string predicate on the client_secret field.
 func (f *OAuthThirdPartyFilter) WhereClientSecret(p entql.StringP) {
 	f.Where(p.Field(oauththirdparty.FieldClientSecret))
+}
+
+// WhereCallbackURL applies the entql string predicate on the callback_url field.
+func (f *OAuthThirdPartyFilter) WhereCallbackURL(p entql.StringP) {
+	f.Where(p.Field(oauththirdparty.FieldCallbackURL))
 }
 
 // WhereClientName applies the entql string predicate on the client_name field.

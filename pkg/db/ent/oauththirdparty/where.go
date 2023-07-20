@@ -114,6 +114,13 @@ func ClientSecret(v string) predicate.OAuthThirdParty {
 	})
 }
 
+// CallbackURL applies equality check predicate on the "callback_url" field. It's identical to CallbackURLEQ.
+func CallbackURL(v string) predicate.OAuthThirdParty {
+	return predicate.OAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCallbackURL), v))
+	})
+}
+
 // ClientName applies equality check predicate on the "client_name" field. It's identical to ClientNameEQ.
 func ClientName(v string) predicate.OAuthThirdParty {
 	return predicate.OAuthThirdParty(func(s *sql.Selector) {
@@ -571,6 +578,119 @@ func ClientSecretEqualFold(v string) predicate.OAuthThirdParty {
 func ClientSecretContainsFold(v string) predicate.OAuthThirdParty {
 	return predicate.OAuthThirdParty(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldClientSecret), v))
+	})
+}
+
+// CallbackURLEQ applies the EQ predicate on the "callback_url" field.
+func CallbackURLEQ(v string) predicate.OAuthThirdParty {
+	return predicate.OAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLNEQ applies the NEQ predicate on the "callback_url" field.
+func CallbackURLNEQ(v string) predicate.OAuthThirdParty {
+	return predicate.OAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLIn applies the In predicate on the "callback_url" field.
+func CallbackURLIn(vs ...string) predicate.OAuthThirdParty {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.OAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldCallbackURL), v...))
+	})
+}
+
+// CallbackURLNotIn applies the NotIn predicate on the "callback_url" field.
+func CallbackURLNotIn(vs ...string) predicate.OAuthThirdParty {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.OAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldCallbackURL), v...))
+	})
+}
+
+// CallbackURLGT applies the GT predicate on the "callback_url" field.
+func CallbackURLGT(v string) predicate.OAuthThirdParty {
+	return predicate.OAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLGTE applies the GTE predicate on the "callback_url" field.
+func CallbackURLGTE(v string) predicate.OAuthThirdParty {
+	return predicate.OAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLLT applies the LT predicate on the "callback_url" field.
+func CallbackURLLT(v string) predicate.OAuthThirdParty {
+	return predicate.OAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLLTE applies the LTE predicate on the "callback_url" field.
+func CallbackURLLTE(v string) predicate.OAuthThirdParty {
+	return predicate.OAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLContains applies the Contains predicate on the "callback_url" field.
+func CallbackURLContains(v string) predicate.OAuthThirdParty {
+	return predicate.OAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLHasPrefix applies the HasPrefix predicate on the "callback_url" field.
+func CallbackURLHasPrefix(v string) predicate.OAuthThirdParty {
+	return predicate.OAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLHasSuffix applies the HasSuffix predicate on the "callback_url" field.
+func CallbackURLHasSuffix(v string) predicate.OAuthThirdParty {
+	return predicate.OAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLIsNil applies the IsNil predicate on the "callback_url" field.
+func CallbackURLIsNil() predicate.OAuthThirdParty {
+	return predicate.OAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldCallbackURL)))
+	})
+}
+
+// CallbackURLNotNil applies the NotNil predicate on the "callback_url" field.
+func CallbackURLNotNil() predicate.OAuthThirdParty {
+	return predicate.OAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldCallbackURL)))
+	})
+}
+
+// CallbackURLEqualFold applies the EqualFold predicate on the "callback_url" field.
+func CallbackURLEqualFold(v string) predicate.OAuthThirdParty {
+	return predicate.OAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLContainsFold applies the ContainsFold predicate on the "callback_url" field.
+func CallbackURLContainsFold(v string) predicate.OAuthThirdParty {
+	return predicate.OAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldCallbackURL), v))
 	})
 }
 

@@ -15714,6 +15714,7 @@ type OAuthThirdPartyMutation struct {
 	adddeleted_at    *int32
 	client_id        *string
 	client_secret    *string
+	callback_url     *string
 	client_name      *string
 	client_tag       *string
 	client_logo_url  *string
@@ -16096,6 +16097,55 @@ func (m *OAuthThirdPartyMutation) ResetClientSecret() {
 	delete(m.clearedFields, oauththirdparty.FieldClientSecret)
 }
 
+// SetCallbackURL sets the "callback_url" field.
+func (m *OAuthThirdPartyMutation) SetCallbackURL(s string) {
+	m.callback_url = &s
+}
+
+// CallbackURL returns the value of the "callback_url" field in the mutation.
+func (m *OAuthThirdPartyMutation) CallbackURL() (r string, exists bool) {
+	v := m.callback_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCallbackURL returns the old "callback_url" field's value of the OAuthThirdParty entity.
+// If the OAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OAuthThirdPartyMutation) OldCallbackURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCallbackURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCallbackURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCallbackURL: %w", err)
+	}
+	return oldValue.CallbackURL, nil
+}
+
+// ClearCallbackURL clears the value of the "callback_url" field.
+func (m *OAuthThirdPartyMutation) ClearCallbackURL() {
+	m.callback_url = nil
+	m.clearedFields[oauththirdparty.FieldCallbackURL] = struct{}{}
+}
+
+// CallbackURLCleared returns if the "callback_url" field was cleared in this mutation.
+func (m *OAuthThirdPartyMutation) CallbackURLCleared() bool {
+	_, ok := m.clearedFields[oauththirdparty.FieldCallbackURL]
+	return ok
+}
+
+// ResetCallbackURL resets all changes to the "callback_url" field.
+func (m *OAuthThirdPartyMutation) ResetCallbackURL() {
+	m.callback_url = nil
+	delete(m.clearedFields, oauththirdparty.FieldCallbackURL)
+}
+
 // SetClientName sets the "client_name" field.
 func (m *OAuthThirdPartyMutation) SetClientName(s string) {
 	m.client_name = &s
@@ -16409,7 +16459,7 @@ func (m *OAuthThirdPartyMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OAuthThirdPartyMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
 	if m.created_at != nil {
 		fields = append(fields, oauththirdparty.FieldCreatedAt)
 	}
@@ -16424,6 +16474,9 @@ func (m *OAuthThirdPartyMutation) Fields() []string {
 	}
 	if m.client_secret != nil {
 		fields = append(fields, oauththirdparty.FieldClientSecret)
+	}
+	if m.callback_url != nil {
+		fields = append(fields, oauththirdparty.FieldCallbackURL)
 	}
 	if m.client_name != nil {
 		fields = append(fields, oauththirdparty.FieldClientName)
@@ -16461,6 +16514,8 @@ func (m *OAuthThirdPartyMutation) Field(name string) (ent.Value, bool) {
 		return m.ClientID()
 	case oauththirdparty.FieldClientSecret:
 		return m.ClientSecret()
+	case oauththirdparty.FieldCallbackURL:
+		return m.CallbackURL()
 	case oauththirdparty.FieldClientName:
 		return m.ClientName()
 	case oauththirdparty.FieldClientTag:
@@ -16492,6 +16547,8 @@ func (m *OAuthThirdPartyMutation) OldField(ctx context.Context, name string) (en
 		return m.OldClientID(ctx)
 	case oauththirdparty.FieldClientSecret:
 		return m.OldClientSecret(ctx)
+	case oauththirdparty.FieldCallbackURL:
+		return m.OldCallbackURL(ctx)
 	case oauththirdparty.FieldClientName:
 		return m.OldClientName(ctx)
 	case oauththirdparty.FieldClientTag:
@@ -16547,6 +16604,13 @@ func (m *OAuthThirdPartyMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetClientSecret(v)
+		return nil
+	case oauththirdparty.FieldCallbackURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCallbackURL(v)
 		return nil
 	case oauththirdparty.FieldClientName:
 		v, ok := value.(string)
@@ -16665,6 +16729,9 @@ func (m *OAuthThirdPartyMutation) ClearedFields() []string {
 	if m.FieldCleared(oauththirdparty.FieldClientSecret) {
 		fields = append(fields, oauththirdparty.FieldClientSecret)
 	}
+	if m.FieldCleared(oauththirdparty.FieldCallbackURL) {
+		fields = append(fields, oauththirdparty.FieldCallbackURL)
+	}
 	if m.FieldCleared(oauththirdparty.FieldClientName) {
 		fields = append(fields, oauththirdparty.FieldClientName)
 	}
@@ -16702,6 +16769,9 @@ func (m *OAuthThirdPartyMutation) ClearField(name string) error {
 		return nil
 	case oauththirdparty.FieldClientSecret:
 		m.ClearClientSecret()
+		return nil
+	case oauththirdparty.FieldCallbackURL:
+		m.ClearCallbackURL()
 		return nil
 	case oauththirdparty.FieldClientName:
 		m.ClearClientName()
@@ -16743,6 +16813,9 @@ func (m *OAuthThirdPartyMutation) ResetField(name string) error {
 		return nil
 	case oauththirdparty.FieldClientSecret:
 		m.ResetClientSecret()
+		return nil
+	case oauththirdparty.FieldCallbackURL:
+		m.ResetCallbackURL()
 		return nil
 	case oauththirdparty.FieldClientName:
 		m.ResetClientName()

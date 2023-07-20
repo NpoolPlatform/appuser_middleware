@@ -354,6 +354,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeUint32},
 		{Name: "client_id", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "client_secret", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "callback_url", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "client_name", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "client_tag", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "client_logo_url", Type: field.TypeString, Nullable: true, Default: ""},
