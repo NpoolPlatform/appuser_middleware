@@ -101,11 +101,15 @@ func WithReqs(reqs []*npool.AuthReq) func(context.Context, *Handler) error {
 			if _, err := uuid.Parse(*req.AppID); err != nil {
 				return err
 			}
-			if _, err := uuid.Parse(*req.UserID); err != nil {
-				return err
+			if req.UserID != nil {
+				if _, err := uuid.Parse(*req.UserID); err != nil {
+					return err
+				}
 			}
-			if _, err := uuid.Parse(*req.RoleID); err != nil {
-				return err
+			if req.RoleID != nil {
+				if _, err := uuid.Parse(*req.RoleID); err != nil {
+					return err
+				}
 			}
 			const leastResourceLen = 3
 			if len(*req.Resource) < leastResourceLen {
