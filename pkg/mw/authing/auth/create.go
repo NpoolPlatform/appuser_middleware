@@ -72,19 +72,25 @@ func (h *Handler) CreateAuths(ctx context.Context) ([]*npool.Auth, error) {
 			}
 
 			appID := uuid.MustParse(*req.AppID)
-			roleID := uuid.MustParse(*req.RoleID)
-			userID := uuid.MustParse(*req.UserID)
+
+			req := &authcrud.Req{
+				ID:       &id,
+				AppID:    &appID,
+				Resource: req.Resource,
+				Method:   req.Method,
+			}
+			if req.UserID != nil {
+				userID := uuid.MustParse(*req.UserID)
+				req.UserID = &userID
+			}
+			if req.RoleID != nil {
+				roleID := uuid.MustParse(*req.RoleID)
+				req.RoleID = &roleID
+			}
 
 			if _, err := authcrud.CreateSet(
 				tx.Auth.Create(),
-				&authcrud.Req{
-					ID:       &id,
-					AppID:    &appID,
-					RoleID:   &roleID,
-					UserID:   &userID,
-					Resource: req.Resource,
-					Method:   req.Method,
-				},
+				req,
 			).Save(_ctx); err != nil {
 				return err
 			}
