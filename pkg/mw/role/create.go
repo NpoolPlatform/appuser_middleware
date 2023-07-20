@@ -131,7 +131,7 @@ func (h *Handler) CreateRoles(ctx context.Context) ([]*npool.Role, error) {
 	}
 
 	h.Conds = &rolecrud.Conds{
-		IDs: &cruder.Cond{Op: cruder.EQ, Val: ids},
+		IDs: &cruder.Cond{Op: cruder.IN, Val: ids},
 	}
 	infos, _, err := h.GetRoles(ctx)
 	if err != nil {
