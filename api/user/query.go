@@ -62,3 +62,29 @@ func (s *Server) GetUsers(ctx context.Context, in *npool.GetUsersRequest) (*npoo
 		Total: total,
 	}, nil
 }
+
+func (s *Server) GetThirdUsers(ctx context.Context, in *npool.GetThirdUsersRequest) (*npool.GetThirdUsersResponse, error) {
+	handler, err := user1.NewHandler(
+		ctx,
+		user1.WithConds(in.GetConds()),
+		user1.WithOffset(in.GetOffset()),
+		user1.WithLimit(in.GetLimit()),
+	)
+	if err != nil {
+		logger.Sugar().Errorw(
+			"GetUsers",
+			"In", in,
+			"error", err,
+		)
+		return &npool.GetThirdUsersResponse{}, status.Error(codes.InvalidArgument, err.Error())
+	}
+	infos, total, err := handler.GetThirdUsers(ctx)
+	if err != nil {
+		return &npool.GetThirdUsersResponse{}, status.Error(codes.Internal, err.Error())
+	}
+
+	return &npool.GetThirdUsersResponse{
+		Infos: infos,
+		Total: total,
+	}, nil
+}

@@ -22,6 +22,10 @@ func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*
 		user1.WithImportFromAppID(req.ImportedFromAppID),
 		user1.WithPasswordHash(req.PasswordHash),
 		user1.WithRoleIDs(req.GetRoleIDs()),
+		user1.WithThirdPartyID(req.ThirdPartyID),
+		user1.WithThirdPartyUserID(req.ThirdPartyUserID),
+		user1.WithThirdPartyUsername(req.ThirdPartyUsername),
+		user1.WithThirdPartyAvatar(req.ThirdPartyAvatar),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

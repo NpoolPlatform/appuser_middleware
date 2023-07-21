@@ -17,8 +17,10 @@ import (
 	entappusercontrol "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appusercontrol"
 	entextra "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserextra"
 	entappusersecret "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appusersecret"
+	entappuserthirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserthirdparty"
 	entbanappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/banappuser"
 	entkyc "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/kyc"
+	entoauththirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/oauththirdparty"
 
 	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
 
@@ -178,6 +180,47 @@ func (h *queryHandler) queryJoinAppUserSecret(s *sql.Selector) {
 		)
 }
 
+func (h *queryHandler) queryJoinAppUserThirdParty(s *sql.Selector) {
+	t := sql.Table(entappuserthirdparty.Table)
+	s.LeftJoin(t).
+		On(
+			s.C(entappuser.FieldID),
+			t.C(entappuserthirdparty.FieldUserID),
+		).
+		On(
+			s.C(entappuser.FieldDeletedAt),
+			t.C(entappuserthirdparty.FieldDeletedAt),
+		).
+		AppendSelect(
+			sql.As(t.C(entappuserthirdparty.FieldUserID), "app_user_id"),
+			sql.As(t.C(entappuserthirdparty.FieldThirdPartyID), "third_party_id"),
+			sql.As(t.C(entappuserthirdparty.FieldThirdPartyUserID), "third_party_user_id"),
+			sql.As(t.C(entappuserthirdparty.FieldThirdPartyUsername), "third_party_username"),
+			sql.As(t.C(entappuserthirdparty.FieldThirdPartyAvatar), "third_party_avatar"),
+		)
+}
+
+func (h *queryHandler) queryJoinThirdParty(s *sql.Selector) {
+	t := sql.Table(entoauththirdparty.Table)
+	s.LeftJoin(t).
+		On(
+			s.C(entappuserthirdparty.FieldThirdPartyID),
+			t.C(entoauththirdparty.FieldID),
+		).
+		On(
+			s.C(entappuser.FieldDeletedAt),
+			t.C(entoauththirdparty.FieldDeletedAt),
+		).
+		AppendSelect(
+			sql.As(t.C(entoauththirdparty.FieldClientName), "client_name"),
+			sql.As(t.C(entoauththirdparty.FieldClientTag), "client_tag"),
+			sql.As(t.C(entoauththirdparty.FieldClientLogoURL), "client_logo_url"),
+			sql.As(t.C(entoauththirdparty.FieldClientOauthURL), "client_oauth_url"),
+			sql.As(t.C(entoauththirdparty.FieldResponseType), "response_type"),
+			sql.As(t.C(entoauththirdparty.FieldScope), "scope"),
+		)
+}
+
 func (h *queryHandler) queryJoin() {
 	h.stm.Modify(func(s *sql.Selector) {
 		h.queryJoinAppUserExtra(s)
@@ -186,6 +229,13 @@ func (h *queryHandler) queryJoin() {
 		h.queryJoinBanAppUser(s)
 		h.queryJoinKyc(s)
 		h.queryJoinAppUserSecret(s)
+	})
+}
+
+func (h *queryHandler) queryJoinThirdUserInfo() {
+	h.stm.Modify(func(s *sql.Selector) {
+		h.queryJoinAppUserThirdParty(s)
+		h.queryJoinThirdParty(s)
 	})
 }
 
@@ -304,6 +354,39 @@ func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 	handler.formalize()
 
 	return handler.infos[0], nil
+}
+
+func (h *Handler) GetThirdUsers(ctx context.Context) ([]*npool.User, uint32, error) {
+	handler := &queryHandler{
+		Handler: h,
+	}
+
+	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		if err := handler.queryAppUserByConds(ctx, cli); err != nil {
+			return err
+		}
+		handler.queryJoinThirdUserInfo()
+		handler.stm.
+			Offset(int(h.Offset)).
+			Limit(int(h.Limit))
+
+		if err := handler.scan(_ctx); err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	if err := handler.queryUserRoles(ctx); err != nil {
+		return nil, 0, err
+	}
+
+	handler.formalize()
+
+	return handler.infos, handler.total, nil
 }
 
 func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {

@@ -100,6 +100,27 @@ func GetUsers(ctx context.Context, conds *npool.Conds, offset, limit int32) ([]*
 	return infos.([]*npool.User), total, nil
 }
 
+func GetThirdUsers(ctx context.Context, conds *npool.Conds, offset, limit int32) ([]*npool.User, uint32, error) {
+	var total uint32
+	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.GetThirdUsers(ctx, &npool.GetThirdUsersRequest{
+			Conds:  conds,
+			Offset: offset,
+			Limit:  limit,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		total = resp.GetTotal()
+		return resp.Infos, nil
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+	return infos.([]*npool.User), total, nil
+}
+
 func GetUserOnly(ctx context.Context, conds *npool.Conds) (*npool.User, error) {
 	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetUsers(ctx, &npool.GetUsersRequest{
