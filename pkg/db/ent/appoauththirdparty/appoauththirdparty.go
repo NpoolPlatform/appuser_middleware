@@ -22,6 +22,14 @@ const (
 	FieldAppID = "app_id"
 	// FieldThirdPartyID holds the string denoting the third_party_id field in the database.
 	FieldThirdPartyID = "third_party_id"
+	// FieldClientID holds the string denoting the client_id field in the database.
+	FieldClientID = "client_id"
+	// FieldClientSecret holds the string denoting the client_secret field in the database.
+	FieldClientSecret = "client_secret"
+	// FieldCallbackURL holds the string denoting the callback_url field in the database.
+	FieldCallbackURL = "callback_url"
+	// FieldSalt holds the string denoting the salt field in the database.
+	FieldSalt = "salt"
 	// Table holds the table name of the appoauththirdparty in the database.
 	Table = "app_oauth_third_parties"
 )
@@ -34,6 +42,10 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldAppID,
 	FieldThirdPartyID,
+	FieldClientID,
+	FieldClientSecret,
+	FieldCallbackURL,
+	FieldSalt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -67,6 +79,14 @@ var (
 	DefaultAppID func() uuid.UUID
 	// DefaultThirdPartyID holds the default value on creation for the "third_party_id" field.
 	DefaultThirdPartyID func() uuid.UUID
+	// DefaultClientID holds the default value on creation for the "client_id" field.
+	DefaultClientID string
+	// DefaultClientSecret holds the default value on creation for the "client_secret" field.
+	DefaultClientSecret string
+	// DefaultCallbackURL holds the default value on creation for the "callback_url" field.
+	DefaultCallbackURL string
+	// DefaultSalt holds the default value on creation for the "salt" field.
+	DefaultSalt string
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )

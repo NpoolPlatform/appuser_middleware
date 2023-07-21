@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/NpoolPlatform/appuser-middleware/pkg/aes"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 
@@ -17,9 +18,32 @@ import (
 	"github.com/google/uuid"
 )
 
-func (h *Handler) CreateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdParty, error) {
+type createHandler struct {
+	*Handler
+}
+
+func (h *createHandler) validtate() error {
 	if h.ThirdPartyID == nil {
-		return nil, fmt.Errorf("invalid clientsecret")
+		return fmt.Errorf("invalid clientsecret")
+	}
+	if h.ClientID == nil {
+		return fmt.Errorf("invalid clientid")
+	}
+	if h.ClientSecret == nil {
+		return fmt.Errorf("invalid clientsecret")
+	}
+	if h.CallbackURL == nil {
+		return fmt.Errorf("invalid callbackurl")
+	}
+	return nil
+}
+
+func (h *Handler) CreateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdParty, error) {
+	handler := &createHandler{
+		Handler: h,
+	}
+	if err := handler.validtate(); err != nil {
+		return nil, err
 	}
 
 	key := fmt.Sprintf("%v:%v", basetypes.Prefix_PrefixCreateUserTransfer, *h.ThirdPartyID)
@@ -30,7 +54,7 @@ func (h *Handler) CreateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 		_ = redis2.Unlock(key)
 	}()
 
-	handler, err := NewHandler(
+	oauthHandler, err := NewHandler(
 		ctx,
 		WithConds(&npool.Conds{
 			AppID:        &basetypes.StringVal{Op: cruder.EQ, Value: h.AppID.String()},
@@ -40,7 +64,7 @@ func (h *Handler) CreateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 	if err != nil {
 		return nil, err
 	}
-	exist, err := handler.ExistOAuthThirdPartyConds(ctx)
+	exist, err := oauthHandler.ExistOAuthThirdPartyConds(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -52,6 +76,16 @@ func (h *Handler) CreateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 	if h.ID == nil {
 		h.ID = &id
 	}
+	salt, err := aes.NewAesKey(aes.AES256)
+	if err != nil {
+		return nil, fmt.Errorf("get salt failed")
+	}
+	clientSecret, err := aes.AesEncrypt([]byte(salt), []byte(*h.ClientSecret))
+	if err != nil {
+		return nil, fmt.Errorf("encrypt clientSecret failed")
+	}
+	clientSecretStr := string(clientSecret)
+	h.ClientSecret = &clientSecretStr
 
 	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
 		if _, err := appoauththirdpartycrud.CreateSet(
@@ -60,6 +94,10 @@ func (h *Handler) CreateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 				ID:           h.ID,
 				AppID:        &h.AppID,
 				ThirdPartyID: h.ThirdPartyID,
+				ClientID:     h.ClientID,
+				ClientSecret: h.ClientSecret,
+				CallbackURL:  h.CallbackURL,
+				Salt:         &salt,
 			},
 		).Save(ctx); err != nil {
 			return err

@@ -18,12 +18,6 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
-	// FieldClientID holds the string denoting the client_id field in the database.
-	FieldClientID = "client_id"
-	// FieldClientSecret holds the string denoting the client_secret field in the database.
-	FieldClientSecret = "client_secret"
-	// FieldCallbackURL holds the string denoting the callback_url field in the database.
-	FieldCallbackURL = "callback_url"
 	// FieldClientName holds the string denoting the client_name field in the database.
 	FieldClientName = "client_name"
 	// FieldClientTag holds the string denoting the client_tag field in the database.
@@ -46,9 +40,6 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
-	FieldClientID,
-	FieldClientSecret,
-	FieldCallbackURL,
 	FieldClientName,
 	FieldClientTag,
 	FieldClientLogoURL,
@@ -84,12 +75,6 @@ var (
 	UpdateDefaultUpdatedAt func() uint32
 	// DefaultDeletedAt holds the default value on creation for the "deleted_at" field.
 	DefaultDeletedAt func() uint32
-	// DefaultClientID holds the default value on creation for the "client_id" field.
-	DefaultClientID string
-	// DefaultClientSecret holds the default value on creation for the "client_secret" field.
-	DefaultClientSecret string
-	// DefaultCallbackURL holds the default value on creation for the "callback_url" field.
-	DefaultCallbackURL string
 	// DefaultClientName holds the default value on creation for the "client_name" field.
 	DefaultClientName string
 	// DefaultClientTag holds the default value on creation for the "client_tag" field.

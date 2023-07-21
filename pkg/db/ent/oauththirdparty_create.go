@@ -65,48 +65,6 @@ func (otpc *OAuthThirdPartyCreate) SetNillableDeletedAt(u *uint32) *OAuthThirdPa
 	return otpc
 }
 
-// SetClientID sets the "client_id" field.
-func (otpc *OAuthThirdPartyCreate) SetClientID(s string) *OAuthThirdPartyCreate {
-	otpc.mutation.SetClientID(s)
-	return otpc
-}
-
-// SetNillableClientID sets the "client_id" field if the given value is not nil.
-func (otpc *OAuthThirdPartyCreate) SetNillableClientID(s *string) *OAuthThirdPartyCreate {
-	if s != nil {
-		otpc.SetClientID(*s)
-	}
-	return otpc
-}
-
-// SetClientSecret sets the "client_secret" field.
-func (otpc *OAuthThirdPartyCreate) SetClientSecret(s string) *OAuthThirdPartyCreate {
-	otpc.mutation.SetClientSecret(s)
-	return otpc
-}
-
-// SetNillableClientSecret sets the "client_secret" field if the given value is not nil.
-func (otpc *OAuthThirdPartyCreate) SetNillableClientSecret(s *string) *OAuthThirdPartyCreate {
-	if s != nil {
-		otpc.SetClientSecret(*s)
-	}
-	return otpc
-}
-
-// SetCallbackURL sets the "callback_url" field.
-func (otpc *OAuthThirdPartyCreate) SetCallbackURL(s string) *OAuthThirdPartyCreate {
-	otpc.mutation.SetCallbackURL(s)
-	return otpc
-}
-
-// SetNillableCallbackURL sets the "callback_url" field if the given value is not nil.
-func (otpc *OAuthThirdPartyCreate) SetNillableCallbackURL(s *string) *OAuthThirdPartyCreate {
-	if s != nil {
-		otpc.SetCallbackURL(*s)
-	}
-	return otpc
-}
-
 // SetClientName sets the "client_name" field.
 func (otpc *OAuthThirdPartyCreate) SetClientName(s string) *OAuthThirdPartyCreate {
 	otpc.mutation.SetClientName(s)
@@ -305,18 +263,6 @@ func (otpc *OAuthThirdPartyCreate) defaults() error {
 		v := oauththirdparty.DefaultDeletedAt()
 		otpc.mutation.SetDeletedAt(v)
 	}
-	if _, ok := otpc.mutation.ClientID(); !ok {
-		v := oauththirdparty.DefaultClientID
-		otpc.mutation.SetClientID(v)
-	}
-	if _, ok := otpc.mutation.ClientSecret(); !ok {
-		v := oauththirdparty.DefaultClientSecret
-		otpc.mutation.SetClientSecret(v)
-	}
-	if _, ok := otpc.mutation.CallbackURL(); !ok {
-		v := oauththirdparty.DefaultCallbackURL
-		otpc.mutation.SetCallbackURL(v)
-	}
 	if _, ok := otpc.mutation.ClientName(); !ok {
 		v := oauththirdparty.DefaultClientName
 		otpc.mutation.SetClientName(v)
@@ -422,30 +368,6 @@ func (otpc *OAuthThirdPartyCreate) createSpec() (*OAuthThirdParty, *sqlgraph.Cre
 			Column: oauththirdparty.FieldDeletedAt,
 		})
 		_node.DeletedAt = value
-	}
-	if value, ok := otpc.mutation.ClientID(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: oauththirdparty.FieldClientID,
-		})
-		_node.ClientID = value
-	}
-	if value, ok := otpc.mutation.ClientSecret(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: oauththirdparty.FieldClientSecret,
-		})
-		_node.ClientSecret = value
-	}
-	if value, ok := otpc.mutation.CallbackURL(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: oauththirdparty.FieldCallbackURL,
-		})
-		_node.CallbackURL = value
 	}
 	if value, ok := otpc.mutation.ClientName(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -600,60 +522,6 @@ func (u *OAuthThirdPartyUpsert) UpdateDeletedAt() *OAuthThirdPartyUpsert {
 // AddDeletedAt adds v to the "deleted_at" field.
 func (u *OAuthThirdPartyUpsert) AddDeletedAt(v uint32) *OAuthThirdPartyUpsert {
 	u.Add(oauththirdparty.FieldDeletedAt, v)
-	return u
-}
-
-// SetClientID sets the "client_id" field.
-func (u *OAuthThirdPartyUpsert) SetClientID(v string) *OAuthThirdPartyUpsert {
-	u.Set(oauththirdparty.FieldClientID, v)
-	return u
-}
-
-// UpdateClientID sets the "client_id" field to the value that was provided on create.
-func (u *OAuthThirdPartyUpsert) UpdateClientID() *OAuthThirdPartyUpsert {
-	u.SetExcluded(oauththirdparty.FieldClientID)
-	return u
-}
-
-// ClearClientID clears the value of the "client_id" field.
-func (u *OAuthThirdPartyUpsert) ClearClientID() *OAuthThirdPartyUpsert {
-	u.SetNull(oauththirdparty.FieldClientID)
-	return u
-}
-
-// SetClientSecret sets the "client_secret" field.
-func (u *OAuthThirdPartyUpsert) SetClientSecret(v string) *OAuthThirdPartyUpsert {
-	u.Set(oauththirdparty.FieldClientSecret, v)
-	return u
-}
-
-// UpdateClientSecret sets the "client_secret" field to the value that was provided on create.
-func (u *OAuthThirdPartyUpsert) UpdateClientSecret() *OAuthThirdPartyUpsert {
-	u.SetExcluded(oauththirdparty.FieldClientSecret)
-	return u
-}
-
-// ClearClientSecret clears the value of the "client_secret" field.
-func (u *OAuthThirdPartyUpsert) ClearClientSecret() *OAuthThirdPartyUpsert {
-	u.SetNull(oauththirdparty.FieldClientSecret)
-	return u
-}
-
-// SetCallbackURL sets the "callback_url" field.
-func (u *OAuthThirdPartyUpsert) SetCallbackURL(v string) *OAuthThirdPartyUpsert {
-	u.Set(oauththirdparty.FieldCallbackURL, v)
-	return u
-}
-
-// UpdateCallbackURL sets the "callback_url" field to the value that was provided on create.
-func (u *OAuthThirdPartyUpsert) UpdateCallbackURL() *OAuthThirdPartyUpsert {
-	u.SetExcluded(oauththirdparty.FieldCallbackURL)
-	return u
-}
-
-// ClearCallbackURL clears the value of the "callback_url" field.
-func (u *OAuthThirdPartyUpsert) ClearCallbackURL() *OAuthThirdPartyUpsert {
-	u.SetNull(oauththirdparty.FieldCallbackURL)
 	return u
 }
 
@@ -875,69 +743,6 @@ func (u *OAuthThirdPartyUpsertOne) AddDeletedAt(v uint32) *OAuthThirdPartyUpsert
 func (u *OAuthThirdPartyUpsertOne) UpdateDeletedAt() *OAuthThirdPartyUpsertOne {
 	return u.Update(func(s *OAuthThirdPartyUpsert) {
 		s.UpdateDeletedAt()
-	})
-}
-
-// SetClientID sets the "client_id" field.
-func (u *OAuthThirdPartyUpsertOne) SetClientID(v string) *OAuthThirdPartyUpsertOne {
-	return u.Update(func(s *OAuthThirdPartyUpsert) {
-		s.SetClientID(v)
-	})
-}
-
-// UpdateClientID sets the "client_id" field to the value that was provided on create.
-func (u *OAuthThirdPartyUpsertOne) UpdateClientID() *OAuthThirdPartyUpsertOne {
-	return u.Update(func(s *OAuthThirdPartyUpsert) {
-		s.UpdateClientID()
-	})
-}
-
-// ClearClientID clears the value of the "client_id" field.
-func (u *OAuthThirdPartyUpsertOne) ClearClientID() *OAuthThirdPartyUpsertOne {
-	return u.Update(func(s *OAuthThirdPartyUpsert) {
-		s.ClearClientID()
-	})
-}
-
-// SetClientSecret sets the "client_secret" field.
-func (u *OAuthThirdPartyUpsertOne) SetClientSecret(v string) *OAuthThirdPartyUpsertOne {
-	return u.Update(func(s *OAuthThirdPartyUpsert) {
-		s.SetClientSecret(v)
-	})
-}
-
-// UpdateClientSecret sets the "client_secret" field to the value that was provided on create.
-func (u *OAuthThirdPartyUpsertOne) UpdateClientSecret() *OAuthThirdPartyUpsertOne {
-	return u.Update(func(s *OAuthThirdPartyUpsert) {
-		s.UpdateClientSecret()
-	})
-}
-
-// ClearClientSecret clears the value of the "client_secret" field.
-func (u *OAuthThirdPartyUpsertOne) ClearClientSecret() *OAuthThirdPartyUpsertOne {
-	return u.Update(func(s *OAuthThirdPartyUpsert) {
-		s.ClearClientSecret()
-	})
-}
-
-// SetCallbackURL sets the "callback_url" field.
-func (u *OAuthThirdPartyUpsertOne) SetCallbackURL(v string) *OAuthThirdPartyUpsertOne {
-	return u.Update(func(s *OAuthThirdPartyUpsert) {
-		s.SetCallbackURL(v)
-	})
-}
-
-// UpdateCallbackURL sets the "callback_url" field to the value that was provided on create.
-func (u *OAuthThirdPartyUpsertOne) UpdateCallbackURL() *OAuthThirdPartyUpsertOne {
-	return u.Update(func(s *OAuthThirdPartyUpsert) {
-		s.UpdateCallbackURL()
-	})
-}
-
-// ClearCallbackURL clears the value of the "callback_url" field.
-func (u *OAuthThirdPartyUpsertOne) ClearCallbackURL() *OAuthThirdPartyUpsertOne {
-	return u.Update(func(s *OAuthThirdPartyUpsert) {
-		s.ClearCallbackURL()
 	})
 }
 
@@ -1343,69 +1148,6 @@ func (u *OAuthThirdPartyUpsertBulk) AddDeletedAt(v uint32) *OAuthThirdPartyUpser
 func (u *OAuthThirdPartyUpsertBulk) UpdateDeletedAt() *OAuthThirdPartyUpsertBulk {
 	return u.Update(func(s *OAuthThirdPartyUpsert) {
 		s.UpdateDeletedAt()
-	})
-}
-
-// SetClientID sets the "client_id" field.
-func (u *OAuthThirdPartyUpsertBulk) SetClientID(v string) *OAuthThirdPartyUpsertBulk {
-	return u.Update(func(s *OAuthThirdPartyUpsert) {
-		s.SetClientID(v)
-	})
-}
-
-// UpdateClientID sets the "client_id" field to the value that was provided on create.
-func (u *OAuthThirdPartyUpsertBulk) UpdateClientID() *OAuthThirdPartyUpsertBulk {
-	return u.Update(func(s *OAuthThirdPartyUpsert) {
-		s.UpdateClientID()
-	})
-}
-
-// ClearClientID clears the value of the "client_id" field.
-func (u *OAuthThirdPartyUpsertBulk) ClearClientID() *OAuthThirdPartyUpsertBulk {
-	return u.Update(func(s *OAuthThirdPartyUpsert) {
-		s.ClearClientID()
-	})
-}
-
-// SetClientSecret sets the "client_secret" field.
-func (u *OAuthThirdPartyUpsertBulk) SetClientSecret(v string) *OAuthThirdPartyUpsertBulk {
-	return u.Update(func(s *OAuthThirdPartyUpsert) {
-		s.SetClientSecret(v)
-	})
-}
-
-// UpdateClientSecret sets the "client_secret" field to the value that was provided on create.
-func (u *OAuthThirdPartyUpsertBulk) UpdateClientSecret() *OAuthThirdPartyUpsertBulk {
-	return u.Update(func(s *OAuthThirdPartyUpsert) {
-		s.UpdateClientSecret()
-	})
-}
-
-// ClearClientSecret clears the value of the "client_secret" field.
-func (u *OAuthThirdPartyUpsertBulk) ClearClientSecret() *OAuthThirdPartyUpsertBulk {
-	return u.Update(func(s *OAuthThirdPartyUpsert) {
-		s.ClearClientSecret()
-	})
-}
-
-// SetCallbackURL sets the "callback_url" field.
-func (u *OAuthThirdPartyUpsertBulk) SetCallbackURL(v string) *OAuthThirdPartyUpsertBulk {
-	return u.Update(func(s *OAuthThirdPartyUpsert) {
-		s.SetCallbackURL(v)
-	})
-}
-
-// UpdateCallbackURL sets the "callback_url" field to the value that was provided on create.
-func (u *OAuthThirdPartyUpsertBulk) UpdateCallbackURL() *OAuthThirdPartyUpsertBulk {
-	return u.Update(func(s *OAuthThirdPartyUpsert) {
-		s.UpdateCallbackURL()
-	})
-}
-
-// ClearCallbackURL clears the value of the "callback_url" field.
-func (u *OAuthThirdPartyUpsertBulk) ClearCallbackURL() *OAuthThirdPartyUpsertBulk {
-	return u.Update(func(s *OAuthThirdPartyUpsert) {
-		s.ClearCallbackURL()
 	})
 }
 

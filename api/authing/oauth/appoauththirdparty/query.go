@@ -70,3 +70,42 @@ func (s *Server) GetOAuthThirdParties(ctx context.Context, in *npool.GetOAuthThi
 		Total: total,
 	}, nil
 }
+
+func (s *Server) GetOAuthThirdPartyDecryptOnly(ctx context.Context, in *npool.GetOAuthThirdPartyDecryptOnlyRequest) (*npool.GetOAuthThirdPartyDecryptOnlyResponse, error) {
+	const limit = 2
+	_handler, err := oauththirdparty1.NewHandler(
+		ctx,
+		oauththirdparty1.WithConds(in.GetConds()),
+		oauththirdparty1.WithOffset(0),
+		oauththirdparty1.WithLimit(limit),
+	)
+	if err != nil {
+		logger.Sugar().Errorw(
+			"GetOAuthThirdParties",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.GetOAuthThirdPartyDecryptOnlyResponse{}, status.Error(codes.Aborted, err.Error())
+	}
+	infos, _, err := _handler.GetOAuthThirdPartiesDecrypt(ctx)
+	if err != nil {
+		logger.Sugar().Errorw(
+			"GetOAuthThirdParties",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.GetOAuthThirdPartyDecryptOnlyResponse{}, status.Error(codes.Aborted, err.Error())
+	}
+	if len(infos) > 1 {
+		logger.Sugar().Errorw(
+			"GetOAuthThirdParties",
+			"In", in,
+			"Error", err,
+		)
+		return &npool.GetOAuthThirdPartyDecryptOnlyResponse{}, status.Error(codes.Aborted, "too many records")
+	}
+
+	return &npool.GetOAuthThirdPartyDecryptOnlyResponse{
+		Info: infos[0],
+	}, nil
+}

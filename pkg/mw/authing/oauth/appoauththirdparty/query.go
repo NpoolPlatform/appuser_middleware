@@ -1,3 +1,4 @@
+//nolint:dupl
 package appoauththirdparty
 
 import (
@@ -6,10 +7,12 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 
+	"github.com/NpoolPlatform/appuser-middleware/pkg/aes"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 	entappoauththirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appoauththirdparty"
 	entoauththirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/oauththirdparty"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	appoauththirdpartycrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/authing/oauth/appoauththirdparty"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/oauth/appoauththirdparty"
@@ -51,6 +54,10 @@ func (h *queryHandler) queryJoinMyself(s *sql.Selector) {
 	s.AppendSelect(
 		t.C(entappoauththirdparty.FieldAppID),
 		t.C(entappoauththirdparty.FieldThirdPartyID),
+		t.C(entappoauththirdparty.FieldClientID),
+		t.C(entappoauththirdparty.FieldClientSecret),
+		t.C(entappoauththirdparty.FieldCallbackURL),
+		t.C(entappoauththirdparty.FieldSalt),
 		t.C(entappoauththirdparty.FieldCreatedAt),
 		t.C(entappoauththirdparty.FieldUpdatedAt),
 	)
@@ -67,9 +74,17 @@ func (h *queryHandler) queryJoinOAuthThirdParty(s *sql.Selector) error { //nolin
 			sql.EQ(t.C(entoauththirdparty.FieldDeletedAt), 0),
 		)
 
+	if h.Conds != nil && h.Conds.ClientName != nil {
+		clientName, ok := h.Conds.ClientName.Val.(string)
+		if !ok {
+			return fmt.Errorf("invalid oauth clientName")
+		}
+		s.Where(
+			sql.EQ(t.C(entoauththirdparty.FieldClientName), clientName),
+		)
+	}
+
 	s.AppendSelect(
-		sql.As(t.C(entoauththirdparty.FieldClientID), "client_id"),
-		sql.As(t.C(entoauththirdparty.FieldClientSecret), "client_secret"),
 		sql.As(t.C(entoauththirdparty.FieldClientName), "client_name"),
 		sql.As(t.C(entoauththirdparty.FieldClientTag), "client_tag"),
 		sql.As(t.C(entoauththirdparty.FieldClientLogoURL), "client_logo_url"),
@@ -102,6 +117,23 @@ func (h *queryHandler) scan(ctx context.Context) error {
 	return h.stmSelect.Scan(ctx, &h.infos)
 }
 
+func (h *queryHandler) formalize() {
+	for _, info := range h.infos {
+		info.ClientName = basetypes.SignMethod(basetypes.SignMethod_value[info.ClientNameStr])
+	}
+}
+
+func (h *queryHandler) decryptSecret() error {
+	for _, info := range h.infos {
+		clientSecret, err := aes.AesDecrypt([]byte(info.Salt), []byte(info.ClientSecret))
+		if err != nil {
+			return err
+		}
+		info.ClientSecret = string(clientSecret)
+	}
+	return nil
+}
+
 func (h *Handler) GetOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdParty, error) {
 	if h.ID == nil {
 		return nil, fmt.Errorf("invalid id")
@@ -127,6 +159,7 @@ func (h *Handler) GetOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdPart
 	if len(handler.infos) > 1 {
 		return nil, fmt.Errorf("too many records")
 	}
+	handler.formalize()
 
 	return handler.infos[0], nil
 }
@@ -165,6 +198,51 @@ func (h *Handler) GetOAuthThirdParties(ctx context.Context) ([]*npool.OAuthThird
 		return handler.scan(_ctx)
 	})
 	if err != nil {
+		return nil, 0, err
+	}
+	handler.formalize()
+
+	return handler.infos, handler.total, nil
+}
+
+func (h *Handler) GetOAuthThirdPartiesDecrypt(ctx context.Context) ([]*npool.OAuthThirdParty, uint32, error) {
+	handler := &queryHandler{
+		Handler: h,
+	}
+
+	var err error
+	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		handler.stmSelect, err = handler.queryOAuthThirdParties(cli)
+		if err != nil {
+			return err
+		}
+		handler.stmCount, err = handler.queryOAuthThirdParties(cli)
+		if err != nil {
+			return err
+		}
+
+		if err := handler.queryJoin(); err != nil {
+			return err
+		}
+
+		_total, err := handler.stmCount.Count(_ctx)
+		if err != nil {
+			return err
+		}
+		handler.total = uint32(_total)
+
+		handler.stmSelect.
+			Offset(int(h.Offset)).
+			Limit(int(h.Limit)).
+			Order(ent.Desc(entappoauththirdparty.FieldCreatedAt))
+
+		return handler.scan(_ctx)
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+	handler.formalize()
+	if err := handler.decryptSecret(); err != nil {
 		return nil, 0, err
 	}
 

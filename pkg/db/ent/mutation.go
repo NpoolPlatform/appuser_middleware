@@ -2269,6 +2269,10 @@ type AppOAuthThirdPartyMutation struct {
 	adddeleted_at  *int32
 	app_id         *uuid.UUID
 	third_party_id *uuid.UUID
+	client_id      *string
+	client_secret  *string
+	callback_url   *string
+	salt           *string
 	clearedFields  map[string]struct{}
 	done           bool
 	oldValue       func(context.Context) (*AppOAuthThirdParty, error)
@@ -2645,6 +2649,202 @@ func (m *AppOAuthThirdPartyMutation) ResetThirdPartyID() {
 	delete(m.clearedFields, appoauththirdparty.FieldThirdPartyID)
 }
 
+// SetClientID sets the "client_id" field.
+func (m *AppOAuthThirdPartyMutation) SetClientID(s string) {
+	m.client_id = &s
+}
+
+// ClientID returns the value of the "client_id" field in the mutation.
+func (m *AppOAuthThirdPartyMutation) ClientID() (r string, exists bool) {
+	v := m.client_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldClientID returns the old "client_id" field's value of the AppOAuthThirdParty entity.
+// If the AppOAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AppOAuthThirdPartyMutation) OldClientID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldClientID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldClientID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldClientID: %w", err)
+	}
+	return oldValue.ClientID, nil
+}
+
+// ClearClientID clears the value of the "client_id" field.
+func (m *AppOAuthThirdPartyMutation) ClearClientID() {
+	m.client_id = nil
+	m.clearedFields[appoauththirdparty.FieldClientID] = struct{}{}
+}
+
+// ClientIDCleared returns if the "client_id" field was cleared in this mutation.
+func (m *AppOAuthThirdPartyMutation) ClientIDCleared() bool {
+	_, ok := m.clearedFields[appoauththirdparty.FieldClientID]
+	return ok
+}
+
+// ResetClientID resets all changes to the "client_id" field.
+func (m *AppOAuthThirdPartyMutation) ResetClientID() {
+	m.client_id = nil
+	delete(m.clearedFields, appoauththirdparty.FieldClientID)
+}
+
+// SetClientSecret sets the "client_secret" field.
+func (m *AppOAuthThirdPartyMutation) SetClientSecret(s string) {
+	m.client_secret = &s
+}
+
+// ClientSecret returns the value of the "client_secret" field in the mutation.
+func (m *AppOAuthThirdPartyMutation) ClientSecret() (r string, exists bool) {
+	v := m.client_secret
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldClientSecret returns the old "client_secret" field's value of the AppOAuthThirdParty entity.
+// If the AppOAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AppOAuthThirdPartyMutation) OldClientSecret(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldClientSecret is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldClientSecret requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldClientSecret: %w", err)
+	}
+	return oldValue.ClientSecret, nil
+}
+
+// ClearClientSecret clears the value of the "client_secret" field.
+func (m *AppOAuthThirdPartyMutation) ClearClientSecret() {
+	m.client_secret = nil
+	m.clearedFields[appoauththirdparty.FieldClientSecret] = struct{}{}
+}
+
+// ClientSecretCleared returns if the "client_secret" field was cleared in this mutation.
+func (m *AppOAuthThirdPartyMutation) ClientSecretCleared() bool {
+	_, ok := m.clearedFields[appoauththirdparty.FieldClientSecret]
+	return ok
+}
+
+// ResetClientSecret resets all changes to the "client_secret" field.
+func (m *AppOAuthThirdPartyMutation) ResetClientSecret() {
+	m.client_secret = nil
+	delete(m.clearedFields, appoauththirdparty.FieldClientSecret)
+}
+
+// SetCallbackURL sets the "callback_url" field.
+func (m *AppOAuthThirdPartyMutation) SetCallbackURL(s string) {
+	m.callback_url = &s
+}
+
+// CallbackURL returns the value of the "callback_url" field in the mutation.
+func (m *AppOAuthThirdPartyMutation) CallbackURL() (r string, exists bool) {
+	v := m.callback_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCallbackURL returns the old "callback_url" field's value of the AppOAuthThirdParty entity.
+// If the AppOAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AppOAuthThirdPartyMutation) OldCallbackURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCallbackURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCallbackURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCallbackURL: %w", err)
+	}
+	return oldValue.CallbackURL, nil
+}
+
+// ClearCallbackURL clears the value of the "callback_url" field.
+func (m *AppOAuthThirdPartyMutation) ClearCallbackURL() {
+	m.callback_url = nil
+	m.clearedFields[appoauththirdparty.FieldCallbackURL] = struct{}{}
+}
+
+// CallbackURLCleared returns if the "callback_url" field was cleared in this mutation.
+func (m *AppOAuthThirdPartyMutation) CallbackURLCleared() bool {
+	_, ok := m.clearedFields[appoauththirdparty.FieldCallbackURL]
+	return ok
+}
+
+// ResetCallbackURL resets all changes to the "callback_url" field.
+func (m *AppOAuthThirdPartyMutation) ResetCallbackURL() {
+	m.callback_url = nil
+	delete(m.clearedFields, appoauththirdparty.FieldCallbackURL)
+}
+
+// SetSalt sets the "salt" field.
+func (m *AppOAuthThirdPartyMutation) SetSalt(s string) {
+	m.salt = &s
+}
+
+// Salt returns the value of the "salt" field in the mutation.
+func (m *AppOAuthThirdPartyMutation) Salt() (r string, exists bool) {
+	v := m.salt
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSalt returns the old "salt" field's value of the AppOAuthThirdParty entity.
+// If the AppOAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AppOAuthThirdPartyMutation) OldSalt(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSalt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSalt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSalt: %w", err)
+	}
+	return oldValue.Salt, nil
+}
+
+// ClearSalt clears the value of the "salt" field.
+func (m *AppOAuthThirdPartyMutation) ClearSalt() {
+	m.salt = nil
+	m.clearedFields[appoauththirdparty.FieldSalt] = struct{}{}
+}
+
+// SaltCleared returns if the "salt" field was cleared in this mutation.
+func (m *AppOAuthThirdPartyMutation) SaltCleared() bool {
+	_, ok := m.clearedFields[appoauththirdparty.FieldSalt]
+	return ok
+}
+
+// ResetSalt resets all changes to the "salt" field.
+func (m *AppOAuthThirdPartyMutation) ResetSalt() {
+	m.salt = nil
+	delete(m.clearedFields, appoauththirdparty.FieldSalt)
+}
+
 // Where appends a list predicates to the AppOAuthThirdPartyMutation builder.
 func (m *AppOAuthThirdPartyMutation) Where(ps ...predicate.AppOAuthThirdParty) {
 	m.predicates = append(m.predicates, ps...)
@@ -2664,7 +2864,7 @@ func (m *AppOAuthThirdPartyMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AppOAuthThirdPartyMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 9)
 	if m.created_at != nil {
 		fields = append(fields, appoauththirdparty.FieldCreatedAt)
 	}
@@ -2679,6 +2879,18 @@ func (m *AppOAuthThirdPartyMutation) Fields() []string {
 	}
 	if m.third_party_id != nil {
 		fields = append(fields, appoauththirdparty.FieldThirdPartyID)
+	}
+	if m.client_id != nil {
+		fields = append(fields, appoauththirdparty.FieldClientID)
+	}
+	if m.client_secret != nil {
+		fields = append(fields, appoauththirdparty.FieldClientSecret)
+	}
+	if m.callback_url != nil {
+		fields = append(fields, appoauththirdparty.FieldCallbackURL)
+	}
+	if m.salt != nil {
+		fields = append(fields, appoauththirdparty.FieldSalt)
 	}
 	return fields
 }
@@ -2698,6 +2910,14 @@ func (m *AppOAuthThirdPartyMutation) Field(name string) (ent.Value, bool) {
 		return m.AppID()
 	case appoauththirdparty.FieldThirdPartyID:
 		return m.ThirdPartyID()
+	case appoauththirdparty.FieldClientID:
+		return m.ClientID()
+	case appoauththirdparty.FieldClientSecret:
+		return m.ClientSecret()
+	case appoauththirdparty.FieldCallbackURL:
+		return m.CallbackURL()
+	case appoauththirdparty.FieldSalt:
+		return m.Salt()
 	}
 	return nil, false
 }
@@ -2717,6 +2937,14 @@ func (m *AppOAuthThirdPartyMutation) OldField(ctx context.Context, name string) 
 		return m.OldAppID(ctx)
 	case appoauththirdparty.FieldThirdPartyID:
 		return m.OldThirdPartyID(ctx)
+	case appoauththirdparty.FieldClientID:
+		return m.OldClientID(ctx)
+	case appoauththirdparty.FieldClientSecret:
+		return m.OldClientSecret(ctx)
+	case appoauththirdparty.FieldCallbackURL:
+		return m.OldCallbackURL(ctx)
+	case appoauththirdparty.FieldSalt:
+		return m.OldSalt(ctx)
 	}
 	return nil, fmt.Errorf("unknown AppOAuthThirdParty field %s", name)
 }
@@ -2760,6 +2988,34 @@ func (m *AppOAuthThirdPartyMutation) SetField(name string, value ent.Value) erro
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetThirdPartyID(v)
+		return nil
+	case appoauththirdparty.FieldClientID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetClientID(v)
+		return nil
+	case appoauththirdparty.FieldClientSecret:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetClientSecret(v)
+		return nil
+	case appoauththirdparty.FieldCallbackURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCallbackURL(v)
+		return nil
+	case appoauththirdparty.FieldSalt:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSalt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown AppOAuthThirdParty field %s", name)
@@ -2836,6 +3092,18 @@ func (m *AppOAuthThirdPartyMutation) ClearedFields() []string {
 	if m.FieldCleared(appoauththirdparty.FieldThirdPartyID) {
 		fields = append(fields, appoauththirdparty.FieldThirdPartyID)
 	}
+	if m.FieldCleared(appoauththirdparty.FieldClientID) {
+		fields = append(fields, appoauththirdparty.FieldClientID)
+	}
+	if m.FieldCleared(appoauththirdparty.FieldClientSecret) {
+		fields = append(fields, appoauththirdparty.FieldClientSecret)
+	}
+	if m.FieldCleared(appoauththirdparty.FieldCallbackURL) {
+		fields = append(fields, appoauththirdparty.FieldCallbackURL)
+	}
+	if m.FieldCleared(appoauththirdparty.FieldSalt) {
+		fields = append(fields, appoauththirdparty.FieldSalt)
+	}
 	return fields
 }
 
@@ -2855,6 +3123,18 @@ func (m *AppOAuthThirdPartyMutation) ClearField(name string) error {
 		return nil
 	case appoauththirdparty.FieldThirdPartyID:
 		m.ClearThirdPartyID()
+		return nil
+	case appoauththirdparty.FieldClientID:
+		m.ClearClientID()
+		return nil
+	case appoauththirdparty.FieldClientSecret:
+		m.ClearClientSecret()
+		return nil
+	case appoauththirdparty.FieldCallbackURL:
+		m.ClearCallbackURL()
+		return nil
+	case appoauththirdparty.FieldSalt:
+		m.ClearSalt()
 		return nil
 	}
 	return fmt.Errorf("unknown AppOAuthThirdParty nullable field %s", name)
@@ -2878,6 +3158,18 @@ func (m *AppOAuthThirdPartyMutation) ResetField(name string) error {
 		return nil
 	case appoauththirdparty.FieldThirdPartyID:
 		m.ResetThirdPartyID()
+		return nil
+	case appoauththirdparty.FieldClientID:
+		m.ResetClientID()
+		return nil
+	case appoauththirdparty.FieldClientSecret:
+		m.ResetClientSecret()
+		return nil
+	case appoauththirdparty.FieldCallbackURL:
+		m.ResetCallbackURL()
+		return nil
+	case appoauththirdparty.FieldSalt:
+		m.ResetSalt()
 		return nil
 	}
 	return fmt.Errorf("unknown AppOAuthThirdParty field %s", name)
@@ -15712,9 +16004,6 @@ type OAuthThirdPartyMutation struct {
 	addupdated_at    *int32
 	deleted_at       *uint32
 	adddeleted_at    *int32
-	client_id        *string
-	client_secret    *string
-	callback_url     *string
 	client_name      *string
 	client_tag       *string
 	client_logo_url  *string
@@ -15997,153 +16286,6 @@ func (m *OAuthThirdPartyMutation) AddedDeletedAt() (r int32, exists bool) {
 func (m *OAuthThirdPartyMutation) ResetDeletedAt() {
 	m.deleted_at = nil
 	m.adddeleted_at = nil
-}
-
-// SetClientID sets the "client_id" field.
-func (m *OAuthThirdPartyMutation) SetClientID(s string) {
-	m.client_id = &s
-}
-
-// ClientID returns the value of the "client_id" field in the mutation.
-func (m *OAuthThirdPartyMutation) ClientID() (r string, exists bool) {
-	v := m.client_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldClientID returns the old "client_id" field's value of the OAuthThirdParty entity.
-// If the OAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OAuthThirdPartyMutation) OldClientID(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldClientID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldClientID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldClientID: %w", err)
-	}
-	return oldValue.ClientID, nil
-}
-
-// ClearClientID clears the value of the "client_id" field.
-func (m *OAuthThirdPartyMutation) ClearClientID() {
-	m.client_id = nil
-	m.clearedFields[oauththirdparty.FieldClientID] = struct{}{}
-}
-
-// ClientIDCleared returns if the "client_id" field was cleared in this mutation.
-func (m *OAuthThirdPartyMutation) ClientIDCleared() bool {
-	_, ok := m.clearedFields[oauththirdparty.FieldClientID]
-	return ok
-}
-
-// ResetClientID resets all changes to the "client_id" field.
-func (m *OAuthThirdPartyMutation) ResetClientID() {
-	m.client_id = nil
-	delete(m.clearedFields, oauththirdparty.FieldClientID)
-}
-
-// SetClientSecret sets the "client_secret" field.
-func (m *OAuthThirdPartyMutation) SetClientSecret(s string) {
-	m.client_secret = &s
-}
-
-// ClientSecret returns the value of the "client_secret" field in the mutation.
-func (m *OAuthThirdPartyMutation) ClientSecret() (r string, exists bool) {
-	v := m.client_secret
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldClientSecret returns the old "client_secret" field's value of the OAuthThirdParty entity.
-// If the OAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OAuthThirdPartyMutation) OldClientSecret(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldClientSecret is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldClientSecret requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldClientSecret: %w", err)
-	}
-	return oldValue.ClientSecret, nil
-}
-
-// ClearClientSecret clears the value of the "client_secret" field.
-func (m *OAuthThirdPartyMutation) ClearClientSecret() {
-	m.client_secret = nil
-	m.clearedFields[oauththirdparty.FieldClientSecret] = struct{}{}
-}
-
-// ClientSecretCleared returns if the "client_secret" field was cleared in this mutation.
-func (m *OAuthThirdPartyMutation) ClientSecretCleared() bool {
-	_, ok := m.clearedFields[oauththirdparty.FieldClientSecret]
-	return ok
-}
-
-// ResetClientSecret resets all changes to the "client_secret" field.
-func (m *OAuthThirdPartyMutation) ResetClientSecret() {
-	m.client_secret = nil
-	delete(m.clearedFields, oauththirdparty.FieldClientSecret)
-}
-
-// SetCallbackURL sets the "callback_url" field.
-func (m *OAuthThirdPartyMutation) SetCallbackURL(s string) {
-	m.callback_url = &s
-}
-
-// CallbackURL returns the value of the "callback_url" field in the mutation.
-func (m *OAuthThirdPartyMutation) CallbackURL() (r string, exists bool) {
-	v := m.callback_url
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCallbackURL returns the old "callback_url" field's value of the OAuthThirdParty entity.
-// If the OAuthThirdParty object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OAuthThirdPartyMutation) OldCallbackURL(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCallbackURL is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCallbackURL requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCallbackURL: %w", err)
-	}
-	return oldValue.CallbackURL, nil
-}
-
-// ClearCallbackURL clears the value of the "callback_url" field.
-func (m *OAuthThirdPartyMutation) ClearCallbackURL() {
-	m.callback_url = nil
-	m.clearedFields[oauththirdparty.FieldCallbackURL] = struct{}{}
-}
-
-// CallbackURLCleared returns if the "callback_url" field was cleared in this mutation.
-func (m *OAuthThirdPartyMutation) CallbackURLCleared() bool {
-	_, ok := m.clearedFields[oauththirdparty.FieldCallbackURL]
-	return ok
-}
-
-// ResetCallbackURL resets all changes to the "callback_url" field.
-func (m *OAuthThirdPartyMutation) ResetCallbackURL() {
-	m.callback_url = nil
-	delete(m.clearedFields, oauththirdparty.FieldCallbackURL)
 }
 
 // SetClientName sets the "client_name" field.
@@ -16459,7 +16601,7 @@ func (m *OAuthThirdPartyMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OAuthThirdPartyMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 9)
 	if m.created_at != nil {
 		fields = append(fields, oauththirdparty.FieldCreatedAt)
 	}
@@ -16468,15 +16610,6 @@ func (m *OAuthThirdPartyMutation) Fields() []string {
 	}
 	if m.deleted_at != nil {
 		fields = append(fields, oauththirdparty.FieldDeletedAt)
-	}
-	if m.client_id != nil {
-		fields = append(fields, oauththirdparty.FieldClientID)
-	}
-	if m.client_secret != nil {
-		fields = append(fields, oauththirdparty.FieldClientSecret)
-	}
-	if m.callback_url != nil {
-		fields = append(fields, oauththirdparty.FieldCallbackURL)
 	}
 	if m.client_name != nil {
 		fields = append(fields, oauththirdparty.FieldClientName)
@@ -16510,12 +16643,6 @@ func (m *OAuthThirdPartyMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case oauththirdparty.FieldDeletedAt:
 		return m.DeletedAt()
-	case oauththirdparty.FieldClientID:
-		return m.ClientID()
-	case oauththirdparty.FieldClientSecret:
-		return m.ClientSecret()
-	case oauththirdparty.FieldCallbackURL:
-		return m.CallbackURL()
 	case oauththirdparty.FieldClientName:
 		return m.ClientName()
 	case oauththirdparty.FieldClientTag:
@@ -16543,12 +16670,6 @@ func (m *OAuthThirdPartyMutation) OldField(ctx context.Context, name string) (en
 		return m.OldUpdatedAt(ctx)
 	case oauththirdparty.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
-	case oauththirdparty.FieldClientID:
-		return m.OldClientID(ctx)
-	case oauththirdparty.FieldClientSecret:
-		return m.OldClientSecret(ctx)
-	case oauththirdparty.FieldCallbackURL:
-		return m.OldCallbackURL(ctx)
 	case oauththirdparty.FieldClientName:
 		return m.OldClientName(ctx)
 	case oauththirdparty.FieldClientTag:
@@ -16590,27 +16711,6 @@ func (m *OAuthThirdPartyMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDeletedAt(v)
-		return nil
-	case oauththirdparty.FieldClientID:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetClientID(v)
-		return nil
-	case oauththirdparty.FieldClientSecret:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetClientSecret(v)
-		return nil
-	case oauththirdparty.FieldCallbackURL:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCallbackURL(v)
 		return nil
 	case oauththirdparty.FieldClientName:
 		v, ok := value.(string)
@@ -16723,15 +16823,6 @@ func (m *OAuthThirdPartyMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *OAuthThirdPartyMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(oauththirdparty.FieldClientID) {
-		fields = append(fields, oauththirdparty.FieldClientID)
-	}
-	if m.FieldCleared(oauththirdparty.FieldClientSecret) {
-		fields = append(fields, oauththirdparty.FieldClientSecret)
-	}
-	if m.FieldCleared(oauththirdparty.FieldCallbackURL) {
-		fields = append(fields, oauththirdparty.FieldCallbackURL)
-	}
 	if m.FieldCleared(oauththirdparty.FieldClientName) {
 		fields = append(fields, oauththirdparty.FieldClientName)
 	}
@@ -16764,15 +16855,6 @@ func (m *OAuthThirdPartyMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *OAuthThirdPartyMutation) ClearField(name string) error {
 	switch name {
-	case oauththirdparty.FieldClientID:
-		m.ClearClientID()
-		return nil
-	case oauththirdparty.FieldClientSecret:
-		m.ClearClientSecret()
-		return nil
-	case oauththirdparty.FieldCallbackURL:
-		m.ClearCallbackURL()
-		return nil
 	case oauththirdparty.FieldClientName:
 		m.ClearClientName()
 		return nil
@@ -16807,15 +16889,6 @@ func (m *OAuthThirdPartyMutation) ResetField(name string) error {
 		return nil
 	case oauththirdparty.FieldDeletedAt:
 		m.ResetDeletedAt()
-		return nil
-	case oauththirdparty.FieldClientID:
-		m.ResetClientID()
-		return nil
-	case oauththirdparty.FieldClientSecret:
-		m.ResetClientSecret()
-		return nil
-	case oauththirdparty.FieldCallbackURL:
-		m.ResetCallbackURL()
 		return nil
 	case oauththirdparty.FieldClientName:
 		m.ResetClientName()

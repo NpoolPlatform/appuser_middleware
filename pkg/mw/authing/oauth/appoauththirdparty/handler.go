@@ -18,6 +18,10 @@ type Handler struct {
 	ID            *uuid.UUID
 	AppID         uuid.UUID
 	ThirdPartyID  *uuid.UUID
+	ClientID      *string
+	ClientSecret  *string
+	CallbackURL   *string
+	Salt          *string
 	ThirdPartyIDs []*uuid.UUID
 	Reqs          []*npool.OAuthThirdPartyReq
 	Conds         *appoauththirdpartycrud.Conds
@@ -79,12 +83,60 @@ func WithThirdPartyID(id *string) func(context.Context, *Handler) error {
 		if id == nil {
 			return nil
 		}
-		// TODO: check user exist
 		_id, err := uuid.Parse(*id)
 		if err != nil {
 			return err
 		}
 		h.ThirdPartyID = &_id
+		return nil
+	}
+}
+
+func WithClientID(clientID *string) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if clientID == nil {
+			return nil
+		}
+		if *clientID == "" {
+			return fmt.Errorf("invalid clientid")
+		}
+		h.ClientID = clientID
+		return nil
+	}
+}
+
+func WithClientSecret(clientSecret *string) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if clientSecret == nil {
+			return nil
+		}
+		if *clientSecret == "" {
+			return fmt.Errorf("invalid clientsecret")
+		}
+		h.ClientSecret = clientSecret
+		return nil
+	}
+}
+
+func WithSalt(salt *string) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if salt == nil {
+			return nil
+		}
+		h.Salt = salt
+		return nil
+	}
+}
+
+func WithCallbackURL(callbackURL *string) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if callbackURL == nil {
+			return nil
+		}
+		if *callbackURL == "" {
+			return fmt.Errorf("invalid callbackurl")
+		}
+		h.CallbackURL = callbackURL
 		return nil
 	}
 }
@@ -115,6 +167,9 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 				return err
 			}
 			h.Conds.ThirdPartyID = &cruder.Cond{Op: conds.GetThirdPartyID().GetOp(), Val: id}
+		}
+		if conds.ClientName != nil {
+			h.Conds.ClientName = &cruder.Cond{Op: conds.GetClientName().GetOp(), Val: conds.GetClientName().GetValue()}
 		}
 		if len(conds.GetThirdPartyIDs().GetValue()) > 0 {
 			_ids := []uuid.UUID{}

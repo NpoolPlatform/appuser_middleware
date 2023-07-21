@@ -83,66 +83,6 @@ func (otpu *OAuthThirdPartyUpdate) AddDeletedAt(u int32) *OAuthThirdPartyUpdate 
 	return otpu
 }
 
-// SetClientID sets the "client_id" field.
-func (otpu *OAuthThirdPartyUpdate) SetClientID(s string) *OAuthThirdPartyUpdate {
-	otpu.mutation.SetClientID(s)
-	return otpu
-}
-
-// SetNillableClientID sets the "client_id" field if the given value is not nil.
-func (otpu *OAuthThirdPartyUpdate) SetNillableClientID(s *string) *OAuthThirdPartyUpdate {
-	if s != nil {
-		otpu.SetClientID(*s)
-	}
-	return otpu
-}
-
-// ClearClientID clears the value of the "client_id" field.
-func (otpu *OAuthThirdPartyUpdate) ClearClientID() *OAuthThirdPartyUpdate {
-	otpu.mutation.ClearClientID()
-	return otpu
-}
-
-// SetClientSecret sets the "client_secret" field.
-func (otpu *OAuthThirdPartyUpdate) SetClientSecret(s string) *OAuthThirdPartyUpdate {
-	otpu.mutation.SetClientSecret(s)
-	return otpu
-}
-
-// SetNillableClientSecret sets the "client_secret" field if the given value is not nil.
-func (otpu *OAuthThirdPartyUpdate) SetNillableClientSecret(s *string) *OAuthThirdPartyUpdate {
-	if s != nil {
-		otpu.SetClientSecret(*s)
-	}
-	return otpu
-}
-
-// ClearClientSecret clears the value of the "client_secret" field.
-func (otpu *OAuthThirdPartyUpdate) ClearClientSecret() *OAuthThirdPartyUpdate {
-	otpu.mutation.ClearClientSecret()
-	return otpu
-}
-
-// SetCallbackURL sets the "callback_url" field.
-func (otpu *OAuthThirdPartyUpdate) SetCallbackURL(s string) *OAuthThirdPartyUpdate {
-	otpu.mutation.SetCallbackURL(s)
-	return otpu
-}
-
-// SetNillableCallbackURL sets the "callback_url" field if the given value is not nil.
-func (otpu *OAuthThirdPartyUpdate) SetNillableCallbackURL(s *string) *OAuthThirdPartyUpdate {
-	if s != nil {
-		otpu.SetCallbackURL(*s)
-	}
-	return otpu
-}
-
-// ClearCallbackURL clears the value of the "callback_url" field.
-func (otpu *OAuthThirdPartyUpdate) ClearCallbackURL() *OAuthThirdPartyUpdate {
-	otpu.mutation.ClearCallbackURL()
-	return otpu
-}
-
 // SetClientName sets the "client_name" field.
 func (otpu *OAuthThirdPartyUpdate) SetClientName(s string) *OAuthThirdPartyUpdate {
 	otpu.mutation.SetClientName(s)
@@ -403,45 +343,6 @@ func (otpu *OAuthThirdPartyUpdate) sqlSave(ctx context.Context) (n int, err erro
 			Column: oauththirdparty.FieldDeletedAt,
 		})
 	}
-	if value, ok := otpu.mutation.ClientID(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: oauththirdparty.FieldClientID,
-		})
-	}
-	if otpu.mutation.ClientIDCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Column: oauththirdparty.FieldClientID,
-		})
-	}
-	if value, ok := otpu.mutation.ClientSecret(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: oauththirdparty.FieldClientSecret,
-		})
-	}
-	if otpu.mutation.ClientSecretCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Column: oauththirdparty.FieldClientSecret,
-		})
-	}
-	if value, ok := otpu.mutation.CallbackURL(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: oauththirdparty.FieldCallbackURL,
-		})
-	}
-	if otpu.mutation.CallbackURLCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Column: oauththirdparty.FieldCallbackURL,
-		})
-	}
 	if value, ok := otpu.mutation.ClientName(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -593,66 +494,6 @@ func (otpuo *OAuthThirdPartyUpdateOne) SetNillableDeletedAt(u *uint32) *OAuthThi
 // AddDeletedAt adds u to the "deleted_at" field.
 func (otpuo *OAuthThirdPartyUpdateOne) AddDeletedAt(u int32) *OAuthThirdPartyUpdateOne {
 	otpuo.mutation.AddDeletedAt(u)
-	return otpuo
-}
-
-// SetClientID sets the "client_id" field.
-func (otpuo *OAuthThirdPartyUpdateOne) SetClientID(s string) *OAuthThirdPartyUpdateOne {
-	otpuo.mutation.SetClientID(s)
-	return otpuo
-}
-
-// SetNillableClientID sets the "client_id" field if the given value is not nil.
-func (otpuo *OAuthThirdPartyUpdateOne) SetNillableClientID(s *string) *OAuthThirdPartyUpdateOne {
-	if s != nil {
-		otpuo.SetClientID(*s)
-	}
-	return otpuo
-}
-
-// ClearClientID clears the value of the "client_id" field.
-func (otpuo *OAuthThirdPartyUpdateOne) ClearClientID() *OAuthThirdPartyUpdateOne {
-	otpuo.mutation.ClearClientID()
-	return otpuo
-}
-
-// SetClientSecret sets the "client_secret" field.
-func (otpuo *OAuthThirdPartyUpdateOne) SetClientSecret(s string) *OAuthThirdPartyUpdateOne {
-	otpuo.mutation.SetClientSecret(s)
-	return otpuo
-}
-
-// SetNillableClientSecret sets the "client_secret" field if the given value is not nil.
-func (otpuo *OAuthThirdPartyUpdateOne) SetNillableClientSecret(s *string) *OAuthThirdPartyUpdateOne {
-	if s != nil {
-		otpuo.SetClientSecret(*s)
-	}
-	return otpuo
-}
-
-// ClearClientSecret clears the value of the "client_secret" field.
-func (otpuo *OAuthThirdPartyUpdateOne) ClearClientSecret() *OAuthThirdPartyUpdateOne {
-	otpuo.mutation.ClearClientSecret()
-	return otpuo
-}
-
-// SetCallbackURL sets the "callback_url" field.
-func (otpuo *OAuthThirdPartyUpdateOne) SetCallbackURL(s string) *OAuthThirdPartyUpdateOne {
-	otpuo.mutation.SetCallbackURL(s)
-	return otpuo
-}
-
-// SetNillableCallbackURL sets the "callback_url" field if the given value is not nil.
-func (otpuo *OAuthThirdPartyUpdateOne) SetNillableCallbackURL(s *string) *OAuthThirdPartyUpdateOne {
-	if s != nil {
-		otpuo.SetCallbackURL(*s)
-	}
-	return otpuo
-}
-
-// ClearCallbackURL clears the value of the "callback_url" field.
-func (otpuo *OAuthThirdPartyUpdateOne) ClearCallbackURL() *OAuthThirdPartyUpdateOne {
-	otpuo.mutation.ClearCallbackURL()
 	return otpuo
 }
 
@@ -944,45 +785,6 @@ func (otpuo *OAuthThirdPartyUpdateOne) sqlSave(ctx context.Context) (_node *OAut
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: oauththirdparty.FieldDeletedAt,
-		})
-	}
-	if value, ok := otpuo.mutation.ClientID(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: oauththirdparty.FieldClientID,
-		})
-	}
-	if otpuo.mutation.ClientIDCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Column: oauththirdparty.FieldClientID,
-		})
-	}
-	if value, ok := otpuo.mutation.ClientSecret(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: oauththirdparty.FieldClientSecret,
-		})
-	}
-	if otpuo.mutation.ClientSecretCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Column: oauththirdparty.FieldClientSecret,
-		})
-	}
-	if value, ok := otpuo.mutation.CallbackURL(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: oauththirdparty.FieldCallbackURL,
-		})
-	}
-	if otpuo.mutation.CallbackURLCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Column: oauththirdparty.FieldCallbackURL,
 		})
 	}
 	if value, ok := otpuo.mutation.ClientName(); ok {

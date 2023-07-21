@@ -44,6 +44,22 @@ func CreateOAuthThirdParty(ctx context.Context, req *npool.OAuthThirdPartyReq) (
 	return info.(*npool.OAuthThirdParty), nil
 }
 
+func UpdateOAuthThirdParty(ctx context.Context, req *npool.OAuthThirdPartyReq) (*npool.OAuthThirdParty, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.UpdateOAuthThirdParty(ctx, &npool.UpdateOAuthThirdPartyRequest{
+			Info: req,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return info.(*npool.OAuthThirdParty), nil
+}
+
 func ExistOAuthThirdParty(ctx context.Context, id string) (bool, error) {
 	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.ExistOAuthThirdParty(ctx, &npool.ExistOAuthThirdPartyRequest{
@@ -154,4 +170,21 @@ func GetOAuthThirdPartyOnly(ctx context.Context, conds *npool.Conds) (*npool.OAu
 		return nil, fmt.Errorf("too many records")
 	}
 	return infos.([]*npool.OAuthThirdParty)[0], nil
+}
+
+func GetOAuthThirdPartyDecryptOnly(ctx context.Context, conds *npool.Conds) (*npool.OAuthThirdParty, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.GetOAuthThirdPartyDecryptOnly(ctx, &npool.GetOAuthThirdPartyDecryptOnlyRequest{
+			Conds: conds,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return info.(*npool.OAuthThirdParty), nil
 }

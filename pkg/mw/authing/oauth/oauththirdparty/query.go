@@ -22,8 +22,6 @@ type queryHandler struct {
 func (h *queryHandler) selectOAuthThirdParty(stm *ent.OAuthThirdPartyQuery) {
 	h.stm = stm.Select(
 		entoauththirdparty.FieldID,
-		entoauththirdparty.FieldClientID,
-		entoauththirdparty.FieldClientSecret,
 		entoauththirdparty.FieldClientName,
 		entoauththirdparty.FieldClientTag,
 		entoauththirdparty.FieldClientLogoURL,

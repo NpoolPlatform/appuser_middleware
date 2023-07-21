@@ -1,3 +1,4 @@
+//nolint:nolintlint,dupl
 package appoauththirdparty
 
 import (
@@ -11,37 +12,33 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *Server) CreateOAuthThirdParty(ctx context.Context, in *npool.CreateOAuthThirdPartyRequest) (*npool.CreateOAuthThirdPartyResponse, error) {
+func (s *Server) UpdateOAuthThirdParty(ctx context.Context, in *npool.UpdateOAuthThirdPartyRequest) (*npool.UpdateOAuthThirdPartyResponse, error) {
 	req := in.GetInfo()
 	handler, err := oauththirdparty1.NewHandler(
 		ctx,
 		oauththirdparty1.WithID(req.ID),
-		oauththirdparty1.WithAppID(req.GetAppID()),
-		oauththirdparty1.WithThirdPartyID(req.ThirdPartyID),
 		oauththirdparty1.WithClientID(req.ClientID),
 		oauththirdparty1.WithClientSecret(req.ClientSecret),
 		oauththirdparty1.WithCallbackURL(req.CallbackURL),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
-			"CreateOAuthThirdParty",
+			"UpdateOAuthThirdParty",
 			"In", in,
 			"Error", err,
 		)
-		return &npool.CreateOAuthThirdPartyResponse{}, status.Error(codes.Aborted, err.Error())
+		return &npool.UpdateOAuthThirdPartyResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-
-	info, err := handler.CreateOAuthThirdParty(ctx)
+	info, err := handler.UpdateOAuthThirdParty(ctx)
 	if err != nil {
 		logger.Sugar().Errorw(
-			"CreateOAuthThirdParty",
+			"UpdateOAuthThirdParty",
 			"In", in,
 			"Error", err,
 		)
-		return &npool.CreateOAuthThirdPartyResponse{}, status.Error(codes.Aborted, err.Error())
+		return &npool.UpdateOAuthThirdPartyResponse{}, status.Error(codes.Aborted, err.Error())
 	}
-
-	return &npool.CreateOAuthThirdPartyResponse{
+	return &npool.UpdateOAuthThirdPartyResponse{
 		Info: info,
 	}, nil
 }

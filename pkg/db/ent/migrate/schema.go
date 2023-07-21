@@ -57,6 +57,10 @@ var (
 		{Name: "deleted_at", Type: field.TypeUint32},
 		{Name: "app_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "third_party_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "client_id", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "client_secret", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "callback_url", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "salt", Type: field.TypeString, Nullable: true, Default: ""},
 	}
 	// AppOauthThirdPartiesTable holds the schema information for the "app_oauth_third_parties" table.
 	AppOauthThirdPartiesTable = &schema.Table{
@@ -352,10 +356,7 @@ var (
 		{Name: "created_at", Type: field.TypeUint32},
 		{Name: "updated_at", Type: field.TypeUint32},
 		{Name: "deleted_at", Type: field.TypeUint32},
-		{Name: "client_id", Type: field.TypeString, Nullable: true, Default: ""},
-		{Name: "client_secret", Type: field.TypeString, Nullable: true, Default: ""},
-		{Name: "callback_url", Type: field.TypeString, Nullable: true, Default: ""},
-		{Name: "client_name", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "client_name", Type: field.TypeString, Nullable: true, Default: "DefaultSignMethod"},
 		{Name: "client_tag", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "client_logo_url", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "client_oauth_url", Type: field.TypeString, Nullable: true, Default: ""},
