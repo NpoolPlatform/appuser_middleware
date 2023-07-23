@@ -1,4 +1,3 @@
-//nolint:dupl
 package user
 
 import (
@@ -181,7 +180,7 @@ func (h *queryHandler) queryJoinAppUserSecret(s *sql.Selector) {
 		)
 }
 
-func (h *queryHandler) queryJoinAppUserThirdParty(s *sql.Selector) {
+func (h *queryHandler) queryJoinAppUserThirdParty(s *sql.Selector) error {
 	t := sql.Table(entappuserthirdparty.Table)
 	s.LeftJoin(t).
 		On(
@@ -199,6 +198,17 @@ func (h *queryHandler) queryJoinAppUserThirdParty(s *sql.Selector) {
 			sql.As(t.C(entappuserthirdparty.FieldThirdPartyUsername), "third_party_username"),
 			sql.As(t.C(entappuserthirdparty.FieldThirdPartyAvatar), "third_party_avatar"),
 		)
+
+	if h.Conds != nil && h.Conds.ThirdPartyUserID != nil {
+		thirdPartyUserID, ok := h.Conds.ThirdPartyUserID.Val.(string)
+		if !ok {
+			return fmt.Errorf("invalid user thirdPartyUserID")
+		}
+		s.Where(
+			sql.EQ(t.C(entappuserthirdparty.FieldThirdPartyID), thirdPartyUserID),
+		)
+	}
+	return nil
 }
 
 func (h *queryHandler) queryJoinThirdParty(s *sql.Selector) {
@@ -233,11 +243,16 @@ func (h *queryHandler) queryJoin() {
 	})
 }
 
-func (h *queryHandler) queryJoinThirdUserInfo() {
+func (h *queryHandler) queryJoinThirdUserInfo() error {
+	var err error
 	h.stm.Modify(func(s *sql.Selector) {
-		h.queryJoinAppUserThirdParty(s)
+		err = h.queryJoinAppUserThirdParty(s)
 		h.queryJoinThirdParty(s)
 	})
+	if err != nil {
+		return err
+	}
+	return err
 }
 
 func (h *queryHandler) scan(ctx context.Context) error {
@@ -366,7 +381,9 @@ func (h *Handler) GetThirdUsers(ctx context.Context) ([]*npool.User, uint32, err
 		if err := handler.queryAppUserByConds(ctx, cli); err != nil {
 			return err
 		}
-		handler.queryJoinThirdUserInfo()
+		if err := handler.queryJoinThirdUserInfo(); err != nil {
+			return err
+		}
 		handler.stm.
 			Offset(int(h.Offset)).
 			Limit(int(h.Limit))

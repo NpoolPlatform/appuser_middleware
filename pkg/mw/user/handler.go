@@ -561,6 +561,7 @@ func WithAccount(account string, accountType basetypes.SignMethod) func(context.
 	}
 }
 
+//nolint:gocyclo
 func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.Conds = &usercrud.Conds{}
@@ -613,6 +614,20 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 				ids = append(ids, _id)
 			}
 			h.Conds.IDs = &cruder.Cond{Op: conds.GetIDs().GetOp(), Val: ids}
+		}
+		if conds.ThirdPartyID != nil {
+			id, err := uuid.Parse(conds.GetThirdPartyID().GetValue())
+			if err != nil {
+				return err
+			}
+			h.Conds.ThirdPartyID = &cruder.Cond{Op: conds.GetThirdPartyID().GetOp(), Val: id}
+		}
+		if conds.ThirdPartyUserID != nil {
+			id, err := uuid.Parse(conds.GetThirdPartyUserID().GetValue())
+			if err != nil {
+				return err
+			}
+			h.Conds.ThirdPartyUserID = &cruder.Cond{Op: conds.GetThirdPartyUserID().GetOp(), Val: id}
 		}
 		return nil
 	}
