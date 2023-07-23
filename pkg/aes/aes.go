@@ -9,7 +9,6 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
-	mathRand "math/rand"
 )
 
 type AesKeyType int32
@@ -18,13 +17,6 @@ const (
 	AES128 AesKeyType = iota
 	AES192
 	AES256
-)
-
-const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-const (
-	letterIdxBits = 6                    // 6 bits to represent a letter index
-	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
-	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
 )
 
 // Supported:
@@ -43,26 +35,9 @@ func NewAesKey(t AesKeyType) (string, error) {
 	default:
 		return "", errors.New("unsupported AES key length")
 	}
-	bStr := RandStringBytesMaskImpr(int(bLen))
+	bStr := GenerateRandomString(int(bLen))
 
 	return bStr, nil
-}
-
-func RandStringBytesMaskImpr(n int) string {
-	b := make([]byte, n)
-	for i, cache, remain := n-1, mathRand.Int63(), letterIdxMax; i >= 0; {
-		if remain == 0 {
-			cache, remain = mathRand.Int63(), letterIdxMax
-		}
-		if idx := int(cache & letterIdxMask); idx < len(letterBytes) {
-			b[i] = letterBytes[idx]
-			i--
-		}
-		cache >>= letterIdxBits
-		remain--
-	}
-
-	return string(b)
 }
 
 func AesEncrypt(key, plainText []byte) ([]byte, error) {
