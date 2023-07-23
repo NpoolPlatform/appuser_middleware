@@ -40,15 +40,15 @@ func (h *createHandler) account() (string, error) {
 		}
 		return *h.PhoneNO, nil
 	case basetypes.SignMethod_Twitter:
-		fallthrough
+		fallthrough //nolint
 	case basetypes.SignMethod_Github:
-		fallthrough
+		fallthrough //nolint
 	case basetypes.SignMethod_Facebook:
-		fallthrough
+		fallthrough //nolint
 	case basetypes.SignMethod_Linkedin:
-		fallthrough
+		fallthrough //nolint
 	case basetypes.SignMethod_Wechat:
-		fallthrough
+		fallthrough //nolint
 	case basetypes.SignMethod_Google:
 		if h.ThirdPartyUserID == nil {
 			return "", fmt.Errorf("invalid thirdpartyuserid")

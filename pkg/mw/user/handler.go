@@ -9,6 +9,7 @@ import (
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/const"
 	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
 	app "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
+	oauththirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing/oauth/oauththirdparty"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
@@ -379,11 +380,27 @@ func WithThirdPartyID(id *string) func(context.Context, *Handler) error {
 		if id == nil {
 			return nil
 		}
-		// TODO: check third party id exist
 		_id, err := uuid.Parse(*id)
 		if err != nil {
 			return err
 		}
+		handler, err := oauththirdparty.NewHandler(
+			ctx,
+			oauththirdparty.WithID(id),
+		)
+		if err != nil {
+			return err
+		}
+		thirdParty, err := handler.GetOAuthThirdParty(ctx)
+		if err != nil {
+			return err
+		}
+		if thirdParty == nil {
+			return fmt.Errorf("invalid oauththirdparty")
+		}
+		accountType := basetypes.SignMethod(basetypes.SignMethod_value[thirdParty.ClientNameStr])
+		h.AccountType = &accountType
+
 		h.ThirdPartyID = &_id
 		return nil
 	}
@@ -397,6 +414,7 @@ func WithThirdPartyUserID(userID *string) func(context.Context, *Handler) error 
 		if *userID == "" {
 			return fmt.Errorf("invalid thirdpartyuserid")
 		}
+		h.Account = userID
 		h.ThirdPartyUserID = userID
 		return nil
 	}

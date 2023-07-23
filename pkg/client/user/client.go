@@ -46,6 +46,22 @@ func CreateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 	return info.(*npool.User), nil
 }
 
+func CreateThirdUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.CreateThirdUser(ctx, &npool.CreateThirdUserRequest{
+			Info: in,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return info.(*npool.User), nil
+}
+
 func UpdateUser(ctx context.Context, in *npool.UserReq) (*npool.User, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.UpdateUser(ctx, &npool.UpdateUserRequest{
