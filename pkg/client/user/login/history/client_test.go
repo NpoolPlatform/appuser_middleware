@@ -56,7 +56,10 @@ var (
 	ret          = npool.History{
 		ID:           uuid.NewString(),
 		AppID:        app.ID,
+		AppName:      app.Name,
+		AppLogo:      app.Logo,
 		UserID:       user.ID,
+		EmailAddress: user.EmailAddress,
 		ClientIP:     "192.168.1.2",
 		UserAgent:    uuid.NewString(),
 		Location:     "Shanghai",
