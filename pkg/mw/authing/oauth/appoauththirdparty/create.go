@@ -2,6 +2,7 @@ package appoauththirdparty
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/aes"
@@ -76,16 +77,20 @@ func (h *Handler) CreateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 	if h.ID == nil {
 		h.ID = &id
 	}
+	fmt.Println("id====== ", *h.ID)
 	salt, err := aes.NewAesKey(aes.AES256)
 	if err != nil {
 		return nil, fmt.Errorf("get salt failed")
 	}
+	fmt.Println("salt====== ", salt)
+	fmt.Println("*h.ClientSecret====== ", *h.ClientSecret)
 	clientSecret, err := aes.AesEncrypt([]byte(salt), []byte(*h.ClientSecret))
 	if err != nil {
 		return nil, fmt.Errorf("encrypt clientSecret failed")
 	}
-	clientSecretStr := string(clientSecret)
+	clientSecretStr := hex.EncodeToString(clientSecret)
 	h.ClientSecret = &clientSecretStr
+	fmt.Println("h.ClientSecret====== ", *h.ClientSecret)
 
 	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
 		if _, err := appoauththirdpartycrud.CreateSet(

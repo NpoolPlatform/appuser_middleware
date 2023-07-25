@@ -96,6 +96,9 @@ func (s *Server) GetOAuthThirdPartyDecryptOnly(ctx context.Context, in *npool.Ge
 		)
 		return &npool.GetOAuthThirdPartyDecryptOnlyResponse{}, status.Error(codes.Aborted, err.Error())
 	}
+	if len(infos) == 0 {
+		return &npool.GetOAuthThirdPartyDecryptOnlyResponse{}, nil
+	}
 	if len(infos) > 1 {
 		logger.Sugar().Errorw(
 			"GetOAuthThirdParties",

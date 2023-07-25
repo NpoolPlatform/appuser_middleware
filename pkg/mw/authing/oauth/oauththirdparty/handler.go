@@ -151,7 +151,7 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 		}
 
 		if conds.ClientName != nil {
-			h.Conds.ClientName = &cruder.Cond{Op: conds.GetClientName().GetOp(), Val: conds.GetClientName().GetValue()}
+			h.Conds.ClientName = &cruder.Cond{Op: conds.GetClientName().GetOp(), Val: basetypes.SignMethod(conds.GetClientName().GetValue())}
 		}
 		if len(conds.GetIDs().GetValue()) > 0 {
 			_ids := []uuid.UUID{}

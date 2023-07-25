@@ -3,6 +3,7 @@ package appoauththirdparty
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 
 	"entgo.io/ent/dialect/sql"
@@ -75,12 +76,12 @@ func (h *queryHandler) queryJoinOAuthThirdParty(s *sql.Selector) error { //nolin
 		)
 
 	if h.Conds != nil && h.Conds.ClientName != nil {
-		clientName, ok := h.Conds.ClientName.Val.(string)
+		clientName, ok := h.Conds.ClientName.Val.(basetypes.SignMethod)
 		if !ok {
 			return fmt.Errorf("invalid oauth clientName")
 		}
 		s.Where(
-			sql.EQ(t.C(entoauththirdparty.FieldClientName), clientName),
+			sql.EQ(t.C(entoauththirdparty.FieldClientName), clientName.String()),
 		)
 	}
 
@@ -120,12 +121,19 @@ func (h *queryHandler) scan(ctx context.Context) error {
 func (h *queryHandler) formalize() {
 	for _, info := range h.infos {
 		info.ClientName = basetypes.SignMethod(basetypes.SignMethod_value[info.ClientNameStr])
+		if info.Salt != "" {
+			info.Salt = ""
+		}
 	}
 }
 
 func (h *queryHandler) decryptSecret() error {
 	for _, info := range h.infos {
-		clientSecret, err := aes.AesDecrypt([]byte(info.Salt), []byte(info.ClientSecret))
+		ClientSecretBytes, err := hex.DecodeString(info.ClientSecret)
+		if err != nil {
+			return fmt.Errorf("secret err")
+		}
+		clientSecret, err := aes.AesDecrypt([]byte(info.Salt), ClientSecretBytes)
 		if err != nil {
 			return err
 		}
@@ -241,10 +249,10 @@ func (h *Handler) GetOAuthThirdPartiesDecrypt(ctx context.Context) ([]*npool.OAu
 	if err != nil {
 		return nil, 0, err
 	}
-	handler.formalize()
 	if err := handler.decryptSecret(); err != nil {
 		return nil, 0, err
 	}
+	handler.formalize()
 
 	return handler.infos, handler.total, nil
 }

@@ -8,6 +8,7 @@ import (
 	appoauththirdpartycrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/authing/oauth/appoauththirdparty"
 	app "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/oauth/appoauththirdparty"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 
@@ -169,7 +170,7 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 			h.Conds.ThirdPartyID = &cruder.Cond{Op: conds.GetThirdPartyID().GetOp(), Val: id}
 		}
 		if conds.ClientName != nil {
-			h.Conds.ClientName = &cruder.Cond{Op: conds.GetClientName().GetOp(), Val: conds.GetClientName().GetValue()}
+			h.Conds.ClientName = &cruder.Cond{Op: conds.GetClientName().GetOp(), Val: basetypes.SignMethod(conds.GetClientName().GetValue())}
 		}
 		if len(conds.GetThirdPartyIDs().GetValue()) > 0 {
 			_ids := []uuid.UUID{}
