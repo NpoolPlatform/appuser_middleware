@@ -55,8 +55,8 @@ var (
 	passwordHash = "AAA"
 	ret          = npool.History{
 		ID:           uuid.NewString(),
-		AppID:        uuid.NewString(),
-		UserID:       uuid.NewString(),
+		AppID:        app.ID,
+		UserID:       user.ID,
 		ClientIP:     "192.168.1.2",
 		UserAgent:    uuid.NewString(),
 		Location:     "Shanghai",
