@@ -14,6 +14,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	app1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
+	user1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user"
+	appmwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
+	appusermwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user/login/history"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -33,7 +37,23 @@ func init() {
 }
 
 var (
-	ret = npool.History{
+	app = appmwpb.App{
+		ID:        uuid.NewString(),
+		Name:      uuid.NewString(),
+		CreatedBy: uuid.NewString(),
+	}
+
+	user = appusermwpb.User{
+		ID:                uuid.NewString(),
+		AppID:             app.ID,
+		EmailAddress:      "aaa@aaa.aaa",
+		PhoneNO:           "+8613612203133",
+		ImportedFromAppID: uuid.NewString(),
+		Username:          "amwnrekadsf.are-",
+	}
+
+	passwordHash = "AAA"
+	ret          = npool.History{
 		ID:           uuid.NewString(),
 		AppID:        uuid.NewString(),
 		UserID:       uuid.NewString(),
@@ -44,6 +64,43 @@ var (
 		LoginTypeStr: basetypes.LoginType_FreshLogin.String(),
 	}
 )
+
+func setupHistory(t *testing.T) func(*testing.T) {
+	// app
+	handler, err := app1.NewHandler(
+		context.Background(),
+		app1.WithID(&app.ID),
+		app1.WithCreatedBy(app.CreatedBy),
+		app1.WithName(&app.Name),
+	)
+	assert.Nil(t, err)
+	assert.NotNil(t, handler)
+
+	info, err := handler.CreateApp(context.Background())
+	assert.Nil(t, err)
+	assert.NotNil(t, info)
+
+	// user
+	userHandler, err := user1.NewHandler(
+		context.TODO(),
+		user1.WithID(&user.ID),
+		user1.WithAppID(user.AppID),
+		user1.WithEmailAddress(&user.EmailAddress),
+		user1.WithPasswordHash(&passwordHash),
+	)
+
+	assert.Nil(t, err)
+	assert.NotNil(t, userHandler)
+
+	_user, err := userHandler.CreateUser(context.Background())
+	assert.Nil(t, err)
+	assert.NotNil(t, _user)
+
+	return func(*testing.T) {
+		_, _ = handler.DeleteApp(context.Background())
+		_, _ = userHandler.DeleteUser(context.Background())
+	}
+}
 
 func createHistory(t *testing.T) {
 	req := &npool.HistoryReq{
@@ -94,6 +151,10 @@ func TestMainOrder(t *testing.T) {
 	monkey.Patch(grpc2.GetGRPCConn, func(service string, tags ...string) (*grpc.ClientConn, error) {
 		return grpc.Dial(fmt.Sprintf("localhost:%v", gport), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	})
+
+	teardown := setupHistory(t)
+	defer teardown(t)
+
 	t.Run("createHistory", createHistory)
 	t.Run("getHistory", getHistory)
 	t.Run("getHistories", getHistories)
