@@ -60,6 +60,7 @@ type Conds struct {
 	LoginType *cruder.Cond
 	ClientIP  *cruder.Cond
 	Location  *cruder.Cond
+	UserAgent *cruder.Cond
 }
 
 func SetQueryConds(q *ent.LoginHistoryQuery, conds *Conds) (*ent.LoginHistoryQuery, error) { //nolint
@@ -138,6 +139,18 @@ func SetQueryConds(q *ent.LoginHistoryQuery, conds *Conds) (*ent.LoginHistoryQue
 			q.Where(entloginhistory.LocationNEQ(loc))
 		default:
 			return nil, fmt.Errorf("invalid login history field")
+		}
+	}
+	if conds.UserAgent != nil {
+		agent, ok := conds.UserAgent.Val.(string)
+		if !ok {
+			return nil, fmt.Errorf("invalid user agent")
+		}
+		switch conds.UserAgent.Op {
+		case cruder.EQ:
+			q.Where(entloginhistory.UserAgent(agent))
+		default:
+			return nil, fmt.Errorf("invalid user agent op field")
 		}
 	}
 	return q, nil
