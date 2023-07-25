@@ -79,5 +79,5 @@ func (h *Handler) UpdateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 		return nil, err
 	}
 
-	return info, nil
+	return h.GetOAuthThirdParty(ctx)
 }

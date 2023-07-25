@@ -2,6 +2,7 @@ package appoauththirdparty
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/aes"
@@ -49,7 +50,8 @@ func (h *Handler) UpdateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 			if err != nil {
 				return fmt.Errorf("encrypt clientSecret failed")
 			}
-			clientSecretStr := string(clientSecret)
+			clientSecretStr := hex.EncodeToString(clientSecret)
+			h.ClientSecret = &clientSecretStr
 			h.ClientSecret = &clientSecretStr
 		}
 
@@ -70,5 +72,5 @@ func (h *Handler) UpdateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 		return nil, err
 	}
 
-	return info, nil
+	return h.GetOAuthThirdParty(ctx)
 }
