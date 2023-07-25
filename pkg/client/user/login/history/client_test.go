@@ -14,13 +14,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	app1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
 	user1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user"
 	appmwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 	appusermwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user/login/history"
-	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/testinit"
 
