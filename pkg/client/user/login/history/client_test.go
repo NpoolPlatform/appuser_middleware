@@ -14,10 +14,13 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	app1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
 	user1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user"
 	appmwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
 	appusermwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user/login/history"
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/testinit"
 
@@ -71,7 +74,6 @@ func setupHistory(t *testing.T) func(*testing.T) {
 		context.Background(),
 		app1.WithID(&app.ID),
 		app1.WithCreatedBy(app.CreatedBy),
-		app1.WithName(&app.Name),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, handler)
@@ -107,8 +109,6 @@ func createHistory(t *testing.T) {
 		ID:        &ret.ID,
 		AppID:     &ret.AppID,
 		UserID:    &ret.UserID,
-		ClientIP:  &ret.ClientIP,
-		UserAgent: &ret.UserAgent,
 		Location:  &ret.Location,
 		LoginType: &ret.LoginType,
 	}
