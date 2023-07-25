@@ -20,7 +20,6 @@ import (
 	entappuserthirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserthirdparty"
 	entbanappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/banappuser"
 	entkyc "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/kyc"
-	entoauththirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/oauththirdparty"
 
 	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
 
@@ -192,7 +191,6 @@ func (h *queryHandler) queryJoinAppUserThirdParty(s *sql.Selector) error {
 			t.C(entappuserthirdparty.FieldDeletedAt),
 		).
 		AppendSelect(
-			sql.As(t.C(entappuserthirdparty.FieldUserID), "app_user_id"),
 			sql.As(t.C(entappuserthirdparty.FieldThirdPartyID), "third_party_id"),
 			sql.As(t.C(entappuserthirdparty.FieldThirdPartyUserID), "third_party_user_id"),
 			sql.As(t.C(entappuserthirdparty.FieldThirdPartyUsername), "third_party_username"),
@@ -202,34 +200,14 @@ func (h *queryHandler) queryJoinAppUserThirdParty(s *sql.Selector) error {
 	if h.Conds != nil && h.Conds.ThirdPartyUserID != nil {
 		thirdPartyUserID, ok := h.Conds.ThirdPartyUserID.Val.(string)
 		if !ok {
-			return fmt.Errorf("invalid user thirdPartyUserID")
+			return fmt.Errorf("invalid oauth thirdpartyuserid")
 		}
 		s.Where(
-			sql.EQ(t.C(entappuserthirdparty.FieldThirdPartyID), thirdPartyUserID),
+			sql.EQ(t.C(entappuserthirdparty.FieldThirdPartyUserID), thirdPartyUserID),
 		)
 	}
-	return nil
-}
 
-func (h *queryHandler) queryJoinThirdParty(s *sql.Selector) {
-	t := sql.Table(entoauththirdparty.Table)
-	s.LeftJoin(t).
-		On(
-			s.C(entappuserthirdparty.FieldThirdPartyID),
-			t.C(entoauththirdparty.FieldID),
-		).
-		On(
-			s.C(entappuser.FieldDeletedAt),
-			t.C(entoauththirdparty.FieldDeletedAt),
-		).
-		AppendSelect(
-			sql.As(t.C(entoauththirdparty.FieldClientName), "client_name"),
-			sql.As(t.C(entoauththirdparty.FieldClientTag), "client_tag"),
-			sql.As(t.C(entoauththirdparty.FieldClientLogoURL), "client_logo_url"),
-			sql.As(t.C(entoauththirdparty.FieldClientOauthURL), "client_oauth_url"),
-			sql.As(t.C(entoauththirdparty.FieldResponseType), "response_type"),
-			sql.As(t.C(entoauththirdparty.FieldScope), "scope"),
-		)
+	return nil
 }
 
 func (h *queryHandler) queryJoin() {
@@ -247,7 +225,6 @@ func (h *queryHandler) queryJoinThirdUserInfo() error {
 	var err error
 	h.stm.Modify(func(s *sql.Selector) {
 		err = h.queryJoinAppUserThirdParty(s)
-		h.queryJoinThirdParty(s)
 	})
 	if err != nil {
 		return err
@@ -400,6 +377,13 @@ func (h *Handler) GetThirdUsers(ctx context.Context) ([]*npool.User, uint32, err
 
 	if err := handler.queryUserRoles(ctx); err != nil {
 		return nil, 0, err
+	}
+
+	handler.total = 0
+
+	if handler.infos != nil {
+		total := len(handler.infos)
+		handler.total = uint32(total)
 	}
 
 	handler.formalize()

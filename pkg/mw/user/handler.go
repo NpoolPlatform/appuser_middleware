@@ -623,11 +623,7 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 			h.Conds.ThirdPartyID = &cruder.Cond{Op: conds.GetThirdPartyID().GetOp(), Val: id}
 		}
 		if conds.ThirdPartyUserID != nil {
-			id, err := uuid.Parse(conds.GetThirdPartyUserID().GetValue())
-			if err != nil {
-				return err
-			}
-			h.Conds.ThirdPartyUserID = &cruder.Cond{Op: conds.GetThirdPartyUserID().GetOp(), Val: id}
+			h.Conds.ThirdPartyUserID = &cruder.Cond{Op: conds.GetThirdPartyUserID().GetOp(), Val: conds.GetThirdPartyUserID().GetValue()}
 		}
 		return nil
 	}
