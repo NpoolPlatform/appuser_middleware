@@ -1,4 +1,3 @@
-//nolint:dupl
 package appoauththirdparty
 
 import (
@@ -64,7 +63,7 @@ func (h *queryHandler) queryJoinMyself(s *sql.Selector) {
 	)
 }
 
-func (h *queryHandler) queryJoinOAuthThirdParty(s *sql.Selector) error { //nolint
+func (h *queryHandler) queryJoinOAuthThirdParty(s *sql.Selector) error {
 	t := sql.Table(entoauththirdparty.Table)
 	s.LeftJoin(t).
 		On(
@@ -118,27 +117,35 @@ func (h *queryHandler) scan(ctx context.Context) error {
 	return h.stmSelect.Scan(ctx, &h.infos)
 }
 
-func (h *queryHandler) formalize() {
+func (h *queryHandler) formalize() error {
+	isDecryptSecret := false
+	if h.Conds != nil && h.Conds.DecryptSecret != nil {
+		decryptSecret, ok := h.Conds.DecryptSecret.Val.(bool)
+		if !ok {
+			return fmt.Errorf("invalid oauth decryptsecret")
+		}
+		isDecryptSecret = decryptSecret
+	}
+
 	for _, info := range h.infos {
 		info.ClientName = basetypes.SignMethod(basetypes.SignMethod_value[info.ClientNameStr])
 		if info.Salt != "" {
 			info.Salt = ""
 		}
-	}
-}
 
-func (h *queryHandler) decryptSecret() error {
-	for _, info := range h.infos {
-		ClientSecretBytes, err := hex.DecodeString(info.ClientSecret)
-		if err != nil {
-			return fmt.Errorf("secret err")
+		if isDecryptSecret {
+			ClientSecretBytes, err := hex.DecodeString(info.ClientSecret)
+			if err != nil {
+				return fmt.Errorf("secret err")
+			}
+			clientSecret, err := aes.AesDecrypt([]byte(info.Salt), ClientSecretBytes)
+			if err != nil {
+				return err
+			}
+			info.ClientSecret = string(clientSecret)
 		}
-		clientSecret, err := aes.AesDecrypt([]byte(info.Salt), ClientSecretBytes)
-		if err != nil {
-			return err
-		}
-		info.ClientSecret = string(clientSecret)
 	}
+
 	return nil
 }
 
@@ -167,7 +174,9 @@ func (h *Handler) GetOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdPart
 	if len(handler.infos) > 1 {
 		return nil, fmt.Errorf("too many records")
 	}
-	handler.formalize()
+	if err := handler.formalize(); err != nil {
+		return nil, err
+	}
 
 	return handler.infos[0], nil
 }
@@ -208,51 +217,9 @@ func (h *Handler) GetOAuthThirdParties(ctx context.Context) ([]*npool.OAuthThird
 	if err != nil {
 		return nil, 0, err
 	}
-	handler.formalize()
-
-	return handler.infos, handler.total, nil
-}
-
-func (h *Handler) GetOAuthThirdPartiesDecrypt(ctx context.Context) ([]*npool.OAuthThirdParty, uint32, error) {
-	handler := &queryHandler{
-		Handler: h,
-	}
-
-	var err error
-	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		handler.stmSelect, err = handler.queryOAuthThirdParties(cli)
-		if err != nil {
-			return err
-		}
-		handler.stmCount, err = handler.queryOAuthThirdParties(cli)
-		if err != nil {
-			return err
-		}
-
-		if err := handler.queryJoin(); err != nil {
-			return err
-		}
-
-		_total, err := handler.stmCount.Count(_ctx)
-		if err != nil {
-			return err
-		}
-		handler.total = uint32(_total)
-
-		handler.stmSelect.
-			Offset(int(h.Offset)).
-			Limit(int(h.Limit)).
-			Order(ent.Desc(entappoauththirdparty.FieldCreatedAt))
-
-		return handler.scan(_ctx)
-	})
-	if err != nil {
+	if err := handler.formalize(); err != nil {
 		return nil, 0, err
 	}
-	if err := handler.decryptSecret(); err != nil {
-		return nil, 0, err
-	}
-	handler.formalize()
 
 	return handler.infos, handler.total, nil
 }

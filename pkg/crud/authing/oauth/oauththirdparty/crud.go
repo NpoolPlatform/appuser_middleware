@@ -74,10 +74,11 @@ func UpdateSet(u *ent.OAuthThirdPartyUpdateOne, req *Req) *ent.OAuthThirdPartyUp
 }
 
 type Conds struct {
-	ID         *cruder.Cond
-	IDs        *cruder.Cond
-	ClientName *cruder.Cond
-	ClientTag  *cruder.Cond
+	ID            *cruder.Cond
+	IDs           *cruder.Cond
+	ClientName    *cruder.Cond
+	ClientTag     *cruder.Cond
+	DecryptSecret *cruder.Cond
 }
 
 func SetQueryConds(q *ent.OAuthThirdPartyQuery, conds *Conds) (*ent.OAuthThirdPartyQuery, error) {

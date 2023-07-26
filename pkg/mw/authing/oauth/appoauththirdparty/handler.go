@@ -172,6 +172,9 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 		if conds.ClientName != nil {
 			h.Conds.ClientName = &cruder.Cond{Op: conds.GetClientName().GetOp(), Val: basetypes.SignMethod(conds.GetClientName().GetValue())}
 		}
+		if conds.DecryptSecret != nil {
+			h.Conds.DecryptSecret = &cruder.Cond{Op: conds.GetDecryptSecret().GetOp(), Val: conds.GetDecryptSecret().GetValue()}
+		}
 		if len(conds.GetThirdPartyIDs().GetValue()) > 0 {
 			_ids := []uuid.UUID{}
 			for _, id := range conds.GetThirdPartyIDs().GetValue() {
