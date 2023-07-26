@@ -129,10 +129,6 @@ func (h *queryHandler) formalize() error {
 
 	for _, info := range h.infos {
 		info.ClientName = basetypes.SignMethod(basetypes.SignMethod_value[info.ClientNameStr])
-		if info.Salt != "" {
-			info.Salt = ""
-		}
-
 		if isDecryptSecret {
 			ClientSecretBytes, err := hex.DecodeString(info.ClientSecret)
 			if err != nil {
@@ -143,6 +139,9 @@ func (h *queryHandler) formalize() error {
 				return err
 			}
 			info.ClientSecret = string(clientSecret)
+		}
+		if info.Salt != "" {
+			info.Salt = ""
 		}
 	}
 
