@@ -6,11 +6,11 @@ import (
 	"fmt"
 
 	history1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user/login/history"
+	pubsubnotif "github.com/NpoolPlatform/appuser-middleware/pkg/pubsub/user/login/notif"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
+	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	historymwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user/login/history"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
-
-	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 
 	"github.com/go-resty/resty/v2"
 )
@@ -69,6 +69,8 @@ func createHistory(ctx context.Context, req *historymwpb.HistoryReq) error {
 		req.Location = &infos[0].Location
 	} else if loc, err := getIPLocation(*req.ClientIP); err == nil {
 		req.Location = &loc
+		// send notif when new location detected
+		pubsubnotif.NotifyNewDevice(req)
 	}
 
 	handler, err = history1.NewHandler(
