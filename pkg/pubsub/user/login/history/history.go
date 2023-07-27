@@ -6,12 +6,12 @@ import (
 	"fmt"
 
 	history1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user/login/history"
-	pubsubnotif "github.com/NpoolPlatform/appuser-middleware/pkg/pubsub/user/login/notif"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
+	"github.com/NpoolPlatform/go-service-framework/pkg/pubsub"
 	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	historymwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user/login/history"
+	loginhispb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user/login/history"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
-
 	"github.com/go-resty/resty/v2"
 )
 
@@ -75,16 +75,12 @@ func createHistory(ctx context.Context, req *historymwpb.HistoryReq) error {
 
 	if len(infos) > 0 && infos[0].CreatedAt >= uint32(1685946444) { //nolint
 		req.Location = &infos[0].Location
-		newDeviceNotif(ctx, req, infos[0].Location)
-	} else {
-		loc, err := getIPLocation(*req.ClientIP)
-		if err == nil {
-			req.Location = &loc
-			newDeviceNotif(ctx, req, loc)
-		} else {
-			newDeviceNotif(ctx, req, "")
-		}
+	} else if loc, err := getIPLocation(*req.ClientIP); err == nil {
+		req.Location = &loc
 	}
+
+	// try notif
+	tryNotifyNewLogin(ctx, req)
 
 	handler, err = history1.NewHandler(
 		ctx,
@@ -102,11 +98,10 @@ func createHistory(ctx context.Context, req *historymwpb.HistoryReq) error {
 	if _, err := handler.CreateHistory(ctx); err != nil {
 		return err
 	}
-
 	return nil
 }
 
-func newDeviceNotif(ctx context.Context, req *historymwpb.HistoryReq, location string) {
+func tryNotifyNewLogin(ctx context.Context, req *historymwpb.HistoryReq) {
 	conds := &historymwpb.Conds{
 		AppID:  &basetypes.StringVal{Op: cruder.EQ, Value: *req.AppID},
 		UserID: &basetypes.StringVal{Op: cruder.EQ, Value: *req.UserID},
@@ -128,30 +123,31 @@ func newDeviceNotif(ctx context.Context, req *historymwpb.HistoryReq, location s
 		return
 	}
 
-	if len(infos) == 0 { // first time login
-		req.Location = &location
-		pubsubnotif.NotifyNewDevice(req)
-		return
+	if len(infos) == 0 || infos[0].ClientIP != *req.ClientIP ||
+		infos[0].UserAgent != *req.UserAgent || req.Location == nil {
+		notifyNewLogin(req)
 	}
+}
 
-	flag := false
-	if infos[0].ClientIP != *req.ClientIP {
-		logger.Sugar().Infof("client ip changed, old ip %v, new ip %v", infos[0].ClientIP, *req.ClientIP)
-		flag = true
-	}
-
-	if infos[0].UserAgent != *req.UserAgent {
-		logger.Sugar().Infof("user agent changed, old user agent %v, new user agent %v", infos[0].UserAgent, *req.UserAgent)
-		flag = true
-	}
-
-	if infos[0].Location != location {
-		logger.Sugar().Infof("location changed, last location %v, new location %v", infos[0].Location, location)
-		req.Location = &location
-		flag = true
-	}
-	if flag {
-		pubsubnotif.NotifyNewDevice(req)
+func notifyNewLogin(in *loginhispb.HistoryReq) {
+	if err := pubsub.WithPublisher(func(publisher *pubsub.Publisher) error {
+		return publisher.Update(
+			basetypes.MsgID_CreateNewLoginReq.String(),
+			nil,
+			nil,
+			nil,
+			in,
+		)
+	}); err != nil {
+		logger.Sugar().Errorw(
+			"notifyNewDevice",
+			"AppID", in.AppID,
+			"UserID", in.UserID,
+			"ClientIP", in.ClientIP,
+			"UserAgent", in.UserAgent,
+			"Location", in.Location,
+			"Error", err,
+		)
 	}
 }
 
