@@ -268,16 +268,17 @@ func (h *updateHandler) mergeAppUserThirdParty(ctx context.Context, tx *ent.Tx) 
 	).Save(ctx); err != nil {
 		return err
 	}
+	h.ID = h.NewUserID
 	return nil
 }
 
 func (h *updateHandler) updateOrMergeAppUserThirdParty(ctx context.Context, tx *ent.Tx) error {
 	conds := &usercrud.Conds{}
 	if h.EmailAddress != nil {
-		conds.EmailAddress = &cruder.Cond{Op: "eq", Val: *h.EmailAddress}
+		conds.EmailAddress = &cruder.Cond{Op: cruder.EQ, Val: *h.EmailAddress}
 	}
 	if h.PhoneNO != nil {
-		conds.PhoneNO = &cruder.Cond{Op: "eq", Val: *h.PhoneNO}
+		conds.PhoneNO = &cruder.Cond{Op: cruder.EQ, Val: *h.PhoneNO}
 	}
 
 	stm, err := usercrud.SetQueryConds(tx.AppUser.Query(), conds)

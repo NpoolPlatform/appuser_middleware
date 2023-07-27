@@ -197,6 +197,16 @@ func (h *queryHandler) queryJoinAppUserThirdParty(s *sql.Selector) error {
 			sql.As(t.C(entappuserthirdparty.FieldThirdPartyAvatar), "third_party_avatar"),
 		)
 
+	if h.Conds != nil && h.Conds.ThirdPartyID != nil {
+		thirdPartyID, ok := h.Conds.ThirdPartyID.Val.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("invalid oauth thirdpartyid")
+		}
+		s.Where(
+			sql.EQ(t.C(entappuserthirdparty.FieldThirdPartyID), thirdPartyID),
+		)
+	}
+
 	if h.Conds != nil && h.Conds.ThirdPartyUserID != nil {
 		thirdPartyUserID, ok := h.Conds.ThirdPartyUserID.Val.(string)
 		if !ok {
