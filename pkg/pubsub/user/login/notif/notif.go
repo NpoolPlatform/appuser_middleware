@@ -10,7 +10,7 @@ import (
 func NotifyNewDevice(in *loginhispb.HistoryReq) {
 	if err := pubsub.WithPublisher(func(publisher *pubsub.Publisher) error {
 		return publisher.Update(
-			basetypes.MsgID_CreateNewDeviceNotifReq.String(),
+			basetypes.MsgID_CreateNewLoginReq.String(),
 			nil,
 			nil,
 			nil,
