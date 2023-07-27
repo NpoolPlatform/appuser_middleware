@@ -45,8 +45,15 @@ func getIPLocation(ip string) (string, error) {
 
 func createHistory(ctx context.Context, req *historymwpb.HistoryReq) error {
 	if req.ClientIP == nil {
-		return fmt.Errorf("invalid client ip")
+		return fmt.Errorf("client ip is empty")
 	}
+	if req.UserID == nil {
+		return fmt.Errorf("user id is empty")
+	}
+	if req.AppID == nil {
+		return fmt.Errorf("app id is empty")
+	}
+
 	conds := &historymwpb.Conds{
 		Location: &basetypes.StringVal{Op: cruder.NEQ, Value: ""},
 		ClientIP: &basetypes.StringVal{Op: cruder.EQ, Value: *req.ClientIP},
@@ -60,6 +67,7 @@ func createHistory(ctx context.Context, req *historymwpb.HistoryReq) error {
 	if err != nil {
 		return err
 	}
+
 	infos, _, err := handler.GetHistories(ctx)
 	if err != nil {
 		return err
@@ -67,10 +75,15 @@ func createHistory(ctx context.Context, req *historymwpb.HistoryReq) error {
 
 	if len(infos) > 0 && infos[0].CreatedAt >= uint32(1685946444) { //nolint
 		req.Location = &infos[0].Location
-	} else if loc, err := getIPLocation(*req.ClientIP); err == nil {
-		req.Location = &loc
-		// send notif when new location detected
-		pubsubnotif.NotifyNewDevice(req)
+		newDeviceNotif(ctx, req, infos[0].Location)
+	} else {
+		loc, err := getIPLocation(*req.ClientIP)
+		if err == nil {
+			req.Location = &loc
+			newDeviceNotif(ctx, req, loc)
+		} else {
+			newDeviceNotif(ctx, req, "")
+		}
 	}
 
 	handler, err = history1.NewHandler(
@@ -91,6 +104,55 @@ func createHistory(ctx context.Context, req *historymwpb.HistoryReq) error {
 	}
 
 	return nil
+}
+
+func newDeviceNotif(ctx context.Context, req *historymwpb.HistoryReq, location string) {
+	conds := &historymwpb.Conds{
+		AppID:  &basetypes.StringVal{Op: cruder.EQ, Value: *req.AppID},
+		UserID: &basetypes.StringVal{Op: cruder.EQ, Value: *req.UserID},
+	}
+	handler, err := history1.NewHandler(
+		ctx,
+		history1.WithConds(conds),
+		history1.WithOffset(0),
+		history1.WithLimit(1),
+	)
+	if err != nil {
+		logger.Sugar().Infof("new handler failed %v", err)
+		return
+	}
+
+	infos, _, err := handler.GetHistories(ctx)
+	if err != nil {
+		logger.Sugar().Infof("get histories failed %v", err)
+		return
+	}
+
+	if len(infos) == 0 { // first time login
+		req.Location = &location
+		pubsubnotif.NotifyNewDevice(req)
+		return
+	}
+
+	flag := false
+	if infos[0].ClientIP != *req.ClientIP {
+		logger.Sugar().Infof("client ip changed, old ip %v, new ip %v", infos[0].ClientIP, *req.ClientIP)
+		flag = true
+	}
+
+	if infos[0].UserAgent != *req.UserAgent {
+		logger.Sugar().Infof("user agent changed, old user agent %v, new user agent %v", infos[0].UserAgent, *req.UserAgent)
+		flag = true
+	}
+
+	if infos[0].Location != location {
+		logger.Sugar().Infof("location changed, last location %v, new location %v", infos[0].Location, location)
+		req.Location = &location
+		flag = true
+	}
+	if flag {
+		pubsubnotif.NotifyNewDevice(req)
+	}
 }
 
 func Prepare(body string) (interface{}, error) {
