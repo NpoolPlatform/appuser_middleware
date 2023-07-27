@@ -9,6 +9,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/encrypt"
+	"github.com/google/uuid"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
@@ -24,6 +25,7 @@ import (
 
 type updateHandler struct {
 	*Handler
+	NewUserID *uuid.UUID
 }
 
 func (h *updateHandler) updateAppUser(ctx context.Context, tx *ent.Tx) error {
@@ -186,12 +188,12 @@ func (h *updateHandler) updateAppUserSecret(ctx context.Context, tx *ent.Tx) err
 	return nil
 }
 
-func (h *updateHandler) updateAppUserThirdParty(ctx context.Context, tx *ent.Tx) error {
+func (h *updateHandler) updateAppUserThirdPartyInfo(ctx context.Context, tx *ent.Tx) error {
 	stm, err := userthirdpartycrud.SetQueryConds(
 		tx.AppUserThirdParty.Query(),
 		&userthirdpartycrud.Conds{
-			AppID:  &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
-			UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.ID},
+			ThirdPartyUserID: &cruder.Cond{Op: cruder.EQ, Val: *h.ThirdPartyUserID},
+			AppID:            &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
 		},
 	)
 	if err != nil {
@@ -204,27 +206,13 @@ func (h *updateHandler) updateAppUserThirdParty(ctx context.Context, tx *ent.Tx)
 		}
 	}
 
-	if info == nil && h.ThirdPartyID == nil {
+	if info == nil {
 		return nil
 	}
 
 	req := &userthirdpartycrud.Req{
-		AppID:              &h.AppID,
-		UserID:             h.ID,
-		ThirdPartyID:       h.ThirdPartyID,
-		ThirdPartyUserID:   h.ThirdPartyUserID,
 		ThirdPartyUsername: h.ThirdPartyUsername,
 		ThirdPartyAvatar:   h.ThirdPartyAvatar,
-	}
-
-	if info == nil {
-		if _, err := userthirdpartycrud.CreateSet(
-			tx.AppUserThirdParty.Create(),
-			req,
-		).Save(ctx); err != nil {
-			return err
-		}
-		return nil
 	}
 
 	if _, err = userthirdpartycrud.UpdateSet(
@@ -233,6 +221,115 @@ func (h *updateHandler) updateAppUserThirdParty(ctx context.Context, tx *ent.Tx)
 	).Save(ctx); err != nil {
 		return err
 	}
+	return nil
+}
+
+func (h *updateHandler) mergeAppUserThirdParty(ctx context.Context, tx *ent.Tx) error {
+	if _, err := tx.
+		AppUser.
+		UpdateOneID(*h.ID).
+		SetDeletedAt(uint32(time.Now().Unix())).
+		Save(ctx); err != nil {
+		if !ent.IsNotFound(err) {
+			return err
+		}
+	}
+
+	stm, err := userthirdpartycrud.SetQueryConds(
+		tx.AppUserThirdParty.Query(),
+		&userthirdpartycrud.Conds{
+			ThirdPartyUserID: &cruder.Cond{Op: cruder.EQ, Val: *h.ThirdPartyUserID},
+			AppID:            &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+		},
+	)
+	if err != nil {
+		return err
+	}
+	info, err := stm.ForUpdate().Only(ctx)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return err
+		}
+	}
+
+	if info == nil {
+		return nil
+	}
+
+	req := &userthirdpartycrud.Req{
+		UserID:             h.NewUserID,
+		ThirdPartyUsername: h.ThirdPartyUsername,
+		ThirdPartyAvatar:   h.ThirdPartyAvatar,
+	}
+
+	if _, err = userthirdpartycrud.UpdateSet(
+		info.Update(),
+		req,
+	).Save(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *updateHandler) updateOrMergeAppUserThirdParty(ctx context.Context, tx *ent.Tx) error {
+	conds := &usercrud.Conds{}
+	if h.EmailAddress != nil {
+		conds.EmailAddress = &cruder.Cond{Op: "eq", Val: *h.EmailAddress}
+	}
+	if h.PhoneNO != nil {
+		conds.PhoneNO = &cruder.Cond{Op: "eq", Val: *h.PhoneNO}
+	}
+
+	stm, err := usercrud.SetQueryConds(tx.AppUser.Query(), conds)
+	if err != nil {
+		return err
+	}
+	userInfo, err := stm.Only(ctx)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return err
+		}
+	}
+	if userInfo != nil && userInfo.ID != *h.ID {
+		h.NewUserID = &userInfo.ID
+		return h.mergeAppUserThirdParty(ctx, tx)
+	}
+	return h.updateAppUserThirdPartyInfo(ctx, tx)
+}
+
+func (h *updateHandler) updateAppUserThirdParty(ctx context.Context, tx *ent.Tx) error {
+	if h.ThirdPartyUserID == nil {
+		return nil
+	}
+
+	stm, err := usercrud.SetQueryConds(
+		tx.AppUser.Query(),
+		&usercrud.Conds{
+			ID:    &cruder.Cond{Op: cruder.EQ, Val: *h.ID},
+			AppID: &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+		},
+	)
+	if err != nil {
+		return err
+	}
+	curUserInfo, err := stm.ForUpdate().Only(ctx)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return err
+		}
+	}
+	if curUserInfo == nil {
+		return nil
+	}
+
+	if curUserInfo.EmailAddress != "" || curUserInfo.PhoneNo != "" {
+		return h.updateAppUserThirdPartyInfo(ctx, tx)
+	}
+
+	if h.EmailAddress != nil || h.PhoneNO != nil {
+		return h.updateOrMergeAppUserThirdParty(ctx, tx)
+	}
+
 	return nil
 }
 
