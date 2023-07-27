@@ -9,7 +9,6 @@ import (
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
 	"github.com/NpoolPlatform/go-service-framework/pkg/pubsub"
 	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
-	historymwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user/login/history"
 	loginhispb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user/login/history"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 	"github.com/go-resty/resty/v2"
