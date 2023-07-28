@@ -105,7 +105,7 @@ func SetQueryConds(q *ent.AppUserThirdPartyQuery, conds *Conds) (*ent.AppUserThi
 		}
 	}
 	if conds.ThirdPartyUserID != nil {
-		id, ok := conds.UserID.Val.(string)
+		id, ok := conds.ThirdPartyUserID.Val.(string)
 		if !ok {
 			return nil, fmt.Errorf("invalid 3rd userid")
 		}
