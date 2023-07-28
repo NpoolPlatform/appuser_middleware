@@ -2879,6 +2879,18 @@ func (m *AppOAuthThirdPartyMutation) ResetField(name string) error {
 	case appoauththirdparty.FieldThirdPartyID:
 		m.ResetThirdPartyID()
 		return nil
+	case appoauththirdparty.FieldClientID:
+		m.ResetClientID()
+		return nil
+	case appoauththirdparty.FieldClientSecret:
+		m.ResetClientSecret()
+		return nil
+	case appoauththirdparty.FieldCallbackURL:
+		m.ResetCallbackURL()
+		return nil
+	case appoauththirdparty.FieldSalt:
+		m.ResetSalt()
+		return nil
 	}
 	return fmt.Errorf("unknown AppOAuthThirdParty field %s", name)
 }
