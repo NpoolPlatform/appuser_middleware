@@ -124,6 +124,7 @@ func tryNotifyNewLogin(ctx context.Context, req *historymwpb.HistoryReq) {
 
 	if len(infos) == 0 || infos[0].ClientIP != *req.ClientIP ||
 		infos[0].UserAgent != *req.UserAgent || infos[0].Location != *req.Location {
+		logger.Sugar().Infof("new login detected!", req)
 		notifyNewLogin(req)
 	}
 }
