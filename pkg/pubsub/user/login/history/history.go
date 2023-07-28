@@ -7,11 +7,10 @@ import (
 
 	history1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user/login/history"
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
+	"github.com/NpoolPlatform/go-service-framework/pkg/pubsub"
+	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	historymwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user/login/history"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
-
-	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
-
 	"github.com/go-resty/resty/v2"
 )
 
@@ -45,8 +44,15 @@ func getIPLocation(ip string) (string, error) {
 
 func createHistory(ctx context.Context, req *historymwpb.HistoryReq) error {
 	if req.ClientIP == nil {
-		return fmt.Errorf("invalid client ip")
+		return fmt.Errorf("client ip is empty")
 	}
+	if req.UserID == nil {
+		return fmt.Errorf("user id is empty")
+	}
+	if req.AppID == nil {
+		return fmt.Errorf("app id is empty")
+	}
+
 	conds := &historymwpb.Conds{
 		Location: &basetypes.StringVal{Op: cruder.NEQ, Value: ""},
 		ClientIP: &basetypes.StringVal{Op: cruder.EQ, Value: *req.ClientIP},
@@ -60,6 +66,7 @@ func createHistory(ctx context.Context, req *historymwpb.HistoryReq) error {
 	if err != nil {
 		return err
 	}
+
 	infos, _, err := handler.GetHistories(ctx)
 	if err != nil {
 		return err
@@ -70,6 +77,9 @@ func createHistory(ctx context.Context, req *historymwpb.HistoryReq) error {
 	} else if loc, err := getIPLocation(*req.ClientIP); err == nil {
 		req.Location = &loc
 	}
+
+	// try notif
+	tryNotifyNewLogin(ctx, req)
 
 	handler, err = history1.NewHandler(
 		ctx,
@@ -87,8 +97,58 @@ func createHistory(ctx context.Context, req *historymwpb.HistoryReq) error {
 	if _, err := handler.CreateHistory(ctx); err != nil {
 		return err
 	}
-
 	return nil
+}
+
+func tryNotifyNewLogin(ctx context.Context, req *historymwpb.HistoryReq) {
+	conds := &historymwpb.Conds{
+		AppID:  &basetypes.StringVal{Op: cruder.EQ, Value: *req.AppID},
+		UserID: &basetypes.StringVal{Op: cruder.EQ, Value: *req.UserID},
+	}
+	handler, err := history1.NewHandler(
+		ctx,
+		history1.WithConds(conds),
+		history1.WithOffset(0),
+		history1.WithLimit(1),
+	)
+	if err != nil {
+		logger.Sugar().Infof("new handler failed %v", err)
+		return
+	}
+
+	infos, _, err := handler.GetHistories(ctx)
+	if err != nil {
+		logger.Sugar().Infof("get histories failed %v", err)
+		return
+	}
+
+	if len(infos) == 0 || infos[0].ClientIP != *req.ClientIP ||
+		infos[0].UserAgent != *req.UserAgent || infos[0].Location != *req.Location {
+		logger.Sugar().Infof("new login detected!", req)
+		notifyNewLogin(req)
+	}
+}
+
+func notifyNewLogin(in *historymwpb.HistoryReq) {
+	if err := pubsub.WithPublisher(func(publisher *pubsub.Publisher) error {
+		return publisher.Update(
+			basetypes.MsgID_CreateNewLoginReq.String(),
+			nil,
+			nil,
+			nil,
+			in,
+		)
+	}); err != nil {
+		logger.Sugar().Errorw(
+			"notifNewLogin",
+			"AppID", in.AppID,
+			"UserID", in.UserID,
+			"ClientIP", in.ClientIP,
+			"UserAgent", in.UserAgent,
+			"Location", in.Location,
+			"Error", err,
+		)
+	}
 }
 
 func Prepare(body string) (interface{}, error) {

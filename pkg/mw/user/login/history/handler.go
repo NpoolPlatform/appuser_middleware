@@ -192,6 +192,12 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 				Val: conds.GetLocation().GetValue(),
 			}
 		}
+		if conds.UserAgent != nil {
+			h.Conds.UserAgent = &cruder.Cond{
+				Op:  conds.GetUserAgent().GetOp(),
+				Val: conds.GetUserAgent().GetValue(),
+			}
+		}
 		return nil
 	}
 }
