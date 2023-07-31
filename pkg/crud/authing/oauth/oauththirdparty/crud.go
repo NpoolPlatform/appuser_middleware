@@ -93,6 +93,8 @@ func SetQueryConds(q *ent.OAuthThirdPartyQuery, conds *Conds) (*ent.OAuthThirdPa
 		switch conds.ID.Op {
 		case cruder.EQ:
 			q.Where(entoauththirdparty.ID(id))
+		case cruder.NEQ:
+			q.Where(entoauththirdparty.IDNEQ(id))
 		default:
 			return nil, fmt.Errorf("invalid auth field")
 		}

@@ -30,17 +30,18 @@ func (h *Handler) UpdateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 		handler, err := NewHandler(
 			ctx,
 			WithConds(&npool.Conds{
+				ID:         &basetypes.StringVal{Op: cruder.NEQ, Value: info.ID},
 				ClientName: &basetypes.Int32Val{Op: cruder.EQ, Value: int32(*h.ClientName)},
 			}),
 		)
 		if err != nil {
 			return nil, err
 		}
-		exist, err := handler.ExistOAuthThirdPartyConds(ctx)
+		infos, _, err := handler.GetOAuthThirdParties(ctx)
 		if err != nil {
 			return nil, err
 		}
-		if exist {
+		if infos != nil || len(infos) > 0 {
 			return nil, fmt.Errorf("oauththirdparty exist")
 		}
 	}
