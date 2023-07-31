@@ -74,6 +74,7 @@ func setupHistory(t *testing.T) func(*testing.T) {
 		context.Background(),
 		app1.WithID(&app.ID),
 		app1.WithCreatedBy(app.CreatedBy),
+		app1.WithName(&app.Name),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, handler)
@@ -109,6 +110,8 @@ func createHistory(t *testing.T) {
 		ID:        &ret.ID,
 		AppID:     &ret.AppID,
 		UserID:    &ret.UserID,
+		ClientIP:  &ret.ClientIP,
+		UserAgent: &ret.UserAgent,
 		Location:  &ret.Location,
 		LoginType: &ret.LoginType,
 	}
