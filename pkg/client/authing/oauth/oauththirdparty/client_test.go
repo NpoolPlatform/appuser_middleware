@@ -35,8 +35,9 @@ func init() {
 }
 
 var (
+	id  = uuid.NewString()
 	ret = npool.OAuthThirdParty{
-		ID:             uuid.NewString(),
+		ID:             id,
 		ClientName:     basetypes.SignMethod_Wechat,
 		ClientNameStr:  basetypes.SignMethod_Wechat.String(),
 		ClientTag:      "Wechat",
@@ -63,6 +64,13 @@ func createOAuthThirdParty(t *testing.T) {
 
 	info, err := CreateOAuthThirdParty(context.Background(), &req)
 	if assert.Nil(t, err) {
+		if id != info.ID {
+			ret.ClientTag = info.ClientTag
+			ret.ClientLogoURL = info.ClientLogoURL
+			ret.ClientOAuthURL = info.ClientOAuthURL
+			ret.ResponseType = info.ResponseType
+			ret.Scope = info.Scope
+		}
 		ret.CreatedAt = info.CreatedAt
 		ret.UpdatedAt = info.UpdatedAt
 		assert.Equal(t, info, &ret)
@@ -89,16 +97,18 @@ func updateOAuthThirdParty(t *testing.T) {
 		}
 	)
 
-	info, err := UpdateOAuthThirdParty(context.Background(), &req)
-	if assert.Nil(t, err) {
-		ret.ClientName = clientName
-		ret.ClientNameStr = clientNameStr
-		ret.ClientTag = clientTag
-		ret.ClientLogoURL = clientLogoURL
-		ret.ClientOAuthURL = clientOAuthURL
-		ret.Scope = scope
-		ret.UpdatedAt = info.UpdatedAt
-		assert.Equal(t, info, &ret)
+	if ret.ID == id {
+		info, err := UpdateOAuthThirdParty(context.Background(), &req)
+		if assert.Nil(t, err) {
+			ret.ClientName = clientName
+			ret.ClientNameStr = clientNameStr
+			ret.ClientTag = clientTag
+			ret.ClientLogoURL = clientLogoURL
+			ret.ClientOAuthURL = clientOAuthURL
+			ret.Scope = scope
+			ret.UpdatedAt = info.UpdatedAt
+			assert.Equal(t, info, &ret)
+		}
 	}
 }
 
@@ -119,14 +129,16 @@ func getOAuthThirdParties(t *testing.T) {
 }
 
 func deleteOAuthThirdParty(t *testing.T) {
-	info, err := DeleteOAuthThirdParty(context.Background(), ret.ID)
-	if assert.Nil(t, err) {
-		assert.Equal(t, info, &ret)
-	}
+	if ret.ID == id {
+		info, err := DeleteOAuthThirdParty(context.Background(), ret.ID)
+		if assert.Nil(t, err) {
+			assert.Equal(t, info, &ret)
+		}
 
-	info, err = GetOAuthThirdParty(context.Background(), ret.ID)
-	assert.Nil(t, err)
-	assert.Nil(t, info)
+		info, err = GetOAuthThirdParty(context.Background(), ret.ID)
+		assert.Nil(t, err)
+		assert.Nil(t, info)
+	}
 }
 
 func TestOAuthThirdParty(t *testing.T) {

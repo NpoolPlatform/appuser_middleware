@@ -65,12 +65,12 @@ func (h *Handler) CreateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 	if err != nil {
 		return nil, err
 	}
-	exist, err := oauthHandler.ExistOAuthThirdPartyConds(ctx)
+	infos, _, err := oauthHandler.GetOAuthThirdParties(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if exist {
-		return nil, fmt.Errorf("oauththirdparty exist")
+	if infos != nil || len(infos) > 0 {
+		return infos[0], nil
 	}
 
 	id := uuid.New()
