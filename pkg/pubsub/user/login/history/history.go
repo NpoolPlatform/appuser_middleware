@@ -122,6 +122,10 @@ func tryNotifyNewLogin(ctx context.Context, req *historymwpb.HistoryReq) {
 		return
 	}
 
+	if req.UserAgent == nil {
+		useragentStr := ""
+		req.UserAgent = &useragentStr
+	}
 	if req.Location == nil {
 		locationStr := ""
 		req.Location = &locationStr
