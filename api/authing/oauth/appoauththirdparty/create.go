@@ -18,6 +18,9 @@ func (s *Server) CreateOAuthThirdParty(ctx context.Context, in *npool.CreateOAut
 		oauththirdparty1.WithID(req.ID),
 		oauththirdparty1.WithAppID(req.GetAppID()),
 		oauththirdparty1.WithThirdPartyID(req.ThirdPartyID),
+		oauththirdparty1.WithClientID(req.ClientID),
+		oauththirdparty1.WithClientSecret(req.ClientSecret),
+		oauththirdparty1.WithCallbackURL(req.CallbackURL),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

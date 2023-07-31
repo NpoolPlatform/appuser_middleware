@@ -6,6 +6,8 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 	entappoauththirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appoauththirdparty"
 
+	oauththirdpartycrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/authing/oauth/oauththirdparty"
+
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	"github.com/google/uuid"
 )
@@ -14,6 +16,10 @@ type Req struct {
 	ID           *uuid.UUID
 	AppID        *uuid.UUID
 	ThirdPartyID *uuid.UUID
+	ClientID     *string
+	ClientSecret *string
+	CallbackURL  *string
+	Salt         *string
 	DeletedAt    *uint32
 }
 
@@ -26,6 +32,18 @@ func CreateSet(c *ent.AppOAuthThirdPartyCreate, req *Req) *ent.AppOAuthThirdPart
 	}
 	if req.ThirdPartyID != nil {
 		c.SetThirdPartyID(*req.ThirdPartyID)
+	}
+	if req.ClientID != nil {
+		c.SetClientID(*req.ClientID)
+	}
+	if req.ClientSecret != nil {
+		c.SetClientSecret(*req.ClientSecret)
+	}
+	if req.CallbackURL != nil {
+		c.SetCallbackURL(*req.CallbackURL)
+	}
+	if req.Salt != nil {
+		c.SetSalt(*req.Salt)
 	}
 	return c
 }
@@ -50,9 +68,10 @@ func UpdateSet(u *ent.AppOAuthThirdPartyUpdateOne, req *Req) *ent.AppOAuthThirdP
 }
 
 type Conds struct {
-	ID            *cruder.Cond
-	IDs           *cruder.Cond
+	oauththirdpartycrud.Conds
 	AppID         *cruder.Cond
+	ClientID      *cruder.Cond
+	ClientSecret  *cruder.Cond
 	ThirdPartyID  *cruder.Cond
 	ThirdPartyIDs *cruder.Cond
 }
@@ -120,6 +139,30 @@ func SetQueryConds(q *ent.AppOAuthThirdPartyQuery, conds *Conds) (*ent.AppOAuthT
 			q.Where(entappoauththirdparty.ThirdPartyIDIn(ids...))
 		default:
 			return nil, fmt.Errorf("invalid oauth field")
+		}
+	}
+	if conds.ClientID != nil {
+		res, ok := conds.ClientID.Val.(string)
+		if !ok {
+			return nil, fmt.Errorf("invalid clientid")
+		}
+		switch conds.ClientID.Op {
+		case cruder.EQ:
+			q.Where(entappoauththirdparty.ClientID(res))
+		default:
+			return nil, fmt.Errorf("invalid auth field")
+		}
+	}
+	if conds.ClientSecret != nil {
+		res, ok := conds.ClientSecret.Val.(string)
+		if !ok {
+			return nil, fmt.Errorf("invalid clientsecret")
+		}
+		switch conds.ClientSecret.Op {
+		case cruder.EQ:
+			q.Where(entappoauththirdparty.ClientSecret(res))
+		default:
+			return nil, fmt.Errorf("invalid auth field")
 		}
 	}
 	q.Where(entappoauththirdparty.DeletedAt(0))

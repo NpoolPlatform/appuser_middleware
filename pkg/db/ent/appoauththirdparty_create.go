@@ -93,6 +93,62 @@ func (aotpc *AppOAuthThirdPartyCreate) SetNillableThirdPartyID(u *uuid.UUID) *Ap
 	return aotpc
 }
 
+// SetClientID sets the "client_id" field.
+func (aotpc *AppOAuthThirdPartyCreate) SetClientID(s string) *AppOAuthThirdPartyCreate {
+	aotpc.mutation.SetClientID(s)
+	return aotpc
+}
+
+// SetNillableClientID sets the "client_id" field if the given value is not nil.
+func (aotpc *AppOAuthThirdPartyCreate) SetNillableClientID(s *string) *AppOAuthThirdPartyCreate {
+	if s != nil {
+		aotpc.SetClientID(*s)
+	}
+	return aotpc
+}
+
+// SetClientSecret sets the "client_secret" field.
+func (aotpc *AppOAuthThirdPartyCreate) SetClientSecret(s string) *AppOAuthThirdPartyCreate {
+	aotpc.mutation.SetClientSecret(s)
+	return aotpc
+}
+
+// SetNillableClientSecret sets the "client_secret" field if the given value is not nil.
+func (aotpc *AppOAuthThirdPartyCreate) SetNillableClientSecret(s *string) *AppOAuthThirdPartyCreate {
+	if s != nil {
+		aotpc.SetClientSecret(*s)
+	}
+	return aotpc
+}
+
+// SetCallbackURL sets the "callback_url" field.
+func (aotpc *AppOAuthThirdPartyCreate) SetCallbackURL(s string) *AppOAuthThirdPartyCreate {
+	aotpc.mutation.SetCallbackURL(s)
+	return aotpc
+}
+
+// SetNillableCallbackURL sets the "callback_url" field if the given value is not nil.
+func (aotpc *AppOAuthThirdPartyCreate) SetNillableCallbackURL(s *string) *AppOAuthThirdPartyCreate {
+	if s != nil {
+		aotpc.SetCallbackURL(*s)
+	}
+	return aotpc
+}
+
+// SetSalt sets the "salt" field.
+func (aotpc *AppOAuthThirdPartyCreate) SetSalt(s string) *AppOAuthThirdPartyCreate {
+	aotpc.mutation.SetSalt(s)
+	return aotpc
+}
+
+// SetNillableSalt sets the "salt" field if the given value is not nil.
+func (aotpc *AppOAuthThirdPartyCreate) SetNillableSalt(s *string) *AppOAuthThirdPartyCreate {
+	if s != nil {
+		aotpc.SetSalt(*s)
+	}
+	return aotpc
+}
+
 // SetID sets the "id" field.
 func (aotpc *AppOAuthThirdPartyCreate) SetID(u uuid.UUID) *AppOAuthThirdPartyCreate {
 	aotpc.mutation.SetID(u)
@@ -221,6 +277,22 @@ func (aotpc *AppOAuthThirdPartyCreate) defaults() error {
 		v := appoauththirdparty.DefaultThirdPartyID()
 		aotpc.mutation.SetThirdPartyID(v)
 	}
+	if _, ok := aotpc.mutation.ClientID(); !ok {
+		v := appoauththirdparty.DefaultClientID
+		aotpc.mutation.SetClientID(v)
+	}
+	if _, ok := aotpc.mutation.ClientSecret(); !ok {
+		v := appoauththirdparty.DefaultClientSecret
+		aotpc.mutation.SetClientSecret(v)
+	}
+	if _, ok := aotpc.mutation.CallbackURL(); !ok {
+		v := appoauththirdparty.DefaultCallbackURL
+		aotpc.mutation.SetCallbackURL(v)
+	}
+	if _, ok := aotpc.mutation.Salt(); !ok {
+		v := appoauththirdparty.DefaultSalt
+		aotpc.mutation.SetSalt(v)
+	}
 	if _, ok := aotpc.mutation.ID(); !ok {
 		if appoauththirdparty.DefaultID == nil {
 			return fmt.Errorf("ent: uninitialized appoauththirdparty.DefaultID (forgotten import ent/runtime?)")
@@ -318,6 +390,38 @@ func (aotpc *AppOAuthThirdPartyCreate) createSpec() (*AppOAuthThirdParty, *sqlgr
 			Column: appoauththirdparty.FieldThirdPartyID,
 		})
 		_node.ThirdPartyID = value
+	}
+	if value, ok := aotpc.mutation.ClientID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: appoauththirdparty.FieldClientID,
+		})
+		_node.ClientID = value
+	}
+	if value, ok := aotpc.mutation.ClientSecret(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: appoauththirdparty.FieldClientSecret,
+		})
+		_node.ClientSecret = value
+	}
+	if value, ok := aotpc.mutation.CallbackURL(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: appoauththirdparty.FieldCallbackURL,
+		})
+		_node.CallbackURL = value
+	}
+	if value, ok := aotpc.mutation.Salt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: appoauththirdparty.FieldSalt,
+		})
+		_node.Salt = value
 	}
 	return _node, _spec
 }
@@ -460,6 +564,78 @@ func (u *AppOAuthThirdPartyUpsert) UpdateThirdPartyID() *AppOAuthThirdPartyUpser
 // ClearThirdPartyID clears the value of the "third_party_id" field.
 func (u *AppOAuthThirdPartyUpsert) ClearThirdPartyID() *AppOAuthThirdPartyUpsert {
 	u.SetNull(appoauththirdparty.FieldThirdPartyID)
+	return u
+}
+
+// SetClientID sets the "client_id" field.
+func (u *AppOAuthThirdPartyUpsert) SetClientID(v string) *AppOAuthThirdPartyUpsert {
+	u.Set(appoauththirdparty.FieldClientID, v)
+	return u
+}
+
+// UpdateClientID sets the "client_id" field to the value that was provided on create.
+func (u *AppOAuthThirdPartyUpsert) UpdateClientID() *AppOAuthThirdPartyUpsert {
+	u.SetExcluded(appoauththirdparty.FieldClientID)
+	return u
+}
+
+// ClearClientID clears the value of the "client_id" field.
+func (u *AppOAuthThirdPartyUpsert) ClearClientID() *AppOAuthThirdPartyUpsert {
+	u.SetNull(appoauththirdparty.FieldClientID)
+	return u
+}
+
+// SetClientSecret sets the "client_secret" field.
+func (u *AppOAuthThirdPartyUpsert) SetClientSecret(v string) *AppOAuthThirdPartyUpsert {
+	u.Set(appoauththirdparty.FieldClientSecret, v)
+	return u
+}
+
+// UpdateClientSecret sets the "client_secret" field to the value that was provided on create.
+func (u *AppOAuthThirdPartyUpsert) UpdateClientSecret() *AppOAuthThirdPartyUpsert {
+	u.SetExcluded(appoauththirdparty.FieldClientSecret)
+	return u
+}
+
+// ClearClientSecret clears the value of the "client_secret" field.
+func (u *AppOAuthThirdPartyUpsert) ClearClientSecret() *AppOAuthThirdPartyUpsert {
+	u.SetNull(appoauththirdparty.FieldClientSecret)
+	return u
+}
+
+// SetCallbackURL sets the "callback_url" field.
+func (u *AppOAuthThirdPartyUpsert) SetCallbackURL(v string) *AppOAuthThirdPartyUpsert {
+	u.Set(appoauththirdparty.FieldCallbackURL, v)
+	return u
+}
+
+// UpdateCallbackURL sets the "callback_url" field to the value that was provided on create.
+func (u *AppOAuthThirdPartyUpsert) UpdateCallbackURL() *AppOAuthThirdPartyUpsert {
+	u.SetExcluded(appoauththirdparty.FieldCallbackURL)
+	return u
+}
+
+// ClearCallbackURL clears the value of the "callback_url" field.
+func (u *AppOAuthThirdPartyUpsert) ClearCallbackURL() *AppOAuthThirdPartyUpsert {
+	u.SetNull(appoauththirdparty.FieldCallbackURL)
+	return u
+}
+
+// SetSalt sets the "salt" field.
+func (u *AppOAuthThirdPartyUpsert) SetSalt(v string) *AppOAuthThirdPartyUpsert {
+	u.Set(appoauththirdparty.FieldSalt, v)
+	return u
+}
+
+// UpdateSalt sets the "salt" field to the value that was provided on create.
+func (u *AppOAuthThirdPartyUpsert) UpdateSalt() *AppOAuthThirdPartyUpsert {
+	u.SetExcluded(appoauththirdparty.FieldSalt)
+	return u
+}
+
+// ClearSalt clears the value of the "salt" field.
+func (u *AppOAuthThirdPartyUpsert) ClearSalt() *AppOAuthThirdPartyUpsert {
+	u.SetNull(appoauththirdparty.FieldSalt)
 	return u
 }
 
@@ -615,6 +791,90 @@ func (u *AppOAuthThirdPartyUpsertOne) UpdateThirdPartyID() *AppOAuthThirdPartyUp
 func (u *AppOAuthThirdPartyUpsertOne) ClearThirdPartyID() *AppOAuthThirdPartyUpsertOne {
 	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
 		s.ClearThirdPartyID()
+	})
+}
+
+// SetClientID sets the "client_id" field.
+func (u *AppOAuthThirdPartyUpsertOne) SetClientID(v string) *AppOAuthThirdPartyUpsertOne {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.SetClientID(v)
+	})
+}
+
+// UpdateClientID sets the "client_id" field to the value that was provided on create.
+func (u *AppOAuthThirdPartyUpsertOne) UpdateClientID() *AppOAuthThirdPartyUpsertOne {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.UpdateClientID()
+	})
+}
+
+// ClearClientID clears the value of the "client_id" field.
+func (u *AppOAuthThirdPartyUpsertOne) ClearClientID() *AppOAuthThirdPartyUpsertOne {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.ClearClientID()
+	})
+}
+
+// SetClientSecret sets the "client_secret" field.
+func (u *AppOAuthThirdPartyUpsertOne) SetClientSecret(v string) *AppOAuthThirdPartyUpsertOne {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.SetClientSecret(v)
+	})
+}
+
+// UpdateClientSecret sets the "client_secret" field to the value that was provided on create.
+func (u *AppOAuthThirdPartyUpsertOne) UpdateClientSecret() *AppOAuthThirdPartyUpsertOne {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.UpdateClientSecret()
+	})
+}
+
+// ClearClientSecret clears the value of the "client_secret" field.
+func (u *AppOAuthThirdPartyUpsertOne) ClearClientSecret() *AppOAuthThirdPartyUpsertOne {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.ClearClientSecret()
+	})
+}
+
+// SetCallbackURL sets the "callback_url" field.
+func (u *AppOAuthThirdPartyUpsertOne) SetCallbackURL(v string) *AppOAuthThirdPartyUpsertOne {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.SetCallbackURL(v)
+	})
+}
+
+// UpdateCallbackURL sets the "callback_url" field to the value that was provided on create.
+func (u *AppOAuthThirdPartyUpsertOne) UpdateCallbackURL() *AppOAuthThirdPartyUpsertOne {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.UpdateCallbackURL()
+	})
+}
+
+// ClearCallbackURL clears the value of the "callback_url" field.
+func (u *AppOAuthThirdPartyUpsertOne) ClearCallbackURL() *AppOAuthThirdPartyUpsertOne {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.ClearCallbackURL()
+	})
+}
+
+// SetSalt sets the "salt" field.
+func (u *AppOAuthThirdPartyUpsertOne) SetSalt(v string) *AppOAuthThirdPartyUpsertOne {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.SetSalt(v)
+	})
+}
+
+// UpdateSalt sets the "salt" field to the value that was provided on create.
+func (u *AppOAuthThirdPartyUpsertOne) UpdateSalt() *AppOAuthThirdPartyUpsertOne {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.UpdateSalt()
+	})
+}
+
+// ClearSalt clears the value of the "salt" field.
+func (u *AppOAuthThirdPartyUpsertOne) ClearSalt() *AppOAuthThirdPartyUpsertOne {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.ClearSalt()
 	})
 }
 
@@ -936,6 +1196,90 @@ func (u *AppOAuthThirdPartyUpsertBulk) UpdateThirdPartyID() *AppOAuthThirdPartyU
 func (u *AppOAuthThirdPartyUpsertBulk) ClearThirdPartyID() *AppOAuthThirdPartyUpsertBulk {
 	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
 		s.ClearThirdPartyID()
+	})
+}
+
+// SetClientID sets the "client_id" field.
+func (u *AppOAuthThirdPartyUpsertBulk) SetClientID(v string) *AppOAuthThirdPartyUpsertBulk {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.SetClientID(v)
+	})
+}
+
+// UpdateClientID sets the "client_id" field to the value that was provided on create.
+func (u *AppOAuthThirdPartyUpsertBulk) UpdateClientID() *AppOAuthThirdPartyUpsertBulk {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.UpdateClientID()
+	})
+}
+
+// ClearClientID clears the value of the "client_id" field.
+func (u *AppOAuthThirdPartyUpsertBulk) ClearClientID() *AppOAuthThirdPartyUpsertBulk {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.ClearClientID()
+	})
+}
+
+// SetClientSecret sets the "client_secret" field.
+func (u *AppOAuthThirdPartyUpsertBulk) SetClientSecret(v string) *AppOAuthThirdPartyUpsertBulk {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.SetClientSecret(v)
+	})
+}
+
+// UpdateClientSecret sets the "client_secret" field to the value that was provided on create.
+func (u *AppOAuthThirdPartyUpsertBulk) UpdateClientSecret() *AppOAuthThirdPartyUpsertBulk {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.UpdateClientSecret()
+	})
+}
+
+// ClearClientSecret clears the value of the "client_secret" field.
+func (u *AppOAuthThirdPartyUpsertBulk) ClearClientSecret() *AppOAuthThirdPartyUpsertBulk {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.ClearClientSecret()
+	})
+}
+
+// SetCallbackURL sets the "callback_url" field.
+func (u *AppOAuthThirdPartyUpsertBulk) SetCallbackURL(v string) *AppOAuthThirdPartyUpsertBulk {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.SetCallbackURL(v)
+	})
+}
+
+// UpdateCallbackURL sets the "callback_url" field to the value that was provided on create.
+func (u *AppOAuthThirdPartyUpsertBulk) UpdateCallbackURL() *AppOAuthThirdPartyUpsertBulk {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.UpdateCallbackURL()
+	})
+}
+
+// ClearCallbackURL clears the value of the "callback_url" field.
+func (u *AppOAuthThirdPartyUpsertBulk) ClearCallbackURL() *AppOAuthThirdPartyUpsertBulk {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.ClearCallbackURL()
+	})
+}
+
+// SetSalt sets the "salt" field.
+func (u *AppOAuthThirdPartyUpsertBulk) SetSalt(v string) *AppOAuthThirdPartyUpsertBulk {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.SetSalt(v)
+	})
+}
+
+// UpdateSalt sets the "salt" field to the value that was provided on create.
+func (u *AppOAuthThirdPartyUpsertBulk) UpdateSalt() *AppOAuthThirdPartyUpsertBulk {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.UpdateSalt()
+	})
+}
+
+// ClearSalt clears the value of the "salt" field.
+func (u *AppOAuthThirdPartyUpsertBulk) ClearSalt() *AppOAuthThirdPartyUpsertBulk {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.ClearSalt()
 	})
 }
 

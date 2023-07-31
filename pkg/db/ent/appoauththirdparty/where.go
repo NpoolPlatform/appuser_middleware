@@ -114,6 +114,34 @@ func ThirdPartyID(v uuid.UUID) predicate.AppOAuthThirdParty {
 	})
 }
 
+// ClientID applies equality check predicate on the "client_id" field. It's identical to ClientIDEQ.
+func ClientID(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldClientID), v))
+	})
+}
+
+// ClientSecret applies equality check predicate on the "client_secret" field. It's identical to ClientSecretEQ.
+func ClientSecret(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldClientSecret), v))
+	})
+}
+
+// CallbackURL applies equality check predicate on the "callback_url" field. It's identical to CallbackURLEQ.
+func CallbackURL(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCallbackURL), v))
+	})
+}
+
+// Salt applies equality check predicate on the "salt" field. It's identical to SaltEQ.
+func Salt(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldSalt), v))
+	})
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v uint32) predicate.AppOAuthThirdParty {
 	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
@@ -459,6 +487,458 @@ func ThirdPartyIDIsNil() predicate.AppOAuthThirdParty {
 func ThirdPartyIDNotNil() predicate.AppOAuthThirdParty {
 	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
 		s.Where(sql.NotNull(s.C(FieldThirdPartyID)))
+	})
+}
+
+// ClientIDEQ applies the EQ predicate on the "client_id" field.
+func ClientIDEQ(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldClientID), v))
+	})
+}
+
+// ClientIDNEQ applies the NEQ predicate on the "client_id" field.
+func ClientIDNEQ(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldClientID), v))
+	})
+}
+
+// ClientIDIn applies the In predicate on the "client_id" field.
+func ClientIDIn(vs ...string) predicate.AppOAuthThirdParty {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldClientID), v...))
+	})
+}
+
+// ClientIDNotIn applies the NotIn predicate on the "client_id" field.
+func ClientIDNotIn(vs ...string) predicate.AppOAuthThirdParty {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldClientID), v...))
+	})
+}
+
+// ClientIDGT applies the GT predicate on the "client_id" field.
+func ClientIDGT(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldClientID), v))
+	})
+}
+
+// ClientIDGTE applies the GTE predicate on the "client_id" field.
+func ClientIDGTE(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldClientID), v))
+	})
+}
+
+// ClientIDLT applies the LT predicate on the "client_id" field.
+func ClientIDLT(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldClientID), v))
+	})
+}
+
+// ClientIDLTE applies the LTE predicate on the "client_id" field.
+func ClientIDLTE(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldClientID), v))
+	})
+}
+
+// ClientIDContains applies the Contains predicate on the "client_id" field.
+func ClientIDContains(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldClientID), v))
+	})
+}
+
+// ClientIDHasPrefix applies the HasPrefix predicate on the "client_id" field.
+func ClientIDHasPrefix(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldClientID), v))
+	})
+}
+
+// ClientIDHasSuffix applies the HasSuffix predicate on the "client_id" field.
+func ClientIDHasSuffix(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldClientID), v))
+	})
+}
+
+// ClientIDIsNil applies the IsNil predicate on the "client_id" field.
+func ClientIDIsNil() predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldClientID)))
+	})
+}
+
+// ClientIDNotNil applies the NotNil predicate on the "client_id" field.
+func ClientIDNotNil() predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldClientID)))
+	})
+}
+
+// ClientIDEqualFold applies the EqualFold predicate on the "client_id" field.
+func ClientIDEqualFold(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldClientID), v))
+	})
+}
+
+// ClientIDContainsFold applies the ContainsFold predicate on the "client_id" field.
+func ClientIDContainsFold(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldClientID), v))
+	})
+}
+
+// ClientSecretEQ applies the EQ predicate on the "client_secret" field.
+func ClientSecretEQ(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldClientSecret), v))
+	})
+}
+
+// ClientSecretNEQ applies the NEQ predicate on the "client_secret" field.
+func ClientSecretNEQ(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldClientSecret), v))
+	})
+}
+
+// ClientSecretIn applies the In predicate on the "client_secret" field.
+func ClientSecretIn(vs ...string) predicate.AppOAuthThirdParty {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldClientSecret), v...))
+	})
+}
+
+// ClientSecretNotIn applies the NotIn predicate on the "client_secret" field.
+func ClientSecretNotIn(vs ...string) predicate.AppOAuthThirdParty {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldClientSecret), v...))
+	})
+}
+
+// ClientSecretGT applies the GT predicate on the "client_secret" field.
+func ClientSecretGT(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldClientSecret), v))
+	})
+}
+
+// ClientSecretGTE applies the GTE predicate on the "client_secret" field.
+func ClientSecretGTE(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldClientSecret), v))
+	})
+}
+
+// ClientSecretLT applies the LT predicate on the "client_secret" field.
+func ClientSecretLT(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldClientSecret), v))
+	})
+}
+
+// ClientSecretLTE applies the LTE predicate on the "client_secret" field.
+func ClientSecretLTE(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldClientSecret), v))
+	})
+}
+
+// ClientSecretContains applies the Contains predicate on the "client_secret" field.
+func ClientSecretContains(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldClientSecret), v))
+	})
+}
+
+// ClientSecretHasPrefix applies the HasPrefix predicate on the "client_secret" field.
+func ClientSecretHasPrefix(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldClientSecret), v))
+	})
+}
+
+// ClientSecretHasSuffix applies the HasSuffix predicate on the "client_secret" field.
+func ClientSecretHasSuffix(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldClientSecret), v))
+	})
+}
+
+// ClientSecretIsNil applies the IsNil predicate on the "client_secret" field.
+func ClientSecretIsNil() predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldClientSecret)))
+	})
+}
+
+// ClientSecretNotNil applies the NotNil predicate on the "client_secret" field.
+func ClientSecretNotNil() predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldClientSecret)))
+	})
+}
+
+// ClientSecretEqualFold applies the EqualFold predicate on the "client_secret" field.
+func ClientSecretEqualFold(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldClientSecret), v))
+	})
+}
+
+// ClientSecretContainsFold applies the ContainsFold predicate on the "client_secret" field.
+func ClientSecretContainsFold(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldClientSecret), v))
+	})
+}
+
+// CallbackURLEQ applies the EQ predicate on the "callback_url" field.
+func CallbackURLEQ(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLNEQ applies the NEQ predicate on the "callback_url" field.
+func CallbackURLNEQ(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLIn applies the In predicate on the "callback_url" field.
+func CallbackURLIn(vs ...string) predicate.AppOAuthThirdParty {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldCallbackURL), v...))
+	})
+}
+
+// CallbackURLNotIn applies the NotIn predicate on the "callback_url" field.
+func CallbackURLNotIn(vs ...string) predicate.AppOAuthThirdParty {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldCallbackURL), v...))
+	})
+}
+
+// CallbackURLGT applies the GT predicate on the "callback_url" field.
+func CallbackURLGT(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLGTE applies the GTE predicate on the "callback_url" field.
+func CallbackURLGTE(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLLT applies the LT predicate on the "callback_url" field.
+func CallbackURLLT(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLLTE applies the LTE predicate on the "callback_url" field.
+func CallbackURLLTE(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLContains applies the Contains predicate on the "callback_url" field.
+func CallbackURLContains(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLHasPrefix applies the HasPrefix predicate on the "callback_url" field.
+func CallbackURLHasPrefix(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLHasSuffix applies the HasSuffix predicate on the "callback_url" field.
+func CallbackURLHasSuffix(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLIsNil applies the IsNil predicate on the "callback_url" field.
+func CallbackURLIsNil() predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldCallbackURL)))
+	})
+}
+
+// CallbackURLNotNil applies the NotNil predicate on the "callback_url" field.
+func CallbackURLNotNil() predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldCallbackURL)))
+	})
+}
+
+// CallbackURLEqualFold applies the EqualFold predicate on the "callback_url" field.
+func CallbackURLEqualFold(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldCallbackURL), v))
+	})
+}
+
+// CallbackURLContainsFold applies the ContainsFold predicate on the "callback_url" field.
+func CallbackURLContainsFold(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldCallbackURL), v))
+	})
+}
+
+// SaltEQ applies the EQ predicate on the "salt" field.
+func SaltEQ(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldSalt), v))
+	})
+}
+
+// SaltNEQ applies the NEQ predicate on the "salt" field.
+func SaltNEQ(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldSalt), v))
+	})
+}
+
+// SaltIn applies the In predicate on the "salt" field.
+func SaltIn(vs ...string) predicate.AppOAuthThirdParty {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldSalt), v...))
+	})
+}
+
+// SaltNotIn applies the NotIn predicate on the "salt" field.
+func SaltNotIn(vs ...string) predicate.AppOAuthThirdParty {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldSalt), v...))
+	})
+}
+
+// SaltGT applies the GT predicate on the "salt" field.
+func SaltGT(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldSalt), v))
+	})
+}
+
+// SaltGTE applies the GTE predicate on the "salt" field.
+func SaltGTE(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldSalt), v))
+	})
+}
+
+// SaltLT applies the LT predicate on the "salt" field.
+func SaltLT(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldSalt), v))
+	})
+}
+
+// SaltLTE applies the LTE predicate on the "salt" field.
+func SaltLTE(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldSalt), v))
+	})
+}
+
+// SaltContains applies the Contains predicate on the "salt" field.
+func SaltContains(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldSalt), v))
+	})
+}
+
+// SaltHasPrefix applies the HasPrefix predicate on the "salt" field.
+func SaltHasPrefix(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldSalt), v))
+	})
+}
+
+// SaltHasSuffix applies the HasSuffix predicate on the "salt" field.
+func SaltHasSuffix(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldSalt), v))
+	})
+}
+
+// SaltIsNil applies the IsNil predicate on the "salt" field.
+func SaltIsNil() predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldSalt)))
+	})
+}
+
+// SaltNotNil applies the NotNil predicate on the "salt" field.
+func SaltNotNil() predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldSalt)))
+	})
+}
+
+// SaltEqualFold applies the EqualFold predicate on the "salt" field.
+func SaltEqualFold(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldSalt), v))
+	})
+}
+
+// SaltContainsFold applies the ContainsFold predicate on the "salt" field.
+func SaltContainsFold(v string) predicate.AppOAuthThirdParty {
+	return predicate.AppOAuthThirdParty(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldSalt), v))
 	})
 }
 

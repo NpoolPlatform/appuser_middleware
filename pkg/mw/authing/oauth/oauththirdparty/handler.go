@@ -7,6 +7,7 @@ import (
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/const"
 	thidpartycrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/authing/oauth/oauththirdparty"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/oauth/oauththirdparty"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 
@@ -15,9 +16,7 @@ import (
 
 type Handler struct {
 	ID             *uuid.UUID
-	ClientID       *string
-	ClientSecret   *string
-	ClientName     *string
+	ClientName     *basetypes.SignMethod
 	ClientTag      *string
 	ClientLogoURL  *string
 	ClientOAuthURL *string
@@ -52,38 +51,19 @@ func WithID(id *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithClientID(clientID *string) func(context.Context, *Handler) error {
-	return func(ctx context.Context, h *Handler) error {
-		if clientID == nil {
-			return nil
-		}
-		if *clientID == "" {
-			return fmt.Errorf("invalid clientid")
-		}
-		h.ClientID = clientID
-		return nil
-	}
-}
-
-func WithClientSecret(clientSecret *string) func(context.Context, *Handler) error {
-	return func(ctx context.Context, h *Handler) error {
-		if clientSecret == nil {
-			return nil
-		}
-		if *clientSecret == "" {
-			return fmt.Errorf("invalid clientsecret")
-		}
-		h.ClientSecret = clientSecret
-		return nil
-	}
-}
-
-func WithClientName(clientName *string) func(context.Context, *Handler) error {
+func WithClientName(clientName *basetypes.SignMethod) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if clientName == nil {
 			return nil
 		}
-		if *clientName == "" {
+		switch *clientName {
+		case basetypes.SignMethod_Twitter:
+		case basetypes.SignMethod_Github:
+		case basetypes.SignMethod_Facebook:
+		case basetypes.SignMethod_Linkedin:
+		case basetypes.SignMethod_Wechat:
+		case basetypes.SignMethod_Google:
+		default:
 			return fmt.Errorf("invalid clientname")
 		}
 		h.ClientName = clientName
@@ -169,11 +149,9 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 			}
 			h.Conds.ID = &cruder.Cond{Op: conds.GetID().GetOp(), Val: id}
 		}
-		if conds.ClientID != nil {
-			h.Conds.ClientID = &cruder.Cond{Op: conds.GetClientID().GetOp(), Val: conds.GetClientID().GetValue()}
-		}
+
 		if conds.ClientName != nil {
-			h.Conds.ClientName = &cruder.Cond{Op: conds.GetClientName().GetOp(), Val: conds.GetClientName().GetValue()}
+			h.Conds.ClientName = &cruder.Cond{Op: conds.GetClientName().GetOp(), Val: basetypes.SignMethod(conds.GetClientName().GetValue())}
 		}
 		if len(conds.GetIDs().GetValue()) > 0 {
 			_ids := []uuid.UUID{}

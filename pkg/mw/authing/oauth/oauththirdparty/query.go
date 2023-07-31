@@ -7,6 +7,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 	entoauththirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/oauththirdparty"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	oauththirdpartycrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/authing/oauth/oauththirdparty"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/oauth/oauththirdparty"
@@ -22,8 +23,6 @@ type queryHandler struct {
 func (h *queryHandler) selectOAuthThirdParty(stm *ent.OAuthThirdPartyQuery) {
 	h.stm = stm.Select(
 		entoauththirdparty.FieldID,
-		entoauththirdparty.FieldClientID,
-		entoauththirdparty.FieldClientSecret,
 		entoauththirdparty.FieldClientName,
 		entoauththirdparty.FieldClientTag,
 		entoauththirdparty.FieldClientLogoURL,
@@ -66,6 +65,12 @@ func (h *queryHandler) scan(ctx context.Context) error {
 	return h.stm.Scan(ctx, &h.infos)
 }
 
+func (h *queryHandler) formalize() {
+	for _, info := range h.infos {
+		info.ClientName = basetypes.SignMethod(basetypes.SignMethod_value[info.ClientNameStr])
+	}
+}
+
 func (h *Handler) GetOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdParty, error) {
 	if h.ID == nil {
 		return nil, fmt.Errorf("invalid id")
@@ -88,6 +93,8 @@ func (h *Handler) GetOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdPart
 	if len(handler.infos) > 1 {
 		return nil, fmt.Errorf("too many records")
 	}
+
+	handler.formalize()
 
 	return handler.infos[0], nil
 }
@@ -115,6 +122,8 @@ func (h *Handler) GetOAuthThirdParties(ctx context.Context) ([]*npool.OAuthThird
 	if err != nil {
 		return nil, 0, err
 	}
+
+	handler.formalize()
 
 	return handler.infos, handler.total, nil
 }

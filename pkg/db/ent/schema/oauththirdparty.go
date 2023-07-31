@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/mixin"
+	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 	"github.com/google/uuid"
 )
 
@@ -26,17 +27,9 @@ func (OAuthThirdParty) Fields() []ent.Field {
 			Default(uuid.New).
 			Unique(),
 		field.
-			String("client_id").
-			Optional().
-			Default(""),
-		field.
-			String("client_secret").
-			Optional().
-			Default(""),
-		field.
 			String("client_name").
 			Optional().
-			Default(""),
+			Default(basetypes.SignMethod_DefaultSignMethod.String()),
 		field.
 			String("client_tag").
 			Optional().

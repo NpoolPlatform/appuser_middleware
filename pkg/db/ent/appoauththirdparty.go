@@ -26,6 +26,14 @@ type AppOAuthThirdParty struct {
 	AppID uuid.UUID `json:"app_id,omitempty"`
 	// ThirdPartyID holds the value of the "third_party_id" field.
 	ThirdPartyID uuid.UUID `json:"third_party_id,omitempty"`
+	// ClientID holds the value of the "client_id" field.
+	ClientID string `json:"client_id,omitempty"`
+	// ClientSecret holds the value of the "client_secret" field.
+	ClientSecret string `json:"client_secret,omitempty"`
+	// CallbackURL holds the value of the "callback_url" field.
+	CallbackURL string `json:"callback_url,omitempty"`
+	// Salt holds the value of the "salt" field.
+	Salt string `json:"salt,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -35,6 +43,8 @@ func (*AppOAuthThirdParty) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case appoauththirdparty.FieldCreatedAt, appoauththirdparty.FieldUpdatedAt, appoauththirdparty.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
+		case appoauththirdparty.FieldClientID, appoauththirdparty.FieldClientSecret, appoauththirdparty.FieldCallbackURL, appoauththirdparty.FieldSalt:
+			values[i] = new(sql.NullString)
 		case appoauththirdparty.FieldID, appoauththirdparty.FieldAppID, appoauththirdparty.FieldThirdPartyID:
 			values[i] = new(uuid.UUID)
 		default:
@@ -88,6 +98,30 @@ func (aotp *AppOAuthThirdParty) assignValues(columns []string, values []interfac
 			} else if value != nil {
 				aotp.ThirdPartyID = *value
 			}
+		case appoauththirdparty.FieldClientID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field client_id", values[i])
+			} else if value.Valid {
+				aotp.ClientID = value.String
+			}
+		case appoauththirdparty.FieldClientSecret:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field client_secret", values[i])
+			} else if value.Valid {
+				aotp.ClientSecret = value.String
+			}
+		case appoauththirdparty.FieldCallbackURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field callback_url", values[i])
+			} else if value.Valid {
+				aotp.CallbackURL = value.String
+			}
+		case appoauththirdparty.FieldSalt:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field salt", values[i])
+			} else if value.Valid {
+				aotp.Salt = value.String
+			}
 		}
 	}
 	return nil
@@ -130,6 +164,18 @@ func (aotp *AppOAuthThirdParty) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("third_party_id=")
 	builder.WriteString(fmt.Sprintf("%v", aotp.ThirdPartyID))
+	builder.WriteString(", ")
+	builder.WriteString("client_id=")
+	builder.WriteString(aotp.ClientID)
+	builder.WriteString(", ")
+	builder.WriteString("client_secret=")
+	builder.WriteString(aotp.ClientSecret)
+	builder.WriteString(", ")
+	builder.WriteString("callback_url=")
+	builder.WriteString(aotp.CallbackURL)
+	builder.WriteString(", ")
+	builder.WriteString("salt=")
+	builder.WriteString(aotp.Salt)
 	builder.WriteByte(')')
 	return builder.String()
 }

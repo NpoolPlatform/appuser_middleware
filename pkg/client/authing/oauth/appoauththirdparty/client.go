@@ -2,6 +2,7 @@ package appoauththirdparty
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
@@ -30,6 +31,22 @@ func do(ctx context.Context, fn func(_ctx context.Context, cli npool.MiddlewareC
 func CreateOAuthThirdParty(ctx context.Context, req *npool.OAuthThirdPartyReq) (*npool.OAuthThirdParty, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.CreateOAuthThirdParty(ctx, &npool.CreateOAuthThirdPartyRequest{
+			Info: req,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return info.(*npool.OAuthThirdParty), nil
+}
+
+func UpdateOAuthThirdParty(ctx context.Context, req *npool.OAuthThirdPartyReq) (*npool.OAuthThirdParty, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.UpdateOAuthThirdParty(ctx, &npool.UpdateOAuthThirdPartyRequest{
 			Info: req,
 		})
 		if err != nil {
@@ -128,4 +145,29 @@ func DeleteOAuthThirdParty(ctx context.Context, id string) (*npool.OAuthThirdPar
 		return nil, err
 	}
 	return info.(*npool.OAuthThirdParty), nil
+}
+
+func GetOAuthThirdPartyOnly(ctx context.Context, conds *npool.Conds) (*npool.OAuthThirdParty, error) {
+	const limit = 2
+	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.GetOAuthThirdParties(ctx, &npool.GetOAuthThirdPartiesRequest{
+			Conds:  conds,
+			Offset: 0,
+			Limit:  limit,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Infos, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(infos.([]*npool.OAuthThirdParty)) == 0 {
+		return nil, nil
+	}
+	if len(infos.([]*npool.OAuthThirdParty)) > 1 {
+		return nil, fmt.Errorf("too many records")
+	}
+	return infos.([]*npool.OAuthThirdParty)[0], nil
 }

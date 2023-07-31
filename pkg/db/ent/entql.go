@@ -96,6 +96,10 @@ var schemaGraph = func() *sqlgraph.Schema {
 			appoauththirdparty.FieldDeletedAt:    {Type: field.TypeUint32, Column: appoauththirdparty.FieldDeletedAt},
 			appoauththirdparty.FieldAppID:        {Type: field.TypeUUID, Column: appoauththirdparty.FieldAppID},
 			appoauththirdparty.FieldThirdPartyID: {Type: field.TypeUUID, Column: appoauththirdparty.FieldThirdPartyID},
+			appoauththirdparty.FieldClientID:     {Type: field.TypeString, Column: appoauththirdparty.FieldClientID},
+			appoauththirdparty.FieldClientSecret: {Type: field.TypeString, Column: appoauththirdparty.FieldClientSecret},
+			appoauththirdparty.FieldCallbackURL:  {Type: field.TypeString, Column: appoauththirdparty.FieldCallbackURL},
+			appoauththirdparty.FieldSalt:         {Type: field.TypeString, Column: appoauththirdparty.FieldSalt},
 		},
 	}
 	graph.Nodes[3] = &sqlgraph.Node{
@@ -415,8 +419,6 @@ var schemaGraph = func() *sqlgraph.Schema {
 			oauththirdparty.FieldCreatedAt:      {Type: field.TypeUint32, Column: oauththirdparty.FieldCreatedAt},
 			oauththirdparty.FieldUpdatedAt:      {Type: field.TypeUint32, Column: oauththirdparty.FieldUpdatedAt},
 			oauththirdparty.FieldDeletedAt:      {Type: field.TypeUint32, Column: oauththirdparty.FieldDeletedAt},
-			oauththirdparty.FieldClientID:       {Type: field.TypeString, Column: oauththirdparty.FieldClientID},
-			oauththirdparty.FieldClientSecret:   {Type: field.TypeString, Column: oauththirdparty.FieldClientSecret},
 			oauththirdparty.FieldClientName:     {Type: field.TypeString, Column: oauththirdparty.FieldClientName},
 			oauththirdparty.FieldClientTag:      {Type: field.TypeString, Column: oauththirdparty.FieldClientTag},
 			oauththirdparty.FieldClientLogoURL:  {Type: field.TypeString, Column: oauththirdparty.FieldClientLogoURL},
@@ -722,6 +724,26 @@ func (f *AppOAuthThirdPartyFilter) WhereAppID(p entql.ValueP) {
 // WhereThirdPartyID applies the entql [16]byte predicate on the third_party_id field.
 func (f *AppOAuthThirdPartyFilter) WhereThirdPartyID(p entql.ValueP) {
 	f.Where(p.Field(appoauththirdparty.FieldThirdPartyID))
+}
+
+// WhereClientID applies the entql string predicate on the client_id field.
+func (f *AppOAuthThirdPartyFilter) WhereClientID(p entql.StringP) {
+	f.Where(p.Field(appoauththirdparty.FieldClientID))
+}
+
+// WhereClientSecret applies the entql string predicate on the client_secret field.
+func (f *AppOAuthThirdPartyFilter) WhereClientSecret(p entql.StringP) {
+	f.Where(p.Field(appoauththirdparty.FieldClientSecret))
+}
+
+// WhereCallbackURL applies the entql string predicate on the callback_url field.
+func (f *AppOAuthThirdPartyFilter) WhereCallbackURL(p entql.StringP) {
+	f.Where(p.Field(appoauththirdparty.FieldCallbackURL))
+}
+
+// WhereSalt applies the entql string predicate on the salt field.
+func (f *AppOAuthThirdPartyFilter) WhereSalt(p entql.StringP) {
+	f.Where(p.Field(appoauththirdparty.FieldSalt))
 }
 
 // addPredicate implements the predicateAdder interface.
@@ -1942,16 +1964,6 @@ func (f *OAuthThirdPartyFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *OAuthThirdPartyFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(oauththirdparty.FieldDeletedAt))
-}
-
-// WhereClientID applies the entql string predicate on the client_id field.
-func (f *OAuthThirdPartyFilter) WhereClientID(p entql.StringP) {
-	f.Where(p.Field(oauththirdparty.FieldClientID))
-}
-
-// WhereClientSecret applies the entql string predicate on the client_secret field.
-func (f *OAuthThirdPartyFilter) WhereClientSecret(p entql.StringP) {
-	f.Where(p.Field(oauththirdparty.FieldClientSecret))
 }
 
 // WhereClientName applies the entql string predicate on the client_name field.
