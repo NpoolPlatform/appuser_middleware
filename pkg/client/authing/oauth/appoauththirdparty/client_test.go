@@ -110,13 +110,7 @@ func createOAuthThirdParty(t *testing.T) {
 
 	info, err := CreateOAuthThirdParty(context.Background(), &req)
 	if assert.Nil(t, err) {
-		if id != info.ID {
-			ret.ID = info.ID
-			ret.AppID = info.AppID
-			ret.ThirdPartyID = info.ThirdPartyID
-			ret.ClientID = info.ClientID
-			ret.CallbackURL = info.CallbackURL
-		}
+		ret.ThirdPartyID = info.ThirdPartyID
 		ret.CreatedAt = info.CreatedAt
 		ret.UpdatedAt = info.UpdatedAt
 		ret.ClientSecret = info.ClientSecret

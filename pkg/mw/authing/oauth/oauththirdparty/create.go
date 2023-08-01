@@ -59,11 +59,13 @@ func (h *Handler) CreateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 		_ = redis2.Unlock(key)
 	}()
 
+	const limit = 2
 	_handler, err := NewHandler(
 		ctx,
 		WithConds(&npool.Conds{
 			ClientName: &basetypes.Int32Val{Op: cruder.EQ, Value: int32(*h.ClientName)},
 		}),
+		WithLimit(limit),
 	)
 	if err != nil {
 		return nil, err

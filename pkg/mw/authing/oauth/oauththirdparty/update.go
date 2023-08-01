@@ -27,12 +27,14 @@ func (h *Handler) UpdateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 	}
 
 	if h.ClientName != nil {
+		const limit = 2
 		handler, err := NewHandler(
 			ctx,
 			WithConds(&npool.Conds{
 				ID:         &basetypes.StringVal{Op: cruder.NEQ, Value: info.ID},
 				ClientName: &basetypes.Int32Val{Op: cruder.EQ, Value: int32(*h.ClientName)},
 			}),
+			WithLimit(limit),
 		)
 		if err != nil {
 			return nil, err
