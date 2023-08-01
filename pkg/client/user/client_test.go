@@ -133,6 +133,7 @@ func setupUser(t *testing.T) func(*testing.T) {
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, oauth1)
+	thirdRet.ThirdPartyID = oauth1.ID
 
 	appoauth1, err := appoauththirdpartymwcli.CreateOAuthThirdParty(
 		context.Background(),
@@ -151,7 +152,9 @@ func setupUser(t *testing.T) func(*testing.T) {
 	return func(*testing.T) {
 		_, _ = appmwcli.DeleteApp(context.Background(), ret.AppID)
 		_, _ = appmwcli.DeleteApp(context.Background(), ret.ImportedFromAppID)
-		_, _ = oauththirdpartymwcli.DeleteOAuthThirdParty(context.Background(), thirdRet.ThirdPartyID)
+		if thirdPartyID == oauth1.ID {
+			_, _ = oauththirdpartymwcli.DeleteOAuthThirdParty(context.Background(), thirdRet.ThirdPartyID)
+		}
 		_, _ = appoauththirdpartymwcli.DeleteOAuthThirdParty(context.Background(), thirdRet.ID)
 	}
 }
@@ -246,7 +249,7 @@ func updateUser(t *testing.T) {
 			SigninVerifyType:   &ret.SigninVerifyType,
 			PasswordHash:       &strVal,
 			GoogleSecret:       &appID,
-			ThirdPartyID:       &thirdPartyID,
+			ThirdPartyID:       &thirdRet.ThirdPartyID,
 			ThirdPartyUserID:   &strVal,
 			ThirdPartyUsername: &strVal,
 			ThirdPartyAvatar:   &strVal,
