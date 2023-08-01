@@ -65,7 +65,7 @@ func (h *queryHandler) queryJoinMyself(s *sql.Selector) {
 
 func (h *queryHandler) queryJoinOAuthThirdParty(s *sql.Selector) error {
 	t := sql.Table(entoauththirdparty.Table)
-	s.LeftJoin(t).
+	s.Join(t).
 		On(
 			s.C(entappoauththirdparty.FieldThirdPartyID),
 			t.C(entoauththirdparty.FieldID),
