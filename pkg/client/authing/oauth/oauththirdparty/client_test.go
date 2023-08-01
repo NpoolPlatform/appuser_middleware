@@ -50,9 +50,8 @@ var (
 
 func createOAuthThirdParty(t *testing.T) {
 	var (
-		id  = ret.ID
 		req = npool.OAuthThirdPartyReq{
-			ID:             &id,
+			ID:             &ret.ID,
 			ClientName:     &ret.ClientName,
 			ClientTag:      &ret.ClientTag,
 			ClientLogoURL:  &ret.ClientLogoURL,
@@ -65,6 +64,7 @@ func createOAuthThirdParty(t *testing.T) {
 	info, err := CreateOAuthThirdParty(context.Background(), &req)
 	if assert.Nil(t, err) {
 		if id != info.ID {
+			ret.ID = info.ID
 			ret.ClientTag = info.ClientTag
 			ret.ClientLogoURL = info.ClientLogoURL
 			ret.ClientOAuthURL = info.ClientOAuthURL
@@ -78,30 +78,24 @@ func createOAuthThirdParty(t *testing.T) {
 }
 
 func updateOAuthThirdParty(t *testing.T) {
-	var (
-		clientName     = basetypes.SignMethod_Linkedin
-		clientNameStr  = basetypes.SignMethod_Linkedin.String()
-		clientTag      = "linkedin"
-		clientLogoURL  = "linkedin"
-		clientOAuthURL = "https://accounts.linkedin.com/o/oauth2/v2/auth"
-		scope          = "email"
-
-		req = npool.OAuthThirdPartyReq{
-			ID:             &ret.ID,
-			ClientName:     &clientName,
-			ClientTag:      &clientTag,
-			ClientLogoURL:  &clientLogoURL,
-			ClientOAuthURL: &clientOAuthURL,
-			ResponseType:   &ret.ResponseType,
-			Scope:          &scope,
-		}
-	)
-
 	if ret.ID == id {
+		var (
+			clientTag      = "wechat2"
+			clientLogoURL  = "wechat2URL"
+			clientOAuthURL = "https://accounts.wechat2.com/o/oauth2/v2/auth"
+			scope          = "email"
+
+			req = npool.OAuthThirdPartyReq{
+				ID:             &ret.ID,
+				ClientTag:      &clientTag,
+				ClientLogoURL:  &clientLogoURL,
+				ClientOAuthURL: &clientOAuthURL,
+				ResponseType:   &ret.ResponseType,
+				Scope:          &scope,
+			}
+		)
 		info, err := UpdateOAuthThirdParty(context.Background(), &req)
 		if assert.Nil(t, err) {
-			ret.ClientName = clientName
-			ret.ClientNameStr = clientNameStr
 			ret.ClientTag = clientTag
 			ret.ClientLogoURL = clientLogoURL
 			ret.ClientOAuthURL = clientOAuthURL

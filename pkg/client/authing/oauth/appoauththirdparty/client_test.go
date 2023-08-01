@@ -87,10 +87,11 @@ func setupOAuthThirdParty(t *testing.T) func(*testing.T) {
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, oauth1)
+	ret.ThirdPartyID = oauth1.ID
 
 	return func(*testing.T) {
 		_, _ = appmwcli.DeleteApp(context.Background(), ret.AppID)
-		if thirdPartyID != oauth1.ID {
+		if thirdPartyID == oauth1.ID {
 			_, _ = oauththirdpartymwcli.DeleteOAuthThirdParty(context.Background(), ret.ThirdPartyID)
 		}
 	}
