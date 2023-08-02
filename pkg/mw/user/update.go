@@ -273,7 +273,9 @@ func (h *updateHandler) mergeAppUserThirdParty(ctx context.Context, tx *ent.Tx) 
 }
 
 func (h *updateHandler) updateOrMergeAppUserThirdParty(ctx context.Context, tx *ent.Tx) error {
-	conds := &usercrud.Conds{}
+	conds := &usercrud.Conds{
+		AppID: &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+	}
 	if h.EmailAddress != nil {
 		conds.EmailAddress = &cruder.Cond{Op: cruder.EQ, Val: *h.EmailAddress}
 	}
