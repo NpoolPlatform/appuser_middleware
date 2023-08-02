@@ -47,7 +47,7 @@ func (h *Handler) CreateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 		return nil, err
 	}
 
-	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateUserTransfer, h.AppID, h.ThirdPartyID)
+	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateAppOAuthThirdParty, h.AppID, h.ThirdPartyID)
 	if err := redis2.TryLock(key, 0); err != nil {
 		return nil, err
 	}
