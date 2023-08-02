@@ -45,6 +45,9 @@ func CreateSet(c *ent.AppUserThirdPartyCreate, req *Req) *ent.AppUserThirdPartyC
 }
 
 func UpdateSet(u *ent.AppUserThirdPartyUpdateOne, req *Req) *ent.AppUserThirdPartyUpdateOne {
+	if req.UserID != nil {
+		u.SetUserID(*req.UserID)
+	}
 	if req.ThirdPartyUsername != nil {
 		u.SetThirdPartyUsername(*req.ThirdPartyUsername)
 	}

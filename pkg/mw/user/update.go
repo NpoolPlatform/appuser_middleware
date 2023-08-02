@@ -398,6 +398,7 @@ func (h *updateHandler) updateBanAppUser(ctx context.Context, tx *ent.Tx) error 
 	return nil
 }
 
+//nolint:gocyclo
 func (h *Handler) UpdateUser(ctx context.Context) (*npool.User, error) {
 	info, err := h.GetUser(ctx)
 	if err != nil {
@@ -407,10 +408,12 @@ func (h *Handler) UpdateUser(ctx context.Context) (*npool.User, error) {
 		return nil, fmt.Errorf("invalid user")
 	}
 
-	if (h.EmailAddress != nil && info.EmailAddress != *h.EmailAddress) ||
-		(h.PhoneNO != nil && info.PhoneNO != *h.PhoneNO) {
-		if err := h.checkAccountExist(ctx); err != nil {
-			return nil, err
+	if info.EmailAddress != "" || info.PhoneNO != "" {
+		if (h.EmailAddress != nil && info.EmailAddress != *h.EmailAddress) ||
+			(h.PhoneNO != nil && info.PhoneNO != *h.PhoneNO) {
+			if err := h.checkAccountExist(ctx); err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -419,6 +422,9 @@ func (h *Handler) UpdateUser(ctx context.Context) (*npool.User, error) {
 	}
 
 	err = db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {
+		if err := handler.updateAppUserThirdParty(ctx, tx); err != nil {
+			return err
+		}
 		if err := handler.updateAppUser(ctx, tx); err != nil {
 			return err
 		}
@@ -429,9 +435,6 @@ func (h *Handler) UpdateUser(ctx context.Context) (*npool.User, error) {
 			return err
 		}
 		if err := handler.updateAppUserSecret(ctx, tx); err != nil {
-			return err
-		}
-		if err := handler.updateAppUserThirdParty(ctx, tx); err != nil {
 			return err
 		}
 		if err := handler.updateBanAppUser(ctx, tx); err != nil {
