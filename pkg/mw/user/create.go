@@ -39,6 +39,21 @@ func (h *createHandler) account() (string, error) {
 			return "", fmt.Errorf("invalid phone no")
 		}
 		return *h.PhoneNO, nil
+	case basetypes.SignMethod_Twitter:
+		fallthrough //nolint
+	case basetypes.SignMethod_Github:
+		fallthrough //nolint
+	case basetypes.SignMethod_Facebook:
+		fallthrough //nolint
+	case basetypes.SignMethod_Linkedin:
+		fallthrough //nolint
+	case basetypes.SignMethod_Wechat:
+		fallthrough //nolint
+	case basetypes.SignMethod_Google:
+		if h.ThirdPartyUserID == nil {
+			return "", fmt.Errorf("invalid thirdpartyuserid")
+		}
+		return *h.ThirdPartyUserID, nil
 	}
 	return "", fmt.Errorf("invalid accounttype")
 }
@@ -47,8 +62,17 @@ func (h *createHandler) createAppUser(ctx context.Context, tx *ent.Tx) error {
 	if h.ID == nil {
 		return fmt.Errorf("invalid id")
 	}
-	if h.PhoneNO == nil && h.EmailAddress == nil {
-		return fmt.Errorf("invalid account")
+	switch *h.AccountType {
+	case basetypes.SignMethod_Twitter:
+	case basetypes.SignMethod_Github:
+	case basetypes.SignMethod_Facebook:
+	case basetypes.SignMethod_Linkedin:
+	case basetypes.SignMethod_Wechat:
+	case basetypes.SignMethod_Google:
+	default:
+		if h.PhoneNO == nil && h.EmailAddress == nil {
+			return fmt.Errorf("invalid account")
+		}
 	}
 
 	if _, err := usercrud.CreateSet(
@@ -119,8 +143,18 @@ func (h *createHandler) createAppUserSecret(ctx context.Context, tx *ent.Tx) err
 }
 
 func (h *createHandler) createAppUserThirdParty(ctx context.Context, tx *ent.Tx) error {
-	if h.ThirdPartyID == nil {
+	switch *h.AccountType {
+	case basetypes.SignMethod_Twitter:
+	case basetypes.SignMethod_Github:
+	case basetypes.SignMethod_Facebook:
+	case basetypes.SignMethod_Linkedin:
+	case basetypes.SignMethod_Wechat:
+	case basetypes.SignMethod_Google:
+	default:
 		return nil
+	}
+	if h.ThirdPartyID == nil {
+		return fmt.Errorf("thirdPartyID is empry")
 	}
 
 	if _, err := userthirdpartycrud.CreateSet(

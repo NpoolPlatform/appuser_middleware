@@ -28,24 +28,26 @@ type config struct {
 
 // hooks per client, for fast access.
 type hooks struct {
-	App               []ent.Hook
-	AppControl        []ent.Hook
-	AppRole           []ent.Hook
-	AppRoleUser       []ent.Hook
-	AppSubscribe      []ent.Hook
-	AppUser           []ent.Hook
-	AppUserControl    []ent.Hook
-	AppUserExtra      []ent.Hook
-	AppUserSecret     []ent.Hook
-	AppUserThirdParty []ent.Hook
-	Auth              []ent.Hook
-	AuthHistory       []ent.Hook
-	BanApp            []ent.Hook
-	BanAppUser        []ent.Hook
-	Kyc               []ent.Hook
-	LoginHistory      []ent.Hook
-	PubsubMessage     []ent.Hook
-	Subscriber        []ent.Hook
+	App                []ent.Hook
+	AppControl         []ent.Hook
+	AppOAuthThirdParty []ent.Hook
+	AppRole            []ent.Hook
+	AppRoleUser        []ent.Hook
+	AppSubscribe       []ent.Hook
+	AppUser            []ent.Hook
+	AppUserControl     []ent.Hook
+	AppUserExtra       []ent.Hook
+	AppUserSecret      []ent.Hook
+	AppUserThirdParty  []ent.Hook
+	Auth               []ent.Hook
+	AuthHistory        []ent.Hook
+	BanApp             []ent.Hook
+	BanAppUser         []ent.Hook
+	Kyc                []ent.Hook
+	LoginHistory       []ent.Hook
+	OAuthThirdParty    []ent.Hook
+	PubsubMessage      []ent.Hook
+	Subscriber         []ent.Hook
 }
 
 // Options applies the options on the config object.

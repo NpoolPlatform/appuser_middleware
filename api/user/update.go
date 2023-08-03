@@ -41,6 +41,10 @@ func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*
 		user1.WithSigninVerifyType(req.SigninVerifyType),
 		user1.WithBanned(req.Banned),
 		user1.WithBanMessage(req.BanMessage),
+		user1.WithThirdPartyID(req.ThirdPartyID),
+		user1.WithThirdPartyUserID(req.ThirdPartyUserID),
+		user1.WithThirdPartyUsername(req.ThirdPartyUsername),
+		user1.WithThirdPartyAvatar(req.ThirdPartyAvatar),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

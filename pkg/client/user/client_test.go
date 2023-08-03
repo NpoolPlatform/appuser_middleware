@@ -18,6 +18,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	appoauththirdpartymwcli "github.com/NpoolPlatform/appuser-middleware/pkg/client/authing/oauth/appoauththirdparty"
+	appoauththirdpartymwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/oauth/appoauththirdparty"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
 	"github.com/google/uuid"
@@ -29,6 +31,9 @@ import (
 
 	appmwcli "github.com/NpoolPlatform/appuser-middleware/pkg/client/app"
 	appmwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
+
+	oauththirdpartymwcli "github.com/NpoolPlatform/appuser-middleware/pkg/client/authing/oauth/oauththirdparty"
+	oauththirdpartymwpb "github.com/NpoolPlatform/message/npool/appuser/mw/v1/authing/oauth/oauththirdparty"
 )
 
 func init() {
@@ -44,6 +49,7 @@ var (
 	addressFields     = []string{uuid.NewString()}
 	addressFieldsS, _ = json.Marshal(addressFields)
 	appID             = uuid.NewString()
+	thirdPartyID      = uuid.NewString()
 	ret               = npool.User{
 		ID:                  uuid.NewString(),
 		AppID:               appID,
@@ -72,6 +78,22 @@ var (
 		Banned:              true,
 		BanMessage:          uuid.NewString(),
 	}
+
+	thirdRet = appoauththirdpartymwpb.OAuthThirdParty{
+		ID:             uuid.NewString(),
+		AppID:          appID,
+		ThirdPartyID:   thirdPartyID,
+		ClientID:       "123123123123",
+		ClientSecret:   uuid.NewString(),
+		CallbackURL:    "http://localhost:8011/oauth/callback",
+		ClientName:     basetypes.SignMethod_Twitter,
+		ClientNameStr:  basetypes.SignMethod_Twitter.String(),
+		ClientTag:      "twitter",
+		ClientOAuthURL: "https://twitter.com/login/oauth/authorize",
+		ClientLogoURL:  "twitter",
+		ResponseType:   "code",
+		Scope:          "user:email",
+	}
 )
 
 func setupUser(t *testing.T) func(*testing.T) {
@@ -97,9 +119,43 @@ func setupUser(t *testing.T) func(*testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, app2)
 
+	oauth1, err := oauththirdpartymwcli.CreateOAuthThirdParty(
+		context.Background(),
+		&oauththirdpartymwpb.OAuthThirdPartyReq{
+			ID:             &thirdRet.ThirdPartyID,
+			ClientName:     &thirdRet.ClientName,
+			ClientTag:      &thirdRet.ClientTag,
+			ClientLogoURL:  &thirdRet.ClientLogoURL,
+			ClientOAuthURL: &thirdRet.ClientOAuthURL,
+			ResponseType:   &thirdRet.ResponseType,
+			Scope:          &thirdRet.Scope,
+		},
+	)
+	assert.Nil(t, err)
+	assert.NotNil(t, oauth1)
+	thirdRet.ThirdPartyID = oauth1.ID
+
+	appoauth1, err := appoauththirdpartymwcli.CreateOAuthThirdParty(
+		context.Background(),
+		&appoauththirdpartymwpb.OAuthThirdPartyReq{
+			ID:           &thirdRet.ID,
+			AppID:        &thirdRet.AppID,
+			ClientID:     &thirdRet.ClientID,
+			ClientSecret: &thirdRet.ClientSecret,
+			CallbackURL:  &thirdRet.CallbackURL,
+			ThirdPartyID: &thirdRet.ThirdPartyID,
+		},
+	)
+	assert.Nil(t, err)
+	assert.NotNil(t, appoauth1)
+
 	return func(*testing.T) {
 		_, _ = appmwcli.DeleteApp(context.Background(), ret.AppID)
 		_, _ = appmwcli.DeleteApp(context.Background(), ret.ImportedFromAppID)
+		if thirdPartyID == oauth1.ID {
+			_, _ = oauththirdpartymwcli.DeleteOAuthThirdParty(context.Background(), thirdRet.ThirdPartyID)
+		}
+		_, _ = appoauththirdpartymwcli.DeleteOAuthThirdParty(context.Background(), thirdRet.ID)
 	}
 }
 
@@ -133,7 +189,7 @@ func creatUser(t *testing.T) {
 			SigninVerifyType:   &ret.SigninVerifyType,
 			PasswordHash:       &strVal,
 			GoogleSecret:       &appID,
-			ThirdPartyID:       &strVal,
+			ThirdPartyID:       &thirdRet.ThirdPartyID,
 			ThirdPartyUserID:   &strVal,
 			ThirdPartyUsername: &strVal,
 			ThirdPartyAvatar:   &strVal,
@@ -193,7 +249,7 @@ func updateUser(t *testing.T) {
 			SigninVerifyType:   &ret.SigninVerifyType,
 			PasswordHash:       &strVal,
 			GoogleSecret:       &appID,
-			ThirdPartyID:       &strVal,
+			ThirdPartyID:       &thirdRet.ThirdPartyID,
 			ThirdPartyUserID:   &strVal,
 			ThirdPartyUsername: &strVal,
 			ThirdPartyAvatar:   &strVal,

@@ -198,6 +198,30 @@ func (f AppControlMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Muta
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.AppControlMutation", m)
 }
 
+// The AppOAuthThirdPartyQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type AppOAuthThirdPartyQueryRuleFunc func(context.Context, *ent.AppOAuthThirdPartyQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f AppOAuthThirdPartyQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.AppOAuthThirdPartyQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.AppOAuthThirdPartyQuery", q)
+}
+
+// The AppOAuthThirdPartyMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type AppOAuthThirdPartyMutationRuleFunc func(context.Context, *ent.AppOAuthThirdPartyMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f AppOAuthThirdPartyMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.AppOAuthThirdPartyMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.AppOAuthThirdPartyMutation", m)
+}
+
 // The AppRoleQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type AppRoleQueryRuleFunc func(context.Context, *ent.AppRoleQuery) error
@@ -534,6 +558,30 @@ func (f LoginHistoryMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mu
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.LoginHistoryMutation", m)
 }
 
+// The OAuthThirdPartyQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type OAuthThirdPartyQueryRuleFunc func(context.Context, *ent.OAuthThirdPartyQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f OAuthThirdPartyQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.OAuthThirdPartyQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.OAuthThirdPartyQuery", q)
+}
+
+// The OAuthThirdPartyMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type OAuthThirdPartyMutationRuleFunc func(context.Context, *ent.OAuthThirdPartyMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f OAuthThirdPartyMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.OAuthThirdPartyMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.OAuthThirdPartyMutation", m)
+}
+
 // The PubsubMessageQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type PubsubMessageQueryRuleFunc func(context.Context, *ent.PubsubMessageQuery) error
@@ -621,6 +669,8 @@ func queryFilter(q ent.Query) (Filter, error) {
 		return q.Filter(), nil
 	case *ent.AppControlQuery:
 		return q.Filter(), nil
+	case *ent.AppOAuthThirdPartyQuery:
+		return q.Filter(), nil
 	case *ent.AppRoleQuery:
 		return q.Filter(), nil
 	case *ent.AppRoleUserQuery:
@@ -649,6 +699,8 @@ func queryFilter(q ent.Query) (Filter, error) {
 		return q.Filter(), nil
 	case *ent.LoginHistoryQuery:
 		return q.Filter(), nil
+	case *ent.OAuthThirdPartyQuery:
+		return q.Filter(), nil
 	case *ent.PubsubMessageQuery:
 		return q.Filter(), nil
 	case *ent.SubscriberQuery:
@@ -663,6 +715,8 @@ func mutationFilter(m ent.Mutation) (Filter, error) {
 	case *ent.AppMutation:
 		return m.Filter(), nil
 	case *ent.AppControlMutation:
+		return m.Filter(), nil
+	case *ent.AppOAuthThirdPartyMutation:
 		return m.Filter(), nil
 	case *ent.AppRoleMutation:
 		return m.Filter(), nil
@@ -691,6 +745,8 @@ func mutationFilter(m ent.Mutation) (Filter, error) {
 	case *ent.KycMutation:
 		return m.Filter(), nil
 	case *ent.LoginHistoryMutation:
+		return m.Filter(), nil
+	case *ent.OAuthThirdPartyMutation:
 		return m.Filter(), nil
 	case *ent.PubsubMessageMutation:
 		return m.Filter(), nil

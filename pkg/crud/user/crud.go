@@ -52,12 +52,14 @@ func UpdateSet(u *ent.AppUserUpdateOne, req *Req) *ent.AppUserUpdateOne {
 }
 
 type Conds struct {
-	ID            *cruder.Cond
-	IDs           *cruder.Cond
-	AppID         *cruder.Cond
-	EmailAddress  *cruder.Cond
-	PhoneNO       *cruder.Cond
-	ImportFromApp *cruder.Cond
+	ID               *cruder.Cond
+	IDs              *cruder.Cond
+	AppID            *cruder.Cond
+	EmailAddress     *cruder.Cond
+	PhoneNO          *cruder.Cond
+	ImportFromApp    *cruder.Cond
+	ThirdPartyUserID *cruder.Cond
+	ThirdPartyID     *cruder.Cond
 }
 
 //nolint

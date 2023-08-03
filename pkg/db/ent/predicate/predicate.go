@@ -12,6 +12,9 @@ type App func(*sql.Selector)
 // AppControl is the predicate function for appcontrol builders.
 type AppControl func(*sql.Selector)
 
+// AppOAuthThirdParty is the predicate function for appoauththirdparty builders.
+type AppOAuthThirdParty func(*sql.Selector)
+
 // AppRole is the predicate function for approle builders.
 type AppRole func(*sql.Selector)
 
@@ -53,6 +56,9 @@ type Kyc func(*sql.Selector)
 
 // LoginHistory is the predicate function for loginhistory builders.
 type LoginHistory func(*sql.Selector)
+
+// OAuthThirdParty is the predicate function for oauththirdparty builders.
+type OAuthThirdParty func(*sql.Selector)
 
 // PubsubMessage is the predicate function for pubsubmessage builders.
 type PubsubMessage func(*sql.Selector)

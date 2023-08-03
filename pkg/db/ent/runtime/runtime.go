@@ -7,6 +7,7 @@ import (
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appcontrol"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appoauththirdparty"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approle"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approleuser"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appsubscribe"
@@ -21,6 +22,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/banappuser"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/kyc"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/loginhistory"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/oauththirdparty"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/pubsubmessage"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/schema"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/subscriber"
@@ -159,6 +161,62 @@ func init() {
 	appcontrolDescID := appcontrolFields[0].Descriptor()
 	// appcontrol.DefaultID holds the default value on creation for the id field.
 	appcontrol.DefaultID = appcontrolDescID.Default.(func() uuid.UUID)
+	appoauththirdpartyMixin := schema.AppOAuthThirdParty{}.Mixin()
+	appoauththirdparty.Policy = privacy.NewPolicies(appoauththirdpartyMixin[0], schema.AppOAuthThirdParty{})
+	appoauththirdparty.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := appoauththirdparty.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	appoauththirdpartyMixinFields0 := appoauththirdpartyMixin[0].Fields()
+	_ = appoauththirdpartyMixinFields0
+	appoauththirdpartyFields := schema.AppOAuthThirdParty{}.Fields()
+	_ = appoauththirdpartyFields
+	// appoauththirdpartyDescCreatedAt is the schema descriptor for created_at field.
+	appoauththirdpartyDescCreatedAt := appoauththirdpartyMixinFields0[0].Descriptor()
+	// appoauththirdparty.DefaultCreatedAt holds the default value on creation for the created_at field.
+	appoauththirdparty.DefaultCreatedAt = appoauththirdpartyDescCreatedAt.Default.(func() uint32)
+	// appoauththirdpartyDescUpdatedAt is the schema descriptor for updated_at field.
+	appoauththirdpartyDescUpdatedAt := appoauththirdpartyMixinFields0[1].Descriptor()
+	// appoauththirdparty.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	appoauththirdparty.DefaultUpdatedAt = appoauththirdpartyDescUpdatedAt.Default.(func() uint32)
+	// appoauththirdparty.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	appoauththirdparty.UpdateDefaultUpdatedAt = appoauththirdpartyDescUpdatedAt.UpdateDefault.(func() uint32)
+	// appoauththirdpartyDescDeletedAt is the schema descriptor for deleted_at field.
+	appoauththirdpartyDescDeletedAt := appoauththirdpartyMixinFields0[2].Descriptor()
+	// appoauththirdparty.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	appoauththirdparty.DefaultDeletedAt = appoauththirdpartyDescDeletedAt.Default.(func() uint32)
+	// appoauththirdpartyDescAppID is the schema descriptor for app_id field.
+	appoauththirdpartyDescAppID := appoauththirdpartyFields[1].Descriptor()
+	// appoauththirdparty.DefaultAppID holds the default value on creation for the app_id field.
+	appoauththirdparty.DefaultAppID = appoauththirdpartyDescAppID.Default.(func() uuid.UUID)
+	// appoauththirdpartyDescThirdPartyID is the schema descriptor for third_party_id field.
+	appoauththirdpartyDescThirdPartyID := appoauththirdpartyFields[2].Descriptor()
+	// appoauththirdparty.DefaultThirdPartyID holds the default value on creation for the third_party_id field.
+	appoauththirdparty.DefaultThirdPartyID = appoauththirdpartyDescThirdPartyID.Default.(func() uuid.UUID)
+	// appoauththirdpartyDescClientID is the schema descriptor for client_id field.
+	appoauththirdpartyDescClientID := appoauththirdpartyFields[3].Descriptor()
+	// appoauththirdparty.DefaultClientID holds the default value on creation for the client_id field.
+	appoauththirdparty.DefaultClientID = appoauththirdpartyDescClientID.Default.(string)
+	// appoauththirdpartyDescClientSecret is the schema descriptor for client_secret field.
+	appoauththirdpartyDescClientSecret := appoauththirdpartyFields[4].Descriptor()
+	// appoauththirdparty.DefaultClientSecret holds the default value on creation for the client_secret field.
+	appoauththirdparty.DefaultClientSecret = appoauththirdpartyDescClientSecret.Default.(string)
+	// appoauththirdpartyDescCallbackURL is the schema descriptor for callback_url field.
+	appoauththirdpartyDescCallbackURL := appoauththirdpartyFields[5].Descriptor()
+	// appoauththirdparty.DefaultCallbackURL holds the default value on creation for the callback_url field.
+	appoauththirdparty.DefaultCallbackURL = appoauththirdpartyDescCallbackURL.Default.(string)
+	// appoauththirdpartyDescSalt is the schema descriptor for salt field.
+	appoauththirdpartyDescSalt := appoauththirdpartyFields[6].Descriptor()
+	// appoauththirdparty.DefaultSalt holds the default value on creation for the salt field.
+	appoauththirdparty.DefaultSalt = appoauththirdpartyDescSalt.Default.(string)
+	// appoauththirdpartyDescID is the schema descriptor for id field.
+	appoauththirdpartyDescID := appoauththirdpartyFields[0].Descriptor()
+	// appoauththirdparty.DefaultID holds the default value on creation for the id field.
+	appoauththirdparty.DefaultID = appoauththirdpartyDescID.Default.(func() uuid.UUID)
 	approleMixin := schema.AppRole{}.Mixin()
 	approle.Policy = privacy.NewPolicies(approleMixin[0], schema.AppRole{})
 	approle.Hooks[0] = func(next ent.Mutator) ent.Mutator {
@@ -887,6 +945,62 @@ func init() {
 	loginhistoryDescID := loginhistoryFields[0].Descriptor()
 	// loginhistory.DefaultID holds the default value on creation for the id field.
 	loginhistory.DefaultID = loginhistoryDescID.Default.(func() uuid.UUID)
+	oauththirdpartyMixin := schema.OAuthThirdParty{}.Mixin()
+	oauththirdparty.Policy = privacy.NewPolicies(oauththirdpartyMixin[0], schema.OAuthThirdParty{})
+	oauththirdparty.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := oauththirdparty.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	oauththirdpartyMixinFields0 := oauththirdpartyMixin[0].Fields()
+	_ = oauththirdpartyMixinFields0
+	oauththirdpartyFields := schema.OAuthThirdParty{}.Fields()
+	_ = oauththirdpartyFields
+	// oauththirdpartyDescCreatedAt is the schema descriptor for created_at field.
+	oauththirdpartyDescCreatedAt := oauththirdpartyMixinFields0[0].Descriptor()
+	// oauththirdparty.DefaultCreatedAt holds the default value on creation for the created_at field.
+	oauththirdparty.DefaultCreatedAt = oauththirdpartyDescCreatedAt.Default.(func() uint32)
+	// oauththirdpartyDescUpdatedAt is the schema descriptor for updated_at field.
+	oauththirdpartyDescUpdatedAt := oauththirdpartyMixinFields0[1].Descriptor()
+	// oauththirdparty.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	oauththirdparty.DefaultUpdatedAt = oauththirdpartyDescUpdatedAt.Default.(func() uint32)
+	// oauththirdparty.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	oauththirdparty.UpdateDefaultUpdatedAt = oauththirdpartyDescUpdatedAt.UpdateDefault.(func() uint32)
+	// oauththirdpartyDescDeletedAt is the schema descriptor for deleted_at field.
+	oauththirdpartyDescDeletedAt := oauththirdpartyMixinFields0[2].Descriptor()
+	// oauththirdparty.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	oauththirdparty.DefaultDeletedAt = oauththirdpartyDescDeletedAt.Default.(func() uint32)
+	// oauththirdpartyDescClientName is the schema descriptor for client_name field.
+	oauththirdpartyDescClientName := oauththirdpartyFields[1].Descriptor()
+	// oauththirdparty.DefaultClientName holds the default value on creation for the client_name field.
+	oauththirdparty.DefaultClientName = oauththirdpartyDescClientName.Default.(string)
+	// oauththirdpartyDescClientTag is the schema descriptor for client_tag field.
+	oauththirdpartyDescClientTag := oauththirdpartyFields[2].Descriptor()
+	// oauththirdparty.DefaultClientTag holds the default value on creation for the client_tag field.
+	oauththirdparty.DefaultClientTag = oauththirdpartyDescClientTag.Default.(string)
+	// oauththirdpartyDescClientLogoURL is the schema descriptor for client_logo_url field.
+	oauththirdpartyDescClientLogoURL := oauththirdpartyFields[3].Descriptor()
+	// oauththirdparty.DefaultClientLogoURL holds the default value on creation for the client_logo_url field.
+	oauththirdparty.DefaultClientLogoURL = oauththirdpartyDescClientLogoURL.Default.(string)
+	// oauththirdpartyDescClientOauthURL is the schema descriptor for client_oauth_url field.
+	oauththirdpartyDescClientOauthURL := oauththirdpartyFields[4].Descriptor()
+	// oauththirdparty.DefaultClientOauthURL holds the default value on creation for the client_oauth_url field.
+	oauththirdparty.DefaultClientOauthURL = oauththirdpartyDescClientOauthURL.Default.(string)
+	// oauththirdpartyDescResponseType is the schema descriptor for response_type field.
+	oauththirdpartyDescResponseType := oauththirdpartyFields[5].Descriptor()
+	// oauththirdparty.DefaultResponseType holds the default value on creation for the response_type field.
+	oauththirdparty.DefaultResponseType = oauththirdpartyDescResponseType.Default.(string)
+	// oauththirdpartyDescScope is the schema descriptor for scope field.
+	oauththirdpartyDescScope := oauththirdpartyFields[6].Descriptor()
+	// oauththirdparty.DefaultScope holds the default value on creation for the scope field.
+	oauththirdparty.DefaultScope = oauththirdpartyDescScope.Default.(string)
+	// oauththirdpartyDescID is the schema descriptor for id field.
+	oauththirdpartyDescID := oauththirdpartyFields[0].Descriptor()
+	// oauththirdparty.DefaultID holds the default value on creation for the id field.
+	oauththirdparty.DefaultID = oauththirdpartyDescID.Default.(func() uuid.UUID)
 	pubsubmessageMixin := schema.PubsubMessage{}.Mixin()
 	pubsubmessage.Policy = privacy.NewPolicies(pubsubmessageMixin[0], schema.PubsubMessage{})
 	pubsubmessage.Hooks[0] = func(next ent.Mutator) ent.Mutator {

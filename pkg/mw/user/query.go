@@ -17,6 +17,7 @@ import (
 	entappusercontrol "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appusercontrol"
 	entextra "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserextra"
 	entappusersecret "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appusersecret"
+	entappuserthirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserthirdparty"
 	entbanappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/banappuser"
 	entkyc "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/kyc"
 
@@ -178,6 +179,47 @@ func (h *queryHandler) queryJoinAppUserSecret(s *sql.Selector) {
 		)
 }
 
+func (h *queryHandler) queryJoinAppUserThirdParty(s *sql.Selector) error {
+	t := sql.Table(entappuserthirdparty.Table)
+	s.LeftJoin(t).
+		On(
+			s.C(entappuser.FieldID),
+			t.C(entappuserthirdparty.FieldUserID),
+		).
+		On(
+			s.C(entappuser.FieldDeletedAt),
+			t.C(entappuserthirdparty.FieldDeletedAt),
+		).
+		AppendSelect(
+			sql.As(t.C(entappuserthirdparty.FieldThirdPartyID), "third_party_id"),
+			sql.As(t.C(entappuserthirdparty.FieldThirdPartyUserID), "third_party_user_id"),
+			sql.As(t.C(entappuserthirdparty.FieldThirdPartyUsername), "third_party_username"),
+			sql.As(t.C(entappuserthirdparty.FieldThirdPartyAvatar), "third_party_avatar"),
+		)
+
+	if h.Conds != nil && h.Conds.ThirdPartyID != nil {
+		thirdPartyID, ok := h.Conds.ThirdPartyID.Val.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("invalid oauth thirdpartyid")
+		}
+		s.Where(
+			sql.EQ(t.C(entappuserthirdparty.FieldThirdPartyID), thirdPartyID),
+		)
+	}
+
+	if h.Conds != nil && h.Conds.ThirdPartyUserID != nil {
+		thirdPartyUserID, ok := h.Conds.ThirdPartyUserID.Val.(string)
+		if !ok {
+			return fmt.Errorf("invalid oauth thirdpartyuserid")
+		}
+		s.Where(
+			sql.EQ(t.C(entappuserthirdparty.FieldThirdPartyUserID), thirdPartyUserID),
+		)
+	}
+
+	return nil
+}
+
 func (h *queryHandler) queryJoin() {
 	h.stm.Modify(func(s *sql.Selector) {
 		h.queryJoinAppUserExtra(s)
@@ -187,6 +229,17 @@ func (h *queryHandler) queryJoin() {
 		h.queryJoinKyc(s)
 		h.queryJoinAppUserSecret(s)
 	})
+}
+
+func (h *queryHandler) queryJoinThirdUserInfo() error {
+	var err error
+	h.stm.Modify(func(s *sql.Selector) {
+		err = h.queryJoinAppUserThirdParty(s)
+	})
+	if err != nil {
+		return err
+	}
+	return err
 }
 
 func (h *queryHandler) scan(ctx context.Context) error {
@@ -304,6 +357,48 @@ func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 	handler.formalize()
 
 	return handler.infos[0], nil
+}
+
+func (h *Handler) GetThirdUsers(ctx context.Context) ([]*npool.User, uint32, error) {
+	handler := &queryHandler{
+		Handler: h,
+	}
+
+	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		if err := handler.queryAppUserByConds(ctx, cli); err != nil {
+			return err
+		}
+		if err := handler.queryJoinThirdUserInfo(); err != nil {
+			return err
+		}
+		handler.stm.
+			Offset(int(h.Offset)).
+			Limit(int(h.Limit))
+
+		if err := handler.scan(_ctx); err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	if err := handler.queryUserRoles(ctx); err != nil {
+		return nil, 0, err
+	}
+
+	handler.total = 0
+
+	if handler.infos != nil {
+		total := len(handler.infos)
+		handler.total = uint32(total)
+	}
+
+	handler.formalize()
+
+	return handler.infos, handler.total, nil
 }
 
 func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {

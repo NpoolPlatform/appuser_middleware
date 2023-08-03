@@ -45,6 +45,9 @@ func CreateSet(c *ent.AppUserThirdPartyCreate, req *Req) *ent.AppUserThirdPartyC
 }
 
 func UpdateSet(u *ent.AppUserThirdPartyUpdateOne, req *Req) *ent.AppUserThirdPartyUpdateOne {
+	if req.UserID != nil {
+		u.SetUserID(*req.UserID)
+	}
 	if req.ThirdPartyUsername != nil {
 		u.SetThirdPartyUsername(*req.ThirdPartyUsername)
 	}
@@ -105,7 +108,7 @@ func SetQueryConds(q *ent.AppUserThirdPartyQuery, conds *Conds) (*ent.AppUserThi
 		}
 	}
 	if conds.ThirdPartyUserID != nil {
-		id, ok := conds.UserID.Val.(string)
+		id, ok := conds.ThirdPartyUserID.Val.(string)
 		if !ok {
 			return nil, fmt.Errorf("invalid 3rd userid")
 		}
