@@ -116,7 +116,7 @@ func GetUsers(ctx context.Context, conds *npool.Conds, offset, limit int32) ([]*
 	return infos.([]*npool.User), total, nil
 }
 
-func GetThirdUserOnly(ctx context.Context, conds *npool.Conds, offset, limit int32) (*npool.User, error) {
+func GetThirdUserOnly(ctx context.Context, conds *npool.Conds) (*npool.User, error) {
 	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetThirdUsers(ctx, &npool.GetThirdUsersRequest{
 			Conds:  conds,
