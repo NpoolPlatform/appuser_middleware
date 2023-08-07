@@ -234,6 +234,7 @@ func (h *queryHandler) queryJoin() {
 func (h *queryHandler) queryJoinThirdUserInfo() error {
 	var err error
 	h.stm.Modify(func(s *sql.Selector) {
+		h.queryJoinAppUserExtra(s)
 		err = h.queryJoinAppUserThirdParty(s)
 	})
 	if err != nil {
