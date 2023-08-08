@@ -266,7 +266,7 @@ func DeleteUser(ctx context.Context, appID, userID string) (*npool.User, error) 
 	return info.(*npool.User), nil
 }
 
-func DeleteAppUserThirdParty(ctx context.Context, appID, userID, thirdPartyID, thirdPartyUserID string) (*npool.User, error) {
+func DeleteThirdUser(ctx context.Context, appID, userID, thirdPartyID, thirdPartyUserID string) (*npool.User, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.DeleteThirdUser(ctx, &npool.DeleteThirdUserRequest{
 			Info: &npool.UserReq{
