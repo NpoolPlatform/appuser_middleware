@@ -40,3 +40,34 @@ func (s *Server) DeleteUser(ctx context.Context, in *npool.DeleteUserRequest) (*
 		Info: info,
 	}, nil
 }
+
+func (s *Server) DeleteThirdUser(ctx context.Context, in *npool.DeleteThirdUserRequest) (*npool.DeleteThirdUserResponse, error) {
+	req := in.GetInfo()
+	if req == nil {
+		return &npool.DeleteThirdUserResponse{}, status.Error(codes.InvalidArgument, "invalid userinfo")
+	}
+
+	handler, err := user1.NewHandler(
+		ctx,
+		user1.WithAppID(req.GetAppID()),
+		user1.WithID(req.ID),
+		user1.WithThirdPartyID(req.ThirdPartyID),
+		user1.WithThirdPartyUserID(req.ThirdPartyUserID),
+	)
+	if err != nil {
+		logger.Sugar().Errorw(
+			"DeleteThirdUser",
+			"Req", req,
+			"error", err,
+		)
+		return &npool.DeleteThirdUserResponse{}, status.Error(codes.InvalidArgument, err.Error())
+	}
+	info, err := handler.DeleteThirdUser(ctx)
+	if err != nil {
+		return &npool.DeleteThirdUserResponse{}, status.Error(codes.Aborted, err.Error())
+	}
+
+	return &npool.DeleteThirdUserResponse{
+		Info: info,
+	}, nil
+}
