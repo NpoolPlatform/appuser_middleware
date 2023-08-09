@@ -387,10 +387,6 @@ func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 }
 
 func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
-	if h.AppID == uuid.Nil {
-		return nil, 0, fmt.Errorf("invalid appid")
-	}
-
 	handler := &queryHandler{
 		Handler:        h,
 		joinThirdParty: true,
