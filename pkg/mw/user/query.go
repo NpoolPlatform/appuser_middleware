@@ -23,7 +23,6 @@ import (
 
 	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
 
-	uuid1 "github.com/NpoolPlatform/go-service-framework/pkg/const/uuid"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
@@ -33,9 +32,10 @@ import (
 
 type queryHandler struct {
 	*Handler
-	stm   *ent.AppUserSelect
-	infos []*npool.User
-	total uint32
+	stm            *ent.AppUserSelect
+	infos          []*npool.User
+	total          uint32
+	joinThirdParty bool
 }
 
 func (h *queryHandler) selectAppUser(stm *ent.AppUserQuery) {
@@ -59,6 +59,7 @@ func (h *queryHandler) queryAppUser(cli *ent.Client) error {
 			Query().
 			Where(
 				entappuser.ID(*h.ID),
+				entappuser.AppID(h.AppID),
 				entappuser.DeletedAt(0),
 			),
 	)
@@ -89,6 +90,10 @@ func (h *queryHandler) queryJoinAppUserExtra(s *sql.Selector) {
 			s.C(entappuser.FieldID),
 			t.C(entextra.FieldUserID),
 		).
+		On(
+			s.C(entappuser.FieldAppID),
+			t.C(entextra.FieldAppID),
+		).
 		AppendSelect(
 			sql.As(t.C(entextra.FieldUsername), "username"),
 			sql.As(t.C(entextra.FieldFirstName), "first_name"),
@@ -111,6 +116,10 @@ func (h *queryHandler) queryJoinAppUserControl(s *sql.Selector) {
 		On(
 			s.C(entappuser.FieldID),
 			t.C(entappusercontrol.FieldUserID),
+		).
+		On(
+			s.C(entappuser.FieldAppID),
+			t.C(entappusercontrol.FieldAppID),
 		).
 		AppendSelect(
 			sql.As(t.C(entappusercontrol.FieldGoogleAuthenticationVerified), "google_authentication_verified"),
@@ -142,6 +151,10 @@ func (h *queryHandler) queryJoinBanAppUser(s *sql.Selector) {
 			t.C(entbanappuser.FieldUserID),
 		).
 		On(
+			s.C(entappuser.FieldAppID),
+			t.C(entbanappuser.FieldAppID),
+		).
+		On(
 			s.C(entappuser.FieldDeletedAt),
 			t.C(entbanappuser.FieldDeletedAt),
 		).
@@ -159,6 +172,10 @@ func (h *queryHandler) queryJoinKyc(s *sql.Selector) {
 			s.C(entappuser.FieldID),
 			t.C(entkyc.FieldUserID),
 		).
+		On(
+			s.C(entappuser.FieldAppID),
+			t.C(entkyc.FieldAppID),
+		).
 		OnP(
 			sql.EQ(t.C(entkyc.FieldDeletedAt), 0),
 		).
@@ -174,17 +191,29 @@ func (h *queryHandler) queryJoinAppUserSecret(s *sql.Selector) {
 			s.C(entappuser.FieldID),
 			t.C(entappusersecret.FieldUserID),
 		).
+		On(
+			s.C(entappuser.FieldAppID),
+			t.C(entappusersecret.FieldAppID),
+		).
 		AppendSelect(
 			sql.As(t.C(entappusersecret.FieldGoogleSecret), "google_secret"),
 		)
 }
 
 func (h *queryHandler) queryJoinAppUserThirdParty(s *sql.Selector) error {
+	if !h.joinThirdParty {
+		return nil
+	}
+
 	t := sql.Table(entappuserthirdparty.Table)
 	s.LeftJoin(t).
 		On(
 			s.C(entappuser.FieldID),
 			t.C(entappuserthirdparty.FieldUserID),
+		).
+		On(
+			s.C(entappuser.FieldAppID),
+			t.C(entappuserthirdparty.FieldAppID),
 		).
 		On(
 			s.C(entappuser.FieldDeletedAt),
@@ -311,7 +340,7 @@ func (h *queryHandler) formalize() {
 		info.Banned = info.BanAppUserID != "" && info.BanDeletedAt == 0
 		info.State = basetypes.KycState(basetypes.KycState_value[info.KycStateStr])
 		if info.SelectedLangID != nil {
-			if *info.SelectedLangID == uuid1.InvalidUUIDStr {
+			if *info.SelectedLangID == uuid.Nil.String() {
 				info.SelectedLangID = nil
 			} else if _, err := uuid.Parse(*info.SelectedLangID); err != nil {
 				info.SelectedLangID = nil
@@ -322,7 +351,8 @@ func (h *queryHandler) formalize() {
 
 func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 	handler := &queryHandler{
-		Handler: h,
+		Handler:        h,
+		joinThirdParty: false,
 	}
 
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
@@ -357,8 +387,26 @@ func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 }
 
 func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
+	if h.AppID == uuid.Nil {
+		return nil, 0, fmt.Errorf("invalid appid")
+	}
+
 	handler := &queryHandler{
-		Handler: h,
+		Handler:        h,
+		joinThirdParty: true,
+	}
+
+	if h.Conds != nil && h.Conds.ID != nil {
+		handler.joinThirdParty = false
+	}
+	if h.Conds != nil && h.Conds.IDs != nil {
+		handler.joinThirdParty = false
+	}
+	if h.Conds != nil && h.PhoneNO != nil {
+		handler.joinThirdParty = false
+	}
+	if h.Conds != nil && h.EmailAddress != nil {
+		handler.joinThirdParty = false
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
