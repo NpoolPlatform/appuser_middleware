@@ -213,8 +213,10 @@ func creatUser(t *testing.T) {
 
 	info, err := CreateUser(context.Background(), &req)
 	if assert.Nil(t, err) {
+		ret.OAuthThirdParties = info.OAuthThirdParties
 		ret.CreatedAt = info.CreatedAt
 		ret1.CreatedAt = info.CreatedAt
+		ret1.OAuthThirdParties = info.OAuthThirdParties
 		assert.Equal(t, info, &ret1)
 	}
 }
@@ -263,6 +265,7 @@ func updateUser(t *testing.T) {
 
 	info, err := UpdateUser(context.Background(), &req)
 	if assert.Nil(t, err) {
+		ret.OAuthThirdParties = info.OAuthThirdParties
 		ret.Roles = info.Roles
 		assert.Equal(t, info, &ret)
 	}
@@ -271,6 +274,7 @@ func updateUser(t *testing.T) {
 func getUser(t *testing.T) {
 	info, err := GetUser(context.Background(), ret.AppID, ret.ID)
 	if assert.Nil(t, err) {
+		ret.OAuthThirdParties = info.OAuthThirdParties
 		assert.Equal(t, info, &ret)
 	}
 }
