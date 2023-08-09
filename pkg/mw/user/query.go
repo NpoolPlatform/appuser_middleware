@@ -275,7 +275,7 @@ func (h *queryHandler) queryAppUserThirdParties(ctx context.Context) error {
 		return nil
 	}
 
-	thirdPartyUsers := []*npool.AppUserThirdParty{}
+	oAuthThirdParties := []*npool.OAuthThirdParty{}
 	uids := []uuid.UUID{}
 
 	for _, info := range h.infos {
@@ -297,16 +297,16 @@ func (h *queryHandler) queryAppUserThirdParties(ctx context.Context) error {
 				entappuserthirdparty.FieldThirdPartyUsername,
 				entappuserthirdparty.FieldThirdPartyAvatar,
 			).
-			Scan(_ctx, &thirdPartyUsers)
+			Scan(_ctx, &oAuthThirdParties)
 	})
 	if err != nil {
 		return err
 	}
 
-	for _, thirdPartyUser := range thirdPartyUsers {
+	for _, oauthThirdParty := range oAuthThirdParties {
 		for _, info := range h.infos {
-			if info.ID == thirdPartyUser.UserID {
-				info.AppUserThirdParties = append(info.AppUserThirdParties, thirdPartyUser)
+			if info.ID == oauthThirdParty.UserID {
+				info.OAuthThirdParties = append(info.OAuthThirdParties, oauthThirdParty)
 			}
 		}
 	}
