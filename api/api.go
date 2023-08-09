@@ -14,8 +14,8 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/api/user"
 	loginhistory "github.com/NpoolPlatform/appuser-middleware/api/user/login/history"
 
-	appoauththirdparty "github.com/NpoolPlatform/appuser-middleware/api/authing/oauth/appoauththirdparty"
-	oauththirdparty "github.com/NpoolPlatform/appuser-middleware/api/authing/oauth/oauththirdparty"
+	appoauththirdparty "github.com/NpoolPlatform/appuser-middleware/api/oauth/appoauththirdparty"
+	oauththirdparty "github.com/NpoolPlatform/appuser-middleware/api/oauth/oauththirdparty"
 	appusermw "github.com/NpoolPlatform/message/npool/appuser/mw/v1"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"

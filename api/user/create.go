@@ -22,6 +22,10 @@ func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*
 		user1.WithImportFromAppID(req.ImportedFromAppID),
 		user1.WithPasswordHash(req.PasswordHash),
 		user1.WithRoleIDs(req.GetRoleIDs()),
+		user1.WithThirdPartyID(req.ThirdPartyID),
+		user1.WithThirdPartyUserID(req.ThirdPartyUserID),
+		user1.WithThirdPartyUsername(req.ThirdPartyUsername),
+		user1.WithThirdPartyAvatar(req.ThirdPartyAvatar),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
@@ -42,45 +46,6 @@ func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*
 	}
 
 	return &npool.CreateUserResponse{
-		Info: info,
-	}, nil
-}
-
-func (s *Server) CreateThirdUser(ctx context.Context, in *npool.CreateThirdUserRequest) (*npool.CreateThirdUserResponse, error) {
-	req := in.GetInfo()
-	handler, err := user1.NewHandler(
-		ctx,
-		user1.WithID(req.ID),
-		user1.WithAppID(req.GetAppID()),
-		user1.WithPhoneNO(req.PhoneNO),
-		user1.WithEmailAddress(req.EmailAddress),
-		user1.WithImportFromAppID(req.ImportedFromAppID),
-		user1.WithPasswordHash(req.PasswordHash),
-		user1.WithRoleIDs(req.GetRoleIDs()),
-		user1.WithThirdPartyID(req.ThirdPartyID),
-		user1.WithThirdPartyUserID(req.ThirdPartyUserID),
-		user1.WithThirdPartyUsername(req.ThirdPartyUsername),
-		user1.WithThirdPartyAvatar(req.ThirdPartyAvatar),
-	)
-	if err != nil {
-		logger.Sugar().Errorw(
-			"CreateThirdUser",
-			"Req", req,
-			"error", err,
-		)
-		return &npool.CreateThirdUserResponse{}, status.Error(codes.InvalidArgument, err.Error())
-	}
-	info, err := handler.CreateUser(ctx)
-	if err != nil {
-		logger.Sugar().Errorw(
-			"CreateThirdUser",
-			"Req", req,
-			"error", err,
-		)
-		return &npool.CreateThirdUserResponse{}, status.Error(codes.Aborted, err.Error())
-	}
-
-	return &npool.CreateThirdUserResponse{
 		Info: info,
 	}, nil
 }

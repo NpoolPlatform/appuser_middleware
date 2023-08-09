@@ -201,3 +201,43 @@ func (h *Handler) DeleteUser(ctx context.Context) (info *npool.User, err error) 
 
 	return info, nil
 }
+
+func (h *Handler) DeleteThirdUser(ctx context.Context) (info *npool.User, err error) {
+	info, err = h.GetUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {
+		info, err := tx.
+			AppUserThirdParty.
+			Query().
+			Where(
+				entappuserthirdparty.AppID(h.AppID),
+				entappuserthirdparty.UserID(*h.ID),
+				entappuserthirdparty.ThirdPartyUserID(*h.ThirdPartyUserID),
+				entappuserthirdparty.ThirdPartyID(*h.ThirdPartyID),
+			).
+			ForUpdate().
+			Only(ctx)
+		if err != nil {
+			if !ent.IsNotFound(err) {
+				return err
+			}
+			return nil
+		}
+
+		if _, err := info.
+			Update().
+			SetDeletedAt(uint32(time.Now().Unix())).
+			Save(ctx); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return info, nil
+}

@@ -23,7 +23,6 @@ import (
 
 	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
 
-	uuid1 "github.com/NpoolPlatform/go-service-framework/pkg/const/uuid"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
@@ -33,9 +32,10 @@ import (
 
 type queryHandler struct {
 	*Handler
-	stm   *ent.AppUserSelect
-	infos []*npool.User
-	total uint32
+	stm            *ent.AppUserSelect
+	infos          []*npool.User
+	total          uint32
+	joinThirdParty bool
 }
 
 func (h *queryHandler) selectAppUser(stm *ent.AppUserQuery) {
@@ -59,6 +59,7 @@ func (h *queryHandler) queryAppUser(cli *ent.Client) error {
 			Query().
 			Where(
 				entappuser.ID(*h.ID),
+				entappuser.AppID(h.AppID),
 				entappuser.DeletedAt(0),
 			),
 	)
@@ -89,6 +90,10 @@ func (h *queryHandler) queryJoinAppUserExtra(s *sql.Selector) {
 			s.C(entappuser.FieldID),
 			t.C(entextra.FieldUserID),
 		).
+		On(
+			s.C(entappuser.FieldAppID),
+			t.C(entextra.FieldAppID),
+		).
 		AppendSelect(
 			sql.As(t.C(entextra.FieldUsername), "username"),
 			sql.As(t.C(entextra.FieldFirstName), "first_name"),
@@ -111,6 +116,10 @@ func (h *queryHandler) queryJoinAppUserControl(s *sql.Selector) {
 		On(
 			s.C(entappuser.FieldID),
 			t.C(entappusercontrol.FieldUserID),
+		).
+		On(
+			s.C(entappuser.FieldAppID),
+			t.C(entappusercontrol.FieldAppID),
 		).
 		AppendSelect(
 			sql.As(t.C(entappusercontrol.FieldGoogleAuthenticationVerified), "google_authentication_verified"),
@@ -142,6 +151,10 @@ func (h *queryHandler) queryJoinBanAppUser(s *sql.Selector) {
 			t.C(entbanappuser.FieldUserID),
 		).
 		On(
+			s.C(entappuser.FieldAppID),
+			t.C(entbanappuser.FieldAppID),
+		).
+		On(
 			s.C(entappuser.FieldDeletedAt),
 			t.C(entbanappuser.FieldDeletedAt),
 		).
@@ -159,6 +172,10 @@ func (h *queryHandler) queryJoinKyc(s *sql.Selector) {
 			s.C(entappuser.FieldID),
 			t.C(entkyc.FieldUserID),
 		).
+		On(
+			s.C(entappuser.FieldAppID),
+			t.C(entkyc.FieldAppID),
+		).
 		OnP(
 			sql.EQ(t.C(entkyc.FieldDeletedAt), 0),
 		).
@@ -174,17 +191,29 @@ func (h *queryHandler) queryJoinAppUserSecret(s *sql.Selector) {
 			s.C(entappuser.FieldID),
 			t.C(entappusersecret.FieldUserID),
 		).
+		On(
+			s.C(entappuser.FieldAppID),
+			t.C(entappusersecret.FieldAppID),
+		).
 		AppendSelect(
 			sql.As(t.C(entappusersecret.FieldGoogleSecret), "google_secret"),
 		)
 }
 
 func (h *queryHandler) queryJoinAppUserThirdParty(s *sql.Selector) error {
+	if !h.joinThirdParty {
+		return nil
+	}
+
 	t := sql.Table(entappuserthirdparty.Table)
 	s.LeftJoin(t).
 		On(
 			s.C(entappuser.FieldID),
 			t.C(entappuserthirdparty.FieldUserID),
+		).
+		On(
+			s.C(entappuser.FieldAppID),
+			t.C(entappuserthirdparty.FieldAppID),
 		).
 		On(
 			s.C(entappuser.FieldDeletedAt),
@@ -220,7 +249,8 @@ func (h *queryHandler) queryJoinAppUserThirdParty(s *sql.Selector) error {
 	return nil
 }
 
-func (h *queryHandler) queryJoin() {
+func (h *queryHandler) queryJoin() error {
+	var err error
 	h.stm.Modify(func(s *sql.Selector) {
 		h.queryJoinAppUserExtra(s)
 		h.queryJoinAppUserControl(s)
@@ -228,12 +258,6 @@ func (h *queryHandler) queryJoin() {
 		h.queryJoinBanAppUser(s)
 		h.queryJoinKyc(s)
 		h.queryJoinAppUserSecret(s)
-	})
-}
-
-func (h *queryHandler) queryJoinThirdUserInfo() error {
-	var err error
-	h.stm.Modify(func(s *sql.Selector) {
 		err = h.queryJoinAppUserThirdParty(s)
 	})
 	if err != nil {
@@ -244,6 +268,50 @@ func (h *queryHandler) queryJoinThirdUserInfo() error {
 
 func (h *queryHandler) scan(ctx context.Context) error {
 	return h.stm.Scan(ctx, &h.infos)
+}
+
+func (h *queryHandler) queryAppUserThirdParties(ctx context.Context) error {
+	if len(h.infos) == 0 {
+		return nil
+	}
+
+	oAuthThirdParties := []*npool.OAuthThirdParty{}
+	uids := []uuid.UUID{}
+
+	for _, info := range h.infos {
+		uids = append(uids, uuid.MustParse(info.ID))
+	}
+
+	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		return cli.
+			AppUserThirdParty.
+			Query().
+			Where(
+				entappuserthirdparty.UserIDIn(uids...),
+				entappuserthirdparty.DeletedAt(0),
+			).
+			Select(
+				entappuserthirdparty.FieldUserID,
+				entappuserthirdparty.FieldThirdPartyID,
+				entappuserthirdparty.FieldThirdPartyUserID,
+				entappuserthirdparty.FieldThirdPartyUsername,
+				entappuserthirdparty.FieldThirdPartyAvatar,
+			).
+			Scan(_ctx, &oAuthThirdParties)
+	})
+	if err != nil {
+		return err
+	}
+
+	for _, oauthThirdParty := range oAuthThirdParties {
+		for _, info := range h.infos {
+			if info.ID == oauthThirdParty.UserID {
+				info.OAuthThirdParties = append(info.OAuthThirdParties, oauthThirdParty)
+			}
+		}
+	}
+
+	return nil
 }
 
 func (h *queryHandler) queryUserRoles(ctx context.Context) error {
@@ -316,7 +384,7 @@ func (h *queryHandler) formalize() {
 		info.Banned = info.BanAppUserID != "" && info.BanDeletedAt == 0
 		info.State = basetypes.KycState(basetypes.KycState_value[info.KycStateStr])
 		if info.SelectedLangID != nil {
-			if *info.SelectedLangID == uuid1.InvalidUUIDStr {
+			if *info.SelectedLangID == uuid.Nil.String() {
 				info.SelectedLangID = nil
 			} else if _, err := uuid.Parse(*info.SelectedLangID); err != nil {
 				info.SelectedLangID = nil
@@ -327,14 +395,17 @@ func (h *queryHandler) formalize() {
 
 func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 	handler := &queryHandler{
-		Handler: h,
+		Handler:        h,
+		joinThirdParty: false,
 	}
 
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		if err := handler.queryAppUser(cli); err != nil {
 			return err
 		}
-		handler.queryJoin()
+		if err := handler.queryJoin(); err != nil {
+			return err
+		}
 		if err := handler.scan(_ctx); err != nil {
 			return err
 		}
@@ -353,64 +424,32 @@ func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 	if err := handler.queryUserRoles(ctx); err != nil {
 		return nil, err
 	}
+	if err := handler.queryAppUserThirdParties(ctx); err != nil {
+		return nil, err
+	}
 
 	handler.formalize()
 
 	return handler.infos[0], nil
 }
 
-func (h *Handler) GetThirdUsers(ctx context.Context) ([]*npool.User, uint32, error) {
-	handler := &queryHandler{
-		Handler: h,
-	}
-
-	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryAppUserByConds(ctx, cli); err != nil {
-			return err
-		}
-		if err := handler.queryJoinThirdUserInfo(); err != nil {
-			return err
-		}
-		handler.stm.
-			Offset(int(h.Offset)).
-			Limit(int(h.Limit))
-
-		if err := handler.scan(_ctx); err != nil {
-			return err
-		}
-		return nil
-	})
-
-	if err != nil {
-		return nil, 0, err
-	}
-
-	if err := handler.queryUserRoles(ctx); err != nil {
-		return nil, 0, err
-	}
-
-	handler.total = 0
-
-	if handler.infos != nil {
-		total := len(handler.infos)
-		handler.total = uint32(total)
-	}
-
-	handler.formalize()
-
-	return handler.infos, handler.total, nil
-}
-
 func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
 	handler := &queryHandler{
-		Handler: h,
+		Handler:        h,
+		joinThirdParty: false,
+	}
+
+	if h.Conds != nil && (h.Conds.ThirdPartyID != nil || h.Conds.ThirdPartyUserID != nil) {
+		handler.joinThirdParty = true
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		if err := handler.queryAppUserByConds(ctx, cli); err != nil {
 			return err
 		}
-		handler.queryJoin()
+		if err := handler.queryJoin(); err != nil {
+			return err
+		}
 		handler.stm.
 			Offset(int(h.Offset)).
 			Limit(int(h.Limit))
@@ -426,6 +465,9 @@ func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
 	}
 
 	if err := handler.queryUserRoles(ctx); err != nil {
+		return nil, 0, err
+	}
+	if err := handler.queryAppUserThirdParties(ctx); err != nil {
 		return nil, 0, err
 	}
 

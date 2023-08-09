@@ -9,7 +9,7 @@ import (
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/const"
 	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
 	app "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
-	oauththirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/mw/authing/oauth/oauththirdparty"
+	oauththirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/mw/oauth/oauththirdparty"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
