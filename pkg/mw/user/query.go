@@ -270,6 +270,50 @@ func (h *queryHandler) scan(ctx context.Context) error {
 	return h.stm.Scan(ctx, &h.infos)
 }
 
+func (h *queryHandler) queryAppUserThirdParties(ctx context.Context) error {
+	if len(h.infos) == 0 {
+		return nil
+	}
+
+	thirdPartyUsers := []*npool.AppUserThirdParty{}
+	uids := []uuid.UUID{}
+
+	for _, info := range h.infos {
+		uids = append(uids, uuid.MustParse(info.ID))
+	}
+
+	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		return cli.
+			AppUserThirdParty.
+			Query().
+			Where(
+				entappuserthirdparty.UserIDIn(uids...),
+				entappuserthirdparty.DeletedAt(0),
+			).
+			Select(
+				entappuserthirdparty.FieldUserID,
+				entappuserthirdparty.FieldThirdPartyID,
+				entappuserthirdparty.FieldThirdPartyUserID,
+				entappuserthirdparty.FieldThirdPartyUsername,
+				entappuserthirdparty.FieldThirdPartyAvatar,
+			).
+			Scan(_ctx, &thirdPartyUsers)
+	})
+	if err != nil {
+		return err
+	}
+
+	for _, thirdPartyUser := range thirdPartyUsers {
+		for _, info := range h.infos {
+			if info.ID == thirdPartyUser.UserID {
+				info.AppUserThirdParties = append(info.AppUserThirdParties, thirdPartyUser)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (h *queryHandler) queryUserRoles(ctx context.Context) error {
 	if len(h.infos) == 0 {
 		return nil
@@ -380,6 +424,9 @@ func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 	if err := handler.queryUserRoles(ctx); err != nil {
 		return nil, err
 	}
+	if err := handler.queryAppUserThirdParties(ctx); err != nil {
+		return nil, err
+	}
 
 	handler.formalize()
 
@@ -389,20 +436,11 @@ func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
 	handler := &queryHandler{
 		Handler:        h,
-		joinThirdParty: true,
+		joinThirdParty: false,
 	}
 
-	if h.Conds != nil && h.Conds.ID != nil {
-		handler.joinThirdParty = false
-	}
-	if h.Conds != nil && h.Conds.IDs != nil {
-		handler.joinThirdParty = false
-	}
-	if h.Conds != nil && h.PhoneNO != nil {
-		handler.joinThirdParty = false
-	}
-	if h.Conds != nil && h.EmailAddress != nil {
-		handler.joinThirdParty = false
+	if h.Conds != nil && (h.Conds.ThirdPartyID != nil || h.Conds.ThirdPartyUserID != nil) {
+		handler.joinThirdParty = true
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
@@ -427,6 +465,9 @@ func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
 	}
 
 	if err := handler.queryUserRoles(ctx); err != nil {
+		return nil, 0, err
+	}
+	if err := handler.queryAppUserThirdParties(ctx); err != nil {
 		return nil, 0, err
 	}
 
