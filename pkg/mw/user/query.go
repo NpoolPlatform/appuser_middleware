@@ -220,7 +220,8 @@ func (h *queryHandler) queryJoinAppUserThirdParty(s *sql.Selector) error {
 	return nil
 }
 
-func (h *queryHandler) queryJoin() {
+func (h *queryHandler) queryJoin() error {
+	var err error
 	h.stm.Modify(func(s *sql.Selector) {
 		h.queryJoinAppUserExtra(s)
 		h.queryJoinAppUserControl(s)
@@ -228,13 +229,6 @@ func (h *queryHandler) queryJoin() {
 		h.queryJoinBanAppUser(s)
 		h.queryJoinKyc(s)
 		h.queryJoinAppUserSecret(s)
-	})
-}
-
-func (h *queryHandler) queryJoinThirdUserInfo() error {
-	var err error
-	h.stm.Modify(func(s *sql.Selector) {
-		h.queryJoinAppUserExtra(s)
 		err = h.queryJoinAppUserThirdParty(s)
 	})
 	if err != nil {
@@ -335,7 +329,9 @@ func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 		if err := handler.queryAppUser(cli); err != nil {
 			return err
 		}
-		handler.queryJoin()
+		if err := handler.queryJoin(); err != nil {
+			return err
+		}
 		if err := handler.scan(_ctx); err != nil {
 			return err
 		}
@@ -360,48 +356,6 @@ func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 	return handler.infos[0], nil
 }
 
-func (h *Handler) GetThirdUsers(ctx context.Context) ([]*npool.User, uint32, error) {
-	handler := &queryHandler{
-		Handler: h,
-	}
-
-	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryAppUserByConds(ctx, cli); err != nil {
-			return err
-		}
-		if err := handler.queryJoinThirdUserInfo(); err != nil {
-			return err
-		}
-		handler.stm.
-			Offset(int(h.Offset)).
-			Limit(int(h.Limit))
-
-		if err := handler.scan(_ctx); err != nil {
-			return err
-		}
-		return nil
-	})
-
-	if err != nil {
-		return nil, 0, err
-	}
-
-	if err := handler.queryUserRoles(ctx); err != nil {
-		return nil, 0, err
-	}
-
-	handler.total = 0
-
-	if handler.infos != nil {
-		total := len(handler.infos)
-		handler.total = uint32(total)
-	}
-
-	handler.formalize()
-
-	return handler.infos, handler.total, nil
-}
-
 func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
 	handler := &queryHandler{
 		Handler: h,
@@ -411,7 +365,9 @@ func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
 		if err := handler.queryAppUserByConds(ctx, cli); err != nil {
 			return err
 		}
-		handler.queryJoin()
+		if err := handler.queryJoin(); err != nil {
+			return err
+		}
 		handler.stm.
 			Offset(int(h.Offset)).
 			Limit(int(h.Limit))
