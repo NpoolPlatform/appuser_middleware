@@ -109,6 +109,7 @@ pipeline {
         '''.stripIndent())
       }
     }
+
     stage('Generate docker image for feature') {
       when {
         expression { BUILD_TARGET == 'true' }
@@ -122,7 +123,6 @@ pipeline {
         '''.stripIndent())
       }
     }
-
 
     stage('Generate docker image for development') {
       when {
@@ -343,17 +343,15 @@ pipeline {
           taglist=`git rev-list --tags`
           rc=$?
           set -e
-          if [ ! 0 -eq $rc ]; then
-            exit 0
-          fi
-          tag=`git describe --abbrev=0 --tags $taglist |grep [0\\|2\\|4\\|6\\|8]$ | head -n1`
 
-          set +e
-          docker images | grep appuser-middleware | grep $tag
-          rc=$?
-          set -e
-          if [ 0 -eq $rc ]; then
-            TAG=$tag DOCKER_REGISTRY=$DOCKER_REGISTRY make release-docker-images
+          if [ 0 -eq $rc -a x"$taglist" != x ]; then
+            tag=`git describe --abbrev=0 --tags $taglist |grep [0\\|2\\|4\\|6\\|8]$ | head -n1`
+            set +e
+            docker images | grep appuser-middleware | grep $tag
+            set -e
+            if [ 0 -eq $rc ]; then
+              TAG=$tag DOCKER_REGISTRY=$DOCKER_REGISTRY make release-docker-images
+            fi
           fi
         '''.stripIndent())
       }
