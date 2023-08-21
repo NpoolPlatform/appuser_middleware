@@ -224,55 +224,7 @@ func (h *updateHandler) updateAppUserThirdPartyInfo(ctx context.Context, tx *ent
 	return nil
 }
 
-func (h *updateHandler) mergeAppUserThirdParty(ctx context.Context, tx *ent.Tx) error {
-	if _, err := tx.
-		AppUser.
-		UpdateOneID(*h.ID).
-		SetDeletedAt(uint32(time.Now().Unix())).
-		Save(ctx); err != nil {
-		if !ent.IsNotFound(err) {
-			return err
-		}
-	}
-
-	stm, err := userthirdpartycrud.SetQueryConds(
-		tx.AppUserThirdParty.Query(),
-		&userthirdpartycrud.Conds{
-			ThirdPartyUserID: &cruder.Cond{Op: cruder.EQ, Val: *h.ThirdPartyUserID},
-			AppID:            &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
-		},
-	)
-	if err != nil {
-		return err
-	}
-	info, err := stm.ForUpdate().Only(ctx)
-	if err != nil {
-		if !ent.IsNotFound(err) {
-			return err
-		}
-	}
-
-	if info == nil {
-		return nil
-	}
-
-	req := &userthirdpartycrud.Req{
-		UserID:             h.NewUserID,
-		ThirdPartyUsername: h.ThirdPartyUsername,
-		ThirdPartyAvatar:   h.ThirdPartyAvatar,
-	}
-
-	if _, err = userthirdpartycrud.UpdateSet(
-		info.Update(),
-		req,
-	).Save(ctx); err != nil {
-		return err
-	}
-	h.ID = h.NewUserID
-	return nil
-}
-
-func (h *updateHandler) updateOrMergeAppUserThirdParty(ctx context.Context, tx *ent.Tx) error {
+func (h *updateHandler) checkUpdateAppUserThirdParty(ctx context.Context, tx *ent.Tx) error {
 	conds := &usercrud.Conds{
 		AppID: &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
 	}
@@ -294,10 +246,15 @@ func (h *updateHandler) updateOrMergeAppUserThirdParty(ctx context.Context, tx *
 		}
 	}
 	if userInfo != nil && userInfo.ID != *h.ID {
-		h.NewUserID = &userInfo.ID
-		return h.mergeAppUserThirdParty(ctx, tx)
+		if h.EmailAddress != nil {
+			return fmt.Errorf("email has already been taken")
+		}
+		if h.PhoneNO != nil {
+			return fmt.Errorf("phoneno has already been taken")
+		}
+		return fmt.Errorf("this way has already been taken")
 	}
-	return h.updateAppUserThirdPartyInfo(ctx, tx)
+	return nil
 }
 
 func (h *updateHandler) updateAppUserThirdParty(ctx context.Context, tx *ent.Tx) error {
@@ -325,15 +282,14 @@ func (h *updateHandler) updateAppUserThirdParty(ctx context.Context, tx *ent.Tx)
 		return nil
 	}
 
-	if curUserInfo.EmailAddress != "" || curUserInfo.PhoneNo != "" {
-		return h.updateAppUserThirdPartyInfo(ctx, tx)
-	}
-
 	if h.EmailAddress != nil || h.PhoneNO != nil {
-		return h.updateOrMergeAppUserThirdParty(ctx, tx)
+		err := h.checkUpdateAppUserThirdParty(ctx, tx)
+		if err != nil {
+			return err
+		}
 	}
 
-	return nil
+	return h.updateAppUserThirdPartyInfo(ctx, tx)
 }
 
 func (h *updateHandler) updateBanAppUser(ctx context.Context, tx *ent.Tx) error {
