@@ -188,7 +188,11 @@ func (h *updateHandler) updateAppUserSecret(ctx context.Context, tx *ent.Tx) err
 	return nil
 }
 
-func (h *updateHandler) updateAppUserThirdPartyInfo(ctx context.Context, tx *ent.Tx) error {
+func (h *updateHandler) updateAppUserThirdParty(ctx context.Context, tx *ent.Tx) error {
+	if h.ThirdPartyUserID == nil {
+		return nil
+	}
+
 	stm, err := userthirdpartycrud.SetQueryConds(
 		tx.AppUserThirdParty.Query(),
 		&userthirdpartycrud.Conds{
@@ -222,74 +226,6 @@ func (h *updateHandler) updateAppUserThirdPartyInfo(ctx context.Context, tx *ent
 		return err
 	}
 	return nil
-}
-
-func (h *updateHandler) checkUpdateAppUserThirdParty(ctx context.Context, tx *ent.Tx) error {
-	conds := &usercrud.Conds{
-		AppID: &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
-	}
-	if h.EmailAddress != nil {
-		conds.EmailAddress = &cruder.Cond{Op: cruder.EQ, Val: *h.EmailAddress}
-	}
-	if h.PhoneNO != nil {
-		conds.PhoneNO = &cruder.Cond{Op: cruder.EQ, Val: *h.PhoneNO}
-	}
-
-	stm, err := usercrud.SetQueryConds(tx.AppUser.Query(), conds)
-	if err != nil {
-		return err
-	}
-	userInfo, err := stm.Only(ctx)
-	if err != nil {
-		if !ent.IsNotFound(err) {
-			return err
-		}
-	}
-	if userInfo != nil && userInfo.ID != *h.ID {
-		if h.EmailAddress != nil {
-			return fmt.Errorf("email has already been taken")
-		}
-		if h.PhoneNO != nil {
-			return fmt.Errorf("phoneno has already been taken")
-		}
-		return fmt.Errorf("this way has already been taken")
-	}
-	return nil
-}
-
-func (h *updateHandler) updateAppUserThirdParty(ctx context.Context, tx *ent.Tx) error {
-	if h.ThirdPartyUserID == nil {
-		return nil
-	}
-
-	stm, err := usercrud.SetQueryConds(
-		tx.AppUser.Query(),
-		&usercrud.Conds{
-			ID:    &cruder.Cond{Op: cruder.EQ, Val: *h.ID},
-			AppID: &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
-		},
-	)
-	if err != nil {
-		return err
-	}
-	curUserInfo, err := stm.ForUpdate().Only(ctx)
-	if err != nil {
-		if !ent.IsNotFound(err) {
-			return err
-		}
-	}
-	if curUserInfo == nil {
-		return nil
-	}
-
-	if h.EmailAddress != nil || h.PhoneNO != nil {
-		err := h.checkUpdateAppUserThirdParty(ctx, tx)
-		if err != nil {
-			return err
-		}
-	}
-
-	return h.updateAppUserThirdPartyInfo(ctx, tx)
 }
 
 func (h *updateHandler) updateBanAppUser(ctx context.Context, tx *ent.Tx) error {
