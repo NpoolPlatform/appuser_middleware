@@ -137,18 +137,6 @@ func stat(ctx context.Context, mid string, uid uuid.UUID, rid *uuid.UUID) (bool,
 //  Return
 //   error   reason of error, if nil, means the message should be acked
 func process(ctx context.Context, mid string, uid uuid.UUID, req interface{}) (err error) {
-	defer func() {
-		if err != nil {
-			logger.Sugar().Warnw(
-				"process",
-				"MID", mid,
-				"UID", uid,
-				"Req", req,
-				"Error", err,
-			)
-		}
-	}()
-
 	switch mid {
 	case basetypes.MsgID_IncreaseUserActionCreditsReq.String():
 		err = user.Apply(ctx, req)
@@ -159,12 +147,7 @@ func process(ctx context.Context, mid string, uid uuid.UUID, req interface{}) (e
 	default:
 		return nil
 	}
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // No matter what handler return, the message will be acked, unless handler halt
