@@ -136,7 +136,7 @@ func stat(ctx context.Context, mid string, uid uuid.UUID, rid *uuid.UUID) (bool,
 // Process will consume the message and return consuming state
 //  Return
 //   error   reason of error, if nil, means the message should be acked
-func process(ctx context.Context, mid string, uid uuid.UUID, req interface{}) (err error) {
+func process(ctx context.Context, mid string, req interface{}) (err error) {
 	switch mid {
 	case basetypes.MsgID_IncreaseUserActionCreditsReq.String():
 		err = user.Apply(ctx, req)
@@ -179,7 +179,7 @@ func handler(ctx context.Context, msg *pubsub.Msg) (err error) {
 		return nil
 	}
 
-	err = process(ctx, msg.MID, msg.UID, req)
+	err = process(ctx, msg.MID, req)
 	return err
 }
 
