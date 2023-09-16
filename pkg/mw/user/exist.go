@@ -20,6 +20,7 @@ func (h *Handler) ExistUser(ctx context.Context) (exist bool, err error) {
 			AppUser.
 			Query().
 			Where(
+				entappuser.AppID(h.AppID),
 				entappuser.ID(*h.ID),
 			).
 			Exist(_ctx)
