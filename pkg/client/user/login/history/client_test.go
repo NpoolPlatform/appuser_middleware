@@ -117,6 +117,7 @@ func createHistory(t *testing.T) {
 	}
 
 	info, err := CreateHistory(context.Background(), req)
+	fmt.Printf("err %v\n", err)
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
 		info.AppName = ret.AppName

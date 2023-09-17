@@ -2,11 +2,12 @@ package history
 
 import (
 	"context"
+	"fmt"
 
 	historycrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/login/history"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
-
+	user1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user/login/history"
 
 	"github.com/google/uuid"
@@ -18,7 +19,24 @@ func (h *Handler) CreateHistory(ctx context.Context) (*npool.History, error) {
 		h.ID = &id
 	}
 
-	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+	userID := h.UserID.String()
+	handler, err := user1.NewHandler(
+		ctx,
+		user1.WithID(&userID),
+		user1.WithAppID(h.AppID.String()),
+	)
+	if err != nil {
+		return nil, err
+	}
+	exist, err := handler.ExistUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, fmt.Errorf("invalid user")
+	}
+
+	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		if _, err := historycrud.CreateSet(
 			cli.LoginHistory.Create(),
 			&historycrud.Req{

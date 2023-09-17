@@ -9,7 +9,6 @@ import (
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/const"
 	historycrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/login/history"
 	app "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
-	user "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user/login/history"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
@@ -81,20 +80,6 @@ func WithAppID(id string) func(context.Context, *Handler) error {
 
 func WithUserID(id string) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		handler, err := user.NewHandler(
-			ctx,
-			user.WithID(&id),
-		)
-		if err != nil {
-			return err
-		}
-		exist, err := handler.ExistUser(ctx)
-		if err != nil {
-			return err
-		}
-		if !exist {
-			return fmt.Errorf("invalid app")
-		}
 		_id, err := uuid.Parse(id)
 		if err != nil {
 			return err
