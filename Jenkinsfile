@@ -324,6 +324,20 @@ pipeline {
       }
     }
 
+    stage('Update replicas') {
+      when {
+        expression { DEPLOY_TARGET == 'true' }
+      }
+      steps {
+        sh(returnStdout: false, script: '''
+          if [ "x$REPLICAS_COUNT" == "x" ];then
+            REPLICAS_COUNT=2
+          fi
+          sed -i "s/replicas: 2/replicas: $REPLICAS_COUNT/g" cmd/appuser-middleware/k8s/02-appuser-middleware.yaml
+        '''.stripIndent())
+      }
+    }
+
     stage('Deploy for development') {
       when {
         expression { DEPLOY_TARGET == 'true' }
