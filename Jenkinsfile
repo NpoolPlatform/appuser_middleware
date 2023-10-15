@@ -255,9 +255,9 @@ pipeline {
       }
       steps {
         sh(returnStdout: false, script: '''
-          branch=`echo $BRANCH_NAME | awk -F '/' '{ print $2 }'`
-          if [ "x$branch" == "xmaster" ]; then
-            branch=latest
+          branch=latest
+          if [ "x$BRANCH_NAME" != "xmaster" ]; then
+            branch=`echo $BRANCH_NAME | awk -F '/' '{ print $2 }'`
           fi
           set +e
           docker images | grep appuser-middleware | grep $branch
@@ -345,9 +345,9 @@ pipeline {
       }
       steps {
         sh(returnStdout: false, script: '''
-          branch=`echo $BRANCH_NAME | awk -F '/' '{ print $2 }'`
-          if [ "x$branch" == "xmaster" ]; then
-            branch=latest
+          branch=latest
+          if [ "x$BRANCH_NAME" != "xmaster" ]; then
+            branch=`echo $BRANCH_NAME | awk -F '/' '{ print $2 }'`
           fi
           sed -i "s/appuser-middleware:latest/appuser-middleware:$branch/g" cmd/appuser-middleware/k8s/02-appuser-middleware.yaml
           sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" cmd/appuser-middleware/k8s/02-appuser-middleware.yaml
