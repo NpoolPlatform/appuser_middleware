@@ -335,8 +335,8 @@ pipeline {
           if [ "x$branch" == "xmaster" ]; then
             branch=latest
           fi
-          sed -i "s/basal-middleware:latest/basal-middleware:$branch/g" cmd/basal-middleware/k8s/02-basal-middleware.yaml
-          sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" cmd/basal-middleware/k8s/02-basal-middleware.yaml
+          sed -i "s/appuser-middleware:latest/appuser-middleware:$branch/g" cmd/appuser-middleware/k8s/02-appuser-middleware.yaml
+          sed -i "s/uhub.service.ucloud.cn/$DOCKER_REGISTRY/g" cmd/appuser-middleware/k8s/02-appuser-middleware.yaml
           make deploy-to-k8s-cluster
         '''.stripIndent())
       }
