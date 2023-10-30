@@ -34,7 +34,7 @@ func (h *deleteHandler) deleteAppCtrl(ctx context.Context, tx *ent.Tx) error {
 		AppControl.
 		Query().
 		Where(
-			entappctrl.AppID(*h.ID),
+			entappctrl.AppID(*h.EntID),
 		).
 		ForUpdate().
 		Only(ctx)

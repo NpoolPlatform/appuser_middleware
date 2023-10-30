@@ -54,18 +54,7 @@ func (h *queryHandler) queryApp(cli *ent.Client) error {
 }
 
 func (h *queryHandler) queryApps(ctx context.Context, cli *ent.Client) (err error) {
-	stm := cli.App.Query()
-	if len(h.IDs) > 0 {
-		stm.Where(
-			entapp.IDIn(h.IDs...),
-		)
-	}
-	if h.UserID != nil {
-		stm.Where(
-			entapp.CreatedBy(*h.UserID),
-		)
-	}
-	stm, err = appcrud.SetQueryConds(stm, h.Conds)
+	stm, err := appcrud.SetQueryConds(cli.App.Query(), h.Conds)
 	if err != nil {
 		return err
 	}

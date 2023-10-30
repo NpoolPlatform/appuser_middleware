@@ -14,9 +14,9 @@ import (
 )
 
 type Handler struct {
-	ID                       *uuid.UUID
-	IDs                      []uuid.UUID
-	CreatedBy                uuid.UUID
+	ID                       *uint32
+	EntID                    *uuid.UUID
+	CreatedBy                *uuid.UUID
 	Name                     *string
 	Logo                     *string
 	Description              *string
@@ -33,7 +33,7 @@ type Handler struct {
 	Maintaining              *bool
 	CommitButtonTargets      []string
 	UserID                   *uuid.UUID
-	Reqs                     []*npool.AppReq
+	Reqs                     []*AppReq
 	Conds                    *appcrud.Conds
 	Offset                   int32
 	Limit                    int32
@@ -49,53 +49,60 @@ func NewHandler(ctx context.Context, options ...func(context.Context, *Handler) 
 	return handler, nil
 }
 
-func WithID(id *string) func(context.Context, *Handler) error {
+func WithID(id *uint32, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if id == nil {
+			if must {
+				return fmt.Errorf("invalid id")
+			}
+			return nil
+		}
+		h.ID = id
+		return nil
+	}
+}
+
+func WithEntID(id *string, must bool) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if id == nil {
+			if must {
+				return fmt.Errorf("invalid entid")
+			}
 			return nil
 		}
 		_id, err := uuid.Parse(*id)
 		if err != nil {
 			return err
 		}
-		h.ID = &_id
+		h.EntID = &_id
 		return nil
 	}
 }
 
-func WithIDs(ids []string) func(context.Context, *Handler) error {
+func WithCreatedBy(createdBy *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		if len(ids) == 0 {
-			return fmt.Errorf("invalid ids")
-		}
-		_ids := []uuid.UUID{}
-		for _, id := range ids {
-			_id, err := uuid.Parse(id)
-			if err != nil {
-				return err
+		if createdBy == nil {
+			if must {
+				return fmt.Errorf("invalid createdby")
 			}
-			_ids = append(_ids, _id)
+			return nil
 		}
-		h.IDs = _ids
-		return nil
-	}
-}
-
-func WithCreatedBy(createdBy string) func(context.Context, *Handler) error {
-	return func(ctx context.Context, h *Handler) error {
-		_createdBy, err := uuid.Parse(createdBy)
+		_createdBy, err := uuid.Parse(*createdBy)
 		if err != nil {
 			return err
 		}
 		// TODO: confirm creator exist
-		h.CreatedBy = _createdBy
+		h.CreatedBy = &_createdBy
 		return nil
 	}
 }
 
-func WithName(name *string) func(context.Context, *Handler) error {
+func WithName(name *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if name == nil {
+			if must {
+				return fmt.Errorf("invalid name")
+			}
 			return nil
 		}
 		const leastNameLen = 8
@@ -108,9 +115,12 @@ func WithName(name *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithLogo(logo *string) func(context.Context, *Handler) error {
+func WithLogo(logo *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if logo == nil {
+			if must {
+				return fmt.Errorf("invalid logo")
+			}
 			return nil
 		}
 		const leastLogoLen = 8
@@ -122,28 +132,28 @@ func WithLogo(logo *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithDescription(description *string) func(context.Context, *Handler) error {
+func WithDescription(description *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.Description = description
 		return nil
 	}
 }
 
-func WithBanned(banned *bool) func(context.Context, *Handler) error {
+func WithBanned(banned *bool, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.Banned = banned
 		return nil
 	}
 }
 
-func WithBanMessage(message *string) func(context.Context, *Handler) error {
+func WithBanMessage(message *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.BanMessage = message
 		return nil
 	}
 }
 
-func WithSignupMethods(methods []basetypes.SignMethod) func(context.Context, *Handler) error {
+func WithSignupMethods(methods []basetypes.SignMethod, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		for _, method := range methods {
 			switch method {
@@ -160,7 +170,7 @@ func WithSignupMethods(methods []basetypes.SignMethod) func(context.Context, *Ha
 	}
 }
 
-func WithExtSigninMethods(methods []basetypes.SignMethod) func(context.Context, *Handler) error {
+func WithExtSigninMethods(methods []basetypes.SignMethod, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		for _, method := range methods {
 			switch method {
@@ -185,9 +195,12 @@ func WithExtSigninMethods(methods []basetypes.SignMethod) func(context.Context, 
 	}
 }
 
-func WithRecaptchaMethod(method *basetypes.RecaptchaMethod) func(context.Context, *Handler) error {
+func WithRecaptchaMethod(method *basetypes.RecaptchaMethod, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if method == nil {
+			if must {
+				return fmt.Errorf("invalid recaptchamethod")
+			}
 			return nil
 		}
 		switch *method {
@@ -201,30 +214,33 @@ func WithRecaptchaMethod(method *basetypes.RecaptchaMethod) func(context.Context
 	}
 }
 
-func WithKycEnable(enable *bool) func(context.Context, *Handler) error {
+func WithKycEnable(enable *bool, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.KycEnable = enable
 		return nil
 	}
 }
 
-func WithSigninVerifyEnable(enable *bool) func(context.Context, *Handler) error {
+func WithSigninVerifyEnable(enable *bool, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.SigninVerifyEnable = enable
 		return nil
 	}
 }
 
-func WithInvitationCodeMust(enable *bool) func(context.Context, *Handler) error {
+func WithInvitationCodeMust(enable *bool, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.InvitationCodeMust = enable
 		return nil
 	}
 }
 
-func WithCreateInvitationCodeWhen(when *basetypes.CreateInvitationCodeWhen) func(context.Context, *Handler) error {
+func WithCreateInvitationCodeWhen(when *basetypes.CreateInvitationCodeWhen, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if when == nil {
+			if must {
+				return fmt.Errorf("invalid createinvitationcodewhen")
+			}
 			return nil
 		}
 		switch *when {
@@ -239,30 +255,36 @@ func WithCreateInvitationCodeWhen(when *basetypes.CreateInvitationCodeWhen) func
 	}
 }
 
-func WithMaxTypedCouponsPerOrder(count *uint32) func(context.Context, *Handler) error {
+func WithMaxTypedCouponsPerOrder(count *uint32, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.MaxTypedCouponsPerOrder = count
 		return nil
 	}
 }
 
-func WithMaintaining(enable *bool) func(context.Context, *Handler) error {
+func WithMaintaining(enable *bool, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.Maintaining = enable
 		return nil
 	}
 }
 
-func WithCommitButtonTargets(targets []string) func(context.Context, *Handler) error {
+func WithCommitButtonTargets(targets []string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.CommitButtonTargets = targets
 		return nil
 	}
 }
 
-func WithUserID(id string) func(context.Context, *Handler) error {
+func WithUserID(id *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		_id, err := uuid.Parse(id)
+		if id == nil {
+			if must {
+				return fmt.Errorf("invalid userid")
+			}
+			return nil
+		}
+		_id, err := uuid.Parse(*id)
 		if err != nil {
 			return err
 		}
@@ -294,27 +316,27 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 		if conds == nil {
 			return nil
 		}
-		if conds.ID != nil {
-			id, err := uuid.Parse(conds.GetID().GetValue())
+		if conds.EntID != nil {
+			id, err := uuid.Parse(conds.GetEntID().GetValue())
 			if err != nil {
 				return err
 			}
-			h.Conds.ID = &cruder.Cond{
-				Op:  conds.GetID().GetOp(),
+			h.Conds.EntID = &cruder.Cond{
+				Op:  conds.GetEntID().GetOp(),
 				Val: id,
 			}
 		}
-		if conds.IDs != nil {
+		if conds.EntIDs != nil {
 			ids := []uuid.UUID{}
-			for _, id := range conds.GetIDs().GetValue() {
+			for _, id := range conds.GetEntIDs().GetValue() {
 				_id, err := uuid.Parse(id)
 				if err != nil {
 					return err
 				}
 				ids = append(ids, _id)
 			}
-			h.Conds.IDs = &cruder.Cond{
-				Op:  conds.GetIDs().GetOp(),
+			h.Conds.EntIDs = &cruder.Cond{
+				Op:  conds.GetEntIDs().GetOp(),
 				Val: ids,
 			}
 		}
@@ -341,16 +363,12 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 func WithReqs(reqs []*npool.AppReq) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		for _, req := range reqs {
-			if _, err := uuid.Parse(*req.CreatedBy); err != nil {
+			_req, err := Grpc2CrudReq(req)
+			if err != nil {
 				return err
 			}
-			if req.ID != nil {
-				if _, err := uuid.Parse(*req.ID); err != nil {
-					return err
-				}
-			}
+			h.Reqs = append(h.Reqs, _req)
 		}
-		h.Reqs = reqs
 		return nil
 	}
 }

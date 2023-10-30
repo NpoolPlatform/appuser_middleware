@@ -21,10 +21,6 @@ type updateHandler struct {
 }
 
 func (h *updateHandler) updateApp(ctx context.Context, tx *ent.Tx) error {
-	if h.ID == nil {
-		return fmt.Errorf("invalid id")
-	}
-
 	if _, err := appcrud.UpdateSet(
 		tx.App.UpdateOneID(*h.ID),
 		&appcrud.Req{
@@ -43,7 +39,7 @@ func (h *updateHandler) updateAppCtrl(ctx context.Context, tx *ent.Tx) error {
 		AppControl.
 		Query().
 		Where(
-			entappctrl.AppID(*h.ID),
+			entappctrl.AppID(*h.EntID),
 			entappctrl.DeletedAt(0),
 		).
 		ForUpdate().
@@ -55,7 +51,7 @@ func (h *updateHandler) updateAppCtrl(ctx context.Context, tx *ent.Tx) error {
 	}
 
 	req := &ctrlcrud.Req{
-		AppID:                    h.ID,
+		AppID:                    h.EntID,
 		SignupMethods:            h.SignupMethods,
 		ExtSigninMethods:         h.ExtSigninMethods,
 		RecaptchaMethod:          h.RecaptchaMethod,
@@ -112,7 +108,7 @@ func (h *updateHandler) updateBanApp(ctx context.Context, tx *ent.Tx) error {
 		if _, err := banappcrud.CreateSet(
 			tx.BanApp.Create(),
 			&banappcrud.Req{
-				AppID:   h.ID,
+				AppID:   h.EntID,
 				Message: h.BanMessage,
 			},
 		).Save(ctx); err != nil {
@@ -123,7 +119,7 @@ func (h *updateHandler) updateBanApp(ctx context.Context, tx *ent.Tx) error {
 		if _, err := banappcrud.UpdateSet(
 			tx.BanApp.UpdateOneID(info.ID),
 			&banappcrud.Req{
-				ID:        &info.ID,
+				EntID:     &info.EntID,
 				DeletedAt: &now,
 			},
 		).Save(ctx); err != nil {
