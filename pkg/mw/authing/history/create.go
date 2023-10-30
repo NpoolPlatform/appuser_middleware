@@ -14,16 +14,16 @@ import (
 
 func (h *Handler) CreateHistory(ctx context.Context) (*npool.History, error) {
 	id := uuid.New()
-	if h.ID == nil {
-		h.ID = &id
+	if h.EntID == nil {
+		h.EntID = &id
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		if _, err := historycrud.CreateSet(
 			cli.AuthHistory.Create(),
 			&historycrud.Req{
-				ID:       h.ID,
-				AppID:    &h.AppID,
+				EntID:    h.EntID,
+				AppID:    h.AppID,
 				UserID:   h.UserID,
 				Resource: h.Resource,
 				Method:   h.Method,

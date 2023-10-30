@@ -44,7 +44,7 @@ func (h *queryHistoryHandler) queryAuthHistory(cli *ent.Client) error {
 			AuthHistory.
 			Query().
 			Where(
-				entauthhistory.ID(*h.ID),
+				entauthhistory.EntID(*h.EntID),
 				entauthhistory.DeletedAt(0),
 			),
 	)
