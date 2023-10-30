@@ -22,7 +22,6 @@ func (h *Handler) DeleteRole(ctx context.Context) (*npool.Role, error) {
 		if _, err := rolecrud.UpdateSet(
 			cli.AppRole.UpdateOneID(*h.ID),
 			&rolecrud.Req{
-				ID:        h.ID,
 				DeletedAt: &now,
 			},
 		).Save(ctx); err != nil {

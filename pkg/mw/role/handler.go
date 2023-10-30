@@ -15,14 +15,15 @@ import (
 )
 
 type Handler struct {
-	ID          *uuid.UUID
-	AppID       uuid.UUID
+	ID          *uint32
+	EntID       *uuid.UUID
+	AppID       *uuid.UUID
 	CreatedBy   *uuid.UUID
 	Role        *string
 	Description *string
 	Default     *bool
 	Genesis     *bool
-	Reqs        []*npool.RoleReq
+	Reqs        []*rolecrud.Req
 	Conds       *rolecrud.Conds
 	Offset      int32
 	Limit       int32
@@ -38,29 +39,47 @@ func NewHandler(ctx context.Context, options ...func(context.Context, *Handler) 
 	return handler, nil
 }
 
-func WithID(id *string) func(context.Context, *Handler) error {
+func WithID(id *uint32, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if id == nil {
+			if must {
+				return fmt.Errorf("invalid id")
+			}
+			return nil
+		}
+		h.ID = id
+		return nil
+	}
+}
+
+func WithEntID(id *string, must bool) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if id == nil {
+			if must {
+				return fmt.Errorf("invalid entid")
+			}
 			return nil
 		}
 		_id, err := uuid.Parse(*id)
 		if err != nil {
 			return err
 		}
-		h.ID = &_id
+		h.EntID = &_id
 		return nil
 	}
 }
 
-func WithAppID(id string) func(context.Context, *Handler) error {
+func WithAppID(id *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		_id, err := uuid.Parse(id)
-		if err != nil {
-			return err
+		if id == nil {
+			if must {
+				return fmt.Errorf("invalid appid")
+			}
+			return nil
 		}
 		handler, err := app.NewHandler(
 			ctx,
-			app.WithID(&id),
+			app.WithEntID(id, true),
 		)
 		if err != nil {
 			return err
@@ -72,14 +91,21 @@ func WithAppID(id string) func(context.Context, *Handler) error {
 		if !exist {
 			return fmt.Errorf("invalid app")
 		}
-		h.AppID = _id
+		_id, err := uuid.Parse(*id)
+		if err != nil {
+			return err
+		}
+		h.AppID = &_id
 		return nil
 	}
 }
 
-func WithCreatedBy(id *string) func(context.Context, *Handler) error {
+func WithCreatedBy(id *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if id == nil {
+			if must {
+				return fmt.Errorf("invalid createdby")
+			}
 			return nil
 		}
 		// TODO: check user exist
@@ -92,9 +118,12 @@ func WithCreatedBy(id *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithRole(role *string) func(context.Context, *Handler) error {
+func WithRole(role *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if role == nil {
+			if must {
+				return fmt.Errorf("invalid role")
+			}
 			return nil
 		}
 		if *role == "" {
@@ -105,21 +134,21 @@ func WithRole(role *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithDescription(description *string) func(context.Context, *Handler) error {
+func WithDescription(description *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.Description = description
 		return nil
 	}
 }
 
-func WithDefault(defautl *bool) func(context.Context, *Handler) error {
+func WithDefault(defautl *bool, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.Default = defautl
 		return nil
 	}
 }
 
-func WithGenesis(genesis *bool) func(context.Context, *Handler) error {
+func WithGenesis(genesis *bool, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.Genesis = genesis
 		return nil
@@ -133,12 +162,12 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 		if conds == nil {
 			return nil
 		}
-		if conds.ID != nil {
-			id, err := uuid.Parse(conds.GetID().GetValue())
+		if conds.EntID != nil {
+			id, err := uuid.Parse(conds.GetEntID().GetValue())
 			if err != nil {
 				return err
 			}
-			h.Conds.ID = &cruder.Cond{Op: conds.GetID().GetOp(), Val: id}
+			h.Conds.EntID = &cruder.Cond{Op: conds.GetEntID().GetOp(), Val: id}
 		}
 		if conds.AppID != nil {
 			id, err := uuid.Parse(conds.GetAppID().GetValue())
@@ -166,16 +195,16 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 		if conds.Genesis != nil {
 			h.Conds.Genesis = &cruder.Cond{Op: conds.GetGenesis().GetOp(), Val: conds.GetGenesis().GetValue()}
 		}
-		if len(conds.GetIDs().GetValue()) > 0 {
+		if len(conds.GetEntIDs().GetValue()) > 0 {
 			_ids := []uuid.UUID{}
-			for _, id := range conds.GetIDs().GetValue() {
+			for _, id := range conds.GetEntIDs().GetValue() {
 				_id, err := uuid.Parse(id)
 				if err != nil {
 					return err
 				}
 				_ids = append(_ids, _id)
 			}
-			h.Conds.IDs = &cruder.Cond{Op: conds.GetIDs().GetOp(), Val: _ids}
+			h.Conds.EntIDs = &cruder.Cond{Op: conds.GetEntIDs().GetOp(), Val: _ids}
 		}
 		if len(conds.GetAppIDs().GetValue()) > 0 {
 			_ids := []uuid.UUID{}
@@ -209,22 +238,40 @@ func WithLimit(limit int32) func(context.Context, *Handler) error {
 	}
 }
 
-func WithReqs(reqs []*npool.RoleReq) func(context.Context, *Handler) error {
+func WithReqs(reqs []*npool.RoleReq, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		for _, req := range reqs {
-			if _, err := uuid.Parse(*req.CreatedBy); err != nil {
+			_req := &rolecrud.Req{
+				Role:        req.Role,
+				Description: req.Description,
+				Default:     req.Default,
+				Genesis:     req.Genesis,
+			}
+			if req.AppID == nil {
+				return fmt.Errorf("invalid appid")
+			}
+			appID, err := uuid.Parse(*req.AppID)
+			if err != nil {
 				return err
 			}
-			if _, err := uuid.Parse(*req.AppID); err != nil {
+			_req.AppID = &appID
+			if req.CreatedBy == nil {
+				return fmt.Errorf("invalid createdby")
+			}
+			createdBy, err := uuid.Parse(*req.CreatedBy)
+			if err != nil {
 				return err
 			}
-			if req.ID != nil {
-				if _, err := uuid.Parse(*req.ID); err != nil {
+			_req.CreatedBy = &createdBy
+			if req.EntID != nil {
+				id, err := uuid.Parse(*req.EntID)
+				if err != nil {
 					return err
 				}
+				_req.EntID = &id
 			}
+			h.Reqs = append(h.Reqs, _req)
 		}
-		h.Reqs = reqs
 		return nil
 	}
 }

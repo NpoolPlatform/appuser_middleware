@@ -33,15 +33,11 @@ func (h *queryHandler) selectAppRole(stm *ent.AppRoleQuery) {
 }
 
 func (h *queryHandler) queryAppRole(cli *ent.Client) error {
-	if h.ID == nil {
-		return fmt.Errorf("invalid roleid")
-	}
-
 	h.selectAppRole(
 		cli.AppRole.
 			Query().
 			Where(
-				entapprole.ID(*h.ID),
+				entapprole.EntID(*h.EntID),
 				entapprole.DeletedAt(0),
 			),
 	)

@@ -19,8 +19,8 @@ import (
 
 func (h *Handler) CreateRole(ctx context.Context) (*npool.Role, error) {
 	id := uuid.New()
-	if h.ID == nil {
-		h.ID = &id
+	if h.EntID == nil {
+		h.EntID = &id
 	}
 
 	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateRole, h.AppID, *h.Role)
@@ -51,8 +51,8 @@ func (h *Handler) CreateRole(ctx context.Context) (*npool.Role, error) {
 		if _, err := rolecrud.CreateSet(
 			cli.AppRole.Create(),
 			&rolecrud.Req{
-				ID:          h.ID,
-				AppID:       &h.AppID,
+				EntID:       h.EntID,
+				AppID:       h.AppID,
 				CreatedBy:   h.CreatedBy,
 				Role:        h.Role,
 				Description: h.Description,
@@ -76,19 +76,17 @@ func (h *Handler) CreateRoles(ctx context.Context) ([]*npool.Role, error) {
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		for _, req := range h.Reqs {
 			id := uuid.New()
-			if req.ID != nil {
-				id = uuid.MustParse(*req.ID)
+			if req.EntID == nil {
+				req.EntID = &id
 			}
-			appID := uuid.MustParse(*req.AppID)
-			createdBy := uuid.MustParse(*req.CreatedBy)
 
-			key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateRole, appID, *req.Role)
+			key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateRole, *req.AppID, *req.Role)
 			if err := redis2.TryLock(key, 0); err != nil {
 				return err
 			}
 
 			stm, err := rolecrud.SetQueryConds(cli.AppRole.Query(), &rolecrud.Conds{
-				AppID: &cruder.Cond{Op: cruder.EQ, Val: appID},
+				AppID: &cruder.Cond{Op: cruder.EQ, Val: *req.AppID},
 				Role:  &cruder.Cond{Op: cruder.EQ, Val: *req.Role},
 			})
 			if err != nil {
@@ -108,15 +106,7 @@ func (h *Handler) CreateRoles(ctx context.Context) ([]*npool.Role, error) {
 
 			if _, err := rolecrud.CreateSet(
 				cli.AppRole.Create(),
-				&rolecrud.Req{
-					ID:          &id,
-					AppID:       &appID,
-					CreatedBy:   &createdBy,
-					Role:        req.Role,
-					Description: req.Description,
-					Default:     req.Default,
-					Genesis:     req.Genesis,
-				},
+				req,
 			).Save(ctx); err != nil {
 				_ = redis2.Unlock(key)
 				return err
@@ -131,7 +121,7 @@ func (h *Handler) CreateRoles(ctx context.Context) ([]*npool.Role, error) {
 	}
 
 	h.Conds = &rolecrud.Conds{
-		IDs: &cruder.Cond{Op: cruder.IN, Val: ids},
+		EntIDs: &cruder.Cond{Op: cruder.IN, Val: ids},
 	}
 	infos, _, err := h.GetRoles(ctx)
 	if err != nil {

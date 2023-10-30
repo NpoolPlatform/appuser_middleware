@@ -34,7 +34,7 @@ func (h *Handler) UpdateRole(ctx context.Context) (*npool.Role, error) {
 		if _, err := rolecrud.UpdateSet(
 			info.Update(),
 			&rolecrud.Req{
-				ID:          h.ID,
+				EntID:       h.EntID,
 				CreatedBy:   h.CreatedBy,
 				Role:        h.Role,
 				Description: h.Description,
