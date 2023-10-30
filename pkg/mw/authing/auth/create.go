@@ -43,7 +43,7 @@ func (h *Handler) CreateAuth(ctx context.Context) (*npool.Auth, error) {
 			cli.Auth.Create(),
 			&authcrud.Req{
 				EntID:    h.EntID,
-				AppID:    &h.AppID,
+				AppID:    h.AppID,
 				RoleID:   h.RoleID,
 				UserID:   h.UserID,
 				Resource: h.Resource,
@@ -68,28 +68,11 @@ func (h *Handler) CreateAuths(ctx context.Context) ([]*npool.Auth, error) {
 		for _, req := range h.Reqs {
 			id := uuid.New()
 			if req.EntID != nil {
-				id = uuid.MustParse(*req.EntID)
+				req.EntID = &id
 			}
-
-			appID := uuid.MustParse(*req.AppID)
-			_req := &authcrud.Req{
-				ID:       &id,
-				AppID:    &appID,
-				Resource: req.Resource,
-				Method:   req.Method,
-			}
-			if req.UserID != nil {
-				userID := uuid.MustParse(*req.UserID)
-				_req.UserID = &userID
-			}
-			if req.RoleID != nil {
-				roleID := uuid.MustParse(*req.RoleID)
-				_req.RoleID = &roleID
-			}
-
 			if _, err := authcrud.CreateSet(
 				tx.Auth.Create(),
-				_req,
+				req,
 			).Save(_ctx); err != nil {
 				return err
 			}
@@ -102,7 +85,7 @@ func (h *Handler) CreateAuths(ctx context.Context) ([]*npool.Auth, error) {
 	}
 
 	h.Conds = &authcrud.Conds{
-		IDs: &cruder.Cond{Op: cruder.IN, Val: ids},
+		EntIDs: &cruder.Cond{Op: cruder.IN, Val: ids},
 	}
 	h.Offset = 0
 	h.Limit = int32(len(ids))

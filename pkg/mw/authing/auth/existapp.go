@@ -38,7 +38,8 @@ func (h *existAppHandler) queryApp(cli *ent.Client) {
 		App.
 		Query().
 		Where(
-			entapp.ID(h.AppID),
+			entapp.EntID(*h.AppID),
+			entapp.DeletedAt(0),
 		).
 		Modify(func(s *sql.Selector) {
 			s.Select(

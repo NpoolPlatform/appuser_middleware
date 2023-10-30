@@ -98,8 +98,9 @@ func (h *existUserHandler) queryAppUser(cli *ent.Client) error {
 		AppUser.
 		Query().
 		Where(
-			entappuser.AppID(h.AppID),
-			entappuser.ID(*h.UserID),
+			entappuser.AppID(*h.AppID),
+			entappuser.EntID(*h.UserID),
+			entappuser.DeletedAt(0),
 		).
 		Modify(func(s *sql.Selector) {
 			s.Select(

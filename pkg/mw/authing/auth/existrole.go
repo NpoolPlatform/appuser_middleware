@@ -73,8 +73,9 @@ func (h *existRoleHandler) queryAppRoleUser(cli *ent.Client) error {
 		AppRoleUser.
 		Query().
 		Where(
-			entapproleuser.AppID(h.AppID),
+			entapproleuser.AppID(*h.AppID),
 			entapproleuser.UserID(*h.UserID),
+			entapproleuser.DeletedAt(0),
 		).
 		Select(
 			entapproleuser.FieldAppID,

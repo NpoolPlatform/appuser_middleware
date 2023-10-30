@@ -36,15 +36,11 @@ func (h *queryHandler) selectAuth(stm *ent.AuthQuery) {
 }
 
 func (h *queryHandler) queryAuth(cli *ent.Client) error {
-	if h.ID == nil {
-		return fmt.Errorf("invalid id")
-	}
-
 	h.selectAuth(
 		cli.Auth.
 			Query().
 			Where(
-				entauth.ID(*h.ID),
+				entauth.EntID(*h.EntID),
 				entauth.DeletedAt(0),
 			),
 	)

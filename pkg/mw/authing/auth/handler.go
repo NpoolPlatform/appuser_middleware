@@ -123,9 +123,16 @@ func WithReqs(reqs []*npool.AuthReq, must bool) func(context.Context, *Handler) 
 				}
 				_req.RoleID = &roleID
 			}
+			if req.Resource == nil {
+				return fmt.Errorf("invalid resource")
+			}
 			const leastResourceLen = 3
 			if len(*req.Resource) < leastResourceLen {
 				return fmt.Errorf("resource %v invalid", *req.Resource)
+			}
+			_req.Resource = req.Resource
+			if req.Method == nil {
+				return fmt.Errorf("invalid method")
 			}
 			switch *req.Method {
 			case "POST":

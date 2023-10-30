@@ -25,7 +25,6 @@ func (h *Handler) DeleteAuth(ctx context.Context) (*npool.Auth, error) {
 		if _, err := authcrud.UpdateSet(
 			cli.Auth.UpdateOneID(*h.ID),
 			&authcrud.Req{
-				ID:        h.ID,
 				DeletedAt: &now,
 			},
 		).Save(_ctx); err != nil {
