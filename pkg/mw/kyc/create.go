@@ -19,8 +19,8 @@ import (
 
 func (h *Handler) CreateKyc(ctx context.Context) (*npool.Kyc, error) {
 	id := uuid.New()
-	if h.ID == nil {
-		h.ID = &id
+	if h.EntID == nil {
+		h.EntID = &id
 	}
 
 	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateUser, h.AppID, h.UserID)
@@ -56,9 +56,9 @@ func (h *Handler) CreateKyc(ctx context.Context) (*npool.Kyc, error) {
 		if _, err := kyccrud.CreateSet(
 			cli.Kyc.Create(),
 			&kyccrud.Req{
-				ID:           h.ID,
-				AppID:        &h.AppID,
-				UserID:       &h.UserID,
+				EntID:        h.EntID,
+				AppID:        h.AppID,
+				UserID:       h.UserID,
 				DocumentType: h.DocumentType,
 				IDNumber:     h.IDNumber,
 				FrontImg:     h.FrontImg,

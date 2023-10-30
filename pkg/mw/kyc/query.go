@@ -43,15 +43,11 @@ func (h *queryHandler) selectKyc(stm *ent.KycQuery) {
 }
 
 func (h *queryHandler) queryKyc(cli *ent.Client) error {
-	if h.ID == nil {
-		return fmt.Errorf("invalid kycid")
-	}
-
 	h.selectKyc(
 		cli.Kyc.
 			Query().
 			Where(
-				entkyc.ID(*h.ID),
+				entkyc.EntID(*h.EntID),
 				entkyc.DeletedAt(0),
 			),
 	)

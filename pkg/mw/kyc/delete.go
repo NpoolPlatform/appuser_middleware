@@ -25,7 +25,6 @@ func (h *Handler) DeleteKyc(ctx context.Context) (*npool.Kyc, error) {
 		if _, err := kyccrud.UpdateSet(
 			cli.Kyc.UpdateOneID(*h.ID),
 			&kyccrud.Req{
-				ID:        h.ID,
 				DeletedAt: &now,
 			},
 		).Save(_ctx); err != nil {
