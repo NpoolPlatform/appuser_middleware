@@ -19,8 +19,8 @@ import (
 
 func (h *Handler) CreateUser(ctx context.Context) (*npool.User, error) {
 	id := uuid.New()
-	if h.ID == nil {
-		h.ID = &id
+	if h.EntID == nil {
+		h.EntID = &id
 	}
 	if h.RoleID == nil || h.UserID == nil {
 		return nil, fmt.Errorf("invalid roleid or userid")
@@ -54,15 +54,15 @@ func (h *Handler) CreateUser(ctx context.Context) (*npool.User, error) {
 			}
 		}
 		if info != nil {
-			h.ID = &info.ID
+			h.EntID = &info.EntID
 			return nil
 		}
 
 		if _, err := usercrud.CreateSet(
 			cli.AppRoleUser.Create(),
 			&usercrud.Req{
-				ID:     h.ID,
-				AppID:  &h.AppID,
+				EntID:  h.EntID,
+				AppID:  h.AppID,
 				RoleID: h.RoleID,
 				UserID: h.UserID,
 			},

@@ -22,7 +22,6 @@ func (h *Handler) DeleteUser(ctx context.Context) (*npool.User, error) {
 		if _, err := usercrud.UpdateSet(
 			cli.AppRoleUser.UpdateOneID(*h.ID),
 			&usercrud.Req{
-				ID:        h.ID,
 				DeletedAt: &now,
 			},
 		).Save(ctx); err != nil {

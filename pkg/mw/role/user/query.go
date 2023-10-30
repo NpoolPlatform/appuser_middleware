@@ -39,7 +39,7 @@ func (h *queryHandler) queryAppRoleUser(cli *ent.Client) error {
 		cli.AppRoleUser.
 			Query().
 			Where(
-				entapproleuser.ID(*h.ID),
+				entapproleuser.EntID(*h.EntID),
 				entapproleuser.DeletedAt(0),
 			),
 	)
