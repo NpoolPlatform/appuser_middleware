@@ -16,7 +16,8 @@ import (
 )
 
 type Handler struct {
-	ID            *uuid.UUID
+	ID            *uint32
+	EntID         *uuid.UUID
 	AppID         uuid.UUID
 	ThirdPartyID  *uuid.UUID
 	ClientID      *string
@@ -24,7 +25,7 @@ type Handler struct {
 	CallbackURL   *string
 	Salt          *string
 	ThirdPartyIDs []*uuid.UUID
-	Reqs          []*npool.OAuthThirdPartyReq
+	Reqs          []*appoauththirdpartycrud.Req
 	Conds         *appoauththirdpartycrud.Conds
 	Offset        int32
 	Limit         int32
@@ -40,29 +41,47 @@ func NewHandler(ctx context.Context, options ...func(context.Context, *Handler) 
 	return handler, nil
 }
 
-func WithID(id *string) func(context.Context, *Handler) error {
+func WithID(id *uint32, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if id == nil {
+			if must {
+				return fmt.Errorf("invalid id")
+			}
+			return nil
+		}
+		h.ID = id
+		return nil
+	}
+}
+
+func WithEntID(id *string, must bool) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if id == nil {
+			if must {
+				return fmt.Errorf("invalid entid")
+			}
 			return nil
 		}
 		_id, err := uuid.Parse(*id)
 		if err != nil {
 			return err
 		}
-		h.ID = &_id
+		h.EntID = &_id
 		return nil
 	}
 }
 
-func WithAppID(id string) func(context.Context, *Handler) error {
+func WithAppID(id *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		_id, err := uuid.Parse(id)
-		if err != nil {
-			return err
+		if id == nil {
+			if must {
+				return fmt.Errorf("invalid appid")
+			}
+			return nil
 		}
 		handler, err := app.NewHandler(
 			ctx,
-			app.WithID(&id),
+			app.WithEntID(id, true),
 		)
 		if err != nil {
 			return err
@@ -74,14 +93,21 @@ func WithAppID(id string) func(context.Context, *Handler) error {
 		if !exist {
 			return fmt.Errorf("invalid app")
 		}
+		_id, err := uuid.Parse(*id)
+		if err != nil {
+			return err
+		}
 		h.AppID = _id
 		return nil
 	}
 }
 
-func WithThirdPartyID(id *string) func(context.Context, *Handler) error {
+func WithThirdPartyID(id *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if id == nil {
+			if must {
+				return fmt.Errorf("invalid thirdpartyid")
+			}
 			return nil
 		}
 		_id, err := uuid.Parse(*id)
@@ -93,9 +119,12 @@ func WithThirdPartyID(id *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithClientID(clientID *string) func(context.Context, *Handler) error {
+func WithClientID(clientID *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if clientID == nil {
+			if must {
+				return fmt.Errorf("invalid clientid")
+			}
 			return nil
 		}
 		if *clientID == "" {
@@ -106,9 +135,12 @@ func WithClientID(clientID *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithClientSecret(clientSecret *string) func(context.Context, *Handler) error {
+func WithClientSecret(clientSecret *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if clientSecret == nil {
+			if must {
+				return fmt.Errorf("invalid clientsecret")
+			}
 			return nil
 		}
 		if *clientSecret == "" {
@@ -119,9 +151,12 @@ func WithClientSecret(clientSecret *string) func(context.Context, *Handler) erro
 	}
 }
 
-func WithSalt(salt *string) func(context.Context, *Handler) error {
+func WithSalt(salt *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if salt == nil {
+			if must {
+				return fmt.Errorf("invalid salt")
+			}
 			return nil
 		}
 		h.Salt = salt
@@ -129,7 +164,7 @@ func WithSalt(salt *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithCallbackURL(callbackURL *string) func(context.Context, *Handler) error {
+func WithCallbackURL(callbackURL *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if callbackURL == nil {
 			return nil
@@ -148,12 +183,12 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 		if conds == nil {
 			return nil
 		}
-		if conds.ID != nil {
-			id, err := uuid.Parse(conds.GetID().GetValue())
+		if conds.EntID != nil {
+			id, err := uuid.Parse(conds.GetEntID().GetValue())
 			if err != nil {
 				return err
 			}
-			h.Conds.ID = &cruder.Cond{Op: conds.GetID().GetOp(), Val: id}
+			h.Conds.EntID = &cruder.Cond{Op: conds.GetEntID().GetOp(), Val: id}
 		}
 		if conds.AppID != nil {
 			id, err := uuid.Parse(conds.GetAppID().GetValue())
@@ -207,22 +242,39 @@ func WithLimit(limit int32) func(context.Context, *Handler) error {
 	}
 }
 
-func WithReqs(reqs []*npool.OAuthThirdPartyReq) func(context.Context, *Handler) error {
+func WithReqs(reqs []*npool.OAuthThirdPartyReq, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		for _, req := range reqs {
-			if _, err := uuid.Parse(*req.ThirdPartyID); err != nil {
+			_req := &appoauththirdpartycrud.Req{
+				ClientID:     h.ClientID,
+				ClientSecret: h.ClientSecret,
+				CallbackURL:  h.CallbackURL,
+			}
+			if req.AppID == nil {
+				return fmt.Errorf("invalid appid")
+			}
+			appID, err := uuid.Parse(*req.AppID)
+			if err != nil {
 				return err
 			}
-			if _, err := uuid.Parse(*req.AppID); err != nil {
+			_req.AppID = &appID
+			if req.ThirdPartyID == nil {
+				return fmt.Errorf("invalid thirdpartyid")
+			}
+			thirdPartyID, err := uuid.Parse(*req.ThirdPartyID)
+			if err != nil {
 				return err
 			}
-			if req.ID != nil {
-				if _, err := uuid.Parse(*req.ID); err != nil {
+			_req.ThirdPartyID = &thirdPartyID
+			if req.EntID != nil {
+				id, err := uuid.Parse(*req.EntID)
+				if err != nil {
 					return err
 				}
+				_req.EntID = &id
 			}
+			h.Reqs = append(h.Reqs, _req)
 		}
-		h.Reqs = reqs
 		return nil
 	}
 }

@@ -15,9 +15,6 @@ import (
 )
 
 func (h *Handler) UpdateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdParty, error) {
-	if h.ID == nil {
-		return nil, fmt.Errorf("invalid id")
-	}
 	info, err := h.GetOAuthThirdParty(ctx)
 	if err != nil {
 		return nil, err

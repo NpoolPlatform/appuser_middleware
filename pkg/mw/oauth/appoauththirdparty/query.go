@@ -35,7 +35,7 @@ func (h *queryHandler) queryOAuthThirdParty(cli *ent.Client) {
 		cli.AppOAuthThirdParty.
 			Query().
 			Where(
-				entappoauththirdparty.ID(*h.ID),
+				entappoauththirdparty.EntID(*h.EntID),
 				entappoauththirdparty.DeletedAt(0),
 			),
 	)
