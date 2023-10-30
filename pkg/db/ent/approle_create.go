@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 
-	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -61,6 +60,20 @@ func (arc *AppRoleCreate) SetDeletedAt(u uint32) *AppRoleCreate {
 func (arc *AppRoleCreate) SetNillableDeletedAt(u *uint32) *AppRoleCreate {
 	if u != nil {
 		arc.SetDeletedAt(*u)
+	}
+	return arc
+}
+
+// SetEntID sets the "ent_id" field.
+func (arc *AppRoleCreate) SetEntID(u uuid.UUID) *AppRoleCreate {
+	arc.mutation.SetEntID(u)
+	return arc
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (arc *AppRoleCreate) SetNillableEntID(u *uuid.UUID) *AppRoleCreate {
+	if u != nil {
+		arc.SetEntID(*u)
 	}
 	return arc
 }
@@ -150,16 +163,8 @@ func (arc *AppRoleCreate) SetNillableGenesis(b *bool) *AppRoleCreate {
 }
 
 // SetID sets the "id" field.
-func (arc *AppRoleCreate) SetID(u uuid.UUID) *AppRoleCreate {
+func (arc *AppRoleCreate) SetID(u uint32) *AppRoleCreate {
 	arc.mutation.SetID(u)
-	return arc
-}
-
-// SetNillableID sets the "id" field if the given value is not nil.
-func (arc *AppRoleCreate) SetNillableID(u *uuid.UUID) *AppRoleCreate {
-	if u != nil {
-		arc.SetID(*u)
-	}
 	return arc
 }
 
@@ -263,6 +268,13 @@ func (arc *AppRoleCreate) defaults() error {
 		v := approle.DefaultDeletedAt()
 		arc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := arc.mutation.EntID(); !ok {
+		if approle.DefaultEntID == nil {
+			return fmt.Errorf("ent: uninitialized approle.DefaultEntID (forgotten import ent/runtime?)")
+		}
+		v := approle.DefaultEntID()
+		arc.mutation.SetEntID(v)
+	}
 	if _, ok := arc.mutation.CreatedBy(); !ok {
 		if approle.DefaultCreatedBy == nil {
 			return fmt.Errorf("ent: uninitialized approle.DefaultCreatedBy (forgotten import ent/runtime?)")
@@ -293,13 +305,6 @@ func (arc *AppRoleCreate) defaults() error {
 		v := approle.DefaultGenesis
 		arc.mutation.SetGenesis(v)
 	}
-	if _, ok := arc.mutation.ID(); !ok {
-		if approle.DefaultID == nil {
-			return fmt.Errorf("ent: uninitialized approle.DefaultID (forgotten import ent/runtime?)")
-		}
-		v := approle.DefaultID()
-		arc.mutation.SetID(v)
-	}
 	return nil
 }
 
@@ -314,6 +319,9 @@ func (arc *AppRoleCreate) check() error {
 	if _, ok := arc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "AppRole.deleted_at"`)}
 	}
+	if _, ok := arc.mutation.EntID(); !ok {
+		return &ValidationError{Name: "ent_id", err: errors.New(`ent: missing required field "AppRole.ent_id"`)}
+	}
 	return nil
 }
 
@@ -325,12 +333,9 @@ func (arc *AppRoleCreate) sqlSave(ctx context.Context) (*AppRole, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
-			_node.ID = *id
-		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
-			return nil, err
-		}
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = uint32(id)
 	}
 	return _node, nil
 }
@@ -341,7 +346,7 @@ func (arc *AppRoleCreate) createSpec() (*AppRole, *sqlgraph.CreateSpec) {
 		_spec = &sqlgraph.CreateSpec{
 			Table: approle.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: approle.FieldID,
 			},
 		}
@@ -349,7 +354,7 @@ func (arc *AppRoleCreate) createSpec() (*AppRole, *sqlgraph.CreateSpec) {
 	_spec.OnConflict = arc.conflict
 	if id, ok := arc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = &id
+		_spec.ID.Value = id
 	}
 	if value, ok := arc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -374,6 +379,14 @@ func (arc *AppRoleCreate) createSpec() (*AppRole, *sqlgraph.CreateSpec) {
 			Column: approle.FieldDeletedAt,
 		})
 		_node.DeletedAt = value
+	}
+	if value, ok := arc.mutation.EntID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: approle.FieldEntID,
+		})
+		_node.EntID = value
 	}
 	if value, ok := arc.mutation.CreatedBy(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -528,6 +541,18 @@ func (u *AppRoleUpsert) UpdateDeletedAt() *AppRoleUpsert {
 // AddDeletedAt adds v to the "deleted_at" field.
 func (u *AppRoleUpsert) AddDeletedAt(v uint32) *AppRoleUpsert {
 	u.Add(approle.FieldDeletedAt, v)
+	return u
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *AppRoleUpsert) SetEntID(v uuid.UUID) *AppRoleUpsert {
+	u.Set(approle.FieldEntID, v)
+	return u
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AppRoleUpsert) UpdateEntID() *AppRoleUpsert {
+	u.SetExcluded(approle.FieldEntID)
 	return u
 }
 
@@ -752,6 +777,20 @@ func (u *AppRoleUpsertOne) UpdateDeletedAt() *AppRoleUpsertOne {
 	})
 }
 
+// SetEntID sets the "ent_id" field.
+func (u *AppRoleUpsertOne) SetEntID(v uuid.UUID) *AppRoleUpsertOne {
+	return u.Update(func(s *AppRoleUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AppRoleUpsertOne) UpdateEntID() *AppRoleUpsertOne {
+	return u.Update(func(s *AppRoleUpsert) {
+		s.UpdateEntID()
+	})
+}
+
 // SetCreatedBy sets the "created_by" field.
 func (u *AppRoleUpsertOne) SetCreatedBy(v uuid.UUID) *AppRoleUpsertOne {
 	return u.Update(func(s *AppRoleUpsert) {
@@ -894,12 +933,7 @@ func (u *AppRoleUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *AppRoleUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: AppRoleUpsertOne.ID is not supported by MySQL driver. Use AppRoleUpsertOne.Exec instead")
-	}
+func (u *AppRoleUpsertOne) ID(ctx context.Context) (id uint32, err error) {
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -908,7 +942,7 @@ func (u *AppRoleUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *AppRoleUpsertOne) IDX(ctx context.Context) uuid.UUID {
+func (u *AppRoleUpsertOne) IDX(ctx context.Context) uint32 {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -959,6 +993,10 @@ func (arcb *AppRoleCreateBulk) Save(ctx context.Context) ([]*AppRole, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = uint32(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -1154,6 +1192,20 @@ func (u *AppRoleUpsertBulk) AddDeletedAt(v uint32) *AppRoleUpsertBulk {
 func (u *AppRoleUpsertBulk) UpdateDeletedAt() *AppRoleUpsertBulk {
 	return u.Update(func(s *AppRoleUpsert) {
 		s.UpdateDeletedAt()
+	})
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *AppRoleUpsertBulk) SetEntID(v uuid.UUID) *AppRoleUpsertBulk {
+	return u.Update(func(s *AppRoleUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AppRoleUpsertBulk) UpdateEntID() *AppRoleUpsertBulk {
+	return u.Update(func(s *AppRoleUpsert) {
+		s.UpdateEntID()
 	})
 }
 

@@ -72,7 +72,7 @@ func (otpd *OAuthThirdPartyDelete) sqlExec(ctx context.Context) (int, error) {
 		Node: &sqlgraph.NodeSpec{
 			Table: oauththirdparty.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: oauththirdparty.FieldID,
 			},
 		},

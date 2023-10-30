@@ -72,7 +72,7 @@ func (autpd *AppUserThirdPartyDelete) sqlExec(ctx context.Context) (int, error) 
 		Node: &sqlgraph.NodeSpec{
 			Table: appuserthirdparty.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appuserthirdparty.FieldID,
 			},
 		},

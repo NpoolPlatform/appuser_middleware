@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/auth"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/predicate"
-	"github.com/google/uuid"
 )
 
 // AuthQuery is the builder for querying Auth entities.
@@ -87,8 +86,8 @@ func (aq *AuthQuery) FirstX(ctx context.Context) *Auth {
 
 // FirstID returns the first Auth ID from the query.
 // Returns a *NotFoundError when no Auth ID was found.
-func (aq *AuthQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (aq *AuthQuery) FirstID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = aq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -100,7 +99,7 @@ func (aq *AuthQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (aq *AuthQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (aq *AuthQuery) FirstIDX(ctx context.Context) uint32 {
 	id, err := aq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -138,8 +137,8 @@ func (aq *AuthQuery) OnlyX(ctx context.Context) *Auth {
 // OnlyID is like Only, but returns the only Auth ID in the query.
 // Returns a *NotSingularError when more than one Auth ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (aq *AuthQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (aq *AuthQuery) OnlyID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = aq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -155,7 +154,7 @@ func (aq *AuthQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (aq *AuthQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (aq *AuthQuery) OnlyIDX(ctx context.Context) uint32 {
 	id, err := aq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -181,8 +180,8 @@ func (aq *AuthQuery) AllX(ctx context.Context) []*Auth {
 }
 
 // IDs executes the query and returns a list of Auth IDs.
-func (aq *AuthQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
-	var ids []uuid.UUID
+func (aq *AuthQuery) IDs(ctx context.Context) ([]uint32, error) {
+	var ids []uint32
 	if err := aq.Select(auth.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -190,7 +189,7 @@ func (aq *AuthQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (aq *AuthQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (aq *AuthQuery) IDsX(ctx context.Context) []uint32 {
 	ids, err := aq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -377,7 +376,7 @@ func (aq *AuthQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   auth.Table,
 			Columns: auth.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: auth.FieldID,
 			},
 		},

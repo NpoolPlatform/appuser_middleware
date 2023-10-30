@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 
-	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -61,6 +60,20 @@ func (autpc *AppUserThirdPartyCreate) SetDeletedAt(u uint32) *AppUserThirdPartyC
 func (autpc *AppUserThirdPartyCreate) SetNillableDeletedAt(u *uint32) *AppUserThirdPartyCreate {
 	if u != nil {
 		autpc.SetDeletedAt(*u)
+	}
+	return autpc
+}
+
+// SetEntID sets the "ent_id" field.
+func (autpc *AppUserThirdPartyCreate) SetEntID(u uuid.UUID) *AppUserThirdPartyCreate {
+	autpc.mutation.SetEntID(u)
+	return autpc
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (autpc *AppUserThirdPartyCreate) SetNillableEntID(u *uuid.UUID) *AppUserThirdPartyCreate {
+	if u != nil {
+		autpc.SetEntID(*u)
 	}
 	return autpc
 }
@@ -150,16 +163,8 @@ func (autpc *AppUserThirdPartyCreate) SetNillableThirdPartyAvatar(s *string) *Ap
 }
 
 // SetID sets the "id" field.
-func (autpc *AppUserThirdPartyCreate) SetID(u uuid.UUID) *AppUserThirdPartyCreate {
+func (autpc *AppUserThirdPartyCreate) SetID(u uint32) *AppUserThirdPartyCreate {
 	autpc.mutation.SetID(u)
-	return autpc
-}
-
-// SetNillableID sets the "id" field if the given value is not nil.
-func (autpc *AppUserThirdPartyCreate) SetNillableID(u *uuid.UUID) *AppUserThirdPartyCreate {
-	if u != nil {
-		autpc.SetID(*u)
-	}
 	return autpc
 }
 
@@ -263,6 +268,13 @@ func (autpc *AppUserThirdPartyCreate) defaults() error {
 		v := appuserthirdparty.DefaultDeletedAt()
 		autpc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := autpc.mutation.EntID(); !ok {
+		if appuserthirdparty.DefaultEntID == nil {
+			return fmt.Errorf("ent: uninitialized appuserthirdparty.DefaultEntID (forgotten import ent/runtime?)")
+		}
+		v := appuserthirdparty.DefaultEntID()
+		autpc.mutation.SetEntID(v)
+	}
 	if _, ok := autpc.mutation.AppID(); !ok {
 		if appuserthirdparty.DefaultAppID == nil {
 			return fmt.Errorf("ent: uninitialized appuserthirdparty.DefaultAppID (forgotten import ent/runtime?)")
@@ -296,13 +308,6 @@ func (autpc *AppUserThirdPartyCreate) defaults() error {
 		v := appuserthirdparty.DefaultThirdPartyAvatar
 		autpc.mutation.SetThirdPartyAvatar(v)
 	}
-	if _, ok := autpc.mutation.ID(); !ok {
-		if appuserthirdparty.DefaultID == nil {
-			return fmt.Errorf("ent: uninitialized appuserthirdparty.DefaultID (forgotten import ent/runtime?)")
-		}
-		v := appuserthirdparty.DefaultID()
-		autpc.mutation.SetID(v)
-	}
 	return nil
 }
 
@@ -317,6 +322,9 @@ func (autpc *AppUserThirdPartyCreate) check() error {
 	if _, ok := autpc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "AppUserThirdParty.deleted_at"`)}
 	}
+	if _, ok := autpc.mutation.EntID(); !ok {
+		return &ValidationError{Name: "ent_id", err: errors.New(`ent: missing required field "AppUserThirdParty.ent_id"`)}
+	}
 	return nil
 }
 
@@ -328,12 +336,9 @@ func (autpc *AppUserThirdPartyCreate) sqlSave(ctx context.Context) (*AppUserThir
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
-			_node.ID = *id
-		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
-			return nil, err
-		}
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = uint32(id)
 	}
 	return _node, nil
 }
@@ -344,7 +349,7 @@ func (autpc *AppUserThirdPartyCreate) createSpec() (*AppUserThirdParty, *sqlgrap
 		_spec = &sqlgraph.CreateSpec{
 			Table: appuserthirdparty.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appuserthirdparty.FieldID,
 			},
 		}
@@ -352,7 +357,7 @@ func (autpc *AppUserThirdPartyCreate) createSpec() (*AppUserThirdParty, *sqlgrap
 	_spec.OnConflict = autpc.conflict
 	if id, ok := autpc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = &id
+		_spec.ID.Value = id
 	}
 	if value, ok := autpc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -377,6 +382,14 @@ func (autpc *AppUserThirdPartyCreate) createSpec() (*AppUserThirdParty, *sqlgrap
 			Column: appuserthirdparty.FieldDeletedAt,
 		})
 		_node.DeletedAt = value
+	}
+	if value, ok := autpc.mutation.EntID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: appuserthirdparty.FieldEntID,
+		})
+		_node.EntID = value
 	}
 	if value, ok := autpc.mutation.AppID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -531,6 +544,18 @@ func (u *AppUserThirdPartyUpsert) UpdateDeletedAt() *AppUserThirdPartyUpsert {
 // AddDeletedAt adds v to the "deleted_at" field.
 func (u *AppUserThirdPartyUpsert) AddDeletedAt(v uint32) *AppUserThirdPartyUpsert {
 	u.Add(appuserthirdparty.FieldDeletedAt, v)
+	return u
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *AppUserThirdPartyUpsert) SetEntID(v uuid.UUID) *AppUserThirdPartyUpsert {
+	u.Set(appuserthirdparty.FieldEntID, v)
+	return u
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AppUserThirdPartyUpsert) UpdateEntID() *AppUserThirdPartyUpsert {
+	u.SetExcluded(appuserthirdparty.FieldEntID)
 	return u
 }
 
@@ -755,6 +780,20 @@ func (u *AppUserThirdPartyUpsertOne) UpdateDeletedAt() *AppUserThirdPartyUpsertO
 	})
 }
 
+// SetEntID sets the "ent_id" field.
+func (u *AppUserThirdPartyUpsertOne) SetEntID(v uuid.UUID) *AppUserThirdPartyUpsertOne {
+	return u.Update(func(s *AppUserThirdPartyUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AppUserThirdPartyUpsertOne) UpdateEntID() *AppUserThirdPartyUpsertOne {
+	return u.Update(func(s *AppUserThirdPartyUpsert) {
+		s.UpdateEntID()
+	})
+}
+
 // SetAppID sets the "app_id" field.
 func (u *AppUserThirdPartyUpsertOne) SetAppID(v uuid.UUID) *AppUserThirdPartyUpsertOne {
 	return u.Update(func(s *AppUserThirdPartyUpsert) {
@@ -897,12 +936,7 @@ func (u *AppUserThirdPartyUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *AppUserThirdPartyUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: AppUserThirdPartyUpsertOne.ID is not supported by MySQL driver. Use AppUserThirdPartyUpsertOne.Exec instead")
-	}
+func (u *AppUserThirdPartyUpsertOne) ID(ctx context.Context) (id uint32, err error) {
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -911,7 +945,7 @@ func (u *AppUserThirdPartyUpsertOne) ID(ctx context.Context) (id uuid.UUID, err 
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *AppUserThirdPartyUpsertOne) IDX(ctx context.Context) uuid.UUID {
+func (u *AppUserThirdPartyUpsertOne) IDX(ctx context.Context) uint32 {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -962,6 +996,10 @@ func (autpcb *AppUserThirdPartyCreateBulk) Save(ctx context.Context) ([]*AppUser
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = uint32(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -1157,6 +1195,20 @@ func (u *AppUserThirdPartyUpsertBulk) AddDeletedAt(v uint32) *AppUserThirdPartyU
 func (u *AppUserThirdPartyUpsertBulk) UpdateDeletedAt() *AppUserThirdPartyUpsertBulk {
 	return u.Update(func(s *AppUserThirdPartyUpsert) {
 		s.UpdateDeletedAt()
+	})
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *AppUserThirdPartyUpsertBulk) SetEntID(v uuid.UUID) *AppUserThirdPartyUpsertBulk {
+	return u.Update(func(s *AppUserThirdPartyUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AppUserThirdPartyUpsertBulk) UpdateEntID() *AppUserThirdPartyUpsertBulk {
+	return u.Update(func(s *AppUserThirdPartyUpsert) {
+		s.UpdateEntID()
 	})
 }
 

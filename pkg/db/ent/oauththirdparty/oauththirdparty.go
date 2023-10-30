@@ -18,6 +18,8 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
+	// FieldEntID holds the string denoting the ent_id field in the database.
+	FieldEntID = "ent_id"
 	// FieldClientName holds the string denoting the client_name field in the database.
 	FieldClientName = "client_name"
 	// FieldClientTag holds the string denoting the client_tag field in the database.
@@ -40,6 +42,7 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
+	FieldEntID,
 	FieldClientName,
 	FieldClientTag,
 	FieldClientLogoURL,
@@ -75,6 +78,8 @@ var (
 	UpdateDefaultUpdatedAt func() uint32
 	// DefaultDeletedAt holds the default value on creation for the "deleted_at" field.
 	DefaultDeletedAt func() uint32
+	// DefaultEntID holds the default value on creation for the "ent_id" field.
+	DefaultEntID func() uuid.UUID
 	// DefaultClientName holds the default value on creation for the "client_name" field.
 	DefaultClientName string
 	// DefaultClientTag holds the default value on creation for the "client_tag" field.
@@ -87,6 +92,4 @@ var (
 	DefaultResponseType string
 	// DefaultScope holds the default value on creation for the "scope" field.
 	DefaultScope string
-	// DefaultID holds the default value on creation for the "id" field.
-	DefaultID func() uuid.UUID
 )

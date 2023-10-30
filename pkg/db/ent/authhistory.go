@@ -15,13 +15,15 @@ import (
 type AuthHistory struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID uuid.UUID `json:"id,omitempty"`
+	ID uint32 `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt uint32 `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt uint32 `json:"updated_at,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt uint32 `json:"deleted_at,omitempty"`
+	// EntID holds the value of the "ent_id" field.
+	EntID uuid.UUID `json:"ent_id,omitempty"`
 	// AppID holds the value of the "app_id" field.
 	AppID uuid.UUID `json:"app_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
@@ -41,11 +43,11 @@ func (*AuthHistory) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case authhistory.FieldAllowed:
 			values[i] = new(sql.NullBool)
-		case authhistory.FieldCreatedAt, authhistory.FieldUpdatedAt, authhistory.FieldDeletedAt:
+		case authhistory.FieldID, authhistory.FieldCreatedAt, authhistory.FieldUpdatedAt, authhistory.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
 		case authhistory.FieldResource, authhistory.FieldMethod:
 			values[i] = new(sql.NullString)
-		case authhistory.FieldID, authhistory.FieldAppID, authhistory.FieldUserID:
+		case authhistory.FieldEntID, authhistory.FieldAppID, authhistory.FieldUserID:
 			values[i] = new(uuid.UUID)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type AuthHistory", columns[i])
@@ -63,11 +65,11 @@ func (ah *AuthHistory) assignValues(columns []string, values []interface{}) erro
 	for i := range columns {
 		switch columns[i] {
 		case authhistory.FieldID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value != nil {
-				ah.ID = *value
+			value, ok := values[i].(*sql.NullInt64)
+			if !ok {
+				return fmt.Errorf("unexpected type %T for field id", value)
 			}
+			ah.ID = uint32(value.Int64)
 		case authhistory.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -85,6 +87,12 @@ func (ah *AuthHistory) assignValues(columns []string, values []interface{}) erro
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
 				ah.DeletedAt = uint32(value.Int64)
+			}
+		case authhistory.FieldEntID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field ent_id", values[i])
+			} else if value != nil {
+				ah.EntID = *value
 			}
 		case authhistory.FieldAppID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -152,6 +160,9 @@ func (ah *AuthHistory) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("deleted_at=")
 	builder.WriteString(fmt.Sprintf("%v", ah.DeletedAt))
+	builder.WriteString(", ")
+	builder.WriteString("ent_id=")
+	builder.WriteString(fmt.Sprintf("%v", ah.EntID))
 	builder.WriteString(", ")
 	builder.WriteString("app_id=")
 	builder.WriteString(fmt.Sprintf("%v", ah.AppID))

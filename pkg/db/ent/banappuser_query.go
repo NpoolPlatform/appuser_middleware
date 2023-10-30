@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/banappuser"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/predicate"
-	"github.com/google/uuid"
 )
 
 // BanAppUserQuery is the builder for querying BanAppUser entities.
@@ -87,8 +86,8 @@ func (bauq *BanAppUserQuery) FirstX(ctx context.Context) *BanAppUser {
 
 // FirstID returns the first BanAppUser ID from the query.
 // Returns a *NotFoundError when no BanAppUser ID was found.
-func (bauq *BanAppUserQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (bauq *BanAppUserQuery) FirstID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = bauq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -100,7 +99,7 @@ func (bauq *BanAppUserQuery) FirstID(ctx context.Context) (id uuid.UUID, err err
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (bauq *BanAppUserQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (bauq *BanAppUserQuery) FirstIDX(ctx context.Context) uint32 {
 	id, err := bauq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -138,8 +137,8 @@ func (bauq *BanAppUserQuery) OnlyX(ctx context.Context) *BanAppUser {
 // OnlyID is like Only, but returns the only BanAppUser ID in the query.
 // Returns a *NotSingularError when more than one BanAppUser ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (bauq *BanAppUserQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (bauq *BanAppUserQuery) OnlyID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = bauq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -155,7 +154,7 @@ func (bauq *BanAppUserQuery) OnlyID(ctx context.Context) (id uuid.UUID, err erro
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (bauq *BanAppUserQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (bauq *BanAppUserQuery) OnlyIDX(ctx context.Context) uint32 {
 	id, err := bauq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -181,8 +180,8 @@ func (bauq *BanAppUserQuery) AllX(ctx context.Context) []*BanAppUser {
 }
 
 // IDs executes the query and returns a list of BanAppUser IDs.
-func (bauq *BanAppUserQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
-	var ids []uuid.UUID
+func (bauq *BanAppUserQuery) IDs(ctx context.Context) ([]uint32, error) {
+	var ids []uint32
 	if err := bauq.Select(banappuser.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -190,7 +189,7 @@ func (bauq *BanAppUserQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (bauq *BanAppUserQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (bauq *BanAppUserQuery) IDsX(ctx context.Context) []uint32 {
 	ids, err := bauq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -377,7 +376,7 @@ func (bauq *BanAppUserQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   banappuser.Table,
 			Columns: banappuser.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: banappuser.FieldID,
 			},
 		},

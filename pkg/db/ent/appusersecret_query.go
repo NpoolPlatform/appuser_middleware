@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appusersecret"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/predicate"
-	"github.com/google/uuid"
 )
 
 // AppUserSecretQuery is the builder for querying AppUserSecret entities.
@@ -87,8 +86,8 @@ func (ausq *AppUserSecretQuery) FirstX(ctx context.Context) *AppUserSecret {
 
 // FirstID returns the first AppUserSecret ID from the query.
 // Returns a *NotFoundError when no AppUserSecret ID was found.
-func (ausq *AppUserSecretQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (ausq *AppUserSecretQuery) FirstID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = ausq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -100,7 +99,7 @@ func (ausq *AppUserSecretQuery) FirstID(ctx context.Context) (id uuid.UUID, err 
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (ausq *AppUserSecretQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (ausq *AppUserSecretQuery) FirstIDX(ctx context.Context) uint32 {
 	id, err := ausq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -138,8 +137,8 @@ func (ausq *AppUserSecretQuery) OnlyX(ctx context.Context) *AppUserSecret {
 // OnlyID is like Only, but returns the only AppUserSecret ID in the query.
 // Returns a *NotSingularError when more than one AppUserSecret ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (ausq *AppUserSecretQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (ausq *AppUserSecretQuery) OnlyID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = ausq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -155,7 +154,7 @@ func (ausq *AppUserSecretQuery) OnlyID(ctx context.Context) (id uuid.UUID, err e
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (ausq *AppUserSecretQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (ausq *AppUserSecretQuery) OnlyIDX(ctx context.Context) uint32 {
 	id, err := ausq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -181,8 +180,8 @@ func (ausq *AppUserSecretQuery) AllX(ctx context.Context) []*AppUserSecret {
 }
 
 // IDs executes the query and returns a list of AppUserSecret IDs.
-func (ausq *AppUserSecretQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
-	var ids []uuid.UUID
+func (ausq *AppUserSecretQuery) IDs(ctx context.Context) ([]uint32, error) {
+	var ids []uint32
 	if err := ausq.Select(appusersecret.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -190,7 +189,7 @@ func (ausq *AppUserSecretQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (ausq *AppUserSecretQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (ausq *AppUserSecretQuery) IDsX(ctx context.Context) []uint32 {
 	ids, err := ausq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -377,7 +376,7 @@ func (ausq *AppUserSecretQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   appusersecret.Table,
 			Columns: appusersecret.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appusersecret.FieldID,
 			},
 		},

@@ -15,13 +15,15 @@ import (
 type AppRole struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID uuid.UUID `json:"id,omitempty"`
+	ID uint32 `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt uint32 `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt uint32 `json:"updated_at,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt uint32 `json:"deleted_at,omitempty"`
+	// EntID holds the value of the "ent_id" field.
+	EntID uuid.UUID `json:"ent_id,omitempty"`
 	// CreatedBy holds the value of the "created_by" field.
 	CreatedBy uuid.UUID `json:"created_by,omitempty"`
 	// Role holds the value of the "role" field.
@@ -43,11 +45,11 @@ func (*AppRole) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case approle.FieldDefault, approle.FieldGenesis:
 			values[i] = new(sql.NullBool)
-		case approle.FieldCreatedAt, approle.FieldUpdatedAt, approle.FieldDeletedAt:
+		case approle.FieldID, approle.FieldCreatedAt, approle.FieldUpdatedAt, approle.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
 		case approle.FieldRole, approle.FieldDescription:
 			values[i] = new(sql.NullString)
-		case approle.FieldID, approle.FieldCreatedBy, approle.FieldAppID:
+		case approle.FieldEntID, approle.FieldCreatedBy, approle.FieldAppID:
 			values[i] = new(uuid.UUID)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type AppRole", columns[i])
@@ -65,11 +67,11 @@ func (ar *AppRole) assignValues(columns []string, values []interface{}) error {
 	for i := range columns {
 		switch columns[i] {
 		case approle.FieldID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value != nil {
-				ar.ID = *value
+			value, ok := values[i].(*sql.NullInt64)
+			if !ok {
+				return fmt.Errorf("unexpected type %T for field id", value)
 			}
+			ar.ID = uint32(value.Int64)
 		case approle.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -87,6 +89,12 @@ func (ar *AppRole) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
 				ar.DeletedAt = uint32(value.Int64)
+			}
+		case approle.FieldEntID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field ent_id", values[i])
+			} else if value != nil {
+				ar.EntID = *value
 			}
 		case approle.FieldCreatedBy:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -160,6 +168,9 @@ func (ar *AppRole) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("deleted_at=")
 	builder.WriteString(fmt.Sprintf("%v", ar.DeletedAt))
+	builder.WriteString(", ")
+	builder.WriteString("ent_id=")
+	builder.WriteString(fmt.Sprintf("%v", ar.EntID))
 	builder.WriteString(", ")
 	builder.WriteString("created_by=")
 	builder.WriteString(fmt.Sprintf("%v", ar.CreatedBy))

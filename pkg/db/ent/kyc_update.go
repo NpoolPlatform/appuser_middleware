@@ -84,6 +84,20 @@ func (ku *KycUpdate) AddDeletedAt(u int32) *KycUpdate {
 	return ku
 }
 
+// SetEntID sets the "ent_id" field.
+func (ku *KycUpdate) SetEntID(u uuid.UUID) *KycUpdate {
+	ku.mutation.SetEntID(u)
+	return ku
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (ku *KycUpdate) SetNillableEntID(u *uuid.UUID) *KycUpdate {
+	if u != nil {
+		ku.SetEntID(*u)
+	}
+	return ku
+}
+
 // SetAppID sets the "app_id" field.
 func (ku *KycUpdate) SetAppID(u uuid.UUID) *KycUpdate {
 	ku.mutation.SetAppID(u)
@@ -370,7 +384,7 @@ func (ku *KycUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Table:   kyc.Table,
 			Columns: kyc.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: kyc.FieldID,
 			},
 		},
@@ -422,6 +436,13 @@ func (ku *KycUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: kyc.FieldDeletedAt,
+		})
+	}
+	if value, ok := ku.mutation.EntID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: kyc.FieldEntID,
 		})
 	}
 	if value, ok := ku.mutation.AppID(); ok {
@@ -627,6 +648,20 @@ func (kuo *KycUpdateOne) SetNillableDeletedAt(u *uint32) *KycUpdateOne {
 // AddDeletedAt adds u to the "deleted_at" field.
 func (kuo *KycUpdateOne) AddDeletedAt(u int32) *KycUpdateOne {
 	kuo.mutation.AddDeletedAt(u)
+	return kuo
+}
+
+// SetEntID sets the "ent_id" field.
+func (kuo *KycUpdateOne) SetEntID(u uuid.UUID) *KycUpdateOne {
+	kuo.mutation.SetEntID(u)
+	return kuo
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (kuo *KycUpdateOne) SetNillableEntID(u *uuid.UUID) *KycUpdateOne {
+	if u != nil {
+		kuo.SetEntID(*u)
+	}
 	return kuo
 }
 
@@ -929,7 +964,7 @@ func (kuo *KycUpdateOne) sqlSave(ctx context.Context) (_node *Kyc, err error) {
 			Table:   kyc.Table,
 			Columns: kyc.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: kyc.FieldID,
 			},
 		},
@@ -998,6 +1033,13 @@ func (kuo *KycUpdateOne) sqlSave(ctx context.Context) (_node *Kyc, err error) {
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: kyc.FieldDeletedAt,
+		})
+	}
+	if value, ok := kuo.mutation.EntID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: kyc.FieldEntID,
 		})
 	}
 	if value, ok := kuo.mutation.AppID(); ok {

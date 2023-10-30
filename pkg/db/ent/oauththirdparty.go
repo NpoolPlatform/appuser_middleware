@@ -15,13 +15,15 @@ import (
 type OAuthThirdParty struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID uuid.UUID `json:"id,omitempty"`
+	ID uint32 `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt uint32 `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt uint32 `json:"updated_at,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt uint32 `json:"deleted_at,omitempty"`
+	// EntID holds the value of the "ent_id" field.
+	EntID uuid.UUID `json:"ent_id,omitempty"`
 	// ClientName holds the value of the "client_name" field.
 	ClientName string `json:"client_name,omitempty"`
 	// ClientTag holds the value of the "client_tag" field.
@@ -41,11 +43,11 @@ func (*OAuthThirdParty) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case oauththirdparty.FieldCreatedAt, oauththirdparty.FieldUpdatedAt, oauththirdparty.FieldDeletedAt:
+		case oauththirdparty.FieldID, oauththirdparty.FieldCreatedAt, oauththirdparty.FieldUpdatedAt, oauththirdparty.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
 		case oauththirdparty.FieldClientName, oauththirdparty.FieldClientTag, oauththirdparty.FieldClientLogoURL, oauththirdparty.FieldClientOauthURL, oauththirdparty.FieldResponseType, oauththirdparty.FieldScope:
 			values[i] = new(sql.NullString)
-		case oauththirdparty.FieldID:
+		case oauththirdparty.FieldEntID:
 			values[i] = new(uuid.UUID)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type OAuthThirdParty", columns[i])
@@ -63,11 +65,11 @@ func (otp *OAuthThirdParty) assignValues(columns []string, values []interface{})
 	for i := range columns {
 		switch columns[i] {
 		case oauththirdparty.FieldID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value != nil {
-				otp.ID = *value
+			value, ok := values[i].(*sql.NullInt64)
+			if !ok {
+				return fmt.Errorf("unexpected type %T for field id", value)
 			}
+			otp.ID = uint32(value.Int64)
 		case oauththirdparty.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -85,6 +87,12 @@ func (otp *OAuthThirdParty) assignValues(columns []string, values []interface{})
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
 				otp.DeletedAt = uint32(value.Int64)
+			}
+		case oauththirdparty.FieldEntID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field ent_id", values[i])
+			} else if value != nil {
+				otp.EntID = *value
 			}
 		case oauththirdparty.FieldClientName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -158,6 +166,9 @@ func (otp *OAuthThirdParty) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("deleted_at=")
 	builder.WriteString(fmt.Sprintf("%v", otp.DeletedAt))
+	builder.WriteString(", ")
+	builder.WriteString("ent_id=")
+	builder.WriteString(fmt.Sprintf("%v", otp.EntID))
 	builder.WriteString(", ")
 	builder.WriteString("client_name=")
 	builder.WriteString(otp.ClientName)

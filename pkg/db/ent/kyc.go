@@ -15,13 +15,15 @@ import (
 type Kyc struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID uuid.UUID `json:"id,omitempty"`
+	ID uint32 `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt uint32 `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt uint32 `json:"updated_at,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt uint32 `json:"deleted_at,omitempty"`
+	// EntID holds the value of the "ent_id" field.
+	EntID uuid.UUID `json:"ent_id,omitempty"`
 	// AppID holds the value of the "app_id" field.
 	AppID uuid.UUID `json:"app_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
@@ -49,11 +51,11 @@ func (*Kyc) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case kyc.FieldCreatedAt, kyc.FieldUpdatedAt, kyc.FieldDeletedAt:
+		case kyc.FieldID, kyc.FieldCreatedAt, kyc.FieldUpdatedAt, kyc.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
 		case kyc.FieldDocumentType, kyc.FieldIDNumber, kyc.FieldFrontImg, kyc.FieldBackImg, kyc.FieldSelfieImg, kyc.FieldEntityType, kyc.FieldState:
 			values[i] = new(sql.NullString)
-		case kyc.FieldID, kyc.FieldAppID, kyc.FieldUserID, kyc.FieldReviewID:
+		case kyc.FieldEntID, kyc.FieldAppID, kyc.FieldUserID, kyc.FieldReviewID:
 			values[i] = new(uuid.UUID)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Kyc", columns[i])
@@ -71,11 +73,11 @@ func (k *Kyc) assignValues(columns []string, values []interface{}) error {
 	for i := range columns {
 		switch columns[i] {
 		case kyc.FieldID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value != nil {
-				k.ID = *value
+			value, ok := values[i].(*sql.NullInt64)
+			if !ok {
+				return fmt.Errorf("unexpected type %T for field id", value)
 			}
+			k.ID = uint32(value.Int64)
 		case kyc.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -93,6 +95,12 @@ func (k *Kyc) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
 				k.DeletedAt = uint32(value.Int64)
+			}
+		case kyc.FieldEntID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field ent_id", values[i])
+			} else if value != nil {
+				k.EntID = *value
 			}
 		case kyc.FieldAppID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -190,6 +198,9 @@ func (k *Kyc) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("deleted_at=")
 	builder.WriteString(fmt.Sprintf("%v", k.DeletedAt))
+	builder.WriteString(", ")
+	builder.WriteString("ent_id=")
+	builder.WriteString(fmt.Sprintf("%v", k.EntID))
 	builder.WriteString(", ")
 	builder.WriteString("app_id=")
 	builder.WriteString(fmt.Sprintf("%v", k.AppID))

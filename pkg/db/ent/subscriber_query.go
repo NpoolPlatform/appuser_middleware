@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/predicate"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/subscriber"
-	"github.com/google/uuid"
 )
 
 // SubscriberQuery is the builder for querying Subscriber entities.
@@ -87,8 +86,8 @@ func (sq *SubscriberQuery) FirstX(ctx context.Context) *Subscriber {
 
 // FirstID returns the first Subscriber ID from the query.
 // Returns a *NotFoundError when no Subscriber ID was found.
-func (sq *SubscriberQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (sq *SubscriberQuery) FirstID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = sq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -100,7 +99,7 @@ func (sq *SubscriberQuery) FirstID(ctx context.Context) (id uuid.UUID, err error
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (sq *SubscriberQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (sq *SubscriberQuery) FirstIDX(ctx context.Context) uint32 {
 	id, err := sq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -138,8 +137,8 @@ func (sq *SubscriberQuery) OnlyX(ctx context.Context) *Subscriber {
 // OnlyID is like Only, but returns the only Subscriber ID in the query.
 // Returns a *NotSingularError when more than one Subscriber ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (sq *SubscriberQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (sq *SubscriberQuery) OnlyID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = sq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -155,7 +154,7 @@ func (sq *SubscriberQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error)
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (sq *SubscriberQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (sq *SubscriberQuery) OnlyIDX(ctx context.Context) uint32 {
 	id, err := sq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -181,8 +180,8 @@ func (sq *SubscriberQuery) AllX(ctx context.Context) []*Subscriber {
 }
 
 // IDs executes the query and returns a list of Subscriber IDs.
-func (sq *SubscriberQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
-	var ids []uuid.UUID
+func (sq *SubscriberQuery) IDs(ctx context.Context) ([]uint32, error) {
+	var ids []uint32
 	if err := sq.Select(subscriber.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -190,7 +189,7 @@ func (sq *SubscriberQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (sq *SubscriberQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (sq *SubscriberQuery) IDsX(ctx context.Context) []uint32 {
 	ids, err := sq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -377,7 +376,7 @@ func (sq *SubscriberQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   subscriber.Table,
 			Columns: subscriber.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: subscriber.FieldID,
 			},
 		},

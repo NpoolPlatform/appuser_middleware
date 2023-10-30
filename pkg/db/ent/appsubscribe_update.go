@@ -84,6 +84,20 @@ func (asu *AppSubscribeUpdate) AddDeletedAt(u int32) *AppSubscribeUpdate {
 	return asu
 }
 
+// SetEntID sets the "ent_id" field.
+func (asu *AppSubscribeUpdate) SetEntID(u uuid.UUID) *AppSubscribeUpdate {
+	asu.mutation.SetEntID(u)
+	return asu
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (asu *AppSubscribeUpdate) SetNillableEntID(u *uuid.UUID) *AppSubscribeUpdate {
+	if u != nil {
+		asu.SetEntID(*u)
+	}
+	return asu
+}
+
 // SetAppID sets the "app_id" field.
 func (asu *AppSubscribeUpdate) SetAppID(u uuid.UUID) *AppSubscribeUpdate {
 	asu.mutation.SetAppID(u)
@@ -210,7 +224,7 @@ func (asu *AppSubscribeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Table:   appsubscribe.Table,
 			Columns: appsubscribe.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appsubscribe.FieldID,
 			},
 		},
@@ -262,6 +276,13 @@ func (asu *AppSubscribeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: appsubscribe.FieldDeletedAt,
+		})
+	}
+	if value, ok := asu.mutation.EntID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: appsubscribe.FieldEntID,
 		})
 	}
 	if value, ok := asu.mutation.AppID(); ok {
@@ -363,6 +384,20 @@ func (asuo *AppSubscribeUpdateOne) SetNillableDeletedAt(u *uint32) *AppSubscribe
 // AddDeletedAt adds u to the "deleted_at" field.
 func (asuo *AppSubscribeUpdateOne) AddDeletedAt(u int32) *AppSubscribeUpdateOne {
 	asuo.mutation.AddDeletedAt(u)
+	return asuo
+}
+
+// SetEntID sets the "ent_id" field.
+func (asuo *AppSubscribeUpdateOne) SetEntID(u uuid.UUID) *AppSubscribeUpdateOne {
+	asuo.mutation.SetEntID(u)
+	return asuo
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (asuo *AppSubscribeUpdateOne) SetNillableEntID(u *uuid.UUID) *AppSubscribeUpdateOne {
+	if u != nil {
+		asuo.SetEntID(*u)
+	}
 	return asuo
 }
 
@@ -505,7 +540,7 @@ func (asuo *AppSubscribeUpdateOne) sqlSave(ctx context.Context) (_node *AppSubsc
 			Table:   appsubscribe.Table,
 			Columns: appsubscribe.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appsubscribe.FieldID,
 			},
 		},
@@ -574,6 +609,13 @@ func (asuo *AppSubscribeUpdateOne) sqlSave(ctx context.Context) (_node *AppSubsc
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: appsubscribe.FieldDeletedAt,
+		})
+	}
+	if value, ok := asuo.mutation.EntID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: appsubscribe.FieldEntID,
 		})
 	}
 	if value, ok := asuo.mutation.AppID(); ok {

@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approle"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/predicate"
-	"github.com/google/uuid"
 )
 
 // AppRoleQuery is the builder for querying AppRole entities.
@@ -87,8 +86,8 @@ func (arq *AppRoleQuery) FirstX(ctx context.Context) *AppRole {
 
 // FirstID returns the first AppRole ID from the query.
 // Returns a *NotFoundError when no AppRole ID was found.
-func (arq *AppRoleQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (arq *AppRoleQuery) FirstID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = arq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -100,7 +99,7 @@ func (arq *AppRoleQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) 
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (arq *AppRoleQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (arq *AppRoleQuery) FirstIDX(ctx context.Context) uint32 {
 	id, err := arq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -138,8 +137,8 @@ func (arq *AppRoleQuery) OnlyX(ctx context.Context) *AppRole {
 // OnlyID is like Only, but returns the only AppRole ID in the query.
 // Returns a *NotSingularError when more than one AppRole ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (arq *AppRoleQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (arq *AppRoleQuery) OnlyID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = arq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -155,7 +154,7 @@ func (arq *AppRoleQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (arq *AppRoleQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (arq *AppRoleQuery) OnlyIDX(ctx context.Context) uint32 {
 	id, err := arq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -181,8 +180,8 @@ func (arq *AppRoleQuery) AllX(ctx context.Context) []*AppRole {
 }
 
 // IDs executes the query and returns a list of AppRole IDs.
-func (arq *AppRoleQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
-	var ids []uuid.UUID
+func (arq *AppRoleQuery) IDs(ctx context.Context) ([]uint32, error) {
+	var ids []uint32
 	if err := arq.Select(approle.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -190,7 +189,7 @@ func (arq *AppRoleQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (arq *AppRoleQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (arq *AppRoleQuery) IDsX(ctx context.Context) []uint32 {
 	ids, err := arq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -377,7 +376,7 @@ func (arq *AppRoleQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   approle.Table,
 			Columns: approle.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: approle.FieldID,
 			},
 		},

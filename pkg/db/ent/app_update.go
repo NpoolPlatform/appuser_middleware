@@ -84,6 +84,20 @@ func (au *AppUpdate) AddDeletedAt(u int32) *AppUpdate {
 	return au
 }
 
+// SetEntID sets the "ent_id" field.
+func (au *AppUpdate) SetEntID(u uuid.UUID) *AppUpdate {
+	au.mutation.SetEntID(u)
+	return au
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (au *AppUpdate) SetNillableEntID(u *uuid.UUID) *AppUpdate {
+	if u != nil {
+		au.SetEntID(*u)
+	}
+	return au
+}
+
 // SetCreatedBy sets the "created_by" field.
 func (au *AppUpdate) SetCreatedBy(u uuid.UUID) *AppUpdate {
 	au.mutation.SetCreatedBy(u)
@@ -250,7 +264,7 @@ func (au *AppUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Table:   app.Table,
 			Columns: app.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: app.FieldID,
 			},
 		},
@@ -302,6 +316,13 @@ func (au *AppUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: app.FieldDeletedAt,
+		})
+	}
+	if value, ok := au.mutation.EntID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: app.FieldEntID,
 		})
 	}
 	if value, ok := au.mutation.CreatedBy(); ok {
@@ -429,6 +450,20 @@ func (auo *AppUpdateOne) SetNillableDeletedAt(u *uint32) *AppUpdateOne {
 // AddDeletedAt adds u to the "deleted_at" field.
 func (auo *AppUpdateOne) AddDeletedAt(u int32) *AppUpdateOne {
 	auo.mutation.AddDeletedAt(u)
+	return auo
+}
+
+// SetEntID sets the "ent_id" field.
+func (auo *AppUpdateOne) SetEntID(u uuid.UUID) *AppUpdateOne {
+	auo.mutation.SetEntID(u)
+	return auo
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (auo *AppUpdateOne) SetNillableEntID(u *uuid.UUID) *AppUpdateOne {
+	if u != nil {
+		auo.SetEntID(*u)
+	}
 	return auo
 }
 
@@ -611,7 +646,7 @@ func (auo *AppUpdateOne) sqlSave(ctx context.Context) (_node *App, err error) {
 			Table:   app.Table,
 			Columns: app.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: app.FieldID,
 			},
 		},
@@ -680,6 +715,13 @@ func (auo *AppUpdateOne) sqlSave(ctx context.Context) (_node *App, err error) {
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: app.FieldDeletedAt,
+		})
+	}
+	if value, ok := auo.mutation.EntID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: app.FieldEntID,
 		})
 	}
 	if value, ok := auo.mutation.CreatedBy(); ok {

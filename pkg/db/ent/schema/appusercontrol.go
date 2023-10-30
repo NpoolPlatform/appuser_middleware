@@ -5,10 +5,9 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/mixin"
-
-	"github.com/google/uuid"
-
+	crudermixin "github.com/NpoolPlatform/libent-cruder/pkg/mixin"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
+	"github.com/google/uuid"
 )
 
 // AppUserControl holds the schema definition for the AppUserControl entity.
@@ -19,16 +18,13 @@ type AppUserControl struct {
 func (AppUserControl) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixin.TimeMixin{},
+		crudermixin.AutoIDMixin{},
 	}
 }
 
 // Fields of the AppUserControl.
 func (AppUserControl) Fields() []ent.Field {
 	return []ent.Field{
-		field.
-			UUID("id", uuid.UUID{}).
-			Default(uuid.New).
-			Unique(),
 		field.
 			UUID("app_id", uuid.UUID{}).
 			Optional().

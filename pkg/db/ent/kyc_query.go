@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/kyc"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/predicate"
-	"github.com/google/uuid"
 )
 
 // KycQuery is the builder for querying Kyc entities.
@@ -87,8 +86,8 @@ func (kq *KycQuery) FirstX(ctx context.Context) *Kyc {
 
 // FirstID returns the first Kyc ID from the query.
 // Returns a *NotFoundError when no Kyc ID was found.
-func (kq *KycQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (kq *KycQuery) FirstID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = kq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -100,7 +99,7 @@ func (kq *KycQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (kq *KycQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (kq *KycQuery) FirstIDX(ctx context.Context) uint32 {
 	id, err := kq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -138,8 +137,8 @@ func (kq *KycQuery) OnlyX(ctx context.Context) *Kyc {
 // OnlyID is like Only, but returns the only Kyc ID in the query.
 // Returns a *NotSingularError when more than one Kyc ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (kq *KycQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (kq *KycQuery) OnlyID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = kq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -155,7 +154,7 @@ func (kq *KycQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (kq *KycQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (kq *KycQuery) OnlyIDX(ctx context.Context) uint32 {
 	id, err := kq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -181,8 +180,8 @@ func (kq *KycQuery) AllX(ctx context.Context) []*Kyc {
 }
 
 // IDs executes the query and returns a list of Kyc IDs.
-func (kq *KycQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
-	var ids []uuid.UUID
+func (kq *KycQuery) IDs(ctx context.Context) ([]uint32, error) {
+	var ids []uint32
 	if err := kq.Select(kyc.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -190,7 +189,7 @@ func (kq *KycQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (kq *KycQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (kq *KycQuery) IDsX(ctx context.Context) []uint32 {
 	ids, err := kq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -377,7 +376,7 @@ func (kq *KycQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   kyc.Table,
 			Columns: kyc.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: kyc.FieldID,
 			},
 		},

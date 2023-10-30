@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appsubscribe"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/predicate"
-	"github.com/google/uuid"
 )
 
 // AppSubscribeQuery is the builder for querying AppSubscribe entities.
@@ -87,8 +86,8 @@ func (asq *AppSubscribeQuery) FirstX(ctx context.Context) *AppSubscribe {
 
 // FirstID returns the first AppSubscribe ID from the query.
 // Returns a *NotFoundError when no AppSubscribe ID was found.
-func (asq *AppSubscribeQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (asq *AppSubscribeQuery) FirstID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = asq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -100,7 +99,7 @@ func (asq *AppSubscribeQuery) FirstID(ctx context.Context) (id uuid.UUID, err er
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (asq *AppSubscribeQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (asq *AppSubscribeQuery) FirstIDX(ctx context.Context) uint32 {
 	id, err := asq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -138,8 +137,8 @@ func (asq *AppSubscribeQuery) OnlyX(ctx context.Context) *AppSubscribe {
 // OnlyID is like Only, but returns the only AppSubscribe ID in the query.
 // Returns a *NotSingularError when more than one AppSubscribe ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (asq *AppSubscribeQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (asq *AppSubscribeQuery) OnlyID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = asq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -155,7 +154,7 @@ func (asq *AppSubscribeQuery) OnlyID(ctx context.Context) (id uuid.UUID, err err
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (asq *AppSubscribeQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (asq *AppSubscribeQuery) OnlyIDX(ctx context.Context) uint32 {
 	id, err := asq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -181,8 +180,8 @@ func (asq *AppSubscribeQuery) AllX(ctx context.Context) []*AppSubscribe {
 }
 
 // IDs executes the query and returns a list of AppSubscribe IDs.
-func (asq *AppSubscribeQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
-	var ids []uuid.UUID
+func (asq *AppSubscribeQuery) IDs(ctx context.Context) ([]uint32, error) {
+	var ids []uint32
 	if err := asq.Select(appsubscribe.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -190,7 +189,7 @@ func (asq *AppSubscribeQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (asq *AppSubscribeQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (asq *AppSubscribeQuery) IDsX(ctx context.Context) []uint32 {
 	ids, err := asq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -377,7 +376,7 @@ func (asq *AppSubscribeQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   appsubscribe.Table,
 			Columns: appsubscribe.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appsubscribe.FieldID,
 			},
 		},

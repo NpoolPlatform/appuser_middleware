@@ -72,7 +72,7 @@ func (ausd *AppUserSecretDelete) sqlExec(ctx context.Context) (int, error) {
 		Node: &sqlgraph.NodeSpec{
 			Table: appusersecret.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appusersecret.FieldID,
 			},
 		},

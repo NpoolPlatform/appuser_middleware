@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 
-	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -61,6 +60,20 @@ func (aotpc *AppOAuthThirdPartyCreate) SetDeletedAt(u uint32) *AppOAuthThirdPart
 func (aotpc *AppOAuthThirdPartyCreate) SetNillableDeletedAt(u *uint32) *AppOAuthThirdPartyCreate {
 	if u != nil {
 		aotpc.SetDeletedAt(*u)
+	}
+	return aotpc
+}
+
+// SetEntID sets the "ent_id" field.
+func (aotpc *AppOAuthThirdPartyCreate) SetEntID(u uuid.UUID) *AppOAuthThirdPartyCreate {
+	aotpc.mutation.SetEntID(u)
+	return aotpc
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (aotpc *AppOAuthThirdPartyCreate) SetNillableEntID(u *uuid.UUID) *AppOAuthThirdPartyCreate {
+	if u != nil {
+		aotpc.SetEntID(*u)
 	}
 	return aotpc
 }
@@ -150,16 +163,8 @@ func (aotpc *AppOAuthThirdPartyCreate) SetNillableSalt(s *string) *AppOAuthThird
 }
 
 // SetID sets the "id" field.
-func (aotpc *AppOAuthThirdPartyCreate) SetID(u uuid.UUID) *AppOAuthThirdPartyCreate {
+func (aotpc *AppOAuthThirdPartyCreate) SetID(u uint32) *AppOAuthThirdPartyCreate {
 	aotpc.mutation.SetID(u)
-	return aotpc
-}
-
-// SetNillableID sets the "id" field if the given value is not nil.
-func (aotpc *AppOAuthThirdPartyCreate) SetNillableID(u *uuid.UUID) *AppOAuthThirdPartyCreate {
-	if u != nil {
-		aotpc.SetID(*u)
-	}
 	return aotpc
 }
 
@@ -263,6 +268,13 @@ func (aotpc *AppOAuthThirdPartyCreate) defaults() error {
 		v := appoauththirdparty.DefaultDeletedAt()
 		aotpc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := aotpc.mutation.EntID(); !ok {
+		if appoauththirdparty.DefaultEntID == nil {
+			return fmt.Errorf("ent: uninitialized appoauththirdparty.DefaultEntID (forgotten import ent/runtime?)")
+		}
+		v := appoauththirdparty.DefaultEntID()
+		aotpc.mutation.SetEntID(v)
+	}
 	if _, ok := aotpc.mutation.AppID(); !ok {
 		if appoauththirdparty.DefaultAppID == nil {
 			return fmt.Errorf("ent: uninitialized appoauththirdparty.DefaultAppID (forgotten import ent/runtime?)")
@@ -293,13 +305,6 @@ func (aotpc *AppOAuthThirdPartyCreate) defaults() error {
 		v := appoauththirdparty.DefaultSalt
 		aotpc.mutation.SetSalt(v)
 	}
-	if _, ok := aotpc.mutation.ID(); !ok {
-		if appoauththirdparty.DefaultID == nil {
-			return fmt.Errorf("ent: uninitialized appoauththirdparty.DefaultID (forgotten import ent/runtime?)")
-		}
-		v := appoauththirdparty.DefaultID()
-		aotpc.mutation.SetID(v)
-	}
 	return nil
 }
 
@@ -314,6 +319,9 @@ func (aotpc *AppOAuthThirdPartyCreate) check() error {
 	if _, ok := aotpc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "AppOAuthThirdParty.deleted_at"`)}
 	}
+	if _, ok := aotpc.mutation.EntID(); !ok {
+		return &ValidationError{Name: "ent_id", err: errors.New(`ent: missing required field "AppOAuthThirdParty.ent_id"`)}
+	}
 	return nil
 }
 
@@ -325,12 +333,9 @@ func (aotpc *AppOAuthThirdPartyCreate) sqlSave(ctx context.Context) (*AppOAuthTh
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
-			_node.ID = *id
-		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
-			return nil, err
-		}
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = uint32(id)
 	}
 	return _node, nil
 }
@@ -341,7 +346,7 @@ func (aotpc *AppOAuthThirdPartyCreate) createSpec() (*AppOAuthThirdParty, *sqlgr
 		_spec = &sqlgraph.CreateSpec{
 			Table: appoauththirdparty.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appoauththirdparty.FieldID,
 			},
 		}
@@ -349,7 +354,7 @@ func (aotpc *AppOAuthThirdPartyCreate) createSpec() (*AppOAuthThirdParty, *sqlgr
 	_spec.OnConflict = aotpc.conflict
 	if id, ok := aotpc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = &id
+		_spec.ID.Value = id
 	}
 	if value, ok := aotpc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -374,6 +379,14 @@ func (aotpc *AppOAuthThirdPartyCreate) createSpec() (*AppOAuthThirdParty, *sqlgr
 			Column: appoauththirdparty.FieldDeletedAt,
 		})
 		_node.DeletedAt = value
+	}
+	if value, ok := aotpc.mutation.EntID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: appoauththirdparty.FieldEntID,
+		})
+		_node.EntID = value
 	}
 	if value, ok := aotpc.mutation.AppID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -528,6 +541,18 @@ func (u *AppOAuthThirdPartyUpsert) UpdateDeletedAt() *AppOAuthThirdPartyUpsert {
 // AddDeletedAt adds v to the "deleted_at" field.
 func (u *AppOAuthThirdPartyUpsert) AddDeletedAt(v uint32) *AppOAuthThirdPartyUpsert {
 	u.Add(appoauththirdparty.FieldDeletedAt, v)
+	return u
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *AppOAuthThirdPartyUpsert) SetEntID(v uuid.UUID) *AppOAuthThirdPartyUpsert {
+	u.Set(appoauththirdparty.FieldEntID, v)
+	return u
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AppOAuthThirdPartyUpsert) UpdateEntID() *AppOAuthThirdPartyUpsert {
+	u.SetExcluded(appoauththirdparty.FieldEntID)
 	return u
 }
 
@@ -752,6 +777,20 @@ func (u *AppOAuthThirdPartyUpsertOne) UpdateDeletedAt() *AppOAuthThirdPartyUpser
 	})
 }
 
+// SetEntID sets the "ent_id" field.
+func (u *AppOAuthThirdPartyUpsertOne) SetEntID(v uuid.UUID) *AppOAuthThirdPartyUpsertOne {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AppOAuthThirdPartyUpsertOne) UpdateEntID() *AppOAuthThirdPartyUpsertOne {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.UpdateEntID()
+	})
+}
+
 // SetAppID sets the "app_id" field.
 func (u *AppOAuthThirdPartyUpsertOne) SetAppID(v uuid.UUID) *AppOAuthThirdPartyUpsertOne {
 	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
@@ -894,12 +933,7 @@ func (u *AppOAuthThirdPartyUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *AppOAuthThirdPartyUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: AppOAuthThirdPartyUpsertOne.ID is not supported by MySQL driver. Use AppOAuthThirdPartyUpsertOne.Exec instead")
-	}
+func (u *AppOAuthThirdPartyUpsertOne) ID(ctx context.Context) (id uint32, err error) {
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -908,7 +942,7 @@ func (u *AppOAuthThirdPartyUpsertOne) ID(ctx context.Context) (id uuid.UUID, err
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *AppOAuthThirdPartyUpsertOne) IDX(ctx context.Context) uuid.UUID {
+func (u *AppOAuthThirdPartyUpsertOne) IDX(ctx context.Context) uint32 {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -959,6 +993,10 @@ func (aotpcb *AppOAuthThirdPartyCreateBulk) Save(ctx context.Context) ([]*AppOAu
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = uint32(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -1154,6 +1192,20 @@ func (u *AppOAuthThirdPartyUpsertBulk) AddDeletedAt(v uint32) *AppOAuthThirdPart
 func (u *AppOAuthThirdPartyUpsertBulk) UpdateDeletedAt() *AppOAuthThirdPartyUpsertBulk {
 	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
 		s.UpdateDeletedAt()
+	})
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *AppOAuthThirdPartyUpsertBulk) SetEntID(v uuid.UUID) *AppOAuthThirdPartyUpsertBulk {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AppOAuthThirdPartyUpsertBulk) UpdateEntID() *AppOAuthThirdPartyUpsertBulk {
+	return u.Update(func(s *AppOAuthThirdPartyUpsert) {
+		s.UpdateEntID()
 	})
 }
 

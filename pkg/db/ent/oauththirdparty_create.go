@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 
-	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -61,6 +60,20 @@ func (otpc *OAuthThirdPartyCreate) SetDeletedAt(u uint32) *OAuthThirdPartyCreate
 func (otpc *OAuthThirdPartyCreate) SetNillableDeletedAt(u *uint32) *OAuthThirdPartyCreate {
 	if u != nil {
 		otpc.SetDeletedAt(*u)
+	}
+	return otpc
+}
+
+// SetEntID sets the "ent_id" field.
+func (otpc *OAuthThirdPartyCreate) SetEntID(u uuid.UUID) *OAuthThirdPartyCreate {
+	otpc.mutation.SetEntID(u)
+	return otpc
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (otpc *OAuthThirdPartyCreate) SetNillableEntID(u *uuid.UUID) *OAuthThirdPartyCreate {
+	if u != nil {
+		otpc.SetEntID(*u)
 	}
 	return otpc
 }
@@ -150,16 +163,8 @@ func (otpc *OAuthThirdPartyCreate) SetNillableScope(s *string) *OAuthThirdPartyC
 }
 
 // SetID sets the "id" field.
-func (otpc *OAuthThirdPartyCreate) SetID(u uuid.UUID) *OAuthThirdPartyCreate {
+func (otpc *OAuthThirdPartyCreate) SetID(u uint32) *OAuthThirdPartyCreate {
 	otpc.mutation.SetID(u)
-	return otpc
-}
-
-// SetNillableID sets the "id" field if the given value is not nil.
-func (otpc *OAuthThirdPartyCreate) SetNillableID(u *uuid.UUID) *OAuthThirdPartyCreate {
-	if u != nil {
-		otpc.SetID(*u)
-	}
 	return otpc
 }
 
@@ -263,6 +268,13 @@ func (otpc *OAuthThirdPartyCreate) defaults() error {
 		v := oauththirdparty.DefaultDeletedAt()
 		otpc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := otpc.mutation.EntID(); !ok {
+		if oauththirdparty.DefaultEntID == nil {
+			return fmt.Errorf("ent: uninitialized oauththirdparty.DefaultEntID (forgotten import ent/runtime?)")
+		}
+		v := oauththirdparty.DefaultEntID()
+		otpc.mutation.SetEntID(v)
+	}
 	if _, ok := otpc.mutation.ClientName(); !ok {
 		v := oauththirdparty.DefaultClientName
 		otpc.mutation.SetClientName(v)
@@ -287,13 +299,6 @@ func (otpc *OAuthThirdPartyCreate) defaults() error {
 		v := oauththirdparty.DefaultScope
 		otpc.mutation.SetScope(v)
 	}
-	if _, ok := otpc.mutation.ID(); !ok {
-		if oauththirdparty.DefaultID == nil {
-			return fmt.Errorf("ent: uninitialized oauththirdparty.DefaultID (forgotten import ent/runtime?)")
-		}
-		v := oauththirdparty.DefaultID()
-		otpc.mutation.SetID(v)
-	}
 	return nil
 }
 
@@ -308,6 +313,9 @@ func (otpc *OAuthThirdPartyCreate) check() error {
 	if _, ok := otpc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "OAuthThirdParty.deleted_at"`)}
 	}
+	if _, ok := otpc.mutation.EntID(); !ok {
+		return &ValidationError{Name: "ent_id", err: errors.New(`ent: missing required field "OAuthThirdParty.ent_id"`)}
+	}
 	return nil
 }
 
@@ -319,12 +327,9 @@ func (otpc *OAuthThirdPartyCreate) sqlSave(ctx context.Context) (*OAuthThirdPart
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
-			_node.ID = *id
-		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
-			return nil, err
-		}
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = uint32(id)
 	}
 	return _node, nil
 }
@@ -335,7 +340,7 @@ func (otpc *OAuthThirdPartyCreate) createSpec() (*OAuthThirdParty, *sqlgraph.Cre
 		_spec = &sqlgraph.CreateSpec{
 			Table: oauththirdparty.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: oauththirdparty.FieldID,
 			},
 		}
@@ -343,7 +348,7 @@ func (otpc *OAuthThirdPartyCreate) createSpec() (*OAuthThirdParty, *sqlgraph.Cre
 	_spec.OnConflict = otpc.conflict
 	if id, ok := otpc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = &id
+		_spec.ID.Value = id
 	}
 	if value, ok := otpc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -368,6 +373,14 @@ func (otpc *OAuthThirdPartyCreate) createSpec() (*OAuthThirdParty, *sqlgraph.Cre
 			Column: oauththirdparty.FieldDeletedAt,
 		})
 		_node.DeletedAt = value
+	}
+	if value, ok := otpc.mutation.EntID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: oauththirdparty.FieldEntID,
+		})
+		_node.EntID = value
 	}
 	if value, ok := otpc.mutation.ClientName(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -522,6 +535,18 @@ func (u *OAuthThirdPartyUpsert) UpdateDeletedAt() *OAuthThirdPartyUpsert {
 // AddDeletedAt adds v to the "deleted_at" field.
 func (u *OAuthThirdPartyUpsert) AddDeletedAt(v uint32) *OAuthThirdPartyUpsert {
 	u.Add(oauththirdparty.FieldDeletedAt, v)
+	return u
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *OAuthThirdPartyUpsert) SetEntID(v uuid.UUID) *OAuthThirdPartyUpsert {
+	u.Set(oauththirdparty.FieldEntID, v)
+	return u
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *OAuthThirdPartyUpsert) UpdateEntID() *OAuthThirdPartyUpsert {
+	u.SetExcluded(oauththirdparty.FieldEntID)
 	return u
 }
 
@@ -746,6 +771,20 @@ func (u *OAuthThirdPartyUpsertOne) UpdateDeletedAt() *OAuthThirdPartyUpsertOne {
 	})
 }
 
+// SetEntID sets the "ent_id" field.
+func (u *OAuthThirdPartyUpsertOne) SetEntID(v uuid.UUID) *OAuthThirdPartyUpsertOne {
+	return u.Update(func(s *OAuthThirdPartyUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *OAuthThirdPartyUpsertOne) UpdateEntID() *OAuthThirdPartyUpsertOne {
+	return u.Update(func(s *OAuthThirdPartyUpsert) {
+		s.UpdateEntID()
+	})
+}
+
 // SetClientName sets the "client_name" field.
 func (u *OAuthThirdPartyUpsertOne) SetClientName(v string) *OAuthThirdPartyUpsertOne {
 	return u.Update(func(s *OAuthThirdPartyUpsert) {
@@ -888,12 +927,7 @@ func (u *OAuthThirdPartyUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *OAuthThirdPartyUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: OAuthThirdPartyUpsertOne.ID is not supported by MySQL driver. Use OAuthThirdPartyUpsertOne.Exec instead")
-	}
+func (u *OAuthThirdPartyUpsertOne) ID(ctx context.Context) (id uint32, err error) {
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -902,7 +936,7 @@ func (u *OAuthThirdPartyUpsertOne) ID(ctx context.Context) (id uuid.UUID, err er
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *OAuthThirdPartyUpsertOne) IDX(ctx context.Context) uuid.UUID {
+func (u *OAuthThirdPartyUpsertOne) IDX(ctx context.Context) uint32 {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -953,6 +987,10 @@ func (otpcb *OAuthThirdPartyCreateBulk) Save(ctx context.Context) ([]*OAuthThird
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = uint32(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -1148,6 +1186,20 @@ func (u *OAuthThirdPartyUpsertBulk) AddDeletedAt(v uint32) *OAuthThirdPartyUpser
 func (u *OAuthThirdPartyUpsertBulk) UpdateDeletedAt() *OAuthThirdPartyUpsertBulk {
 	return u.Update(func(s *OAuthThirdPartyUpsert) {
 		s.UpdateDeletedAt()
+	})
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *OAuthThirdPartyUpsertBulk) SetEntID(v uuid.UUID) *OAuthThirdPartyUpsertBulk {
+	return u.Update(func(s *OAuthThirdPartyUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *OAuthThirdPartyUpsertBulk) UpdateEntID() *OAuthThirdPartyUpsertBulk {
+	return u.Update(func(s *OAuthThirdPartyUpsert) {
+		s.UpdateEntID()
 	})
 }
 

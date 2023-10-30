@@ -84,6 +84,20 @@ func (aucu *AppUserControlUpdate) AddDeletedAt(u int32) *AppUserControlUpdate {
 	return aucu
 }
 
+// SetEntID sets the "ent_id" field.
+func (aucu *AppUserControlUpdate) SetEntID(u uuid.UUID) *AppUserControlUpdate {
+	aucu.mutation.SetEntID(u)
+	return aucu
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (aucu *AppUserControlUpdate) SetNillableEntID(u *uuid.UUID) *AppUserControlUpdate {
+	if u != nil {
+		aucu.SetEntID(*u)
+	}
+	return aucu
+}
+
 // SetAppID sets the "app_id" field.
 func (aucu *AppUserControlUpdate) SetAppID(u uuid.UUID) *AppUserControlUpdate {
 	aucu.mutation.SetAppID(u)
@@ -318,7 +332,7 @@ func (aucu *AppUserControlUpdate) sqlSave(ctx context.Context) (n int, err error
 			Table:   appusercontrol.Table,
 			Columns: appusercontrol.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appusercontrol.FieldID,
 			},
 		},
@@ -370,6 +384,13 @@ func (aucu *AppUserControlUpdate) sqlSave(ctx context.Context) (n int, err error
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: appusercontrol.FieldDeletedAt,
+		})
+	}
+	if value, ok := aucu.mutation.EntID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: appusercontrol.FieldEntID,
 		})
 	}
 	if value, ok := aucu.mutation.AppID(); ok {
@@ -537,6 +558,20 @@ func (aucuo *AppUserControlUpdateOne) SetNillableDeletedAt(u *uint32) *AppUserCo
 // AddDeletedAt adds u to the "deleted_at" field.
 func (aucuo *AppUserControlUpdateOne) AddDeletedAt(u int32) *AppUserControlUpdateOne {
 	aucuo.mutation.AddDeletedAt(u)
+	return aucuo
+}
+
+// SetEntID sets the "ent_id" field.
+func (aucuo *AppUserControlUpdateOne) SetEntID(u uuid.UUID) *AppUserControlUpdateOne {
+	aucuo.mutation.SetEntID(u)
+	return aucuo
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (aucuo *AppUserControlUpdateOne) SetNillableEntID(u *uuid.UUID) *AppUserControlUpdateOne {
+	if u != nil {
+		aucuo.SetEntID(*u)
+	}
 	return aucuo
 }
 
@@ -787,7 +822,7 @@ func (aucuo *AppUserControlUpdateOne) sqlSave(ctx context.Context) (_node *AppUs
 			Table:   appusercontrol.Table,
 			Columns: appusercontrol.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appusercontrol.FieldID,
 			},
 		},
@@ -856,6 +891,13 @@ func (aucuo *AppUserControlUpdateOne) sqlSave(ctx context.Context) (_node *AppUs
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: appusercontrol.FieldDeletedAt,
+		})
+	}
+	if value, ok := aucuo.mutation.EntID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: appusercontrol.FieldEntID,
 		})
 	}
 	if value, ok := aucuo.mutation.AppID(); ok {

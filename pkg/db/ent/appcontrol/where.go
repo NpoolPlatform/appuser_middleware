@@ -9,28 +9,28 @@ import (
 )
 
 // ID filters vertices based on their ID field.
-func ID(id uuid.UUID) predicate.AppControl {
+func ID(id uint32) predicate.AppControl {
 	return predicate.AppControl(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldID), id))
 	})
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id uuid.UUID) predicate.AppControl {
+func IDEQ(id uint32) predicate.AppControl {
 	return predicate.AppControl(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldID), id))
 	})
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id uuid.UUID) predicate.AppControl {
+func IDNEQ(id uint32) predicate.AppControl {
 	return predicate.AppControl(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldID), id))
 	})
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...uuid.UUID) predicate.AppControl {
+func IDIn(ids ...uint32) predicate.AppControl {
 	return predicate.AppControl(func(s *sql.Selector) {
 		v := make([]interface{}, len(ids))
 		for i := range v {
@@ -41,7 +41,7 @@ func IDIn(ids ...uuid.UUID) predicate.AppControl {
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...uuid.UUID) predicate.AppControl {
+func IDNotIn(ids ...uint32) predicate.AppControl {
 	return predicate.AppControl(func(s *sql.Selector) {
 		v := make([]interface{}, len(ids))
 		for i := range v {
@@ -52,28 +52,28 @@ func IDNotIn(ids ...uuid.UUID) predicate.AppControl {
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id uuid.UUID) predicate.AppControl {
+func IDGT(id uint32) predicate.AppControl {
 	return predicate.AppControl(func(s *sql.Selector) {
 		s.Where(sql.GT(s.C(FieldID), id))
 	})
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id uuid.UUID) predicate.AppControl {
+func IDGTE(id uint32) predicate.AppControl {
 	return predicate.AppControl(func(s *sql.Selector) {
 		s.Where(sql.GTE(s.C(FieldID), id))
 	})
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id uuid.UUID) predicate.AppControl {
+func IDLT(id uint32) predicate.AppControl {
 	return predicate.AppControl(func(s *sql.Selector) {
 		s.Where(sql.LT(s.C(FieldID), id))
 	})
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id uuid.UUID) predicate.AppControl {
+func IDLTE(id uint32) predicate.AppControl {
 	return predicate.AppControl(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldID), id))
 	})
@@ -97,6 +97,13 @@ func UpdatedAt(v uint32) predicate.AppControl {
 func DeletedAt(v uint32) predicate.AppControl {
 	return predicate.AppControl(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldDeletedAt), v))
+	})
+}
+
+// EntID applies equality check predicate on the "ent_id" field. It's identical to EntIDEQ.
+func EntID(v uuid.UUID) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldEntID), v))
 	})
 }
 
@@ -345,6 +352,70 @@ func DeletedAtLT(v uint32) predicate.AppControl {
 func DeletedAtLTE(v uint32) predicate.AppControl {
 	return predicate.AppControl(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldDeletedAt), v))
+	})
+}
+
+// EntIDEQ applies the EQ predicate on the "ent_id" field.
+func EntIDEQ(v uuid.UUID) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldEntID), v))
+	})
+}
+
+// EntIDNEQ applies the NEQ predicate on the "ent_id" field.
+func EntIDNEQ(v uuid.UUID) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldEntID), v))
+	})
+}
+
+// EntIDIn applies the In predicate on the "ent_id" field.
+func EntIDIn(vs ...uuid.UUID) predicate.AppControl {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldEntID), v...))
+	})
+}
+
+// EntIDNotIn applies the NotIn predicate on the "ent_id" field.
+func EntIDNotIn(vs ...uuid.UUID) predicate.AppControl {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldEntID), v...))
+	})
+}
+
+// EntIDGT applies the GT predicate on the "ent_id" field.
+func EntIDGT(v uuid.UUID) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldEntID), v))
+	})
+}
+
+// EntIDGTE applies the GTE predicate on the "ent_id" field.
+func EntIDGTE(v uuid.UUID) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldEntID), v))
+	})
+}
+
+// EntIDLT applies the LT predicate on the "ent_id" field.
+func EntIDLT(v uuid.UUID) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldEntID), v))
+	})
+}
+
+// EntIDLTE applies the LTE predicate on the "ent_id" field.
+func EntIDLTE(v uuid.UUID) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldEntID), v))
 	})
 }
 

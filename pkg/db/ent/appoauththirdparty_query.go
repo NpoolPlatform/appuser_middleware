@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appoauththirdparty"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/predicate"
-	"github.com/google/uuid"
 )
 
 // AppOAuthThirdPartyQuery is the builder for querying AppOAuthThirdParty entities.
@@ -87,8 +86,8 @@ func (aotpq *AppOAuthThirdPartyQuery) FirstX(ctx context.Context) *AppOAuthThird
 
 // FirstID returns the first AppOAuthThirdParty ID from the query.
 // Returns a *NotFoundError when no AppOAuthThirdParty ID was found.
-func (aotpq *AppOAuthThirdPartyQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (aotpq *AppOAuthThirdPartyQuery) FirstID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = aotpq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -100,7 +99,7 @@ func (aotpq *AppOAuthThirdPartyQuery) FirstID(ctx context.Context) (id uuid.UUID
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (aotpq *AppOAuthThirdPartyQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (aotpq *AppOAuthThirdPartyQuery) FirstIDX(ctx context.Context) uint32 {
 	id, err := aotpq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -138,8 +137,8 @@ func (aotpq *AppOAuthThirdPartyQuery) OnlyX(ctx context.Context) *AppOAuthThirdP
 // OnlyID is like Only, but returns the only AppOAuthThirdParty ID in the query.
 // Returns a *NotSingularError when more than one AppOAuthThirdParty ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (aotpq *AppOAuthThirdPartyQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (aotpq *AppOAuthThirdPartyQuery) OnlyID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = aotpq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -155,7 +154,7 @@ func (aotpq *AppOAuthThirdPartyQuery) OnlyID(ctx context.Context) (id uuid.UUID,
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (aotpq *AppOAuthThirdPartyQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (aotpq *AppOAuthThirdPartyQuery) OnlyIDX(ctx context.Context) uint32 {
 	id, err := aotpq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -181,8 +180,8 @@ func (aotpq *AppOAuthThirdPartyQuery) AllX(ctx context.Context) []*AppOAuthThird
 }
 
 // IDs executes the query and returns a list of AppOAuthThirdParty IDs.
-func (aotpq *AppOAuthThirdPartyQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
-	var ids []uuid.UUID
+func (aotpq *AppOAuthThirdPartyQuery) IDs(ctx context.Context) ([]uint32, error) {
+	var ids []uint32
 	if err := aotpq.Select(appoauththirdparty.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -190,7 +189,7 @@ func (aotpq *AppOAuthThirdPartyQuery) IDs(ctx context.Context) ([]uuid.UUID, err
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (aotpq *AppOAuthThirdPartyQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (aotpq *AppOAuthThirdPartyQuery) IDsX(ctx context.Context) []uint32 {
 	ids, err := aotpq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -377,7 +376,7 @@ func (aotpq *AppOAuthThirdPartyQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   appoauththirdparty.Table,
 			Columns: appoauththirdparty.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appoauththirdparty.FieldID,
 			},
 		},

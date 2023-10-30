@@ -15,13 +15,15 @@ import (
 type AppUserControl struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID uuid.UUID `json:"id,omitempty"`
+	ID uint32 `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt uint32 `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt uint32 `json:"updated_at,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt uint32 `json:"deleted_at,omitempty"`
+	// EntID holds the value of the "ent_id" field.
+	EntID uuid.UUID `json:"ent_id,omitempty"`
 	// AppID holds the value of the "app_id" field.
 	AppID uuid.UUID `json:"app_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
@@ -47,11 +49,11 @@ func (*AppUserControl) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case appusercontrol.FieldSigninVerifyByGoogleAuthentication, appusercontrol.FieldGoogleAuthenticationVerified, appusercontrol.FieldKol, appusercontrol.FieldKolConfirmed:
 			values[i] = new(sql.NullBool)
-		case appusercontrol.FieldCreatedAt, appusercontrol.FieldUpdatedAt, appusercontrol.FieldDeletedAt:
+		case appusercontrol.FieldID, appusercontrol.FieldCreatedAt, appusercontrol.FieldUpdatedAt, appusercontrol.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
 		case appusercontrol.FieldSigninVerifyType:
 			values[i] = new(sql.NullString)
-		case appusercontrol.FieldID, appusercontrol.FieldAppID, appusercontrol.FieldUserID, appusercontrol.FieldSelectedLangID:
+		case appusercontrol.FieldEntID, appusercontrol.FieldAppID, appusercontrol.FieldUserID, appusercontrol.FieldSelectedLangID:
 			values[i] = new(uuid.UUID)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type AppUserControl", columns[i])
@@ -69,11 +71,11 @@ func (auc *AppUserControl) assignValues(columns []string, values []interface{}) 
 	for i := range columns {
 		switch columns[i] {
 		case appusercontrol.FieldID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value != nil {
-				auc.ID = *value
+			value, ok := values[i].(*sql.NullInt64)
+			if !ok {
+				return fmt.Errorf("unexpected type %T for field id", value)
 			}
+			auc.ID = uint32(value.Int64)
 		case appusercontrol.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -91,6 +93,12 @@ func (auc *AppUserControl) assignValues(columns []string, values []interface{}) 
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
 				auc.DeletedAt = uint32(value.Int64)
+			}
+		case appusercontrol.FieldEntID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field ent_id", values[i])
+			} else if value != nil {
+				auc.EntID = *value
 			}
 		case appusercontrol.FieldAppID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -176,6 +184,9 @@ func (auc *AppUserControl) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("deleted_at=")
 	builder.WriteString(fmt.Sprintf("%v", auc.DeletedAt))
+	builder.WriteString(", ")
+	builder.WriteString("ent_id=")
+	builder.WriteString(fmt.Sprintf("%v", auc.EntID))
 	builder.WriteString(", ")
 	builder.WriteString("app_id=")
 	builder.WriteString(fmt.Sprintf("%v", auc.AppID))

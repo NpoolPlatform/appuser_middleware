@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appusercontrol"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/predicate"
-	"github.com/google/uuid"
 )
 
 // AppUserControlQuery is the builder for querying AppUserControl entities.
@@ -87,8 +86,8 @@ func (aucq *AppUserControlQuery) FirstX(ctx context.Context) *AppUserControl {
 
 // FirstID returns the first AppUserControl ID from the query.
 // Returns a *NotFoundError when no AppUserControl ID was found.
-func (aucq *AppUserControlQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (aucq *AppUserControlQuery) FirstID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = aucq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -100,7 +99,7 @@ func (aucq *AppUserControlQuery) FirstID(ctx context.Context) (id uuid.UUID, err
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (aucq *AppUserControlQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (aucq *AppUserControlQuery) FirstIDX(ctx context.Context) uint32 {
 	id, err := aucq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -138,8 +137,8 @@ func (aucq *AppUserControlQuery) OnlyX(ctx context.Context) *AppUserControl {
 // OnlyID is like Only, but returns the only AppUserControl ID in the query.
 // Returns a *NotSingularError when more than one AppUserControl ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (aucq *AppUserControlQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (aucq *AppUserControlQuery) OnlyID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = aucq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -155,7 +154,7 @@ func (aucq *AppUserControlQuery) OnlyID(ctx context.Context) (id uuid.UUID, err 
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (aucq *AppUserControlQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (aucq *AppUserControlQuery) OnlyIDX(ctx context.Context) uint32 {
 	id, err := aucq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -181,8 +180,8 @@ func (aucq *AppUserControlQuery) AllX(ctx context.Context) []*AppUserControl {
 }
 
 // IDs executes the query and returns a list of AppUserControl IDs.
-func (aucq *AppUserControlQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
-	var ids []uuid.UUID
+func (aucq *AppUserControlQuery) IDs(ctx context.Context) ([]uint32, error) {
+	var ids []uint32
 	if err := aucq.Select(appusercontrol.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -190,7 +189,7 @@ func (aucq *AppUserControlQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (aucq *AppUserControlQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (aucq *AppUserControlQuery) IDsX(ctx context.Context) []uint32 {
 	ids, err := aucq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -377,7 +376,7 @@ func (aucq *AppUserControlQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   appusercontrol.Table,
 			Columns: appusercontrol.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appusercontrol.FieldID,
 			},
 		},
