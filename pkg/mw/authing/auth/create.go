@@ -18,8 +18,8 @@ import (
 
 func (h *Handler) CreateAuth(ctx context.Context) (*npool.Auth, error) {
 	id := uuid.New()
-	if h.ID == nil {
-		h.ID = &id
+	if h.EntID == nil {
+		h.EntID = &id
 	}
 
 	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateAuth, *h.Resource, *h.Method)
@@ -42,7 +42,7 @@ func (h *Handler) CreateAuth(ctx context.Context) (*npool.Auth, error) {
 		if _, err := authcrud.CreateSet(
 			cli.Auth.Create(),
 			&authcrud.Req{
-				ID:       h.ID,
+				EntID:    h.EntID,
 				AppID:    &h.AppID,
 				RoleID:   h.RoleID,
 				UserID:   h.UserID,
@@ -67,8 +67,8 @@ func (h *Handler) CreateAuths(ctx context.Context) ([]*npool.Auth, error) {
 	err := db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {
 		for _, req := range h.Reqs {
 			id := uuid.New()
-			if req.ID != nil {
-				id = uuid.MustParse(*req.ID)
+			if req.EntID != nil {
+				id = uuid.MustParse(*req.EntID)
 			}
 
 			appID := uuid.MustParse(*req.AppID)
