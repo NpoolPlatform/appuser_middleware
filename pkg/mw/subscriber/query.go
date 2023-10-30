@@ -42,7 +42,7 @@ func (h *queryHandler) querySubscriber(cli *ent.Client) error {
 		cli.Subscriber.
 			Query().
 			Where(
-				entsubscriber.ID(*h.ID),
+				entsubscriber.EntID(*h.EntID),
 				entsubscriber.DeletedAt(0),
 			),
 	)

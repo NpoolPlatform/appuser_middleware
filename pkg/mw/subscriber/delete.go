@@ -22,7 +22,6 @@ func (h *Handler) DeleteSubscriber(ctx context.Context) (*npool.Subscriber, erro
 		if _, err := subscribercrud.UpdateSet(
 			cli.Subscriber.UpdateOneID(*h.ID),
 			&subscribercrud.Req{
-				ID:        h.ID,
 				DeletedAt: &now,
 			},
 		).Save(_ctx); err != nil {

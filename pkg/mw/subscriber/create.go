@@ -17,13 +17,9 @@ import (
 )
 
 func (h *Handler) CreateSubscriber(ctx context.Context) (*npool.Subscriber, error) {
-	if h.EmailAddress == nil {
-		return nil, fmt.Errorf("invalid email address")
-	}
-
 	id := uuid.New()
-	if h.ID == nil {
-		h.ID = &id
+	if h.EntID == nil {
+		h.EntID = &id
 	}
 
 	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateSubscriber, h.AppID, *h.EmailAddress)
@@ -38,7 +34,7 @@ func (h *Handler) CreateSubscriber(ctx context.Context) (*npool.Subscriber, erro
 		stm, err := subscribercrud.SetQueryConds(
 			cli.Subscriber.Query(),
 			&subscribercrud.Conds{
-				AppID:        &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+				AppID:        &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
 				EmailAddress: &cruder.Cond{Op: cruder.EQ, Val: *h.EmailAddress},
 			},
 		)
@@ -53,15 +49,15 @@ func (h *Handler) CreateSubscriber(ctx context.Context) (*npool.Subscriber, erro
 			}
 		}
 		if info != nil {
-			h.ID = &info.ID
+			h.EntID = &info.EntID
 			return nil
 		}
 
 		if _, err := subscribercrud.CreateSet(
 			cli.Subscriber.Create(),
 			&subscribercrud.Req{
-				ID:           h.ID,
-				AppID:        &h.AppID,
+				EntID:        h.EntID,
+				AppID:        h.AppID,
 				EmailAddress: h.EmailAddress,
 			},
 		).Save(_ctx); err != nil {
