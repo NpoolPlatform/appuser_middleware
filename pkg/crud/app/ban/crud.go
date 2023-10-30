@@ -10,15 +10,15 @@ import (
 )
 
 type Req struct {
-	ID        *uuid.UUID
+	EntID     *uuid.UUID
 	AppID     *uuid.UUID
 	Message   *string
 	DeletedAt *uint32
 }
 
 func CreateSet(c *ent.BanAppCreate, req *Req) *ent.BanAppCreate {
-	if req.ID != nil {
-		c.SetID(*req.ID)
+	if req.EntID != nil {
+		c.SetEntID(*req.EntID)
 	}
 	if req.AppID != nil {
 		c.SetAppID(*req.AppID)
@@ -40,7 +40,7 @@ func UpdateSet(u *ent.BanAppUpdateOne, req *Req) *ent.BanAppUpdateOne {
 }
 
 type Conds struct {
-	ID    *cruder.Cond
+	EntID *cruder.Cond
 	AppID *cruder.Cond
 }
 
@@ -48,14 +48,14 @@ func SetQueryConds(q *ent.BanAppQuery, conds *Conds) (*ent.BanAppQuery, error) {
 	if conds == nil {
 		return q, nil
 	}
-	if conds.ID != nil {
-		id, ok := conds.ID.Val.(uuid.UUID)
+	if conds.EntID != nil {
+		id, ok := conds.EntID.Val.(uuid.UUID)
 		if !ok {
-			return nil, fmt.Errorf("invalid id")
+			return nil, fmt.Errorf("invalid entid")
 		}
-		switch conds.ID.Op {
+		switch conds.EntID.Op {
 		case cruder.EQ:
-			q.Where(entbanapp.ID(id))
+			q.Where(entbanapp.EntID(id))
 		default:
 			return nil, fmt.Errorf("invalid banapp field")
 		}

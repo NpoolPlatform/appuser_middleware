@@ -5,15 +5,12 @@ import (
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 	entappoauththirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appoauththirdparty"
-
-	oauththirdpartycrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/oauth/oauththirdparty"
-
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	"github.com/google/uuid"
 )
 
 type Req struct {
-	ID           *uuid.UUID
+	EntID        *uuid.UUID
 	AppID        *uuid.UUID
 	ThirdPartyID *uuid.UUID
 	ClientID     *string
@@ -24,8 +21,8 @@ type Req struct {
 }
 
 func CreateSet(c *ent.AppOAuthThirdPartyCreate, req *Req) *ent.AppOAuthThirdPartyCreate {
-	if req.ID != nil {
-		c.SetID(*req.ID)
+	if req.EntID != nil {
+		c.SetEntID(*req.EntID)
 	}
 	if req.AppID != nil {
 		c.SetAppID(*req.AppID)
@@ -68,7 +65,11 @@ func UpdateSet(u *ent.AppOAuthThirdPartyUpdateOne, req *Req) *ent.AppOAuthThirdP
 }
 
 type Conds struct {
-	oauththirdpartycrud.Conds
+	EntID         *cruder.Cond
+	EntIDs        *cruder.Cond
+	ClientName    *cruder.Cond
+	ClientTag     *cruder.Cond
+	DecryptSecret *cruder.Cond
 	AppID         *cruder.Cond
 	ClientID      *cruder.Cond
 	ClientSecret  *cruder.Cond
@@ -81,26 +82,26 @@ func SetQueryConds(q *ent.AppOAuthThirdPartyQuery, conds *Conds) (*ent.AppOAuthT
 	if conds == nil {
 		return q, nil
 	}
-	if conds.ID != nil {
-		id, ok := conds.ID.Val.(uuid.UUID)
+	if conds.EntID != nil {
+		id, ok := conds.EntID.Val.(uuid.UUID)
 		if !ok {
 			return nil, fmt.Errorf("invalid id")
 		}
-		switch conds.ID.Op {
+		switch conds.EntID.Op {
 		case cruder.EQ:
-			q.Where(entappoauththirdparty.ID(id))
+			q.Where(entappoauththirdparty.EntID(id))
 		default:
 			return nil, fmt.Errorf("invalid oauth field")
 		}
 	}
-	if conds.IDs != nil {
-		ids, ok := conds.IDs.Val.([]uuid.UUID)
+	if conds.EntIDs != nil {
+		ids, ok := conds.EntIDs.Val.([]uuid.UUID)
 		if !ok {
 			return nil, fmt.Errorf("invalid ids")
 		}
-		switch conds.IDs.Op {
+		switch conds.EntIDs.Op {
 		case cruder.IN:
-			q.Where(entappoauththirdparty.IDIn(ids...))
+			q.Where(entappoauththirdparty.EntIDIn(ids...))
 		default:
 			return nil, fmt.Errorf("invalid oauth field")
 		}

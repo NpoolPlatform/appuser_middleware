@@ -10,7 +10,7 @@ import (
 )
 
 type Req struct {
-	ID          *uuid.UUID
+	EntID       *uuid.UUID
 	AppID       *uuid.UUID
 	CreatedBy   *uuid.UUID
 	Role        *string
@@ -21,8 +21,8 @@ type Req struct {
 }
 
 func CreateSet(c *ent.AppRoleCreate, req *Req) *ent.AppRoleCreate {
-	if req.ID != nil {
-		c.SetID(*req.ID)
+	if req.EntID != nil {
+		c.SetEntID(*req.EntID)
 	}
 	if req.AppID != nil {
 		c.SetAppID(*req.AppID)
@@ -65,8 +65,8 @@ func UpdateSet(u *ent.AppRoleUpdateOne, req *Req) *ent.AppRoleUpdateOne {
 }
 
 type Conds struct {
-	ID        *cruder.Cond
-	IDs       *cruder.Cond
+	EntID     *cruder.Cond
+	EntIDs    *cruder.Cond
 	AppID     *cruder.Cond
 	AppIDs    *cruder.Cond
 	CreatedBy *cruder.Cond
@@ -81,26 +81,26 @@ func SetQueryConds(q *ent.AppRoleQuery, conds *Conds) (*ent.AppRoleQuery, error)
 	if conds == nil {
 		return q, nil
 	}
-	if conds.ID != nil {
-		id, ok := conds.ID.Val.(uuid.UUID)
+	if conds.EntID != nil {
+		id, ok := conds.EntID.Val.(uuid.UUID)
 		if !ok {
-			return nil, fmt.Errorf("invalid id")
+			return nil, fmt.Errorf("invalid entid")
 		}
-		switch conds.ID.Op {
+		switch conds.EntID.Op {
 		case cruder.EQ:
-			q.Where(entapprole.ID(id))
+			q.Where(entapprole.EntID(id))
 		default:
 			return nil, fmt.Errorf("invalid approle field")
 		}
 	}
-	if conds.IDs != nil {
-		ids, ok := conds.IDs.Val.([]uuid.UUID)
+	if conds.EntIDs != nil {
+		ids, ok := conds.EntIDs.Val.([]uuid.UUID)
 		if !ok {
-			return nil, fmt.Errorf("invalid ids")
+			return nil, fmt.Errorf("invalid entids")
 		}
-		switch conds.IDs.Op {
+		switch conds.EntIDs.Op {
 		case cruder.IN:
-			q.Where(entapprole.IDIn(ids...))
+			q.Where(entapprole.EntIDIn(ids...))
 		default:
 			return nil, fmt.Errorf("invalid approle field")
 		}

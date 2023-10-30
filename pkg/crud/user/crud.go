@@ -11,7 +11,7 @@ import (
 )
 
 type Req struct {
-	ID            *uuid.UUID
+	EntID         *uuid.UUID
 	AppID         *uuid.UUID
 	EmailAddress  *string
 	PhoneNO       *string
@@ -20,8 +20,8 @@ type Req struct {
 }
 
 func CreateSet(c *ent.AppUserCreate, req *Req) *ent.AppUserCreate {
-	if req.ID != nil {
-		c.SetID(*req.ID)
+	if req.EntID != nil {
+		c.SetEntID(*req.EntID)
 	}
 	if req.AppID != nil {
 		c.SetAppID(*req.AppID)
@@ -52,8 +52,8 @@ func UpdateSet(u *ent.AppUserUpdateOne, req *Req) *ent.AppUserUpdateOne {
 }
 
 type Conds struct {
-	ID               *cruder.Cond
-	IDs              *cruder.Cond
+	EntID            *cruder.Cond
+	EntIDs           *cruder.Cond
 	AppID            *cruder.Cond
 	EmailAddress     *cruder.Cond
 	PhoneNO          *cruder.Cond
@@ -67,27 +67,27 @@ func SetQueryConds(q *ent.AppUserQuery, conds *Conds) (*ent.AppUserQuery, error)
 	if conds == nil {
 		return q, nil
 	}
-	if conds.ID != nil {
-		id, ok := conds.ID.Val.(uuid.UUID)
+	if conds.EntID != nil {
+		id, ok := conds.EntID.Val.(uuid.UUID)
 		if !ok {
-			return nil, fmt.Errorf("invalid id")
+			return nil, fmt.Errorf("invalid entid")
 		}
-		switch conds.ID.Op {
+		switch conds.EntID.Op {
 		case cruder.EQ:
-			q.Where(entappuser.ID(id))
+			q.Where(entappuser.EntID(id))
 		default:
 			return nil, fmt.Errorf("invalid appuser field")
 		}
 	}
-	if conds.IDs != nil {
-		ids, ok := conds.IDs.Val.([]uuid.UUID)
+	if conds.EntIDs != nil {
+		ids, ok := conds.EntIDs.Val.([]uuid.UUID)
 		if !ok {
-			return nil, fmt.Errorf("invalid ids")
+			return nil, fmt.Errorf("invalid entids")
 		}
 		if len(ids) > 0 {
-			switch conds.IDs.Op {
+			switch conds.EntIDs.Op {
 			case cruder.IN:
-				q.Where(entappuser.IDIn(ids...))
+				q.Where(entappuser.EntIDIn(ids...))
 			default:
 				return nil, fmt.Errorf("invalid appuser field")
 			}

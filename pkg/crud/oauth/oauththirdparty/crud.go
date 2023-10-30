@@ -13,7 +13,7 @@ import (
 )
 
 type Req struct {
-	ID             *uuid.UUID
+	EntID          *uuid.UUID
 	ClientName     *basetypes.SignMethod
 	ClientTag      *string
 	ClientLogoURL  *string
@@ -24,8 +24,8 @@ type Req struct {
 }
 
 func CreateSet(c *ent.OAuthThirdPartyCreate, req *Req) *ent.OAuthThirdPartyCreate {
-	if req.ID != nil {
-		c.SetID(*req.ID)
+	if req.EntID != nil {
+		c.SetEntID(*req.EntID)
 	}
 	if req.ClientName != nil {
 		c.SetClientName(req.ClientName.String())
@@ -74,8 +74,8 @@ func UpdateSet(u *ent.OAuthThirdPartyUpdateOne, req *Req) *ent.OAuthThirdPartyUp
 }
 
 type Conds struct {
-	ID            *cruder.Cond
-	IDs           *cruder.Cond
+	EntID         *cruder.Cond
+	EntIDs        *cruder.Cond
 	ClientName    *cruder.Cond
 	ClientTag     *cruder.Cond
 	DecryptSecret *cruder.Cond
@@ -85,28 +85,28 @@ func SetQueryConds(q *ent.OAuthThirdPartyQuery, conds *Conds) (*ent.OAuthThirdPa
 	if conds == nil {
 		return q, nil
 	}
-	if conds.ID != nil {
-		id, ok := conds.ID.Val.(uuid.UUID)
+	if conds.EntID != nil {
+		id, ok := conds.EntID.Val.(uuid.UUID)
 		if !ok {
-			return nil, fmt.Errorf("invalid id")
+			return nil, fmt.Errorf("invalid entid")
 		}
-		switch conds.ID.Op {
+		switch conds.EntID.Op {
 		case cruder.EQ:
-			q.Where(entoauththirdparty.ID(id))
+			q.Where(entoauththirdparty.EntID(id))
 		case cruder.NEQ:
-			q.Where(entoauththirdparty.IDNEQ(id))
+			q.Where(entoauththirdparty.EntIDNEQ(id))
 		default:
 			return nil, fmt.Errorf("invalid auth field")
 		}
 	}
-	if conds.IDs != nil {
-		ids, ok := conds.IDs.Val.([]uuid.UUID)
+	if conds.EntIDs != nil {
+		ids, ok := conds.EntIDs.Val.([]uuid.UUID)
 		if !ok {
-			return nil, fmt.Errorf("invalid ids")
+			return nil, fmt.Errorf("invalid entids")
 		}
-		switch conds.IDs.Op {
+		switch conds.EntIDs.Op {
 		case cruder.IN:
-			q.Where(entoauththirdparty.IDIn(ids...))
+			q.Where(entoauththirdparty.EntIDIn(ids...))
 		default:
 			return nil, fmt.Errorf("invalid auth field")
 		}
