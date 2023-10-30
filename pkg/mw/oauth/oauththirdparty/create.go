@@ -17,37 +17,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type createHandler struct {
-	*Handler
-}
-
-func (h *createHandler) validtate() error {
-	if h.ClientName == nil {
-		return fmt.Errorf("invalid clientname")
-	}
-	if h.ClientTag == nil {
-		return fmt.Errorf("invalid clienttag")
-	}
-	if h.ClientLogoURL == nil {
-		return fmt.Errorf("invalid clientlogourl")
-	}
-	if h.ClientOAuthURL == nil {
-		return fmt.Errorf("invalid clientoauthurl")
-	}
-	if h.ResponseType == nil {
-		return fmt.Errorf("invalid responsetype")
-	}
-	return nil
-}
-
 func (h *Handler) CreateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdParty, error) {
-	handler := &createHandler{
-		Handler: h,
-	}
-	if err := handler.validtate(); err != nil {
-		return nil, err
-	}
-
 	key := fmt.Sprintf("%v:%v", basetypes.Prefix_PrefixCreateOAuthThirdParty, *h.ClientName)
 	if err := redis2.TryLock(key, 0); err != nil {
 		return nil, err
@@ -76,15 +46,15 @@ func (h *Handler) CreateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 	}
 
 	id := uuid.New()
-	if h.ID == nil {
-		h.ID = &id
+	if h.EntID == nil {
+		h.EntID = &id
 	}
 
 	err = db.WithTx(ctx, func(ctx context.Context, tx *ent.Tx) error {
 		if _, err := oauththirdpartycrud.CreateSet(
 			tx.OAuthThirdParty.Create(),
 			&oauththirdpartycrud.Req{
-				ID:             h.ID,
+				EntID:          h.EntID,
 				ClientName:     h.ClientName,
 				ClientTag:      h.ClientTag,
 				ClientLogoURL:  h.ClientLogoURL,

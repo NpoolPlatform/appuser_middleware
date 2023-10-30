@@ -15,9 +15,6 @@ import (
 )
 
 func (h *Handler) UpdateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdParty, error) {
-	if h.ID == nil {
-		return nil, fmt.Errorf("invalid id")
-	}
 	info, err := h.GetOAuthThirdParty(ctx)
 	if err != nil {
 		return nil, err
@@ -31,7 +28,7 @@ func (h *Handler) UpdateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 		handler, err := NewHandler(
 			ctx,
 			WithConds(&npool.Conds{
-				ID:         &basetypes.StringVal{Op: cruder.NEQ, Value: info.ID},
+				EntID:      &basetypes.StringVal{Op: cruder.NEQ, Value: info.EntID},
 				ClientName: &basetypes.Int32Val{Op: cruder.EQ, Value: int32(*h.ClientName)},
 			}),
 			WithLimit(limit),

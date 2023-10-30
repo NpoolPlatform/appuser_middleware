@@ -20,7 +20,7 @@ func (h *existHandler) queryOAuthThirdParty(cli *ent.Client) {
 	h.stm = cli.OAuthThirdParty.
 		Query().
 		Where(
-			entoauththirdparty.ID(*h.ID),
+			entoauththirdparty.EntID(*h.EntID),
 			entoauththirdparty.DeletedAt(0),
 		)
 }
