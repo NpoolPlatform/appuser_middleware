@@ -46,5 +46,8 @@ func RegisterGateway(mux *runtime.ServeMux, endpoint string, opts []grpc.DialOpt
 	if err := appusermw.RegisterMiddlewareHandlerFromEndpoint(context.Background(), mux, endpoint, opts); err != nil {
 		return err
 	}
+	if err := kyc.RegisterGateway(mux, endpoint, opts); err != nil {
+		return err
+	}
 	return nil
 }
