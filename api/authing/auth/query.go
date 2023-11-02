@@ -15,7 +15,7 @@ import (
 func (s *Server) GetAuth(ctx context.Context, in *npool.GetAuthRequest) (*npool.GetAuthResponse, error) {
 	_handler, err := auth1.NewHandler(
 		ctx,
-		handler.WithID(&in.ID),
+		handler.WithEntID(&in.EntID, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

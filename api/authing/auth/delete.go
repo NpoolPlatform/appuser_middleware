@@ -14,9 +14,16 @@ import (
 
 func (s *Server) DeleteAuth(ctx context.Context, in *npool.DeleteAuthRequest) (*npool.DeleteAuthResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"DeleteAuth",
+			"In", in,
+		)
+		return &npool.DeleteAuthResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	_handler, err := auth1.NewHandler(
 		ctx,
-		handler.WithID(req.ID),
+		handler.WithID(req.ID, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

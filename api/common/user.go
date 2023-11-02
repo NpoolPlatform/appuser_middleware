@@ -10,8 +10,8 @@ import (
 func ValidateUser(ctx context.Context, appID, userID string) error {
 	handler, err := user.NewHandler(
 		ctx,
-		user.WithAppID(appID),
-		user.WithID(&userID),
+		user.WithAppID(&appID, true),
+		user.WithEntID(&userID, true),
 	)
 	if err != nil {
 		return err
