@@ -26,7 +26,7 @@ func (h *Handler) CreateUser(ctx context.Context) (*npool.User, error) {
 		return nil, fmt.Errorf("invalid roleid or userid")
 	}
 
-	key := fmt.Sprintf("%v:%v:%v:%v", basetypes.Prefix_PrefixCreateRoleUser, h.AppID, *h.RoleID, *h.UserID)
+	key := fmt.Sprintf("%v:%v:%v:%v", basetypes.Prefix_PrefixCreateRoleUser, *h.AppID, *h.RoleID, *h.UserID)
 	if err := redis2.TryLock(key, 0); err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (h *Handler) CreateUser(ctx context.Context) (*npool.User, error) {
 		stm, err := usercrud.SetQueryConds(
 			cli.AppRoleUser.Query(),
 			&usercrud.Conds{
-				AppID:  &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+				AppID:  &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
 				RoleID: &cruder.Cond{Op: cruder.EQ, Val: *h.RoleID},
 				UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.UserID},
 			},

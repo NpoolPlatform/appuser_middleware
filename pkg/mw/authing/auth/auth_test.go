@@ -60,6 +60,12 @@ func setupAuth(t *testing.T) func(*testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, app1)
 
+	ah, err = app.NewHandler(
+		context.Background(),
+		app.WithID(&app1.ID, true),
+	)
+	assert.Nil(t, err)
+
 	rh, err := role.NewHandler(
 		context.Background(),
 		role.WithEntID(&roleID, true),
@@ -72,6 +78,12 @@ func setupAuth(t *testing.T) func(*testing.T) {
 	role1, err := rh.CreateRole(context.Background())
 	assert.Nil(t, err)
 	assert.NotNil(t, role1)
+
+	rh, err = role.NewHandler(
+		context.Background(),
+		role.WithID(&role1.ID, true),
+	)
+	assert.Nil(t, err)
 
 	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+1000000)           //nolint
 	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+3000000) //nolint
@@ -91,6 +103,12 @@ func setupAuth(t *testing.T) func(*testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, user1)
 
+	uh, err = user.NewHandler(
+		context.Background(),
+		user.WithID(&user1.ID, true),
+	)
+	assert.Nil(t, err)
+
 	ruh, err := roleuser.NewHandler(
 		context.Background(),
 		roleuser.WithAppID(&ret.AppID, true),
@@ -102,6 +120,12 @@ func setupAuth(t *testing.T) func(*testing.T) {
 	roleuser1, err := ruh.CreateUser(context.Background())
 	assert.Nil(t, err)
 	assert.NotNil(t, roleuser1)
+
+	ruh, err = roleuser.NewHandler(
+		context.Background(),
+		roleuser.WithID(&roleuser1.ID, true),
+	)
+	assert.Nil(t, err)
 
 	return func(*testing.T) {
 		_, _ = ah.DeleteApp(context.Background())

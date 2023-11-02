@@ -31,18 +31,19 @@ func (h *queryHandler) selectAppRoleUser(stm *ent.AppRoleUserQuery) {
 }
 
 func (h *queryHandler) queryAppRoleUser(cli *ent.Client) error {
-	if h.ID == nil {
-		return fmt.Errorf("invalid roleuserid")
+	stm := cli.AppRoleUser.
+		Query().
+		Where(entapproleuser.DeletedAt(0))
+	if h.ID != nil {
+		stm.Where(entapproleuser.ID(*h.ID))
 	}
-
-	h.selectAppRoleUser(
-		cli.AppRoleUser.
-			Query().
-			Where(
-				entapproleuser.EntID(*h.EntID),
-				entapproleuser.DeletedAt(0),
-			),
-	)
+	if h.AppID != nil {
+		stm.Where(entapproleuser.AppID(*h.AppID))
+	}
+	if h.EntID != nil {
+		stm.Where(entapproleuser.EntID(*h.EntID))
+	}
+	h.selectAppRoleUser(stm)
 	return nil
 }
 
@@ -65,7 +66,7 @@ func (h *queryHandler) queryJoinAppRole(s *sql.Selector) {
 	stm := s.LeftJoin(t).
 		On(
 			s.C(entapproleuser.FieldRoleID),
-			t.C(entapprole.FieldID),
+			t.C(entapprole.FieldEntID),
 		)
 	if h.Conds != nil && h.Conds.Genesis != nil {
 		stm.Where(
@@ -79,7 +80,7 @@ func (h *queryHandler) queryJoinAppRole(s *sql.Selector) {
 		t.C(entapprole.FieldDescription),
 		t.C(entapprole.FieldDefault),
 		t.C(entapprole.FieldGenesis),
-		sql.As(t.C(entapprole.FieldID), "role_id"),
+		sql.As(t.C(entapprole.FieldEntID), "role_id"),
 	)
 }
 
@@ -88,10 +89,10 @@ func (h *queryHandler) queryJoinApp(s *sql.Selector) {
 	s.LeftJoin(t).
 		On(
 			s.C(entapproleuser.FieldAppID),
-			t.C(entapp.FieldID),
+			t.C(entapp.FieldEntID),
 		).
 		AppendSelect(
-			sql.As(t.C(entapp.FieldID), "app_id"),
+			sql.As(t.C(entapp.FieldEntID), "app_id"),
 			sql.As(t.C(entapp.FieldName), "app_name"),
 			sql.As(t.C(entapp.FieldLogo), "app_logo"),
 			t.C(entapp.FieldCreatedAt),
@@ -103,10 +104,10 @@ func (h *queryHandler) queryJoinAppUser(s *sql.Selector) {
 	s.LeftJoin(t).
 		On(
 			s.C(entapproleuser.FieldUserID),
-			t.C(entappuser.FieldID),
+			t.C(entappuser.FieldEntID),
 		).
 		AppendSelect(
-			sql.As(t.C(entappuser.FieldID), "user_id"),
+			sql.As(t.C(entappuser.FieldEntID), "user_id"),
 			sql.As(t.C(entappuser.FieldEmailAddress), "email_address"),
 			t.C(entappuser.FieldPhoneNo),
 		)
@@ -114,7 +115,7 @@ func (h *queryHandler) queryJoinAppUser(s *sql.Selector) {
 
 func (h *queryHandler) queryJoinSelect() {
 	h.stm.Select(
-		entapproleuser.FieldID,
+		entapproleuser.FieldEntID,
 	)
 }
 

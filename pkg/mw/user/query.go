@@ -53,12 +53,12 @@ func (h *queryHandler) selectAppUser(stm *ent.AppUserQuery) {
 func (h *queryHandler) queryAppUser(cli *ent.Client) error {
 	stm := cli.AppUser.
 		Query().
-		Where(
-			entappuser.AppID(*h.AppID),
-			entappuser.DeletedAt(0),
-		)
+		Where(entappuser.DeletedAt(0))
 	if h.ID != nil {
 		stm.Where(entappuser.ID(*h.ID))
+	}
+	if h.AppID != nil {
+		stm.Where(entappuser.AppID(*h.AppID))
 	}
 	if h.EntID != nil {
 		stm.Where(entappuser.EntID(*h.EntID))
