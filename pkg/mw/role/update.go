@@ -2,7 +2,6 @@ package role
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
@@ -13,10 +12,6 @@ import (
 )
 
 func (h *Handler) UpdateRole(ctx context.Context) (*npool.Role, error) {
-	if h.ID == nil {
-		return nil, fmt.Errorf("invalid id")
-	}
-
 	err := db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {
 		info, err := tx.
 			AppRole.
@@ -31,7 +26,7 @@ func (h *Handler) UpdateRole(ctx context.Context) (*npool.Role, error) {
 			return err
 		}
 
-		if _, err := rolecrud.UpdateSet(
+		info, err = rolecrud.UpdateSet(
 			info.Update(),
 			&rolecrud.Req{
 				EntID:       h.EntID,
@@ -41,9 +36,12 @@ func (h *Handler) UpdateRole(ctx context.Context) (*npool.Role, error) {
 				Default:     h.Default,
 				Genesis:     h.Genesis,
 			},
-		).Save(ctx); err != nil {
+		).Save(ctx)
+		if err != nil {
 			return err
 		}
+		h.AppID = &info.AppID
+		h.EntID = &info.EntID
 		return nil
 	})
 	if err != nil {

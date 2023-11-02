@@ -30,7 +30,7 @@ func init() {
 
 var (
 	ret = npool.Role{
-		ID:          uuid.NewString(),
+		EntID:       uuid.NewString(),
 		AppID:       uuid.NewString(),
 		AppName:     uuid.NewString(),
 		CreatedBy:   uuid.NewString(),
@@ -44,15 +44,20 @@ var (
 func setup(t *testing.T) func(*testing.T) {
 	ah, err := app.NewHandler(
 		context.Background(),
-		app.WithID(&ret.AppID),
-		app.WithCreatedBy(ret.ID),
-		app.WithName(&ret.AppName),
+		app.WithEntID(&ret.AppID, true),
+		app.WithCreatedBy(&ret.EntID, true),
+		app.WithName(&ret.AppName, true),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, ah)
 	app1, err := ah.CreateApp(context.Background())
 	assert.Nil(t, err)
 	assert.NotNil(t, app1)
+
+	ah, err = app.NewHandler(
+		context.Background(),
+		app.WithID(&app1.ID, true),
+	)
 
 	return func(*testing.T) {
 		_, _ = ah.DeleteApp(context.Background())
@@ -62,19 +67,20 @@ func setup(t *testing.T) func(*testing.T) {
 func creatRole(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
-		WithAppID(ret.AppID),
-		WithCreatedBy(&ret.CreatedBy),
-		WithRole(&ret.Role),
-		WithDescription(&ret.Description),
-		WithDefault(&ret.Default),
-		WithGenesis(&ret.Genesis),
+		WithEntID(&ret.EntID, true),
+		WithAppID(&ret.AppID, true),
+		WithCreatedBy(&ret.CreatedBy, true),
+		WithRole(&ret.Role, true),
+		WithDescription(&ret.Description, true),
+		WithDefault(&ret.Default, true),
+		WithGenesis(&ret.Genesis, true),
 	)
 	assert.Nil(t, err)
 
 	info, err := handler.CreateRole(context.Background())
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
+		ret.ID = info.ID
 		assert.Equal(t, info, &ret)
 	}
 }
@@ -83,11 +89,11 @@ func updateRole(t *testing.T) {
 	ret.Role = uuid.NewString()
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
-		WithRole(&ret.Role),
-		WithDescription(&ret.Description),
-		WithDefault(&ret.Default),
-		WithGenesis(&ret.Genesis),
+		WithID(&ret.ID, true),
+		WithRole(&ret.Role, true),
+		WithDescription(&ret.Description, true),
+		WithDefault(&ret.Default, true),
+		WithGenesis(&ret.Genesis, true),
 	)
 	assert.Nil(t, err)
 
@@ -100,7 +106,7 @@ func updateRole(t *testing.T) {
 func getRole(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
+		WithEntID(&ret.EntID, true),
 	)
 	assert.Nil(t, err)
 
@@ -132,7 +138,8 @@ func getRoles(t *testing.T) {
 func deleteRole(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
+		WithID(&ret.ID, true),
+		WithEntID(&ret.EntID, true),
 	)
 	assert.Nil(t, err)
 

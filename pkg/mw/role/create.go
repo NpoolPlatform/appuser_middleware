@@ -23,7 +23,7 @@ func (h *Handler) CreateRole(ctx context.Context) (*npool.Role, error) {
 		h.EntID = &id
 	}
 
-	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateRole, h.AppID, *h.Role)
+	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateRole, *h.AppID, *h.Role)
 	if err := redis2.TryLock(key, 0); err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func (h *Handler) CreateRole(ctx context.Context) (*npool.Role, error) {
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		stm, err := rolecrud.SetQueryConds(cli.AppRole.Query(), &rolecrud.Conds{
-			AppID: &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+			AppID: &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
 			Role:  &cruder.Cond{Op: cruder.EQ, Val: *h.Role},
 		})
 		if err != nil {
