@@ -27,6 +27,7 @@ type queryHandler struct {
 func (h *queryHandler) selectKyc(stm *ent.KycQuery) {
 	h.stm = stm.Select(
 		entkyc.FieldID,
+		entkyc.FieldEntID,
 		entkyc.FieldAppID,
 		entkyc.FieldUserID,
 		entkyc.FieldDocumentType,
@@ -43,14 +44,19 @@ func (h *queryHandler) selectKyc(stm *ent.KycQuery) {
 }
 
 func (h *queryHandler) queryKyc(cli *ent.Client) error {
-	h.selectKyc(
-		cli.Kyc.
-			Query().
-			Where(
-				entkyc.EntID(*h.EntID),
-				entkyc.DeletedAt(0),
-			),
-	)
+	stm := cli.Kyc.
+		Query().
+		Where(entkyc.DeletedAt(0))
+	if h.ID != nil {
+		stm.Where(entkyc.ID(*h.ID))
+	}
+	if h.AppID != nil {
+		stm.Where(entkyc.AppID(*h.AppID))
+	}
+	if h.EntID != nil {
+		stm.Where(entkyc.EntID(*h.EntID))
+	}
+	h.selectKyc(stm)
 	return nil
 }
 
@@ -75,7 +81,7 @@ func (h *queryHandler) queryJoinApp(s *sql.Selector) {
 	s.LeftJoin(t).
 		On(
 			s.C(entkyc.FieldAppID),
-			t.C(entapp.FieldID),
+			t.C(entapp.FieldEntID),
 		).
 		AppendSelect(
 			sql.As(t.C(entapp.FieldName), "app_name"),
@@ -92,7 +98,7 @@ func (h *queryHandler) queryJoinAppUser(s *sql.Selector) {
 		).
 		On(
 			s.C(entkyc.FieldUserID),
-			t.C(entappuser.FieldID),
+			t.C(entappuser.FieldEntID),
 		).
 		AppendSelect(
 			sql.As(t.C(entappuser.FieldEmailAddress), "email_address"),

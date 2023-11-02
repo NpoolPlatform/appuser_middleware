@@ -23,7 +23,7 @@ func (h *Handler) CreateKyc(ctx context.Context) (*npool.Kyc, error) {
 		h.EntID = &id
 	}
 
-	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateUser, h.AppID, h.UserID)
+	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateUser, *h.AppID, *h.UserID)
 	if err := redis2.TryLock(key, 0); err != nil {
 		return nil, err
 	}
@@ -35,8 +35,8 @@ func (h *Handler) CreateKyc(ctx context.Context) (*npool.Kyc, error) {
 		stm, err := kyccrud.SetQueryConds(
 			cli.Kyc.Query(),
 			&kyccrud.Conds{
-				AppID:  &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
-				UserID: &cruder.Cond{Op: cruder.EQ, Val: h.UserID},
+				AppID:  &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
+				UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.UserID},
 			},
 		)
 		if err != nil {

@@ -32,7 +32,7 @@ func init() {
 
 var (
 	ret = npool.Kyc{
-		ID:              uuid.NewString(),
+		EntID:           uuid.NewString(),
 		AppID:           uuid.NewString(),
 		UserID:          uuid.NewString(),
 		DocumentType:    basetypes.KycDocumentType_IDCard,
@@ -52,15 +52,21 @@ var (
 func setupKyc(t *testing.T) func(*testing.T) {
 	ah, err := app.NewHandler(
 		context.Background(),
-		app.WithID(&ret.AppID),
-		app.WithCreatedBy(ret.UserID),
-		app.WithName(&ret.AppID),
+		app.WithEntID(&ret.AppID, true),
+		app.WithCreatedBy(&ret.UserID, true),
+		app.WithName(&ret.AppID, true),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, ah)
 	app1, err := ah.CreateApp(context.Background())
 	assert.Nil(t, err)
 	assert.NotNil(t, app1)
+
+	ah, err = app.NewHandler(
+		context.Background(),
+		app.WithID(&app1.ID, true),
+	)
+	assert.Nil(t, err)
 
 	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+1000000)           //nolint
 	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+5000000) //nolint
@@ -70,17 +76,23 @@ func setupKyc(t *testing.T) func(*testing.T) {
 
 	uh, err := user.NewHandler(
 		context.Background(),
-		user.WithID(&ret.UserID),
-		user.WithAppID(ret.GetAppID()),
-		user.WithPhoneNO(&ret.PhoneNO),
-		user.WithEmailAddress(&ret.EmailAddress),
-		user.WithPasswordHash(&passwordHash),
+		user.WithEntID(&ret.UserID, true),
+		user.WithAppID(&ret.AppID, true),
+		user.WithPhoneNO(&ret.PhoneNO, true),
+		user.WithEmailAddress(&ret.EmailAddress, true),
+		user.WithPasswordHash(&passwordHash, true),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, uh)
 	user1, err := uh.CreateUser(context.Background())
 	assert.Nil(t, err)
 	assert.NotNil(t, user1)
+
+	uh, err = user.NewHandler(
+		context.Background(),
+		user.WithID(&user1.ID, true),
+	)
+	assert.Nil(t, err)
 
 	return func(*testing.T) {
 		_, _ = ah.DeleteApp(context.Background())
@@ -91,16 +103,16 @@ func setupKyc(t *testing.T) func(*testing.T) {
 func createKyc(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
-		WithAppID(ret.GetAppID()),
-		WithUserID(ret.GetUserID()),
-		WithDocumentType(&ret.DocumentType),
-		WithIDNumber(&ret.IDNumber),
-		WithFrontImg(&ret.FrontImg),
-		WithBackImg(&ret.BackImg),
-		WithSelfieImg(&ret.SelfieImg),
-		WithEntityType(&ret.EntityType),
-		WithReviewID(&ret.ReviewID),
+		WithEntID(&ret.EntID, true),
+		WithAppID(&ret.AppID, true),
+		WithUserID(&ret.UserID, true),
+		WithDocumentType(&ret.DocumentType, true),
+		WithIDNumber(&ret.IDNumber, true),
+		WithFrontImg(&ret.FrontImg, true),
+		WithBackImg(&ret.BackImg, true),
+		WithSelfieImg(&ret.SelfieImg, true),
+		WithEntityType(&ret.EntityType, true),
+		WithReviewID(&ret.ReviewID, true),
 	)
 	assert.Nil(t, err)
 
@@ -108,6 +120,7 @@ func createKyc(t *testing.T) {
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
 		ret.UpdatedAt = info.UpdatedAt
+		ret.ID = info.ID
 		assert.Equal(t, info, &ret)
 	}
 }
@@ -121,15 +134,15 @@ func updateKyc(t *testing.T) {
 
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
-		WithDocumentType(&ret.DocumentType),
-		WithIDNumber(&ret.IDNumber),
-		WithFrontImg(&ret.FrontImg),
-		WithBackImg(&ret.BackImg),
-		WithSelfieImg(&ret.SelfieImg),
-		WithEntityType(&ret.EntityType),
-		WithReviewID(&ret.ReviewID),
-		WithState(&ret.State),
+		WithID(&ret.ID, true),
+		WithDocumentType(&ret.DocumentType, false),
+		WithIDNumber(&ret.IDNumber, false),
+		WithFrontImg(&ret.FrontImg, false),
+		WithBackImg(&ret.BackImg, false),
+		WithSelfieImg(&ret.SelfieImg, false),
+		WithEntityType(&ret.EntityType, false),
+		WithReviewID(&ret.ReviewID, false),
+		WithState(&ret.State, false),
 	)
 	assert.Nil(t, err)
 
@@ -143,7 +156,7 @@ func updateKyc(t *testing.T) {
 func getKyc(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
+		WithEntID(&ret.EntID, true),
 	)
 	assert.Nil(t, err)
 
@@ -175,7 +188,8 @@ func getKycs(t *testing.T) {
 func deleteKyc(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
+		WithID(&ret.ID, true),
+		WithEntID(&ret.EntID, true),
 	)
 	assert.Nil(t, err)
 
