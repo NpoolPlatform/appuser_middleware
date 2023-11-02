@@ -20,8 +20,9 @@ import (
 )
 
 type Handler struct {
-	ID                 *uuid.UUID
-	AppID              uuid.UUID
+	ID                 *uint32
+	EntID              *uuid.UUID
+	AppID              *uuid.UUID
 	PhoneNO            *string
 	EmailAddress       *string
 	ImportFromAppID    *uuid.UUID
@@ -68,26 +69,48 @@ func NewHandler(ctx context.Context, options ...func(context.Context, *Handler) 
 	return handler, nil
 }
 
-// Here ID is UserID
-func WithID(id *string) func(context.Context, *Handler) error {
+func WithID(id *uint32, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if id == nil {
+			if must {
+				return fmt.Errorf("invalid id")
+			}
+			return nil
+		}
+		h.ID = id
+		return nil
+	}
+}
+
+// Here ID is UserID
+func WithEntID(id *string, must bool) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if id == nil {
+			if must {
+				return fmt.Errorf("invalid entid")
+			}
 			return nil
 		}
 		_id, err := uuid.Parse(*id)
 		if err != nil {
 			return err
 		}
-		h.ID = &_id
+		h.EntID = &_id
 		return nil
 	}
 }
 
-func WithAppID(id string) func(context.Context, *Handler) error {
+func WithAppID(id *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
+		if id == nil {
+			if must {
+				return fmt.Errorf("invalid entid")
+			}
+			return nil
+		}
 		handler, err := app.NewHandler(
 			ctx,
-			app.WithID(&id),
+			app.WithEntID(id, true),
 		)
 		if err != nil {
 			return err
@@ -99,11 +122,11 @@ func WithAppID(id string) func(context.Context, *Handler) error {
 		if !exist {
 			return fmt.Errorf("invalid app")
 		}
-		_id, err := uuid.Parse(id)
+		_id, err := uuid.Parse(*id)
 		if err != nil {
 			return err
 		}
-		h.AppID = _id
+		h.AppID = &_id
 		return nil
 	}
 }
@@ -129,9 +152,12 @@ func validatePhoneNO(phoneNO string) error {
 	return nil
 }
 
-func WithPhoneNO(phoneNO *string) func(context.Context, *Handler) error {
+func WithPhoneNO(phoneNO *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if phoneNO == nil {
+			if must {
+				return fmt.Errorf("invalid phoneno")
+			}
 			return nil
 		}
 		if err := validatePhoneNO(*phoneNO); err != nil {
@@ -145,9 +171,12 @@ func WithPhoneNO(phoneNO *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithEmailAddress(emailAddress *string) func(context.Context, *Handler) error {
+func WithEmailAddress(emailAddress *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if emailAddress == nil {
+			if must {
+				return fmt.Errorf("invalid emailaddress")
+			}
 			return nil
 		}
 		if err := validateEmailAddress(*emailAddress); err != nil {
@@ -162,14 +191,17 @@ func WithEmailAddress(emailAddress *string) func(context.Context, *Handler) erro
 	}
 }
 
-func WithImportFromAppID(id *string) func(context.Context, *Handler) error {
+func WithImportFromAppID(id *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if id == nil {
+			if must {
+				return fmt.Errorf("invalid importfromappid")
+			}
 			return nil
 		}
 		handler, err := app.NewHandler(
 			ctx,
-			app.WithID(id),
+			app.WithEntID(id, true),
 		)
 		if err != nil {
 			return err
@@ -190,9 +222,12 @@ func WithImportFromAppID(id *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithUsername(username *string) func(context.Context, *Handler) error {
+func WithUsername(username *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if username == nil {
+			if must {
+				return fmt.Errorf("invalid username")
+			}
 			return nil
 		}
 		re := regexp.MustCompile("^[a-zA-Z0-9\u3040-\u31ff][[a-zA-Z0-9_\\-\\.\u3040-\u31ff]{3,32}$") //nolint
@@ -204,16 +239,19 @@ func WithUsername(username *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithAddressFields(addressFields []string) func(context.Context, *Handler) error {
+func WithAddressFields(addressFields []string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.AddressFields = addressFields
 		return nil
 	}
 }
 
-func WithGender(gender *string) func(context.Context, *Handler) error {
+func WithGender(gender *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if gender == nil {
+			if must {
+				return fmt.Errorf("invalid gender")
+			}
 			return nil
 		}
 		if *gender == "" {
@@ -224,9 +262,12 @@ func WithGender(gender *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithPostalCode(postalCode *string) func(context.Context, *Handler) error {
+func WithPostalCode(postalCode *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if postalCode == nil {
+			if must {
+				return fmt.Errorf("invalid postalcode")
+			}
 			return nil
 		}
 		if *postalCode == "" {
@@ -237,29 +278,26 @@ func WithPostalCode(postalCode *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithAge(age *uint32) func(context.Context, *Handler) error {
+func WithAge(age *uint32, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		if age == nil {
-			return nil
-		}
 		h.Age = age
 		return nil
 	}
 }
 
-func WithBirthday(birthday *uint32) func(context.Context, *Handler) error {
+func WithBirthday(birthday *uint32, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		if birthday == nil {
-			return nil
-		}
 		h.Birthday = birthday
 		return nil
 	}
 }
 
-func WithAvatar(avatar *string) func(context.Context, *Handler) error {
+func WithAvatar(avatar *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if avatar == nil {
+			if must {
+				return fmt.Errorf("invalid avatar")
+			}
 			return nil
 		}
 		if *avatar == "" {
@@ -270,9 +308,12 @@ func WithAvatar(avatar *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithOrganization(organization *string) func(context.Context, *Handler) error {
+func WithOrganization(organization *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if organization == nil {
+			if must {
+				return fmt.Errorf("invalid organization")
+			}
 			return nil
 		}
 		if *organization == "" {
@@ -283,9 +324,12 @@ func WithOrganization(organization *string) func(context.Context, *Handler) erro
 	}
 }
 
-func WithFirstName(firstName *string) func(context.Context, *Handler) error {
+func WithFirstName(firstName *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if firstName == nil {
+			if must {
+				return fmt.Errorf("invalid firstname")
+			}
 			return nil
 		}
 		if *firstName == "" {
@@ -296,9 +340,12 @@ func WithFirstName(firstName *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithLastName(lastName *string) func(context.Context, *Handler) error {
+func WithLastName(lastName *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if lastName == nil {
+			if must {
+				return fmt.Errorf("invalid lastname")
+			}
 			return nil
 		}
 		if *lastName == "" {
@@ -309,9 +356,12 @@ func WithLastName(lastName *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithIDNumber(idNumber *string) func(context.Context, *Handler) error {
+func WithIDNumber(idNumber *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if idNumber == nil {
+			if must {
+				return fmt.Errorf("invalid idnumber")
+			}
 			return nil
 		}
 		if *idNumber == "" {
@@ -322,9 +372,12 @@ func WithIDNumber(idNumber *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithSigninVerifyType(verifyType *basetypes.SignMethod) func(context.Context, *Handler) error {
+func WithSigninVerifyType(verifyType *basetypes.SignMethod, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if verifyType == nil {
+			if must {
+				return fmt.Errorf("invalid signinverifytype")
+			}
 			return nil
 		}
 		switch *verifyType {
@@ -339,19 +392,19 @@ func WithSigninVerifyType(verifyType *basetypes.SignMethod) func(context.Context
 	}
 }
 
-func WithGoogleAuthVerified(verified *bool) func(context.Context, *Handler) error {
+func WithGoogleAuthVerified(verified *bool, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		if verified == nil {
-			return nil
-		}
 		h.GoogleAuthVerified = verified
 		return nil
 	}
 }
 
-func WithPasswordHash(passwordHash *string) func(context.Context, *Handler) error {
+func WithPasswordHash(passwordHash *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if passwordHash == nil {
+			if must {
+				return fmt.Errorf("invalid passwordhash")
+			}
 			return nil
 		}
 		if *passwordHash == "" {
@@ -362,9 +415,12 @@ func WithPasswordHash(passwordHash *string) func(context.Context, *Handler) erro
 	}
 }
 
-func WithGoogleSecret(secret *string) func(context.Context, *Handler) error {
+func WithGoogleSecret(secret *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if secret == nil {
+			if must {
+				return fmt.Errorf("invalid secret")
+			}
 			return nil
 		}
 		if *secret == "" {
@@ -375,18 +431,17 @@ func WithGoogleSecret(secret *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithThirdPartyID(id *string) func(context.Context, *Handler) error {
+func WithThirdPartyID(id *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if id == nil {
+			if must {
+				return fmt.Errorf("invalid thirdpartyid")
+			}
 			return nil
-		}
-		_id, err := uuid.Parse(*id)
-		if err != nil {
-			return err
 		}
 		handler, err := oauththirdparty.NewHandler(
 			ctx,
-			oauththirdparty.WithID(id),
+			oauththirdparty.WithEntID(id, true),
 		)
 		if err != nil {
 			return err
@@ -401,14 +456,22 @@ func WithThirdPartyID(id *string) func(context.Context, *Handler) error {
 		accountType := basetypes.SignMethod(basetypes.SignMethod_value[thirdParty.ClientNameStr])
 		h.AccountType = &accountType
 
+		_id, err := uuid.Parse(*id)
+		if err != nil {
+			return err
+		}
+
 		h.ThirdPartyID = &_id
 		return nil
 	}
 }
 
-func WithThirdPartyUserID(userID *string) func(context.Context, *Handler) error {
+func WithThirdPartyUserID(userID *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if userID == nil {
+			if must {
+				return fmt.Errorf("invalid thirdpartyuserid")
+			}
 			return nil
 		}
 		if *userID == "" {
@@ -420,9 +483,12 @@ func WithThirdPartyUserID(userID *string) func(context.Context, *Handler) error 
 	}
 }
 
-func WithThirdPartyUsername(username *string) func(context.Context, *Handler) error {
+func WithThirdPartyUsername(username *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if username == nil {
+			if must {
+				return fmt.Errorf("invalid thirdpartyusername")
+			}
 			return nil
 		}
 		if *username == "" {
@@ -433,9 +499,12 @@ func WithThirdPartyUsername(username *string) func(context.Context, *Handler) er
 	}
 }
 
-func WithThirdPartyAvatar(avatar *string) func(context.Context, *Handler) error {
+func WithThirdPartyAvatar(avatar *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if avatar == nil {
+			if must {
+				return fmt.Errorf("invalid thirdpartyavatar")
+			}
 			return nil
 		}
 		if *avatar == "" {
@@ -446,19 +515,19 @@ func WithThirdPartyAvatar(avatar *string) func(context.Context, *Handler) error 
 	}
 }
 
-func WithBanned(banned *bool) func(context.Context, *Handler) error {
+func WithBanned(banned *bool, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		if banned == nil {
-			return nil
-		}
 		h.Banned = banned
 		return nil
 	}
 }
 
-func WithBanMessage(message *string) func(context.Context, *Handler) error {
+func WithBanMessage(message *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if message == nil {
+			if must {
+				return fmt.Errorf("invalid banmessage")
+			}
 			return nil
 		}
 		if *message == "" {
@@ -469,7 +538,7 @@ func WithBanMessage(message *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithRoleIDs(ids []string) func(context.Context, *Handler) error {
+func WithRoleIDs(ids []string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if len(ids) == 0 {
 			return nil
@@ -487,26 +556,26 @@ func WithRoleIDs(ids []string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithKol(kol *bool) func(context.Context, *Handler) error {
+func WithKol(kol *bool, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		if kol == nil {
-			return nil
-		}
 		h.Kol = kol
 		return nil
 	}
 }
 
-func WithKolConfirmed(confirmed *bool) func(context.Context, *Handler) error {
+func WithKolConfirmed(confirmed *bool, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.KolConfirmed = confirmed
 		return nil
 	}
 }
 
-func WithActionCredits(credits *string) func(context.Context, *Handler) error {
+func WithActionCredits(credits *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if credits == nil {
+			if must {
+				return fmt.Errorf("invalid credits")
+			}
 			return nil
 		}
 		_credits, err := decimal.NewFromString(*credits)
@@ -518,9 +587,12 @@ func WithActionCredits(credits *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithSelectedLangID(id *string) func(context.Context, *Handler) error {
+func WithSelectedLangID(id *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if id == nil {
+			if must {
+				return fmt.Errorf("invalid selectedlangid")
+			}
 			return nil
 		}
 		_id, err := uuid.Parse(*id)
@@ -532,31 +604,56 @@ func WithSelectedLangID(id *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithAccount(account string, accountType basetypes.SignMethod) func(context.Context, *Handler) error {
+func WithAccount(account *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		if account == "" {
+		if account == nil {
+			if must {
+				return fmt.Errorf("invalid account")
+			}
+		}
+		if *account == "" {
 			return fmt.Errorf("invalid account")
 		}
 
-		var err error
-
-		switch accountType {
-		case basetypes.SignMethod_Mobile:
-			h.PhoneNO = &account
-			err = validatePhoneNO(account)
-		case basetypes.SignMethod_Email:
-			h.EmailAddress = &account
-			err = validateEmailAddress(account)
-		default:
-			return fmt.Errorf("invalid account type")
+		var accountType basetypes.SignMethod
+		if err := validatePhoneNO(*account); err == nil {
+			h.PhoneNO = account
+			accountType = basetypes.SignMethod_Mobile
+		} else if err := validateEmailAddress(*account); err == nil {
+			accountType = basetypes.SignMethod_Email
+			h.EmailAddress = account
+		} else {
+			return fmt.Errorf("invalid account")
 		}
 
-		if err != nil {
-			return err
+		if h.AccountType != nil && accountType != *h.AccountType {
+			return fmt.Errorf("invalid accounttype")
 		}
 
 		h.AccountType = &accountType
-		h.Account = &account
+		h.Account = account
+		return nil
+	}
+}
+
+func WithAccountType(accountType *basetypes.SignMethod, must bool) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if accountType == nil {
+			if must {
+				return fmt.Errorf("invalid accounttype")
+			}
+			return nil
+		}
+		if h.AccountType != nil && *accountType != *h.AccountType {
+			return fmt.Errorf("invalid accounttype")
+		}
+		switch *accountType {
+		case basetypes.SignMethod_Mobile:
+		case basetypes.SignMethod_Email:
+		default:
+			return fmt.Errorf("invalid accounttype")
+		}
+		h.AccountType = accountType
 		return nil
 	}
 }
@@ -568,12 +665,12 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 		if conds == nil {
 			return nil
 		}
-		if conds.ID != nil {
-			id, err := uuid.Parse(conds.GetID().GetValue())
+		if conds.EntID != nil {
+			id, err := uuid.Parse(conds.GetEntID().GetValue())
 			if err != nil {
 				return err
 			}
-			h.Conds.ID = &cruder.Cond{Op: conds.GetID().GetOp(), Val: id}
+			h.Conds.EntID = &cruder.Cond{Op: conds.GetEntID().GetOp(), Val: id}
 		}
 		if conds.AppID != nil {
 			id, err := uuid.Parse(conds.GetAppID().GetValue())
@@ -604,16 +701,16 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 				Val: id,
 			}
 		}
-		if len(conds.GetIDs().GetValue()) > 0 {
+		if len(conds.GetEntIDs().GetValue()) > 0 {
 			ids := []uuid.UUID{}
-			for _, id := range conds.GetIDs().GetValue() {
+			for _, id := range conds.GetEntIDs().GetValue() {
 				_id, err := uuid.Parse(id)
 				if err != nil {
 					return err
 				}
 				ids = append(ids, _id)
 			}
-			h.Conds.IDs = &cruder.Cond{Op: conds.GetIDs().GetOp(), Val: ids}
+			h.Conds.EntIDs = &cruder.Cond{Op: conds.GetEntIDs().GetOp(), Val: ids}
 		}
 		if conds.ThirdPartyID != nil {
 			id, err := uuid.Parse(conds.GetThirdPartyID().GetValue())
@@ -623,7 +720,10 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 			h.Conds.ThirdPartyID = &cruder.Cond{Op: conds.GetThirdPartyID().GetOp(), Val: id}
 		}
 		if conds.ThirdPartyUserID != nil {
-			h.Conds.ThirdPartyUserID = &cruder.Cond{Op: conds.GetThirdPartyUserID().GetOp(), Val: conds.GetThirdPartyUserID().GetValue()}
+			h.Conds.ThirdPartyUserID = &cruder.Cond{
+				Op:  conds.GetThirdPartyUserID().GetOp(),
+				Val: conds.GetThirdPartyUserID().GetValue(),
+			}
 		}
 		return nil
 	}

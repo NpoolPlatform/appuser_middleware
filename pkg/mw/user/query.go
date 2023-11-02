@@ -50,16 +50,12 @@ func (h *queryHandler) selectAppUser(stm *ent.AppUserQuery) {
 }
 
 func (h *queryHandler) queryAppUser(cli *ent.Client) error {
-	if h.ID == nil {
-		return fmt.Errorf("invalid userid")
-	}
-
 	h.selectAppUser(
 		cli.AppUser.
 			Query().
 			Where(
-				entappuser.ID(*h.ID),
-				entappuser.AppID(h.AppID),
+				entappuser.EntID(*h.EntID),
+				entappuser.AppID(*h.AppID),
 				entappuser.DeletedAt(0),
 			),
 	)
@@ -279,7 +275,7 @@ func (h *queryHandler) queryAppUserThirdParties(ctx context.Context) error {
 	uids := []uuid.UUID{}
 
 	for _, info := range h.infos {
-		uids = append(uids, uuid.MustParse(info.ID))
+		uids = append(uids, uuid.MustParse(info.EntID))
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
@@ -305,7 +301,7 @@ func (h *queryHandler) queryAppUserThirdParties(ctx context.Context) error {
 
 	for _, oauthThirdParty := range oAuthThirdParties {
 		for _, info := range h.infos {
-			if info.ID == oauthThirdParty.UserID {
+			if info.EntID == oauthThirdParty.UserID {
 				info.OAuthThirdParties = append(info.OAuthThirdParties, oauthThirdParty)
 			}
 		}
@@ -328,7 +324,7 @@ func (h *queryHandler) queryUserRoles(ctx context.Context) error {
 	uids := []uuid.UUID{}
 
 	for _, info := range h.infos {
-		uids = append(uids, uuid.MustParse(info.ID))
+		uids = append(uids, uuid.MustParse(info.EntID))
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
@@ -361,7 +357,7 @@ func (h *queryHandler) queryUserRoles(ctx context.Context) error {
 
 	for _, role := range roles {
 		for _, info := range h.infos {
-			if info.ID == role.UserID.String() {
+			if info.EntID == role.UserID.String() {
 				info.Roles = append(info.Roles, role.RoleName)
 			}
 		}

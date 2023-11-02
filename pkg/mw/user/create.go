@@ -21,6 +21,8 @@ import (
 	usersecretcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/secret"
 
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
+
+	"github.com/google/uuid"
 )
 
 type createHandler struct {
@@ -59,9 +61,6 @@ func (h *createHandler) account() (string, error) {
 }
 
 func (h *createHandler) createAppUser(ctx context.Context, tx *ent.Tx) error {
-	if h.ID == nil {
-		return fmt.Errorf("invalid id")
-	}
 	switch *h.AccountType {
 	case basetypes.SignMethod_Twitter:
 	case basetypes.SignMethod_Github:
@@ -78,8 +77,8 @@ func (h *createHandler) createAppUser(ctx context.Context, tx *ent.Tx) error {
 	if _, err := usercrud.CreateSet(
 		tx.AppUser.Create(),
 		&usercrud.Req{
-			ID:            h.ID,
-			AppID:         &h.AppID,
+			EntID:         h.EntID,
+			AppID:         h.AppID,
 			PhoneNO:       h.PhoneNO,
 			EmailAddress:  h.EmailAddress,
 			ImportFromApp: h.ImportFromAppID,
@@ -94,8 +93,8 @@ func (h *createHandler) createAppUserExtra(ctx context.Context, tx *ent.Tx) erro
 	if _, err := userextracrud.CreateSet(
 		tx.AppUserExtra.Create(),
 		&userextracrud.Req{
-			AppID:  &h.AppID,
-			UserID: h.ID,
+			AppID:  h.AppID,
+			UserID: h.EntID,
 		},
 	).Save(ctx); err != nil {
 		return err
@@ -107,8 +106,8 @@ func (h *createHandler) createAppUserControl(ctx context.Context, tx *ent.Tx) er
 	if _, err := userctrlcrud.CreateSet(
 		tx.AppUserControl.Create(),
 		&userctrlcrud.Req{
-			AppID:  &h.AppID,
-			UserID: h.ID,
+			AppID:  h.AppID,
+			UserID: h.EntID,
 		},
 	).Save(ctx); err != nil {
 		return err
@@ -130,8 +129,8 @@ func (h *createHandler) createAppUserSecret(ctx context.Context, tx *ent.Tx) err
 	if _, err := usersecretcrud.CreateSet(
 		tx.AppUserSecret.Create(),
 		&usersecretcrud.Req{
-			AppID:        &h.AppID,
-			UserID:       h.ID,
+			AppID:        h.AppID,
+			UserID:       h.EntID,
 			PasswordHash: &pwdStr,
 			Salt:         &saltStr,
 		},
@@ -160,8 +159,8 @@ func (h *createHandler) createAppUserThirdParty(ctx context.Context, tx *ent.Tx)
 	if _, err := userthirdpartycrud.CreateSet(
 		tx.AppUserThirdParty.Create(),
 		&userthirdpartycrud.Req{
-			AppID:              &h.AppID,
-			UserID:             h.ID,
+			AppID:              h.AppID,
+			UserID:             h.EntID,
 			ThirdPartyID:       h.ThirdPartyID,
 			ThirdPartyUserID:   h.ThirdPartyUserID,
 			ThirdPartyUsername: h.ThirdPartyUsername,
@@ -185,9 +184,9 @@ func (h *createHandler) createAppRoleUser(ctx context.Context, tx *ent.Tx) error
 		bulk[i] = roleusercrud.CreateSet(
 			tx.AppRoleUser.Create(),
 			&roleusercrud.Req{
-				AppID:  &h.AppID,
+				AppID:  h.AppID,
 				RoleID: &_roleID,
-				UserID: h.ID,
+				UserID: h.EntID,
 			})
 	}
 	if _, err := tx.
@@ -208,7 +207,7 @@ func (h *createHandler) updateSubscriber(ctx context.Context, tx *ent.Tx) error 
 	stm, err := subscribercrud.SetQueryConds(
 		tx.Subscriber.Query(),
 		&subscribercrud.Conds{
-			AppID:        &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+			AppID:        &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
 			EmailAddress: &cruder.Cond{Op: cruder.EQ, Val: *h.EmailAddress},
 		},
 	)
@@ -254,6 +253,11 @@ func (h *Handler) CreateUser(ctx context.Context) (info *npool.User, err error) 
 
 	if err := h.checkAccountExist(ctx); err != nil {
 		return nil, err
+	}
+
+	id := uuid.New()
+	if h.EntID == nil {
+		h.EntID = &id
 	}
 
 	err = db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {

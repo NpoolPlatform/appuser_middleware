@@ -20,8 +20,9 @@ func (h *Handler) ExistUser(ctx context.Context) (exist bool, err error) {
 			AppUser.
 			Query().
 			Where(
-				entappuser.AppID(h.AppID),
-				entappuser.ID(*h.ID),
+				entappuser.AppID(*h.AppID),
+				entappuser.EntID(*h.EntID),
+				entappuser.DeletedAt(0),
 			).
 			Exist(_ctx)
 		return err
@@ -37,7 +38,7 @@ func (h *Handler) ExistUserConds(ctx context.Context) (exist bool, err error) {
 		h.Conds = &usercrud.Conds{}
 	}
 	if h.ID != nil {
-		h.Conds.ID = &cruder.Cond{Op: cruder.EQ, Val: *h.ID}
+		h.Conds.EntID = &cruder.Cond{Op: cruder.EQ, Val: *h.EntID}
 	}
 
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {

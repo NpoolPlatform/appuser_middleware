@@ -54,15 +54,11 @@ func (h *verifyHandler) queryAppUserByAccount(cli *ent.Client) error {
 }
 
 func (h *verifyHandler) queryAppUserByID(cli *ent.Client) error {
-	if h.ID == nil {
-		return fmt.Errorf("invalid user id")
-	}
-
 	stm, err := usercrud.SetQueryConds(
 		cli.AppUser.Query(),
 		&usercrud.Conds{
 			AppID: &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
-			ID:    &cruder.Cond{Op: cruder.EQ, Val: *h.ID},
+			EntID: &cruder.Cond{Op: cruder.EQ, Val: *h.EntID},
 		},
 	)
 	if err != nil {
@@ -141,7 +137,7 @@ func (h *Handler) VerifyAccount(ctx context.Context) (*npool.User, error) {
 		return nil, err
 	}
 
-	h.ID = &infos[0].UserID
+	h.EntID = &infos[0].UserID
 	return h.GetUser(ctx)
 }
 
@@ -182,6 +178,6 @@ func (h *Handler) VerifyUser(ctx context.Context) (*npool.User, error) {
 		return nil, err
 	}
 
-	h.ID = &infos[0].UserID
+	h.EntID = &infos[0].UserID
 	return h.GetUser(ctx)
 }

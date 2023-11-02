@@ -39,8 +39,8 @@ func (h *deleteHandler) deleteAppUserExtra(ctx context.Context, tx *ent.Tx) erro
 		AppUserExtra.
 		Query().
 		Where(
-			entappuserextra.AppID(h.AppID),
-			entappuserextra.UserID(*h.ID),
+			entappuserextra.AppID(*h.AppID),
+			entappuserextra.UserID(*h.EntID),
 		).
 		ForUpdate().
 		Only(ctx)
@@ -65,8 +65,8 @@ func (h *deleteHandler) deleteAppUserControl(ctx context.Context, tx *ent.Tx) er
 		AppUserControl.
 		Query().
 		Where(
-			entappusercontrol.AppID(h.AppID),
-			entappusercontrol.UserID(*h.ID),
+			entappusercontrol.AppID(*h.AppID),
+			entappusercontrol.UserID(*h.EntID),
 		).
 		ForUpdate().
 		Only(ctx)
@@ -91,8 +91,8 @@ func (h *deleteHandler) deleteAppUserSecret(ctx context.Context, tx *ent.Tx) err
 		AppUserSecret.
 		Query().
 		Where(
-			entappusersecret.AppID(h.AppID),
-			entappusersecret.UserID(*h.ID),
+			entappusersecret.AppID(*h.AppID),
+			entappusersecret.UserID(*h.EntID),
 		).
 		ForUpdate().
 		Only(ctx)
@@ -117,8 +117,8 @@ func (h *deleteHandler) deleteAppUserThirdParty(ctx context.Context, tx *ent.Tx)
 		AppUserThirdParty.
 		Query().
 		Where(
-			entappuserthirdparty.AppID(h.AppID),
-			entappuserthirdparty.UserID(*h.ID),
+			entappuserthirdparty.AppID(*h.AppID),
+			entappuserthirdparty.UserID(*h.EntID),
 		).
 		ForUpdate().
 		Only(ctx)
@@ -143,8 +143,8 @@ func (h *deleteHandler) deleteAppRoleUser(ctx context.Context, tx *ent.Tx) error
 		AppRoleUser.
 		Query().
 		Where(
-			entapproleuser.AppID(h.AppID),
-			entapproleuser.UserID(*h.ID),
+			entapproleuser.AppID(*h.AppID),
+			entapproleuser.UserID(*h.EntID),
 		).
 		ForUpdate().
 		Only(ctx)
@@ -213,8 +213,8 @@ func (h *Handler) DeleteThirdUser(ctx context.Context) (info *npool.User, err er
 			AppUserThirdParty.
 			Query().
 			Where(
-				entappuserthirdparty.AppID(h.AppID),
-				entappuserthirdparty.UserID(*h.ID),
+				entappuserthirdparty.AppID(*h.AppID),
+				entappuserthirdparty.UserID(*h.EntID),
 				entappuserthirdparty.ThirdPartyUserID(*h.ThirdPartyUserID),
 				entappuserthirdparty.ThirdPartyID(*h.ThirdPartyID),
 			).

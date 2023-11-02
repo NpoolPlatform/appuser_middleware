@@ -17,7 +17,7 @@ func (h *Handler) checkAccountExist(ctx context.Context) error {
 	}
 
 	conds := &usercrud.Conds{
-		AppID: &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+		AppID: &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
 	}
 	if h.EmailAddress != nil {
 		conds.EmailAddress = &cruder.Cond{Op: cruder.EQ, Val: *h.EmailAddress}
