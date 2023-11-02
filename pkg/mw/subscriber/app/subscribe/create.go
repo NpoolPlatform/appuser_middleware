@@ -19,8 +19,8 @@ import (
 
 func (h *Handler) CreateAppSubscribe(ctx context.Context) (*npool.AppSubscribe, error) {
 	id := uuid.New()
-	if h.ID == nil {
-		h.ID = &id
+	if h.EntID == nil {
+		h.EntID = &id
 	}
 
 	if h.AppID == h.SubscribeAppID {
@@ -61,9 +61,9 @@ func (h *Handler) CreateAppSubscribe(ctx context.Context) (*npool.AppSubscribe, 
 		if _, err := appsubscribecrud.CreateSet(
 			cli.AppSubscribe.Create(),
 			&appsubscribecrud.Req{
-				ID:             h.ID,
-				AppID:          &h.AppID,
-				SubscribeAppID: &h.SubscribeAppID,
+				EntID:          h.EntID,
+				AppID:          h.AppID,
+				SubscribeAppID: h.SubscribeAppID,
 			},
 		).Save(_ctx); err != nil {
 			return err

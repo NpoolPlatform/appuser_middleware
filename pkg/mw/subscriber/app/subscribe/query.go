@@ -41,7 +41,7 @@ func (h *queryHandler) queryAppSubscribe(cli *ent.Client) error {
 		cli.AppSubscribe.
 			Query().
 			Where(
-				entappsubscribe.ID(*h.ID),
+				entappsubscribe.EntID(*h.EntID),
 				entappsubscribe.DeletedAt(0),
 			),
 	)
