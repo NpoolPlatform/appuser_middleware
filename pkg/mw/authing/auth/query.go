@@ -26,6 +26,7 @@ type queryHandler struct {
 func (h *queryHandler) selectAuth(stm *ent.AuthQuery) {
 	h.stm = stm.Select(
 		entauth.FieldID,
+		entauth.FieldEntID,
 		entauth.FieldResource,
 		entauth.FieldMethod,
 		entauth.FieldCreatedAt,
@@ -36,14 +37,19 @@ func (h *queryHandler) selectAuth(stm *ent.AuthQuery) {
 }
 
 func (h *queryHandler) queryAuth(cli *ent.Client) error {
-	h.selectAuth(
-		cli.Auth.
-			Query().
-			Where(
-				entauth.EntID(*h.EntID),
-				entauth.DeletedAt(0),
-			),
-	)
+	stm := cli.Auth.
+		Query().
+		Where(entauth.DeletedAt(0))
+	if h.ID != nil {
+		stm.Where(entauth.ID(*h.ID))
+	}
+	if h.AppID != nil {
+		stm.Where(entauth.AppID(*h.AppID))
+	}
+	if h.EntID != nil {
+		stm.Where(entauth.EntID(*h.EntID))
+	}
+	h.selectAuth(stm)
 	return nil
 }
 
@@ -69,7 +75,7 @@ func (h *queryHandler) queryJoinApp(s *sql.Selector) {
 	s.LeftJoin(t).
 		On(
 			s.C(entauth.FieldAppID),
-			t.C(entapp.FieldID),
+			t.C(entapp.FieldEntID),
 		).
 		AppendSelect(
 			sql.As(t.C(entapp.FieldName), "app_name"),
@@ -82,7 +88,7 @@ func (h *queryHandler) queryJoinAppRole(s *sql.Selector) {
 	s.LeftJoin(t).
 		On(
 			s.C(entauth.FieldRoleID),
-			t.C(entapprole.FieldID),
+			t.C(entapprole.FieldEntID),
 		).
 		AppendSelect(
 			sql.As(t.C(entapprole.FieldRole), "role_name"),
@@ -94,7 +100,7 @@ func (h *queryHandler) queryJoinAppUser(s *sql.Selector) {
 	s.LeftJoin(t).
 		On(
 			s.C(entauth.FieldUserID),
-			t.C(entappuser.FieldID),
+			t.C(entappuser.FieldEntID),
 		).
 		AppendSelect(
 			sql.As(t.C(entappuser.FieldEmailAddress), "email_address"),

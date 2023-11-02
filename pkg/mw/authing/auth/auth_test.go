@@ -152,6 +152,7 @@ func createUserAuth(t *testing.T) {
 	info, err := h.CreateAuth(context.Background())
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
+		ret.ID = info.ID
 		assert.Equal(t, info, &ret)
 	}
 }
@@ -338,6 +339,7 @@ func deleteAuth(t *testing.T) {
 	h, err := NewHandler(
 		context.Background(),
 		handler.WithID(&ret.ID, true),
+		handler.WithEntID(&ret.EntID, true),
 	)
 	assert.Nil(t, err)
 
@@ -387,6 +389,7 @@ func createRoleAuth(t *testing.T) {
 	info, err := h.CreateAuth(context.Background())
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
+		ret.ID = info.ID
 		assert.Equal(t, info, &ret)
 	}
 }
@@ -412,6 +415,7 @@ func createAppAuth(t *testing.T) {
 	info, err := h.CreateAuth(context.Background())
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
+		ret.ID = info.ID
 		assert.Equal(t, info, &ret)
 	}
 }
@@ -425,7 +429,6 @@ func TestAuth(t *testing.T) {
 	defer teardown(t)
 
 	t.Run("existUserFalseAuth", existUserFalseAuth)
-	return
 	t.Run("existRoleFalseAuth", existRoleFalseAuth)
 	t.Run("existAppFalseAuth", existAppFalseAuth)
 	t.Run("existAppOnlyFalseAuth", existAppOnlyFalseAuth)

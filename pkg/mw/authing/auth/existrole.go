@@ -28,11 +28,11 @@ func (h *existRoleHandler) queryJoinApp(s *sql.Selector) {
 	t := sql.Table(entapp.Table)
 	s.LeftJoin(t).
 		On(
-			t.C(entapp.FieldID),
+			t.C(entapp.FieldEntID),
 			s.C(entapproleuser.FieldAppID),
 		).
 		AppendSelect(
-			sql.As(t.C(entapp.FieldID), "app_vid"),
+			sql.As(t.C(entapp.FieldEntID), "app_vid"),
 		)
 }
 
@@ -93,11 +93,11 @@ func (h *existRoleHandler) queryJoinAppUser(s *sql.Selector) {
 			s.C(entapproleuser.FieldAppID),
 		).
 		On(
-			t.C(entappuser.FieldID),
+			t.C(entappuser.FieldEntID),
 			s.C(entapproleuser.FieldUserID),
 		).
 		AppendSelect(
-			sql.As(t.C(entappuser.FieldID), "user_vid"),
+			sql.As(t.C(entappuser.FieldEntID), "user_vid"),
 		)
 }
 
