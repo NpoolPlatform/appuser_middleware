@@ -360,7 +360,7 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 	}
 }
 
-func WithReqs(reqs []*npool.AppReq) func(context.Context, *Handler) error {
+func WithReqs(reqs []*npool.AppReq, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		for _, req := range reqs {
 			_req, err := Grpc2CrudReq(req)

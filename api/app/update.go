@@ -13,24 +13,32 @@ import (
 
 func (s *Server) UpdateApp(ctx context.Context, in *npool.UpdateAppRequest) (*npool.UpdateAppResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"UpdateApp",
+			"In", in,
+		)
+		return &npool.UpdateAppResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	handler, err := app1.NewHandler(
 		ctx,
-		app1.WithID(req.ID),
-		app1.WithName(req.Name),
-		app1.WithLogo(req.Logo),
-		app1.WithDescription(req.Description),
-		app1.WithSignupMethods(req.GetSignupMethods()),
-		app1.WithExtSigninMethods(req.GetExtSigninMethods()),
-		app1.WithRecaptchaMethod(req.RecaptchaMethod),
-		app1.WithKycEnable(req.KycEnable),
-		app1.WithSigninVerifyEnable(req.SigninVerifyEnable),
-		app1.WithInvitationCodeMust(req.InvitationCodeMust),
-		app1.WithCreateInvitationCodeWhen(req.CreateInvitationCodeWhen),
-		app1.WithMaxTypedCouponsPerOrder(req.MaxTypedCouponsPerOrder),
-		app1.WithMaintaining(req.Maintaining),
-		app1.WithCommitButtonTargets(req.GetCommitButtonTargets()),
-		app1.WithBanned(req.Banned),
-		app1.WithBanMessage(req.BanMessage),
+		app1.WithID(req.ID, true),
+		app1.WithEntID(req.EntID, false),
+		app1.WithName(req.Name, false),
+		app1.WithLogo(req.Logo, false),
+		app1.WithDescription(req.Description, false),
+		app1.WithSignupMethods(req.GetSignupMethods(), false),
+		app1.WithExtSigninMethods(req.GetExtSigninMethods(), false),
+		app1.WithRecaptchaMethod(req.RecaptchaMethod, false),
+		app1.WithKycEnable(req.KycEnable, false),
+		app1.WithSigninVerifyEnable(req.SigninVerifyEnable, false),
+		app1.WithInvitationCodeMust(req.InvitationCodeMust, false),
+		app1.WithCreateInvitationCodeWhen(req.CreateInvitationCodeWhen, false),
+		app1.WithMaxTypedCouponsPerOrder(req.MaxTypedCouponsPerOrder, false),
+		app1.WithMaintaining(req.Maintaining, false),
+		app1.WithCommitButtonTargets(req.GetCommitButtonTargets(), false),
+		app1.WithBanned(req.Banned, false),
+		app1.WithBanMessage(req.BanMessage, false),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
