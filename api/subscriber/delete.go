@@ -13,9 +13,16 @@ import (
 
 func (s *Server) DeleteSubscriber(ctx context.Context, in *npool.DeleteSubscriberRequest) (*npool.DeleteSubscriberResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"DeleteSubscriber",
+			"In", in,
+		)
+		return &npool.DeleteSubscriberResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	handler, err := subscriber1.NewHandler(
 		ctx,
-		subscriber1.WithID(req.ID),
+		subscriber1.WithID(req.ID, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

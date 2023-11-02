@@ -22,9 +22,9 @@ func (s *Server) CreateAppSubscribe(ctx context.Context, in *npool.CreateAppSubs
 	}
 	handler, err := appsubscribe1.NewHandler(
 		ctx,
-		appsubscribe1.WithID(req.ID),
-		appsubscribe1.WithAppID(req.GetAppID()),
-		appsubscribe1.WithSubscribeAppID(req.GetSubscribeAppID()),
+		appsubscribe1.WithEntID(req.EntID, false),
+		appsubscribe1.WithAppID(req.AppID, true),
+		appsubscribe1.WithSubscribeAppID(req.SubscribeAppID, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

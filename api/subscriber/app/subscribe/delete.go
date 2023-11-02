@@ -13,9 +13,16 @@ import (
 
 func (s *Server) DeleteAppSubscribe(ctx context.Context, in *npool.DeleteAppSubscribeRequest) (*npool.DeleteAppSubscribeResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"DeleteAppSubscribe",
+			"In", in,
+		)
+		return &npool.DeleteAppSubscribeResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	handler, err := appsubscribe1.NewHandler(
 		ctx,
-		appsubscribe1.WithID(req.ID),
+		appsubscribe1.WithID(req.ID, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

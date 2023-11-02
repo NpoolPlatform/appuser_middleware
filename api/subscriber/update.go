@@ -13,10 +13,17 @@ import (
 
 func (s *Server) UpdateSubscriber(ctx context.Context, in *npool.UpdateSubscriberRequest) (*npool.UpdateSubscriberResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"UpdateSubscriber",
+			"In", in,
+		)
+		return &npool.UpdateSubscriberResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	handler, err := subscriber1.NewHandler(
 		ctx,
-		subscriber1.WithID(req.ID),
-		subscriber1.WithRegistered(req.Registered),
+		subscriber1.WithID(req.ID, true),
+		subscriber1.WithRegistered(req.Registered, false),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
