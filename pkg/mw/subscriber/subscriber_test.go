@@ -31,23 +31,29 @@ func init() {
 
 var (
 	ret = npool.Subscriber{
-		ID:    uuid.NewString(),
+		EntID: uuid.NewString(),
 		AppID: uuid.NewString(),
 	}
 )
 
 func setupSubscriber(t *testing.T) func(*testing.T) {
+	createdBy := uuid.NewString()
 	ah, err := app.NewHandler(
 		context.Background(),
-		app.WithID(&ret.AppID),
-		app.WithCreatedBy(uuid.NewString()),
-		app.WithName(&ret.AppID),
+		app.WithEntID(&ret.AppID, true),
+		app.WithCreatedBy(&createdBy, true),
+		app.WithName(&ret.AppID, true),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, ah)
 	app1, err := ah.CreateApp(context.Background())
 	assert.Nil(t, err)
 	assert.NotNil(t, app1)
+
+	ah, err = app.NewHandler(
+		context.Background(),
+		app.WithID(&app1.ID, true),
+	)
 
 	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+7000000) //nolint
 	ret.AppName = ret.AppID
@@ -60,9 +66,9 @@ func setupSubscriber(t *testing.T) func(*testing.T) {
 func createSubscriber(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
-		WithAppID(ret.GetAppID()),
-		WithEmailAddress(&ret.EmailAddress),
+		WithEntID(&ret.EntID, true),
+		WithAppID(&ret.AppID, true),
+		WithEmailAddress(&ret.EmailAddress, true),
 	)
 	assert.Nil(t, err)
 
@@ -70,6 +76,7 @@ func createSubscriber(t *testing.T) {
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
 		ret.UpdatedAt = info.UpdatedAt
+		ret.ID = info.ID
 		assert.Equal(t, info, &ret)
 	}
 }
@@ -78,8 +85,8 @@ func updateSubscriber(t *testing.T) {
 	ret.Registered = true
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
-		WithRegistered(&ret.Registered),
+		WithID(&ret.ID, true),
+		WithRegistered(&ret.Registered, true),
 	)
 	assert.Nil(t, err)
 
@@ -93,7 +100,7 @@ func updateSubscriber(t *testing.T) {
 func getSubscriber(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
+		WithEntID(&ret.EntID, true),
 	)
 	assert.Nil(t, err)
 
@@ -125,7 +132,8 @@ func getSubscriberes(t *testing.T) {
 func deleteSubscriber(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
+		WithID(&ret.ID, true),
+		WithEntID(&ret.EntID, true),
 	)
 	assert.Nil(t, err)
 
