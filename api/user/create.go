@@ -13,19 +13,26 @@ import (
 
 func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*npool.CreateUserResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"CreateUser",
+			"Req", req,
+		)
+		return &npool.CreateUserResponse{}, status.Error(codes.InvalidArgument, "Info is empty")
+	}
 	handler, err := user1.NewHandler(
 		ctx,
-		user1.WithID(req.ID),
-		user1.WithAppID(req.GetAppID()),
-		user1.WithPhoneNO(req.PhoneNO),
-		user1.WithEmailAddress(req.EmailAddress),
-		user1.WithImportFromAppID(req.ImportedFromAppID),
-		user1.WithPasswordHash(req.PasswordHash),
-		user1.WithRoleIDs(req.GetRoleIDs()),
-		user1.WithThirdPartyID(req.ThirdPartyID),
-		user1.WithThirdPartyUserID(req.ThirdPartyUserID),
-		user1.WithThirdPartyUsername(req.ThirdPartyUsername),
-		user1.WithThirdPartyAvatar(req.ThirdPartyAvatar),
+		user1.WithEntID(req.EntID, false),
+		user1.WithAppID(req.AppID, true),
+		user1.WithPhoneNO(req.PhoneNO, false),
+		user1.WithEmailAddress(req.EmailAddress, false),
+		user1.WithImportFromAppID(req.ImportedFromAppID, false),
+		user1.WithPasswordHash(req.PasswordHash, true),
+		user1.WithRoleIDs(req.GetRoleIDs(), true),
+		user1.WithThirdPartyID(req.ThirdPartyID, false),
+		user1.WithThirdPartyUserID(req.ThirdPartyUserID, false),
+		user1.WithThirdPartyUsername(req.ThirdPartyUsername, false),
+		user1.WithThirdPartyAvatar(req.ThirdPartyAvatar, false),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

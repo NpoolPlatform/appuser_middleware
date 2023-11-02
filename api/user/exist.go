@@ -16,8 +16,8 @@ import (
 func (s *Server) ExistUser(ctx context.Context, in *npool.ExistUserRequest) (*npool.ExistUserResponse, error) {
 	handler, err := user1.NewHandler(
 		ctx,
-		user1.WithAppID(in.AppID),
-		user1.WithID(&in.UserID),
+		user1.WithAppID(&in.AppID, true),
+		user1.WithEntID(&in.UserID, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

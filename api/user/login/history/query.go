@@ -15,7 +15,7 @@ import (
 func (s *Server) GetHistory(ctx context.Context, in *npool.GetHistoryRequest) (*npool.GetHistoryResponse, error) {
 	handler, err := history1.NewHandler(
 		ctx,
-		history1.WithID(&in.ID),
+		history1.WithEntID(&in.EntID, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

@@ -16,8 +16,8 @@ import (
 func (s *Server) GetUser(ctx context.Context, in *npool.GetUserRequest) (*npool.GetUserResponse, error) {
 	handler, err := user1.NewHandler(
 		ctx,
-		user1.WithAppID(in.AppID),
-		user1.WithID(&in.UserID),
+		user1.WithAppID(&in.AppID, true),
+		user1.WithEntID(&in.UserID, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
