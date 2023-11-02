@@ -13,9 +13,16 @@ import (
 
 func (s *Server) DeleteUser(ctx context.Context, in *npool.DeleteUserRequest) (*npool.DeleteUserResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"DeleteUser",
+			"In", in,
+		)
+		return &npool.DeleteUserResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	handler, err := user1.NewHandler(
 		ctx,
-		user1.WithID(req.ID),
+		user1.WithID(req.ID, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

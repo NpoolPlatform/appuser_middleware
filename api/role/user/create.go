@@ -13,12 +13,19 @@ import (
 
 func (s *Server) CreateUser(ctx context.Context, in *npool.CreateUserRequest) (*npool.CreateUserResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"CreateUser",
+			"In", in,
+		)
+		return &npool.CreateUserResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	handler, err := user1.NewHandler(
 		ctx,
-		user1.WithID(req.ID),
-		user1.WithAppID(req.GetAppID()),
-		user1.WithRoleID(req.RoleID),
-		user1.WithUserID(req.UserID),
+		user1.WithEntID(req.EntID, false),
+		user1.WithAppID(req.AppID, true),
+		user1.WithRoleID(req.RoleID, true),
+		user1.WithUserID(req.UserID, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

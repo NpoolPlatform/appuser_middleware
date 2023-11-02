@@ -13,14 +13,21 @@ import (
 
 func (s *Server) UpdateRole(ctx context.Context, in *npool.UpdateRoleRequest) (*npool.UpdateRoleResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"UpdateRole",
+			"In", in,
+		)
+		return &npool.UpdateRoleResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	handler, err := role1.NewHandler(
 		ctx,
-		role1.WithID(req.ID),
-		role1.WithAppID(req.GetAppID()),
-		role1.WithRole(req.Role),
-		role1.WithDescription(req.Description),
-		role1.WithDefault(req.Default),
-		role1.WithGenesis(req.Genesis),
+		role1.WithID(req.ID, true),
+		role1.WithAppID(req.AppID, false),
+		role1.WithRole(req.Role, false),
+		role1.WithDescription(req.Description, false),
+		role1.WithDefault(req.Default, false),
+		role1.WithGenesis(req.Genesis, false),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
