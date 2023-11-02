@@ -13,9 +13,16 @@ import (
 
 func (s *Server) DeleteKyc(ctx context.Context, in *npool.DeleteKycRequest) (*npool.DeleteKycResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"DeleteKyc",
+			"In", in,
+		)
+		return &npool.DeleteKycResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	handler, err := kyc1.NewHandler(
 		ctx,
-		kyc1.WithID(req.ID),
+		kyc1.WithID(req.ID, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

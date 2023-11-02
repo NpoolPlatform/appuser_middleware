@@ -24,11 +24,11 @@ func (s *Server) CreateHistory(ctx context.Context, in *npool.CreateHistoryReque
 	_handler, err := history1.NewHandler(
 		ctx,
 		handler.WithEntID(req.EntID, false),
-		handler.WithAppID(req.AppID, false),
+		handler.WithAppID(req.AppID, true),
 		handler.WithUserID(req.UserID, false),
-		handler.WithResource(req.Resource, false),
-		handler.WithMethod(req.Method, false),
-		history1.WithAllowed(req.Allowed, false),
+		handler.WithResource(req.Resource, true),
+		handler.WithMethod(req.Method, true),
+		history1.WithAllowed(req.Allowed, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

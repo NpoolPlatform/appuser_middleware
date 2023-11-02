@@ -14,19 +14,26 @@ import (
 
 func (s *Server) CreateKyc(ctx context.Context, in *npool.CreateKycRequest) (*npool.CreateKycResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"CreateKyc",
+			"In", in,
+		)
+		return &npool.CreateKycResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	handler, err := kyc1.NewHandler(
 		ctx,
-		kyc1.WithID(req.ID),
-		kyc1.WithAppID(req.GetAppID()),
-		kyc1.WithUserID(req.GetUserID()),
-		kyc1.WithDocumentType(req.DocumentType),
-		kyc1.WithIDNumber(req.IDNumber),
-		kyc1.WithFrontImg(req.FrontImg),
-		kyc1.WithBackImg(req.BackImg),
-		kyc1.WithSelfieImg(req.SelfieImg),
-		kyc1.WithEntityType(req.EntityType),
-		kyc1.WithReviewID(req.ReviewID),
-		kyc1.WithState(req.State),
+		kyc1.WithEntID(req.EntID, false),
+		kyc1.WithAppID(req.AppID, true),
+		kyc1.WithUserID(req.UserID, true),
+		kyc1.WithDocumentType(req.DocumentType, true),
+		kyc1.WithIDNumber(req.IDNumber, false),
+		kyc1.WithFrontImg(req.FrontImg, true),
+		kyc1.WithBackImg(req.BackImg, false),
+		kyc1.WithSelfieImg(req.SelfieImg, true),
+		kyc1.WithEntityType(req.EntityType, true),
+		kyc1.WithReviewID(req.ReviewID, true),
+		kyc1.WithState(req.State, false),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

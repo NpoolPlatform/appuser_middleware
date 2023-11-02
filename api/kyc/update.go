@@ -13,17 +13,24 @@ import (
 
 func (s *Server) UpdateKyc(ctx context.Context, in *npool.UpdateKycRequest) (*npool.UpdateKycResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"UpdateKyc",
+			"In", in,
+		)
+		return &npool.UpdateKycResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	handler, err := kyc1.NewHandler(
 		ctx,
-		kyc1.WithID(req.ID),
-		kyc1.WithDocumentType(req.DocumentType),
-		kyc1.WithIDNumber(req.IDNumber),
-		kyc1.WithFrontImg(req.FrontImg),
-		kyc1.WithBackImg(req.BackImg),
-		kyc1.WithSelfieImg(req.SelfieImg),
-		kyc1.WithEntityType(req.EntityType),
-		kyc1.WithReviewID(req.ReviewID),
-		kyc1.WithState(req.State),
+		kyc1.WithID(req.ID, true),
+		kyc1.WithDocumentType(req.DocumentType, false),
+		kyc1.WithIDNumber(req.IDNumber, false),
+		kyc1.WithFrontImg(req.FrontImg, false),
+		kyc1.WithBackImg(req.BackImg, false),
+		kyc1.WithSelfieImg(req.SelfieImg, false),
+		kyc1.WithEntityType(req.EntityType, false),
+		kyc1.WithReviewID(req.ReviewID, false),
+		kyc1.WithState(req.State, false),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

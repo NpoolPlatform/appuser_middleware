@@ -25,11 +25,11 @@ func (s *Server) CreateAuth(ctx context.Context, in *npool.CreateAuthRequest) (*
 	_handler, err := auth1.NewHandler(
 		ctx,
 		handler.WithEntID(req.EntID, false),
-		handler.WithAppID(req.AppID, false),
+		handler.WithAppID(req.AppID, true),
 		handler.WithRoleID(req.RoleID, false),
 		handler.WithUserID(req.UserID, false),
-		handler.WithResource(req.Resource, false),
-		handler.WithMethod(req.Method, false),
+		handler.WithResource(req.Resource, true),
+		handler.WithMethod(req.Method, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
