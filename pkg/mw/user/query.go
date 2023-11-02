@@ -41,6 +41,7 @@ type queryHandler struct {
 func (h *queryHandler) selectAppUser(stm *ent.AppUserQuery) {
 	h.stm = stm.Select(
 		entappuser.FieldID,
+		entappuser.FieldEntID,
 		entappuser.FieldAppID,
 		entappuser.FieldEmailAddress,
 		entappuser.FieldPhoneNo,
@@ -50,15 +51,19 @@ func (h *queryHandler) selectAppUser(stm *ent.AppUserQuery) {
 }
 
 func (h *queryHandler) queryAppUser(cli *ent.Client) error {
-	h.selectAppUser(
-		cli.AppUser.
-			Query().
-			Where(
-				entappuser.EntID(*h.EntID),
-				entappuser.AppID(*h.AppID),
-				entappuser.DeletedAt(0),
-			),
-	)
+	stm := cli.AppUser.
+		Query().
+		Where(
+			entappuser.AppID(*h.AppID),
+			entappuser.DeletedAt(0),
+		)
+	if h.ID != nil {
+		stm.Where(entappuser.ID(*h.ID))
+	}
+	if h.EntID != nil {
+		stm.Where(entappuser.EntID(*h.EntID))
+	}
+	h.selectAppUser(stm)
 	return nil
 }
 
@@ -83,7 +88,7 @@ func (h *queryHandler) queryJoinAppUserExtra(s *sql.Selector) {
 	t := sql.Table(entextra.Table)
 	s.LeftJoin(t).
 		On(
-			s.C(entappuser.FieldID),
+			s.C(entappuser.FieldEntID),
 			t.C(entextra.FieldUserID),
 		).
 		On(
@@ -110,7 +115,7 @@ func (h *queryHandler) queryJoinAppUserControl(s *sql.Selector) {
 	t := sql.Table(entappusercontrol.Table)
 	s.LeftJoin(t).
 		On(
-			s.C(entappuser.FieldID),
+			s.C(entappuser.FieldEntID),
 			t.C(entappusercontrol.FieldUserID),
 		).
 		On(
@@ -131,7 +136,7 @@ func (h *queryHandler) queryJoinApp(s *sql.Selector) {
 	s.LeftJoin(t).
 		On(
 			s.C(entappuser.FieldImportFromApp),
-			t.C(entapp.FieldID),
+			t.C(entapp.FieldEntID),
 		).
 		AppendSelect(
 			sql.As(t.C(entapp.FieldName), "imported_from_app_name"),
@@ -143,7 +148,7 @@ func (h *queryHandler) queryJoinBanAppUser(s *sql.Selector) {
 	t := sql.Table(entbanappuser.Table)
 	s.LeftJoin(t).
 		On(
-			s.C(entappuser.FieldID),
+			s.C(entappuser.FieldEntID),
 			t.C(entbanappuser.FieldUserID),
 		).
 		On(
@@ -165,7 +170,7 @@ func (h *queryHandler) queryJoinKyc(s *sql.Selector) {
 	t := sql.Table(entkyc.Table)
 	s.LeftJoin(t).
 		On(
-			s.C(entappuser.FieldID),
+			s.C(entappuser.FieldEntID),
 			t.C(entkyc.FieldUserID),
 		).
 		On(
@@ -184,7 +189,7 @@ func (h *queryHandler) queryJoinAppUserSecret(s *sql.Selector) {
 	t := sql.Table(entappusersecret.Table)
 	s.LeftJoin(t).
 		On(
-			s.C(entappuser.FieldID),
+			s.C(entappuser.FieldEntID),
 			t.C(entappusersecret.FieldUserID),
 		).
 		On(
@@ -204,7 +209,7 @@ func (h *queryHandler) queryJoinAppUserThirdParty(s *sql.Selector) error {
 	t := sql.Table(entappuserthirdparty.Table)
 	s.LeftJoin(t).
 		On(
-			s.C(entappuser.FieldID),
+			s.C(entappuser.FieldEntID),
 			t.C(entappuserthirdparty.FieldUserID),
 		).
 		On(

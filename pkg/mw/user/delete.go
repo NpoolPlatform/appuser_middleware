@@ -22,15 +22,16 @@ type deleteHandler struct {
 }
 
 func (h *deleteHandler) deleteAppUser(ctx context.Context, tx *ent.Tx) error {
-	if _, err := tx.
+	info, err := tx.
 		AppUser.
 		UpdateOneID(*h.ID).
 		SetDeletedAt(uint32(time.Now().Unix())).
-		Save(ctx); err != nil {
-		if !ent.IsNotFound(err) {
-			return err
-		}
+		Save(ctx)
+	if err != nil {
+		return err
 	}
+	h.AppID = &info.AppID
+	h.EntID = &info.EntID
 	return nil
 }
 

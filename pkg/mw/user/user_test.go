@@ -36,7 +36,7 @@ var (
 	signType      = basetypes.SignMethod_Email
 	appID         = uuid.NewString()
 	ret           = npool.User{
-		ID:                       uuid.NewString(),
+		EntID:                    uuid.NewString(),
 		AppID:                    appID,
 		EmailAddress:             "aaa@hhh.ccc",
 		PhoneNO:                  "+8613612203166",
@@ -67,9 +67,9 @@ var (
 func setupUser(t *testing.T) func(*testing.T) {
 	ah, err := app.NewHandler(
 		context.Background(),
-		app.WithID(&ret.AppID),
-		app.WithCreatedBy(ret.ID),
-		app.WithName(&ret.AppID),
+		app.WithEntID(&ret.AppID, true),
+		app.WithCreatedBy(&ret.EntID, true),
+		app.WithName(&ret.AppID, true),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, ah)
@@ -77,17 +77,29 @@ func setupUser(t *testing.T) func(*testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, app1)
 
+	ah, err = app.NewHandler(
+		context.Background(),
+		app.WithID(&app1.ID, true),
+	)
+	assert.Nil(t, err)
+
 	ah1, err := app.NewHandler(
 		context.Background(),
-		app.WithID(&ret.ImportedFromAppID),
-		app.WithCreatedBy(ret.ID),
-		app.WithName(&ret.ImportedFromAppID),
+		app.WithEntID(&ret.ImportedFromAppID, true),
+		app.WithCreatedBy(&ret.EntID, true),
+		app.WithName(&ret.ImportedFromAppID, true),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, ah1)
 	app2, err := ah1.CreateApp(context.Background())
 	assert.Nil(t, err)
 	assert.NotNil(t, app2)
+
+	ah1, err = app.NewHandler(
+		context.Background(),
+		app.WithID(&app2.ID, true),
+	)
+	assert.Nil(t, err)
 
 	return func(*testing.T) {
 		_, _ = ah.DeleteApp(context.Background())
@@ -100,7 +112,7 @@ func creatUser(t *testing.T) {
 	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+4000000) //nolint
 	ret.ImportedFromAppName = ret.ImportedFromAppID
 	ret1 := npool.User{
-		ID:                  ret.ID,
+		EntID:               ret.EntID,
 		AppID:               ret.AppID,
 		EmailAddress:        ret.EmailAddress,
 		PhoneNO:             ret.PhoneNO,
@@ -117,12 +129,12 @@ func creatUser(t *testing.T) {
 
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
-		WithAppID(ret.GetAppID()),
-		WithPhoneNO(&ret.PhoneNO),
-		WithEmailAddress(&ret.EmailAddress),
-		WithImportFromAppID(&ret.ImportedFromAppID),
-		WithPasswordHash(&passwordHash),
+		WithEntID(&ret.EntID, true),
+		WithAppID(&ret.AppID, true),
+		WithPhoneNO(&ret.PhoneNO, true),
+		WithEmailAddress(&ret.EmailAddress, true),
+		WithImportFromAppID(&ret.ImportedFromAppID, true),
+		WithPasswordHash(&passwordHash, true),
 	)
 	assert.Nil(t, err)
 
@@ -130,6 +142,8 @@ func creatUser(t *testing.T) {
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
 		ret1.CreatedAt = info.CreatedAt
+		ret.ID = info.ID
+		ret1.ID = info.ID
 		assert.Equal(t, info, &ret1)
 	}
 }
@@ -145,6 +159,7 @@ func updateUser(t *testing.T) {
 		credits      = "1.2342"
 		req          = npool.UserReq{
 			ID:                 &ret.ID,
+			EntID:              &ret.EntID,
 			AppID:              &ret.AppID,
 			EmailAddress:       &ret.EmailAddress,
 			PhoneNO:            &ret.PhoneNO,
@@ -182,28 +197,29 @@ func updateUser(t *testing.T) {
 
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(req.ID),
-		WithAppID(req.GetAppID()),
-		WithPhoneNO(req.PhoneNO),
-		WithEmailAddress(req.EmailAddress),
-		WithImportFromAppID(req.ImportedFromAppID),
-		WithPasswordHash(req.PasswordHash),
-		WithFirstName(req.FirstName),
-		WithLastName(req.LastName),
-		WithBirthday(req.Birthday),
-		WithGender(req.Gender),
-		WithAvatar(req.Avatar),
-		WithUsername(req.Username),
-		WithPostalCode(req.PostalCode),
-		WithAge(req.Age),
-		WithOrganization(req.Organization),
-		WithIDNumber(req.IDNumber),
-		WithAddressFields(req.AddressFields),
-		WithGoogleSecret(req.GoogleSecret),
-		WithGoogleAuthVerified(req.GoogleAuthVerified),
-		WithKol(req.Kol),
-		WithKolConfirmed(req.KolConfirmed),
-		WithActionCredits(req.ActionCredits),
+		WithID(req.ID, true),
+		WithEntID(req.EntID, true),
+		WithAppID(req.AppID, true),
+		WithPhoneNO(req.PhoneNO, true),
+		WithEmailAddress(req.EmailAddress, true),
+		WithImportFromAppID(req.ImportedFromAppID, true),
+		WithPasswordHash(req.PasswordHash, true),
+		WithFirstName(req.FirstName, true),
+		WithLastName(req.LastName, true),
+		WithBirthday(req.Birthday, true),
+		WithGender(req.Gender, true),
+		WithAvatar(req.Avatar, true),
+		WithUsername(req.Username, true),
+		WithPostalCode(req.PostalCode, true),
+		WithAge(req.Age, true),
+		WithOrganization(req.Organization, true),
+		WithIDNumber(req.IDNumber, true),
+		WithAddressFields(req.AddressFields, true),
+		WithGoogleSecret(req.GoogleSecret, true),
+		WithGoogleAuthVerified(req.GoogleAuthVerified, true),
+		WithKol(req.Kol, true),
+		WithKolConfirmed(req.KolConfirmed, true),
+		WithActionCredits(req.ActionCredits, true),
 	)
 	assert.Nil(t, err)
 
@@ -217,8 +233,8 @@ func updateUser(t *testing.T) {
 func getUser(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithAppID(ret.AppID),
-		WithID(&ret.ID),
+		WithAppID(&ret.AppID, true),
+		WithEntID(&ret.EntID, true),
 	)
 	assert.Nil(t, err)
 
@@ -250,8 +266,8 @@ func getUsers(t *testing.T) {
 func deleteUser(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
-		WithAppID(ret.AppID),
+		WithID(&ret.ID, true),
+		WithAppID(&ret.AppID, true),
 	)
 	assert.Nil(t, err)
 

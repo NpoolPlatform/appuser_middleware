@@ -29,15 +29,18 @@ type updateHandler struct {
 }
 
 func (h *updateHandler) updateAppUser(ctx context.Context, tx *ent.Tx) error {
-	if _, err := usercrud.UpdateSet(
+	_, err := usercrud.UpdateSet(
 		tx.AppUser.UpdateOneID(*h.ID),
 		&usercrud.Req{
 			PhoneNO:       h.PhoneNO,
 			EmailAddress:  h.EmailAddress,
 			ImportFromApp: h.ImportFromAppID,
-		}).Save(ctx); err != nil {
+		}).Save(ctx)
+	if err != nil {
 		return err
 	}
+	// h.AppID = &info.AppID
+	// h.EntID = &info.EntID
 	return nil
 }
 
