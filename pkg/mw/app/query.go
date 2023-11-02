@@ -28,6 +28,7 @@ type queryHandler struct {
 func (h *queryHandler) selectApp(stm *ent.AppQuery) {
 	h.stm = stm.Select(
 		entapp.FieldID,
+		entapp.FieldEntID,
 		entapp.FieldCreatedBy,
 		entapp.FieldLogo,
 		entapp.FieldName,
@@ -37,19 +38,18 @@ func (h *queryHandler) selectApp(stm *ent.AppQuery) {
 }
 
 func (h *queryHandler) queryApp(cli *ent.Client) error {
-	if h.ID == nil {
-		return fmt.Errorf("invalid appid")
+	stm := cli.App.
+		Query().
+		Where(
+			entapp.DeletedAt(0),
+		)
+	if h.ID != nil {
+		stm.Where(entapp.ID(*h.ID))
 	}
-
-	h.selectApp(
-		cli.App.
-			Query().
-			Where(
-				entapp.ID(*h.ID),
-				entapp.DeletedAt(0),
-			),
-	)
-
+	if h.EntID != nil {
+		stm.Where(entapp.EntID(*h.EntID))
+	}
+	h.selectApp(stm)
 	return nil
 }
 
@@ -73,7 +73,7 @@ func (h *queryHandler) queryJoinAppCtrl(s *sql.Selector) {
 	t := sql.Table(entappctrl.Table)
 	s.LeftJoin(t).
 		On(
-			s.C(entapp.FieldID),
+			s.C(entapp.FieldEntID),
 			t.C(entappctrl.FieldAppID),
 		).
 		AppendSelect(
@@ -94,7 +94,7 @@ func (h *queryHandler) queryJoinBanApp(s *sql.Selector) {
 	t := sql.Table(entbanapp.Table)
 	s.LeftJoin(t).
 		On(
-			s.C(entapp.FieldID),
+			s.C(entapp.FieldEntID),
 			t.C(entbanapp.FieldAppID),
 		).
 		On(

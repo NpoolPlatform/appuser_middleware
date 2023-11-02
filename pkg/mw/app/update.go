@@ -21,16 +21,18 @@ type updateHandler struct {
 }
 
 func (h *updateHandler) updateApp(ctx context.Context, tx *ent.Tx) error {
-	if _, err := appcrud.UpdateSet(
+	info, err := appcrud.UpdateSet(
 		tx.App.UpdateOneID(*h.ID),
 		&appcrud.Req{
 			Name:        h.Name,
 			Logo:        h.Logo,
 			Description: h.Description,
 		},
-	).Save(ctx); err != nil {
+	).Save(ctx)
+	if err != nil {
 		return err
 	}
+	h.EntID = &info.EntID
 	return nil
 }
 

@@ -155,6 +155,11 @@ func deleteApp(t *testing.T) {
 		assert.Equal(t, info, &ret)
 	}
 
+	handler, err = NewHandler(
+		context.Background(),
+		WithEntID(&ret.EntID, true),
+	)
+	assert.Nil(t, err)
 	info, err = handler.GetApp(context.Background())
 	assert.Nil(t, err)
 	assert.Nil(t, info)
