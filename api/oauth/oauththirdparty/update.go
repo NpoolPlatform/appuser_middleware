@@ -14,15 +14,22 @@ import (
 
 func (s *Server) UpdateOAuthThirdParty(ctx context.Context, in *npool.UpdateOAuthThirdPartyRequest) (*npool.UpdateOAuthThirdPartyResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"UpdateOAuthThirdParty",
+			"In", in,
+		)
+		return &npool.UpdateOAuthThirdPartyResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	handler, err := oauththirdparty1.NewHandler(
 		ctx,
-		oauththirdparty1.WithID(req.ID),
-		oauththirdparty1.WithClientName(req.ClientName),
-		oauththirdparty1.WithClientTag(req.ClientTag),
-		oauththirdparty1.WithClientLogoURL(req.ClientLogoURL),
-		oauththirdparty1.WithClientOAuthURL(req.ClientOAuthURL),
-		oauththirdparty1.WithResponseType(req.ResponseType),
-		oauththirdparty1.WithScope(req.Scope),
+		oauththirdparty1.WithID(req.ID, true),
+		oauththirdparty1.WithClientName(req.ClientName, false),
+		oauththirdparty1.WithClientTag(req.ClientTag, false),
+		oauththirdparty1.WithClientLogoURL(req.ClientLogoURL, false),
+		oauththirdparty1.WithClientOAuthURL(req.ClientOAuthURL, false),
+		oauththirdparty1.WithResponseType(req.ResponseType, false),
+		oauththirdparty1.WithScope(req.Scope, false),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

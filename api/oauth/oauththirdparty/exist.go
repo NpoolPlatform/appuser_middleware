@@ -15,7 +15,7 @@ import (
 func (s *Server) ExistOAuthThirdParty(ctx context.Context, in *npool.ExistOAuthThirdPartyRequest) (*npool.ExistOAuthThirdPartyResponse, error) {
 	handler, err := oauththirdparty1.NewHandler(
 		ctx,
-		oauththirdparty1.WithID(&in.ID),
+		oauththirdparty1.WithEntID(&in.EntID, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

@@ -13,14 +13,21 @@ import (
 
 func (s *Server) CreateOAuthThirdParty(ctx context.Context, in *npool.CreateOAuthThirdPartyRequest) (*npool.CreateOAuthThirdPartyResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"CreateOAuthThirdParty",
+			"In", in,
+		)
+		return &npool.CreateOAuthThirdPartyResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	handler, err := oauththirdparty1.NewHandler(
 		ctx,
-		oauththirdparty1.WithID(req.ID),
-		oauththirdparty1.WithAppID(req.GetAppID()),
-		oauththirdparty1.WithThirdPartyID(req.ThirdPartyID),
-		oauththirdparty1.WithClientID(req.ClientID),
-		oauththirdparty1.WithClientSecret(req.ClientSecret),
-		oauththirdparty1.WithCallbackURL(req.CallbackURL),
+		oauththirdparty1.WithEntID(req.EntID, false),
+		oauththirdparty1.WithAppID(req.AppID, true),
+		oauththirdparty1.WithThirdPartyID(req.ThirdPartyID, true),
+		oauththirdparty1.WithClientID(req.ClientID, true),
+		oauththirdparty1.WithClientSecret(req.ClientSecret, true),
+		oauththirdparty1.WithCallbackURL(req.CallbackURL, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
