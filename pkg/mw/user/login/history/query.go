@@ -46,7 +46,7 @@ func (h *queryHandler) queryHistory(cli *ent.Client) error {
 		cli.LoginHistory.
 			Query().
 			Where(
-				entloginhistory.ID(*h.ID),
+				entloginhistory.EntID(*h.EntID),
 				entloginhistory.DeletedAt(0),
 			),
 	)

@@ -16,9 +16,10 @@ import (
 )
 
 type Handler struct {
-	ID        *uuid.UUID
-	AppID     uuid.UUID
-	UserID    uuid.UUID
+	ID        *uint32
+	EntID     *uuid.UUID
+	AppID     *uuid.UUID
+	UserID    *uuid.UUID
 	ClientIP  *string
 	UserAgent *string
 	Location  *string
@@ -38,25 +39,47 @@ func NewHandler(ctx context.Context, options ...func(context.Context, *Handler) 
 	return handler, nil
 }
 
-func WithID(id *string) func(context.Context, *Handler) error {
+func WithID(id *uint32, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if id == nil {
+			if must {
+				return fmt.Errorf("invalid id")
+			}
+			return nil
+		}
+		h.ID = id
+		return nil
+	}
+}
+
+func WithEntID(id *string, must bool) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if id == nil {
+			if must {
+				return fmt.Errorf("invalid entid")
+			}
 			return nil
 		}
 		_id, err := uuid.Parse(*id)
 		if err != nil {
 			return err
 		}
-		h.ID = &_id
+		h.EntID = &_id
 		return nil
 	}
 }
 
-func WithAppID(id string) func(context.Context, *Handler) error {
+func WithAppID(id *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
+		if id == nil {
+			if must {
+				return fmt.Errorf("invalid appid")
+			}
+			return nil
+		}
 		handler, err := app.NewHandler(
 			ctx,
-			app.WithID(&id),
+			app.WithEntID(id, true),
 		)
 		if err != nil {
 			return err
@@ -68,29 +91,38 @@ func WithAppID(id string) func(context.Context, *Handler) error {
 		if !exist {
 			return fmt.Errorf("invalid app")
 		}
-		_id, err := uuid.Parse(id)
+		_id, err := uuid.Parse(*id)
 		if err != nil {
 			return err
 		}
-		h.AppID = _id
+		h.AppID = &_id
 		return nil
 	}
 }
 
-func WithUserID(id string) func(context.Context, *Handler) error {
+func WithUserID(id *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		_id, err := uuid.Parse(id)
+		if id == nil {
+			if must {
+				return fmt.Errorf("invalid userid")
+			}
+			return nil
+		}
+		_id, err := uuid.Parse(*id)
 		if err != nil {
 			return err
 		}
-		h.UserID = _id
+		h.UserID = &_id
 		return nil
 	}
 }
 
-func WithClientIP(ip *string) func(context.Context, *Handler) error {
+func WithClientIP(ip *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if ip == nil {
+			if must {
+				return fmt.Errorf("invalid clientip")
+			}
 			return nil
 		}
 		if ip := net.ParseIP(*ip); ip == nil {
@@ -101,23 +133,26 @@ func WithClientIP(ip *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithUserAgent(agent *string) func(context.Context, *Handler) error {
+func WithUserAgent(agent *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.UserAgent = agent
 		return nil
 	}
 }
 
-func WithLocation(location *string) func(context.Context, *Handler) error {
+func WithLocation(location *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.Location = location
 		return nil
 	}
 }
 
-func WithLoginType(loginType *basetypes.LoginType) func(context.Context, *Handler) error {
+func WithLoginType(loginType *basetypes.LoginType, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if loginType == nil {
+			if must {
+				return fmt.Errorf("invalid logintype")
+			}
 			return nil
 		}
 		switch *loginType {
@@ -137,12 +172,12 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 		if conds == nil {
 			return nil
 		}
-		if conds.ID != nil {
-			id, err := uuid.Parse(conds.GetID().GetValue())
+		if conds.EntID != nil {
+			id, err := uuid.Parse(conds.GetEntID().GetValue())
 			if err != nil {
 				return err
 			}
-			h.Conds.ID = &cruder.Cond{Op: conds.GetID().GetOp(), Val: id}
+			h.Conds.EntID = &cruder.Cond{Op: conds.GetEntID().GetOp(), Val: id}
 		}
 		if conds.AppID != nil {
 			id, err := uuid.Parse(conds.GetAppID().GetValue())
