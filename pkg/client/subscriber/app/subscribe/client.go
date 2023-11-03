@@ -47,10 +47,10 @@ func CreateAppSubscribe(ctx context.Context, in *npool.AppSubscribeReq) (*npool.
 	return info.(*npool.AppSubscribe), nil
 }
 
-func GetAppSubscribe(ctx context.Context, appID string) (*npool.AppSubscribe, error) {
+func GetAppSubscribe(ctx context.Context, id string) (*npool.AppSubscribe, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetAppSubscribe(ctx, &npool.GetAppSubscribeRequest{
-			ID: appID,
+			EntID: id,
 		})
 		if err != nil {
 			return nil, err
@@ -125,7 +125,7 @@ func ExistAppSubscribeConds(ctx context.Context, conds *npool.Conds) (bool, erro
 	return info.(bool), nil
 }
 
-func DeleteAppSubscribe(ctx context.Context, id string) (*npool.AppSubscribe, error) {
+func DeleteAppSubscribe(ctx context.Context, id uint32) (*npool.AppSubscribe, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.DeleteAppSubscribe(ctx, &npool.DeleteAppSubscribeRequest{
 			Info: &npool.AppSubscribeReq{
