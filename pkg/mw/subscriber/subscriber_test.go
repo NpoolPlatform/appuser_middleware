@@ -54,6 +54,7 @@ func setupSubscriber(t *testing.T) func(*testing.T) {
 		context.Background(),
 		app.WithID(&app1.ID, true),
 	)
+	assert.Nil(t, err)
 
 	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+7000000) //nolint
 	ret.AppName = ret.AppID

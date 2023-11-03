@@ -36,7 +36,7 @@ func (h *queryHandler) selectAuth(stm *ent.AuthQuery) {
 	)
 }
 
-func (h *queryHandler) queryAuth(cli *ent.Client) error {
+func (h *queryHandler) queryAuth(cli *ent.Client) {
 	stm := cli.Auth.
 		Query().
 		Where(entauth.DeletedAt(0))
@@ -50,7 +50,6 @@ func (h *queryHandler) queryAuth(cli *ent.Client) error {
 		stm.Where(entauth.EntID(*h.EntID))
 	}
 	h.selectAuth(stm)
-	return nil
 }
 
 func (h *queryHandler) queryAuths(ctx context.Context, cli *ent.Client) error {
@@ -126,9 +125,7 @@ func (h *Handler) GetAuth(ctx context.Context) (*npool.Auth, error) {
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryAuth(cli); err != nil {
-			return nil
-		}
+		handler.queryAuth(cli)
 		handler.queryJoin()
 		if err := handler.scan(ctx); err != nil {
 			return err

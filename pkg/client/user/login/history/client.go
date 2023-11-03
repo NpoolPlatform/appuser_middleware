@@ -47,7 +47,7 @@ func CreateHistory(ctx context.Context, in *npool.HistoryReq) (*npool.History, e
 func GetHistory(ctx context.Context, id string) (*npool.History, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetHistory(ctx, &npool.GetHistoryRequest{
-			ID: id,
+			EntID: id,
 		})
 		if err != nil {
 			return nil, err

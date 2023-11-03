@@ -58,6 +58,7 @@ func setup(t *testing.T) func(*testing.T) {
 		context.Background(),
 		app.WithID(&app1.ID, true),
 	)
+	assert.Nil(t, err)
 
 	return func(*testing.T) {
 		_, _ = ah.DeleteApp(context.Background())
