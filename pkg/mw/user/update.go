@@ -29,7 +29,7 @@ type updateHandler struct {
 }
 
 func (h *updateHandler) updateAppUser(ctx context.Context, tx *ent.Tx) error {
-	_, err := usercrud.UpdateSet(
+	info, err := usercrud.UpdateSet(
 		tx.AppUser.UpdateOneID(*h.ID),
 		&usercrud.Req{
 			PhoneNO:       h.PhoneNO,
@@ -39,8 +39,8 @@ func (h *updateHandler) updateAppUser(ctx context.Context, tx *ent.Tx) error {
 	if err != nil {
 		return err
 	}
-	// h.AppID = &info.AppID
-	// h.EntID = &info.EntID
+	h.AppID = &info.AppID
+	h.EntID = &info.EntID
 	return nil
 }
 
@@ -240,7 +240,7 @@ func (h *updateHandler) updateBanAppUser(ctx context.Context, tx *ent.Tx) error 
 		tx.BanAppUser.Query(),
 		&banappusercrud.Conds{
 			AppID:  &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
-			UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.ID},
+			UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.EntID},
 		})
 	if err != nil {
 		return err

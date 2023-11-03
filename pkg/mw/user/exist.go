@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"fmt"
 
 	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
@@ -12,9 +11,6 @@ import (
 )
 
 func (h *Handler) ExistUser(ctx context.Context) (exist bool, err error) {
-	if h.ID == nil {
-		return false, fmt.Errorf("invalid id")
-	}
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		exist, err = cli.
 			AppUser.

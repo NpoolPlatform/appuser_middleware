@@ -51,7 +51,7 @@ var (
 	appID             = uuid.NewString()
 	thirdPartyID      = uuid.NewString()
 	ret               = npool.User{
-		ID:                  uuid.NewString(),
+		EntID:               uuid.NewString(),
 		AppID:               appID,
 		EmailAddress:        "aaa@aaa.aaa",
 		PhoneNO:             "+8613612203133",
@@ -80,7 +80,7 @@ var (
 	}
 
 	thirdRet = appoauththirdpartymwpb.OAuthThirdParty{
-		ID:             uuid.NewString(),
+		EntID:          uuid.NewString(),
 		AppID:          appID,
 		ThirdPartyID:   thirdPartyID,
 		ClientID:       "123123123123",
@@ -100,8 +100,8 @@ func setupUser(t *testing.T) func(*testing.T) {
 	app1, err := appmwcli.CreateApp(
 		context.Background(),
 		&appmwpb.AppReq{
-			ID:        &ret.AppID,
-			CreatedBy: &ret.ID,
+			EntID:     &ret.AppID,
+			CreatedBy: &ret.EntID,
 			Name:      &ret.AppID,
 		},
 	)
@@ -111,8 +111,8 @@ func setupUser(t *testing.T) func(*testing.T) {
 	app2, err := appmwcli.CreateApp(
 		context.Background(),
 		&appmwpb.AppReq{
-			ID:        &ret.ImportedFromAppID,
-			CreatedBy: &ret.ID,
+			EntID:     &ret.ImportedFromAppID,
+			CreatedBy: &ret.EntID,
 			Name:      &ret.ImportedFromAppID,
 		},
 	)
@@ -122,7 +122,7 @@ func setupUser(t *testing.T) func(*testing.T) {
 	oauth1, err := oauththirdpartymwcli.CreateOAuthThirdParty(
 		context.Background(),
 		&oauththirdpartymwpb.OAuthThirdPartyReq{
-			ID:             &thirdRet.ThirdPartyID,
+			EntID:          &thirdRet.ThirdPartyID,
 			ClientName:     &thirdRet.ClientName,
 			ClientTag:      &thirdRet.ClientTag,
 			ClientLogoURL:  &thirdRet.ClientLogoURL,
@@ -133,12 +133,12 @@ func setupUser(t *testing.T) func(*testing.T) {
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, oauth1)
-	thirdRet.ThirdPartyID = oauth1.ID
+	thirdRet.ThirdPartyID = oauth1.EntID
 
 	appoauth1, err := appoauththirdpartymwcli.CreateOAuthThirdParty(
 		context.Background(),
 		&appoauththirdpartymwpb.OAuthThirdPartyReq{
-			ID:           &thirdRet.ID,
+			EntID:        &thirdRet.EntID,
 			AppID:        &thirdRet.AppID,
 			ClientID:     &thirdRet.ClientID,
 			ClientSecret: &thirdRet.ClientSecret,
@@ -150,12 +150,12 @@ func setupUser(t *testing.T) func(*testing.T) {
 	assert.NotNil(t, appoauth1)
 
 	return func(*testing.T) {
-		_, _ = appmwcli.DeleteApp(context.Background(), ret.AppID)
-		_, _ = appmwcli.DeleteApp(context.Background(), ret.ImportedFromAppID)
-		if thirdPartyID == oauth1.ID {
-			_, _ = oauththirdpartymwcli.DeleteOAuthThirdParty(context.Background(), thirdRet.ThirdPartyID)
+		_, _ = appmwcli.DeleteApp(context.Background(), app1.ID)
+		_, _ = appmwcli.DeleteApp(context.Background(), app2.ID)
+		if thirdPartyID == oauth1.EntID {
+			_, _ = oauththirdpartymwcli.DeleteOAuthThirdParty(context.Background(), oauth1.ID)
 		}
-		_, _ = appoauththirdpartymwcli.DeleteOAuthThirdParty(context.Background(), thirdRet.ID)
+		_, _ = appoauththirdpartymwcli.DeleteOAuthThirdParty(context.Background(), appoauth1.ID)
 	}
 }
 
@@ -164,12 +164,12 @@ func creatUser(t *testing.T) {
 	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+30000) //nolint
 	ret.ImportedFromAppName = ret.ImportedFromAppID
 	var (
-		id                = ret.ID
+		id                = ret.EntID
 		appID             = ret.AppID
 		importedFromAppID = ret.ImportedFromAppID
 		strVal            = "AAA"
 		req               = npool.UserReq{
-			ID:                 &id,
+			EntID:              &id,
 			AppID:              &appID,
 			EmailAddress:       &ret.EmailAddress,
 			PhoneNO:            &ret.PhoneNO,
@@ -197,7 +197,7 @@ func creatUser(t *testing.T) {
 			BanMessage:         &ret.BanMessage,
 		}
 		ret1 = npool.User{
-			ID:                  ret.ID,
+			EntID:               ret.EntID,
 			AppID:               ret.AppID,
 			EmailAddress:        ret.EmailAddress,
 			PhoneNO:             ret.PhoneNO,
@@ -217,6 +217,8 @@ func creatUser(t *testing.T) {
 		ret.CreatedAt = info.CreatedAt
 		ret1.CreatedAt = info.CreatedAt
 		ret1.OAuthThirdParties = info.OAuthThirdParties
+		ret.ID = info.ID
+		ret1.ID = info.ID
 		assert.Equal(t, info, &ret1)
 	}
 }
@@ -224,7 +226,7 @@ func creatUser(t *testing.T) {
 func updateUser(t *testing.T) {
 	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+10000)           //nolint
 	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+40000) //nolint
-	ret.BanAppUserID = ret.ID
+	ret.BanAppUserID = ret.EntID
 	var (
 		appID   = ret.AppID
 		strVal  = "AAA"
@@ -272,7 +274,7 @@ func updateUser(t *testing.T) {
 }
 
 func getUser(t *testing.T) {
-	info, err := GetUser(context.Background(), ret.AppID, ret.ID)
+	info, err := GetUser(context.Background(), ret.AppID, ret.EntID)
 	if assert.Nil(t, err) {
 		ret.OAuthThirdParties = info.OAuthThirdParties
 		assert.Equal(t, info, &ret)
@@ -294,7 +296,7 @@ func deleteUser(t *testing.T) {
 		assert.Equal(t, info, &ret)
 	}
 
-	info, err = GetUser(context.Background(), ret.AppID, ret.ID)
+	info, err = GetUser(context.Background(), ret.AppID, ret.EntID)
 	assert.Nil(t, err)
 	assert.Nil(t, info)
 }
