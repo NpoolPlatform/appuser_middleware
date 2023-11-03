@@ -23,11 +23,11 @@ func (h *Handler) CreateAppSubscribe(ctx context.Context) (*npool.AppSubscribe, 
 		h.EntID = &id
 	}
 
-	if h.AppID == h.SubscribeAppID {
+	if *h.AppID == *h.SubscribeAppID {
 		return nil, fmt.Errorf("cannot subscribe self")
 	}
 
-	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateAppSubscribe, h.AppID, h.SubscribeAppID)
+	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateAppSubscribe, *h.AppID, *h.SubscribeAppID)
 	if err := redis2.TryLock(key, 0); err != nil {
 		return nil, err
 	}
@@ -39,8 +39,8 @@ func (h *Handler) CreateAppSubscribe(ctx context.Context) (*npool.AppSubscribe, 
 		stm, err := appsubscribecrud.SetQueryConds(
 			cli.AppSubscribe.Query(),
 			&appsubscribecrud.Conds{
-				AppID:          &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
-				SubscribeAppID: &cruder.Cond{Op: cruder.EQ, Val: h.SubscribeAppID},
+				AppID:          &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
+				SubscribeAppID: &cruder.Cond{Op: cruder.EQ, Val: *h.SubscribeAppID},
 			},
 		)
 		if err != nil {

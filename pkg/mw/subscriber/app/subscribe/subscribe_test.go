@@ -30,18 +30,19 @@ func init() {
 
 var (
 	ret = npool.AppSubscribe{
-		ID:             uuid.NewString(),
+		EntID:          uuid.NewString(),
 		AppID:          uuid.NewString(),
 		SubscribeAppID: uuid.NewString(),
 	}
 )
 
 func setupAppSubscribe(t *testing.T) func(*testing.T) {
+	createdBy := uuid.NewString()
 	ah, err := app.NewHandler(
 		context.Background(),
-		app.WithID(&ret.AppID),
-		app.WithCreatedBy(uuid.NewString()),
-		app.WithName(&ret.AppID),
+		app.WithEntID(&ret.AppID, true),
+		app.WithCreatedBy(&createdBy, true),
+		app.WithName(&ret.AppID, true),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, ah)
@@ -49,17 +50,29 @@ func setupAppSubscribe(t *testing.T) func(*testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, app1)
 
+	ah, err = app.NewHandler(
+		context.Background(),
+		app.WithID(&app1.ID, true),
+	)
+	assert.Nil(t, err)
+
 	ah1, err := app.NewHandler(
 		context.Background(),
-		app.WithID(&ret.SubscribeAppID),
-		app.WithCreatedBy(uuid.NewString()),
-		app.WithName(&ret.SubscribeAppID),
+		app.WithEntID(&ret.SubscribeAppID, true),
+		app.WithCreatedBy(&createdBy, true),
+		app.WithName(&ret.SubscribeAppID, true),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, ah)
 	app2, err := ah1.CreateApp(context.Background())
 	assert.Nil(t, err)
 	assert.NotNil(t, app2)
+
+	ah1, err = app.NewHandler(
+		context.Background(),
+		app.WithID(&app2.ID, true),
+	)
+	assert.Nil(t, err)
 
 	ret.AppName = ret.AppID
 	ret.SubscribeAppName = ret.SubscribeAppID
@@ -73,9 +86,9 @@ func setupAppSubscribe(t *testing.T) func(*testing.T) {
 func createAppSubscribe(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
-		WithAppID(ret.GetAppID()),
-		WithSubscribeAppID(ret.SubscribeAppID),
+		WithEntID(&ret.EntID, true),
+		WithAppID(&ret.AppID, true),
+		WithSubscribeAppID(&ret.SubscribeAppID, true),
 	)
 	assert.Nil(t, err)
 
@@ -83,6 +96,7 @@ func createAppSubscribe(t *testing.T) {
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
 		ret.UpdatedAt = info.UpdatedAt
+		ret.ID = info.ID
 		assert.Equal(t, info, &ret)
 	}
 }
@@ -90,7 +104,7 @@ func createAppSubscribe(t *testing.T) {
 func getAppSubscribe(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
+		WithEntID(&ret.EntID, true),
 	)
 	assert.Nil(t, err)
 
@@ -121,7 +135,7 @@ func getAppSubscribes(t *testing.T) {
 
 func existAppSubscribe(t *testing.T) {
 	conds := &npool.Conds{
-		ID:    &basetypes.StringVal{Op: cruder.EQ, Value: ret.ID},
+		EntID: &basetypes.StringVal{Op: cruder.EQ, Value: ret.EntID},
 		AppID: &basetypes.StringVal{Op: cruder.EQ, Value: ret.AppID},
 	}
 
@@ -140,7 +154,8 @@ func existAppSubscribe(t *testing.T) {
 func deleteAppSubscribe(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
+		WithID(&ret.ID, true),
+		WithEntID(&ret.EntID, true),
 	)
 	assert.Nil(t, err)
 

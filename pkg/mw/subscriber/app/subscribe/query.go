@@ -25,6 +25,7 @@ type queryHandler struct {
 func (h *queryHandler) selectAppSubscribe(stm *ent.AppSubscribeQuery) {
 	h.stm = stm.Select(
 		entappsubscribe.FieldID,
+		entappsubscribe.FieldEntID,
 		entappsubscribe.FieldAppID,
 		entappsubscribe.FieldSubscribeAppID,
 		entappsubscribe.FieldCreatedAt,
@@ -33,18 +34,19 @@ func (h *queryHandler) selectAppSubscribe(stm *ent.AppSubscribeQuery) {
 }
 
 func (h *queryHandler) queryAppSubscribe(cli *ent.Client) error {
-	if h.ID == nil {
-		return fmt.Errorf("invalid appsubscribe id")
+	stm := cli.AppSubscribe.
+		Query().
+		Where(entappsubscribe.DeletedAt(0))
+	if h.ID != nil {
+		stm.Where(entappsubscribe.ID(*h.ID))
 	}
-
-	h.selectAppSubscribe(
-		cli.AppSubscribe.
-			Query().
-			Where(
-				entappsubscribe.EntID(*h.EntID),
-				entappsubscribe.DeletedAt(0),
-			),
-	)
+	if h.AppID != nil {
+		stm.Where(entappsubscribe.AppID(*h.AppID))
+	}
+	if h.EntID != nil {
+		stm.Where(entappsubscribe.EntID(*h.EntID))
+	}
+	h.selectAppSubscribe(stm)
 	return nil
 }
 
@@ -67,7 +69,7 @@ func (h *queryHandler) queryJoinApp(s *sql.Selector) {
 	s.LeftJoin(t).
 		On(
 			s.C(entappsubscribe.FieldAppID),
-			t.C(entapp.FieldID),
+			t.C(entapp.FieldEntID),
 		).
 		AppendSelect(
 			sql.As(t.C(entapp.FieldName), "app_name"),
@@ -79,7 +81,7 @@ func (h *queryHandler) queryJoinSubscribeApp(s *sql.Selector) {
 	s.LeftJoin(t).
 		On(
 			s.C(entappsubscribe.FieldSubscribeAppID),
-			t.C(entapp.FieldID),
+			t.C(entapp.FieldEntID),
 		).
 		AppendSelect(
 			sql.As(t.C(entapp.FieldName), "subscribe_app_name"),
