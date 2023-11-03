@@ -25,7 +25,7 @@ func (s *Server) CreateApp(ctx context.Context, in *npool.CreateAppRequest) (*np
 		app1.WithEntID(req.EntID, false),
 		app1.WithCreatedBy(req.CreatedBy, true),
 		app1.WithName(req.Name, true),
-		app1.WithLogo(req.Logo, true),
+		app1.WithLogo(req.Logo, false),
 		app1.WithDescription(req.Description, false),
 		app1.WithSignupMethods(req.GetSignupMethods(), false),
 		app1.WithExtSigninMethods(req.GetExtSigninMethods(), false),
