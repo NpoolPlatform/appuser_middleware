@@ -16,7 +16,7 @@ func (s *Server) ExistAuth(ctx context.Context, in *npool.ExistAuthRequest) (*np
 	_handler, err := auth1.NewHandler(
 		ctx,
 		handler.WithAppID(&in.AppID, true),
-		handler.WithUserID(in.UserID, true),
+		handler.WithUserID(in.UserID, false),
 		handler.WithResource(&in.Resource, true),
 		handler.WithMethod(&in.Method, true),
 	)

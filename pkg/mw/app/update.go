@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
@@ -86,14 +85,11 @@ func (h *updateHandler) updateBanApp(ctx context.Context, tx *ent.Tx) error {
 	if h.Banned == nil {
 		return nil
 	}
-	if h.ID == nil {
-		return fmt.Errorf("invalid id")
-	}
 
 	stm, err := banappcrud.SetQueryConds(
 		tx.BanApp.Query(),
 		&banappcrud.Conds{
-			AppID: &cruder.Cond{Op: cruder.EQ, Val: *h.ID},
+			AppID: &cruder.Cond{Op: cruder.EQ, Val: *h.EntID},
 		})
 	if err != nil {
 		return err

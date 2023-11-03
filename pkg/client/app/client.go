@@ -79,7 +79,7 @@ func UpdateApp(ctx context.Context, in *npool.AppReq) (*npool.App, error) {
 func GetApp(ctx context.Context, appID string) (*npool.App, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetApp(ctx, &npool.GetAppRequest{
-			ID: appID,
+			EntID: appID,
 		})
 		if err != nil {
 			return nil, err
@@ -115,7 +115,7 @@ func GetApps(ctx context.Context, conds *npool.Conds, offset, limit int32) ([]*n
 func ExistApp(ctx context.Context, id string) (bool, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.ExistApp(ctx, &npool.ExistAppRequest{
-			ID: id,
+			EntID: id,
 		})
 		if err != nil {
 			return nil, err
@@ -144,7 +144,7 @@ func ExistAppConds(ctx context.Context, conds *npool.Conds) (bool, error) {
 	return info.(bool), nil
 }
 
-func DeleteApp(ctx context.Context, id string) (*npool.App, error) {
+func DeleteApp(ctx context.Context, id uint32) (*npool.App, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.DeleteApp(ctx, &npool.DeleteAppRequest{
 			Info: &npool.AppReq{

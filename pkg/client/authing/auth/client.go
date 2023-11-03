@@ -81,7 +81,7 @@ func ExistAuth(ctx context.Context, appID string, userID *string, resource, meth
 func GetAuth(ctx context.Context, id string) (*npool.Auth, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetAuth(ctx, &npool.GetAuthRequest{
-			ID: id,
+			EntID: id,
 		})
 		if err != nil {
 			return nil, err
@@ -131,7 +131,7 @@ func ExistAuthConds(ctx context.Context, conds *npool.Conds) (bool, error) {
 	return info.(bool), nil
 }
 
-func DeleteAuth(ctx context.Context, id string) (*npool.Auth, error) {
+func DeleteAuth(ctx context.Context, id uint32) (*npool.Auth, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.DeleteAuth(ctx, &npool.DeleteAuthRequest{
 			Info: &npool.AuthReq{
