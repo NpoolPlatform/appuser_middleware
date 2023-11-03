@@ -34,7 +34,7 @@ func init() {
 
 var (
 	ret = npool.Role{
-		ID:          uuid.NewString(),
+		EntID:       uuid.NewString(),
 		AppID:       uuid.NewString(),
 		CreatedBy:   uuid.NewString(),
 		Role:        uuid.NewString(),
@@ -48,15 +48,21 @@ func setupRole(t *testing.T) func(*testing.T) {
 
 	ah, err := app.NewHandler(
 		context.Background(),
-		app.WithID(&ret.AppID),
-		app.WithCreatedBy(uuid.NewString()),
-		app.WithName(&ret.AppID),
+		app.WithEntID(&ret.AppID, true),
+		app.WithCreatedBy(&ret.CreatedBy, true),
+		app.WithName(&ret.AppID, true),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, ah)
 	app1, err := ah.CreateApp(context.Background())
 	assert.Nil(t, err)
 	assert.NotNil(t, app1)
+
+	ah, err = app.NewHandler(
+		context.Background(),
+		app.WithID(&app1.ID, true),
+	)
+	assert.Nil(t, err)
 
 	return func(*testing.T) {
 		_, _ = ah.DeleteApp(context.Background())
@@ -65,7 +71,7 @@ func setupRole(t *testing.T) func(*testing.T) {
 
 func createRole(t *testing.T) {
 	req := npool.RoleReq{
-		ID:          &ret.ID,
+		EntID:       &ret.EntID,
 		AppID:       &ret.AppID,
 		CreatedBy:   &ret.CreatedBy,
 		Role:        &ret.Role,
@@ -75,6 +81,7 @@ func createRole(t *testing.T) {
 	info, err := CreateRole(context.Background(), &req)
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
+		ret.ID = info.ID
 		assert.Equal(t, info, &ret)
 	}
 }
@@ -97,7 +104,7 @@ func updateRole(t *testing.T) {
 }
 
 func getRole(t *testing.T) {
-	info, err := GetRole(context.Background(), ret.ID)
+	info, err := GetRole(context.Background(), ret.EntID)
 	if assert.Nil(t, err) {
 		assert.Equal(t, info, &ret)
 	}
@@ -118,7 +125,7 @@ func deleteRole(t *testing.T) {
 		assert.Equal(t, info, &ret)
 	}
 
-	info, err = GetRole(context.Background(), ret.ID)
+	info, err = GetRole(context.Background(), ret.EntID)
 	assert.Nil(t, err)
 	assert.Nil(t, info)
 }
