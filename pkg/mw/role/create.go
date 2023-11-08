@@ -4,14 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	rolecrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/role"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
-
-	rolecrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/role"
+	user1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user"
+	redis2 "github.com/NpoolPlatform/go-service-framework/pkg/redis"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/role"
-
-	redis2 "github.com/NpoolPlatform/go-service-framework/pkg/redis"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/google/uuid"
@@ -23,6 +22,25 @@ func (h *Handler) CreateRole(ctx context.Context) (*npool.Role, error) {
 		h.EntID = &id
 	}
 
+	userID := h.CreatedBy.String()
+	appID := h.AppID.String()
+
+	handler, err := user1.NewHandler(
+		ctx,
+		user1.WithEntID(&userID, true),
+		user1.WithAppID(&appID, true),
+	)
+	if err != nil {
+		return nil, err
+	}
+	exist, err := handler.ExistUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, fmt.Errorf("invalid user")
+	}
+
 	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateRole, *h.AppID, *h.Role)
 	if err := redis2.TryLock(key, 0); err != nil {
 		return nil, err
@@ -31,7 +49,7 @@ func (h *Handler) CreateRole(ctx context.Context) (*npool.Role, error) {
 		_ = redis2.Unlock(key)
 	}()
 
-	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		stm, err := rolecrud.SetQueryConds(cli.AppRole.Query(), &rolecrud.Conds{
 			AppID: &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
 			Role:  &cruder.Cond{Op: cruder.EQ, Val: *h.Role},
