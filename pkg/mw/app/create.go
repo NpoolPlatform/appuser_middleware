@@ -140,6 +140,7 @@ func (h *Handler) CreateApps(ctx context.Context) (infos []*npool.App, err error
 	h.Conds = &appcrud.Conds{
 		EntIDs: &cruder.Cond{Op: cruder.IN, Val: ids},
 	}
+	h.Limit = int32(len(ids))
 	infos, _, err = h.GetApps(ctx)
 	if err != nil {
 		return nil, err
