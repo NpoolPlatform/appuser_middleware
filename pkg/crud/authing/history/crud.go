@@ -120,7 +120,7 @@ func SetQueryConds(q *ent.AuthHistoryQuery, conds *Conds) (*ent.AuthHistoryQuery
 		}
 	}
 	if conds.Allowed != nil {
-		allowed, ok := conds.Method.Val.(bool)
+		allowed, ok := conds.Allowed.Val.(bool)
 		if !ok {
 			return nil, fmt.Errorf("invalid allowed")
 		}
