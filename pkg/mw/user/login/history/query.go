@@ -119,10 +119,10 @@ func (h *Handler) GetHistory(ctx context.Context) (*npool.History, error) {
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		handler.queryHistory(cli)
+		handler.queryHistory(cli.Debug())
 		handler.queryJoin()
 		if err := handler.scan(ctx); err != nil {
-			return nil
+			return err
 		}
 		return nil
 	})
@@ -156,7 +156,7 @@ func (h *Handler) GetHistories(ctx context.Context) ([]*npool.History, uint32, e
 			Offset(int(h.Offset)).
 			Limit(int(h.Limit))
 		if err := handler.scan(ctx); err != nil {
-			return nil
+			return err
 		}
 		return nil
 	})

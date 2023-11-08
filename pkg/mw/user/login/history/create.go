@@ -39,7 +39,7 @@ func (h *Handler) CreateHistory(ctx context.Context) (*npool.History, error) {
 	}
 
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if _, err := historycrud.CreateSet(
+		info, err := historycrud.CreateSet(
 			cli.LoginHistory.Create(),
 			&historycrud.Req{
 				EntID:     h.EntID,
@@ -50,9 +50,11 @@ func (h *Handler) CreateHistory(ctx context.Context) (*npool.History, error) {
 				Location:  h.Location,
 				LoginType: h.LoginType,
 			},
-		).Save(_ctx); err != nil {
+		).Save(_ctx)
+		if err != nil {
 			return err
 		}
+		h.ID = &info.ID
 		return nil
 	})
 	if err != nil {
