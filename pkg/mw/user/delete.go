@@ -3,6 +3,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
@@ -13,8 +14,9 @@ import (
 	entappuserextra "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserextra"
 	entappusersecret "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appusersecret"
 	entappuserthirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserthirdparty"
-
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
+
+	"github.com/google/uuid"
 )
 
 type deleteHandler struct {
@@ -208,6 +210,30 @@ func (h *Handler) DeleteThirdUser(ctx context.Context) (info *npool.User, err er
 	if err != nil {
 		return nil, err
 	}
+
+	if info.ThirdPartyID == nil && info.ThirdPartyUserID == nil {
+		return nil, fmt.Errorf("invalid thirdparty")
+	}
+
+	id1, err := uuid.Parse(info.EntID)
+	if err != nil {
+		return nil, err
+	}
+	h.EntID = &id1
+
+	id2, err := uuid.Parse(info.AppID)
+	if err != nil {
+		return nil, err
+	}
+	h.AppID = &id2
+
+	h.ThirdPartyUserID = info.ThirdPartyUserID
+
+	id3, err := uuid.Parse(*info.ThirdPartyID)
+	if err != nil {
+		return nil, err
+	}
+	h.ThirdPartyID = &id3
 
 	err = db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {
 		info, err := tx.
