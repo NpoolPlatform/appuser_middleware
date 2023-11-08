@@ -67,21 +67,20 @@ func (h *queryHandler) queryJoinAppRole(s *sql.Selector) {
 		On(
 			s.C(entapproleuser.FieldRoleID),
 			t.C(entapprole.FieldEntID),
+		).
+		AppendSelect(
+			t.C(entapprole.FieldCreatedBy),
+			t.C(entapprole.FieldRole),
+			t.C(entapprole.FieldDescription),
+			t.C(entapprole.FieldDefault),
+			t.C(entapprole.FieldGenesis),
+			sql.As(t.C(entapprole.FieldEntID), "role_id"),
 		)
 	if h.Conds != nil && h.Conds.Genesis != nil {
 		stm.Where(
 			sql.EQ(t.C(entapprole.FieldGenesis), h.Conds.Genesis.Val.(bool)),
 		)
 	}
-
-	stm.AppendSelect(
-		t.C(entapprole.FieldCreatedBy),
-		t.C(entapprole.FieldRole),
-		t.C(entapprole.FieldDescription),
-		t.C(entapprole.FieldDefault),
-		t.C(entapprole.FieldGenesis),
-		sql.As(t.C(entapprole.FieldEntID), "role_id"),
-	)
 }
 
 func (h *queryHandler) queryJoinApp(s *sql.Selector) {
@@ -113,15 +112,8 @@ func (h *queryHandler) queryJoinAppUser(s *sql.Selector) {
 		)
 }
 
-func (h *queryHandler) queryJoinSelect() {
-	h.stm.Select(
-		entapproleuser.FieldEntID,
-	)
-}
-
 func (h *queryHandler) queryJoin(ctx context.Context) error {
 	h.stm.Modify(func(s *sql.Selector) {
-		h.queryJoinSelect()
 		h.queryJoinAppRole(s)
 		h.queryJoinApp(s)
 		h.queryJoinAppUser(s)
