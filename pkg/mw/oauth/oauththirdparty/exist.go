@@ -2,7 +2,6 @@ package oauththirdparty
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
@@ -20,9 +19,14 @@ func (h *existHandler) queryOAuthThirdParty(cli *ent.Client) {
 	h.stm = cli.OAuthThirdParty.
 		Query().
 		Where(
-			entoauththirdparty.EntID(*h.EntID),
 			entoauththirdparty.DeletedAt(0),
 		)
+	if h.ID != nil {
+		h.stm.Where(entoauththirdparty.ID(*h.ID))
+	}
+	if h.EntID != nil {
+		h.stm.Where(entoauththirdparty.EntID(*h.EntID))
+	}
 }
 
 func (h *existHandler) queryOAuthThirdParties(cli *ent.Client) error {
@@ -35,10 +39,6 @@ func (h *existHandler) queryOAuthThirdParties(cli *ent.Client) error {
 }
 
 func (h *Handler) ExistOAuthThirdParty(ctx context.Context) (bool, error) {
-	if h.ID == nil {
-		return false, fmt.Errorf("invalid id")
-	}
-
 	handler := &existHandler{
 		Handler: h,
 	}
