@@ -162,6 +162,12 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 		if conds == nil {
 			return nil
 		}
+		if conds.ID != nil {
+			h.Conds.ID = &cruder.Cond{
+				Op:  conds.GetID().GetOp(),
+				Val: conds.GetID().GetValue(),
+			}
+		}
 		if conds.EntID != nil {
 			id, err := uuid.Parse(conds.GetEntID().GetValue())
 			if err != nil {
@@ -184,16 +190,28 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 			h.Conds.CreatedBy = &cruder.Cond{Op: conds.GetCreatedBy().GetOp(), Val: id}
 		}
 		if conds.Role != nil {
-			h.Conds.Role = &cruder.Cond{Op: conds.GetRole().GetOp(), Val: conds.GetRole().GetValue()}
+			h.Conds.Role = &cruder.Cond{
+				Op:  conds.GetRole().GetOp(),
+				Val: conds.GetRole().GetValue(),
+			}
 		}
 		if conds.Default != nil {
-			h.Conds.Default = &cruder.Cond{Op: conds.GetDefault().GetOp(), Val: conds.GetDefault().GetValue()}
+			h.Conds.Default = &cruder.Cond{
+				Op:  conds.GetDefault().GetOp(),
+				Val: conds.GetDefault().GetValue(),
+			}
 		}
 		if conds.Roles != nil {
-			h.Conds.Roles = &cruder.Cond{Op: conds.GetRoles().GetOp(), Val: conds.GetRoles().GetValue()}
+			h.Conds.Roles = &cruder.Cond{
+				Op:  conds.GetRoles().GetOp(),
+				Val: conds.GetRoles().GetValue(),
+			}
 		}
 		if conds.Genesis != nil {
-			h.Conds.Genesis = &cruder.Cond{Op: conds.GetGenesis().GetOp(), Val: conds.GetGenesis().GetValue()}
+			h.Conds.Genesis = &cruder.Cond{
+				Op:  conds.GetGenesis().GetOp(),
+				Val: conds.GetGenesis().GetValue(),
+			}
 		}
 		if len(conds.GetEntIDs().GetValue()) > 0 {
 			_ids := []uuid.UUID{}

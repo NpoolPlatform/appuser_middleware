@@ -74,6 +74,7 @@ func UpdateSet(u *ent.OAuthThirdPartyUpdateOne, req *Req) *ent.OAuthThirdPartyUp
 }
 
 type Conds struct {
+	ID            *cruder.Cond
 	EntID         *cruder.Cond
 	EntIDs        *cruder.Cond
 	ClientName    *cruder.Cond
@@ -84,6 +85,18 @@ type Conds struct {
 func SetQueryConds(q *ent.OAuthThirdPartyQuery, conds *Conds) (*ent.OAuthThirdPartyQuery, error) {
 	if conds == nil {
 		return q, nil
+	}
+	if conds.ID != nil {
+		id, ok := conds.ID.Val.(uint32)
+		if !ok {
+			return nil, fmt.Errorf("invalid id")
+		}
+		switch conds.ID.Op {
+		case cruder.EQ:
+			q.Where(entoauththirdparty.ID(id))
+		default:
+			return nil, fmt.Errorf("invalid auth field")
+		}
 	}
 	if conds.EntID != nil {
 		id, ok := conds.EntID.Val.(uuid.UUID)

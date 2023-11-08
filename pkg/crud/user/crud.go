@@ -52,6 +52,7 @@ func UpdateSet(u *ent.AppUserUpdateOne, req *Req) *ent.AppUserUpdateOne {
 }
 
 type Conds struct {
+	ID               *cruder.Cond
 	EntID            *cruder.Cond
 	EntIDs           *cruder.Cond
 	AppID            *cruder.Cond
@@ -66,6 +67,18 @@ type Conds struct {
 func SetQueryConds(q *ent.AppUserQuery, conds *Conds) (*ent.AppUserQuery, error) {
 	if conds == nil {
 		return q, nil
+	}
+	if conds.ID != nil {
+		id, ok := conds.ID.Val.(uint32)
+		if !ok {
+			return nil, fmt.Errorf("invalid id")
+		}
+		switch conds.ID.Op {
+		case cruder.EQ:
+			q.Where(entappuser.ID(id))
+		default:
+			return nil, fmt.Errorf("invalid appuser field")
+		}
 	}
 	if conds.EntID != nil {
 		id, ok := conds.EntID.Val.(uuid.UUID)

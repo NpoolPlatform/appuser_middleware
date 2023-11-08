@@ -183,6 +183,12 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 		if conds == nil {
 			return nil
 		}
+		if conds.ID != nil {
+			h.Conds.ID = &cruder.Cond{
+				Op:  conds.GetID().GetOp(),
+				Val: conds.GetID().GetValue(),
+			}
+		}
 		if conds.EntID != nil {
 			id, err := uuid.Parse(conds.GetEntID().GetValue())
 			if err != nil {
@@ -205,10 +211,16 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 			h.Conds.ThirdPartyID = &cruder.Cond{Op: conds.GetThirdPartyID().GetOp(), Val: id}
 		}
 		if conds.ClientName != nil {
-			h.Conds.ClientName = &cruder.Cond{Op: conds.GetClientName().GetOp(), Val: basetypes.SignMethod(conds.GetClientName().GetValue())}
+			h.Conds.ClientName = &cruder.Cond{
+				Op:  conds.GetClientName().GetOp(),
+				Val: basetypes.SignMethod(conds.GetClientName().GetValue()),
+			}
 		}
 		if conds.DecryptSecret != nil {
-			h.Conds.DecryptSecret = &cruder.Cond{Op: conds.GetDecryptSecret().GetOp(), Val: conds.GetDecryptSecret().GetValue()}
+			h.Conds.DecryptSecret = &cruder.Cond{
+				Op:  conds.GetDecryptSecret().GetOp(),
+				Val: conds.GetDecryptSecret().GetValue(),
+			}
 		}
 		if len(conds.GetThirdPartyIDs().GetValue()) > 0 {
 			_ids := []uuid.UUID{}

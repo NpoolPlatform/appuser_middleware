@@ -45,6 +45,7 @@ func UpdateSet(u *ent.AppRoleUserUpdateOne, req *Req) *ent.AppRoleUserUpdateOne 
 }
 
 type Conds struct {
+	ID      *cruder.Cond
 	EntID   *cruder.Cond
 	AppID   *cruder.Cond
 	RoleID  *cruder.Cond
@@ -58,6 +59,18 @@ type Conds struct {
 func SetQueryConds(q *ent.AppRoleUserQuery, conds *Conds) (*ent.AppRoleUserQuery, error) {
 	if conds == nil {
 		return q, nil
+	}
+	if conds.ID != nil {
+		id, ok := conds.ID.Val.(uint32)
+		if !ok {
+			return nil, fmt.Errorf("invalid id")
+		}
+		switch conds.ID.Op {
+		case cruder.EQ:
+			q.Where(entapproleuser.ID(id))
+		default:
+			return nil, fmt.Errorf("invalid approleuser field")
+		}
 	}
 	if conds.EntID != nil {
 		id, ok := conds.EntID.Val.(uuid.UUID)

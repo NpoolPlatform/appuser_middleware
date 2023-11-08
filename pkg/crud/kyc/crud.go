@@ -93,6 +93,7 @@ func UpdateSet(u *ent.KycUpdateOne, req *Req) *ent.KycUpdateOne {
 }
 
 type Conds struct {
+	ID           *cruder.Cond
 	EntID        *cruder.Cond
 	AppID        *cruder.Cond
 	UserID       *cruder.Cond
@@ -107,6 +108,18 @@ type Conds struct {
 func SetQueryConds(q *ent.KycQuery, conds *Conds) (*ent.KycQuery, error) {
 	if conds == nil {
 		return q, nil
+	}
+	if conds.ID != nil {
+		id, ok := conds.ID.Val.(uint32)
+		if !ok {
+			return nil, fmt.Errorf("invalid id")
+		}
+		switch conds.ID.Op {
+		case cruder.EQ:
+			q.Where(kyc.ID(id))
+		default:
+			return nil, fmt.Errorf("invalid kyc field")
+		}
 	}
 	if conds.EntID != nil {
 		id, ok := conds.EntID.Val.(uuid.UUID)

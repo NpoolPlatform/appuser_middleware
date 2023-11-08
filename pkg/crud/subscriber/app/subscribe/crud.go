@@ -37,6 +37,7 @@ func UpdateSet(u *ent.AppSubscribeUpdateOne, req *Req) *ent.AppSubscribeUpdateOn
 }
 
 type Conds struct {
+	ID             *cruder.Cond
 	EntID          *cruder.Cond
 	AppID          *cruder.Cond
 	SubscribeAppID *cruder.Cond
@@ -46,6 +47,18 @@ type Conds struct {
 func SetQueryConds(q *ent.AppSubscribeQuery, conds *Conds) (*ent.AppSubscribeQuery, error) {
 	if conds == nil {
 		return q, nil
+	}
+	if conds.ID != nil {
+		id, ok := conds.ID.Val.(uint32)
+		if !ok {
+			return nil, fmt.Errorf("invalid id")
+		}
+		switch conds.ID.Op {
+		case cruder.EQ:
+			q.Where(entappsubscribe.ID(id))
+		default:
+			return nil, fmt.Errorf("invalid appsubscribe field")
+		}
 	}
 	if conds.EntID != nil {
 		id, ok := conds.EntID.Val.(uuid.UUID)
