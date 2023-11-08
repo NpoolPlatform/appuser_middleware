@@ -30,15 +30,18 @@ type createHandler struct {
 }
 
 func (h *createHandler) account() (string, error) {
+	if h.AccountType == nil {
+		return "", fmt.Errorf("invalid accounttype")
+	}
 	switch *h.AccountType {
 	case basetypes.SignMethod_Email:
 		if h.EmailAddress == nil {
-			return "", fmt.Errorf("invalid email address")
+			return "", fmt.Errorf("invalid emailaddress")
 		}
 		return *h.EmailAddress, nil
 	case basetypes.SignMethod_Mobile:
 		if h.PhoneNO == nil {
-			return "", fmt.Errorf("invalid phone no")
+			return "", fmt.Errorf("invalid phoneno")
 		}
 		return *h.PhoneNO, nil
 	case basetypes.SignMethod_Twitter:
