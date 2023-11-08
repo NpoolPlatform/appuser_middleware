@@ -6,9 +6,9 @@ import (
 
 	constant "github.com/NpoolPlatform/appuser-middleware/pkg/const"
 	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/role/user"
-	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/role/user"
-
+	app "github.com/NpoolPlatform/appuser-middleware/pkg/mw/app"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
+	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/role/user"
 
 	"github.com/google/uuid"
 )
@@ -71,6 +71,20 @@ func WithAppID(id *string, must bool) func(context.Context, *Handler) error {
 				return fmt.Errorf("invalid appid")
 			}
 			return nil
+		}
+		handler, err := app.NewHandler(
+			ctx,
+			app.WithEntID(id, true),
+		)
+		if err != nil {
+			return err
+		}
+		exist, err := handler.ExistApp(ctx)
+		if err != nil {
+			return err
+		}
+		if !exist {
+			return fmt.Errorf("invalid app")
 		}
 		_id, err := uuid.Parse(*id)
 		if err != nil {

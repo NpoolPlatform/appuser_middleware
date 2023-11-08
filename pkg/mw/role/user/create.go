@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 
+	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/role/user"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
-
-	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/role/user"
+	role1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/role"
+	user1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user"
+	redis2 "github.com/NpoolPlatform/go-service-framework/pkg/redis"
 	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/role/user"
-
-	redis2 "github.com/NpoolPlatform/go-service-framework/pkg/redis"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/google/uuid"
@@ -26,6 +26,42 @@ func (h *Handler) CreateUser(ctx context.Context) (*npool.User, error) {
 		return nil, fmt.Errorf("invalid roleid or userid")
 	}
 
+	userID := h.UserID.String()
+	appID := h.AppID.String()
+	roleID := h.RoleID.String()
+
+	h1, err := role1.NewHandler(
+		ctx,
+		role1.WithAppID(&appID, true),
+		role1.WithEntID(&roleID, true),
+	)
+	if err != nil {
+		return nil, err
+	}
+	exist, err := h1.ExistRole(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, fmt.Errorf("invalid role")
+	}
+
+	h2, err := user1.NewHandler(
+		ctx,
+		user1.WithAppID(&appID, true),
+		user1.WithEntID(&userID, true),
+	)
+	if err != nil {
+		return nil, err
+	}
+	exist, err = h2.ExistUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, fmt.Errorf("invalid user")
+	}
+
 	key := fmt.Sprintf("%v:%v:%v:%v", basetypes.Prefix_PrefixCreateRoleUser, *h.AppID, *h.RoleID, *h.UserID)
 	if err := redis2.TryLock(key, 0); err != nil {
 		return nil, err
@@ -34,7 +70,7 @@ func (h *Handler) CreateUser(ctx context.Context) (*npool.User, error) {
 		_ = redis2.Unlock(key)
 	}()
 
-	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		stm, err := usercrud.SetQueryConds(
 			cli.AppRoleUser.Query(),
 			&usercrud.Conds{
