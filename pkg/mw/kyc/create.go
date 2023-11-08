@@ -4,14 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	kyccrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/kyc"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
-
-	kyccrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/kyc"
+	user1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user"
+	redis2 "github.com/NpoolPlatform/go-service-framework/pkg/redis"
 	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/kyc"
-
-	redis2 "github.com/NpoolPlatform/go-service-framework/pkg/redis"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/google/uuid"
@@ -31,7 +30,26 @@ func (h *Handler) CreateKyc(ctx context.Context) (*npool.Kyc, error) {
 		_ = redis2.Unlock(key)
 	}()
 
-	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+	userID := h.UserID.String()
+	appID := h.AppID.String()
+
+	h1, err := user1.NewHandler(
+		ctx,
+		user1.WithAppID(&appID, true),
+		user1.WithEntID(&userID, true),
+	)
+	if err != nil {
+		return nil, err
+	}
+	exist, err := h1.ExistUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, fmt.Errorf("invalid user")
+	}
+
+	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		stm, err := kyccrud.SetQueryConds(
 			cli.Kyc.Query(),
 			&kyccrud.Conds{
