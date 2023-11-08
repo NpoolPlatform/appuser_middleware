@@ -30,6 +30,11 @@ func (s *Server) VerifyAccount(ctx context.Context, in *npool.VerifyAccountReque
 	}
 	info, err := handler.VerifyAccount(ctx)
 	if err != nil {
+		logger.Sugar().Errorw(
+			"VerifyAccount",
+			"In", in,
+			"error", err,
+		)
 		return &npool.VerifyAccountResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
@@ -55,6 +60,11 @@ func (s *Server) VerifyUser(ctx context.Context, in *npool.VerifyUserRequest) (*
 	}
 	info, err := handler.VerifyUser(ctx)
 	if err != nil {
+		logger.Sugar().Errorw(
+			"VerifyUser",
+			"In", in,
+			"error", err,
+		)
 		return &npool.VerifyUserResponse{}, status.Error(codes.Internal, err.Error())
 	}
 

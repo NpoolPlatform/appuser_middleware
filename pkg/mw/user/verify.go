@@ -33,7 +33,7 @@ func (h *verifyHandler) queryAppUserByAccount(cli *ent.Client) error {
 	}
 
 	conds := &usercrud.Conds{
-		AppID: &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+		AppID: &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
 	}
 	if h.EmailAddress != nil {
 		conds.EmailAddress = &cruder.Cond{Op: cruder.EQ, Val: *h.EmailAddress}
@@ -47,7 +47,7 @@ func (h *verifyHandler) queryAppUserByAccount(cli *ent.Client) error {
 		return err
 	}
 	h.stm = stm.Select(
-		entappuser.FieldID,
+		entappuser.FieldEntID,
 		entappuser.FieldAppID,
 	)
 	return nil
@@ -57,7 +57,7 @@ func (h *verifyHandler) queryAppUserByID(cli *ent.Client) error {
 	stm, err := usercrud.SetQueryConds(
 		cli.AppUser.Query(),
 		&usercrud.Conds{
-			AppID: &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+			AppID: &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
 			EntID: &cruder.Cond{Op: cruder.EQ, Val: *h.EntID},
 		},
 	)
@@ -65,11 +65,10 @@ func (h *verifyHandler) queryAppUserByID(cli *ent.Client) error {
 		return err
 	}
 
-	h.stm = stm.
-		Select(
-			entappuser.FieldID,
-			entappuser.FieldAppID,
-		)
+	h.stm = stm.Select(
+		entappuser.FieldEntID,
+		entappuser.FieldAppID,
+	)
 	return nil
 }
 
@@ -78,7 +77,7 @@ func (h *verifyHandler) queryJoinAppUserSecret() {
 		t := sql.Table(entappusersecret.Table)
 		s.LeftJoin(t).
 			On(
-				s.C(entappuser.FieldID),
+				s.C(entappuser.FieldEntID),
 				t.C(entappusersecret.FieldUserID),
 			).
 			On(
@@ -94,7 +93,7 @@ func (h *verifyHandler) queryJoinAppUserSecret() {
 }
 
 type r struct {
-	ID           uuid.UUID `sql:"id"`
+	EntID        uuid.UUID `sql:"ent_id"`
 	AppID        uuid.UUID `sql:"app_id"`
 	UserID       uuid.UUID `sql:"user_id"`
 	PasswordHash string    `sql:"password_hash"`
