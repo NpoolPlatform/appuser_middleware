@@ -30,15 +30,30 @@ func (h *Handler) CreateAuth(ctx context.Context) (*npool.Auth, error) {
 		_ = redis2.Unlock(key)
 	}()
 
-	exist, err := h.ExistAuth(ctx)
-	if err != nil {
-		return nil, err
+	if h.UserID != nil {
+		exist, err := h.ExistAuth(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if exist {
+			return nil, fmt.Errorf("auth exist")
+		}
 	}
-	if exist {
-		return nil, fmt.Errorf("auth exist")
+	if h.RoleID != nil {
+		h.Conds = &authcrud.Conds{
+			AppID:  &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
+			RoleID: &cruder.Cond{Op: cruder.EQ, Val: *h.RoleID},
+		}
+		exist, err := h.ExistAuthConds(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if exist {
+			return nil, fmt.Errorf("auth exist")
+		}
 	}
 
-	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		if _, err := authcrud.CreateSet(
 			cli.Auth.Create(),
 			&authcrud.Req{

@@ -69,8 +69,7 @@ func (h *existRoleHandler) queryAppRoleUser(cli *ent.Client) error {
 		return fmt.Errorf("invalid user")
 	}
 
-	h.stm = cli.
-		AppRoleUser.
+	h.stm = cli.AppRoleUser.
 		Query().
 		Where(
 			entapproleuser.AppID(*h.AppID),

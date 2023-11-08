@@ -34,8 +34,7 @@ func (h *existAppHandler) queryJoinBanApp(s *sql.Selector) {
 }
 
 func (h *existAppHandler) queryApp(cli *ent.Client) {
-	h.stm = cli.
-		App.
+	h.stm = cli.App.
 		Query().
 		Where(
 			entapp.EntID(*h.AppID),
@@ -60,7 +59,7 @@ func (h *existAppHandler) queryJoinAuth(s *sql.Selector) {
 		).
 		Where(
 			sql.And(
-				sql.EQ(t.C(entauth.FieldAppID), h.AppID),
+				sql.EQ(t.C(entauth.FieldAppID), *h.AppID),
 				sql.EQ(t.C(entauth.FieldUserID), uuid.UUID{}),
 				sql.EQ(t.C(entauth.FieldRoleID), uuid.UUID{}),
 				sql.EQ(t.C(entauth.FieldResource), *h.Resource),

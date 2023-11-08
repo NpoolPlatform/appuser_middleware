@@ -76,7 +76,7 @@ func (h *existUserHandler) queryJoinAuth(s *sql.Selector) {
 		).
 		Where(
 			sql.And(
-				sql.EQ(s.C(entappuser.FieldAppID), h.AppID),
+				sql.EQ(s.C(entappuser.FieldAppID), *h.AppID),
 				sql.EQ(t.C(entauth.FieldUserID), *h.UserID),
 				sql.EQ(t.C(entauth.FieldResource), *h.Resource),
 				sql.EQ(t.C(entauth.FieldMethod), *h.Method),
@@ -94,8 +94,7 @@ func (h *existUserHandler) queryAppUser(cli *ent.Client) error {
 		return fmt.Errorf("invalid userid")
 	}
 
-	h.stm = cli.
-		AppUser.
+	h.stm = cli.AppUser.
 		Query().
 		Where(
 			entappuser.AppID(*h.AppID),
