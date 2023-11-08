@@ -67,7 +67,7 @@ func (h *Handler) CreateAuths(ctx context.Context) ([]*npool.Auth, error) {
 	err := db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {
 		for _, req := range h.Reqs {
 			id := uuid.New()
-			if req.EntID != nil {
+			if req.EntID == nil {
 				req.EntID = &id
 			}
 			if _, err := authcrud.CreateSet(
