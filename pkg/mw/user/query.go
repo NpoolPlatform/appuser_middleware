@@ -32,25 +32,18 @@ import (
 
 type queryHandler struct {
 	*Handler
-	stm            *ent.AppUserSelect
+	stmSelect      *ent.AppUserSelect
+	stmCount       *ent.AppUserSelect
 	infos          []*npool.User
 	total          uint32
 	joinThirdParty bool
 }
 
-func (h *queryHandler) selectAppUser(stm *ent.AppUserQuery) {
-	h.stm = stm.Select(
-		entappuser.FieldID,
-		entappuser.FieldEntID,
-		entappuser.FieldAppID,
-		entappuser.FieldEmailAddress,
-		entappuser.FieldPhoneNo,
-		entappuser.FieldImportFromApp,
-		entappuser.FieldCreatedAt,
-	)
+func (h *queryHandler) selectAppUser(stm *ent.AppUserQuery) *ent.AppUserSelect {
+	return stm.Select(entappuser.FieldID)
 }
 
-func (h *queryHandler) queryAppUser(cli *ent.Client) error {
+func (h *queryHandler) queryAppUser(cli *ent.Client) {
 	stm := cli.AppUser.
 		Query().
 		Where(entappuser.DeletedAt(0))
@@ -63,25 +56,32 @@ func (h *queryHandler) queryAppUser(cli *ent.Client) error {
 	if h.EntID != nil {
 		stm.Where(entappuser.EntID(*h.EntID))
 	}
-	h.selectAppUser(stm)
-	return nil
+	h.stmSelect = h.selectAppUser(stm)
 }
 
-func (h *queryHandler) queryAppUserByConds(ctx context.Context, cli *ent.Client) (err error) {
+func (h *queryHandler) queryAppUserByConds(ctx context.Context, cli *ent.Client) (*ent.AppUserSelect, error) {
 	stm, err := usercrud.SetQueryConds(cli.AppUser.Query(), h.Conds)
 	if err != nil {
-		return err
+		return nil, err
 	}
+	return h.selectAppUser(stm), nil
+}
 
-	total, err := stm.Count(ctx)
-	if err != nil {
-		return err
-	}
-
-	h.total = uint32(total)
-
-	h.selectAppUser(stm)
-	return nil
+func (h *queryHandler) queryJoinMyself(s *sql.Selector) {
+	t := sql.Table(entappuser.Table)
+	s.LeftJoin(t).
+		On(
+			s.C(entappuser.FieldID),
+			t.C(entappuser.FieldID),
+		).
+		AppendSelect(
+			t.C(entappuser.FieldEntID),
+			t.C(entappuser.FieldAppID),
+			t.C(entappuser.FieldEmailAddress),
+			t.C(entappuser.FieldPhoneNo),
+			t.C(entappuser.FieldImportFromApp),
+			t.C(entappuser.FieldCreatedAt),
+		)
 }
 
 func (h *queryHandler) queryJoinAppUserExtra(s *sql.Selector) {
@@ -252,7 +252,8 @@ func (h *queryHandler) queryJoinAppUserThirdParty(s *sql.Selector) error {
 
 func (h *queryHandler) queryJoin() error {
 	var err error
-	h.stm.Modify(func(s *sql.Selector) {
+	h.stmSelect.Modify(func(s *sql.Selector) {
+		h.queryJoinMyself(s)
 		h.queryJoinAppUserExtra(s)
 		h.queryJoinAppUserControl(s)
 		h.queryJoinApp(s)
@@ -264,11 +265,23 @@ func (h *queryHandler) queryJoin() error {
 	if err != nil {
 		return err
 	}
+	if h.stmCount == nil {
+		return nil
+	}
+	h.stmCount.Modify(func(s *sql.Selector) {
+		h.queryJoinAppUserExtra(s)
+		h.queryJoinAppUserControl(s)
+		h.queryJoinApp(s)
+		h.queryJoinBanAppUser(s)
+		h.queryJoinKyc(s)
+		h.queryJoinAppUserSecret(s)
+		err = h.queryJoinAppUserThirdParty(s)
+	})
 	return err
 }
 
 func (h *queryHandler) scan(ctx context.Context) error {
-	return h.stm.Scan(ctx, &h.infos)
+	return h.stmSelect.Scan(ctx, &h.infos)
 }
 
 func (h *queryHandler) queryAppUserThirdParties(ctx context.Context) error {
@@ -401,9 +414,7 @@ func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 	}
 
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryAppUser(cli); err != nil {
-			return err
-		}
+		handler.queryAppUser(cli)
 		if err := handler.queryJoin(); err != nil {
 			return err
 		}
@@ -445,13 +456,24 @@ func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryAppUserByConds(ctx, cli); err != nil {
+		var err error
+		if handler.stmSelect, err = handler.queryAppUserByConds(ctx, cli); err != nil {
+			return err
+		}
+		if handler.stmCount, err = handler.queryAppUserByConds(ctx, cli); err != nil {
 			return err
 		}
 		if err := handler.queryJoin(); err != nil {
 			return err
 		}
-		handler.stm.
+
+		total, err := handler.stmCount.Count(ctx)
+		if err != nil {
+			return err
+		}
+		handler.total = uint32(total)
+
+		handler.stmSelect.
 			Offset(int(h.Offset)).
 			Limit(int(h.Limit))
 
