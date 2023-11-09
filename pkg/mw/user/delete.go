@@ -210,6 +210,9 @@ func (h *Handler) DeleteThirdUser(ctx context.Context) (info *npool.User, err er
 	if err != nil {
 		return nil, err
 	}
+	if info == nil {
+		return nil, nil
+	}
 
 	if info.ThirdPartyID == nil && info.ThirdPartyUserID == nil {
 		return nil, fmt.Errorf("invalid thirdparty")
