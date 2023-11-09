@@ -16,6 +16,9 @@ func (h *Handler) DeleteUser(ctx context.Context) (*npool.User, error) {
 	if err != nil {
 		return nil, err
 	}
+	if info == nil {
+		return nil, nil
+	}
 
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		now := uint32(time.Now().Unix())
