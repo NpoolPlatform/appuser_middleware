@@ -291,7 +291,7 @@ func TestUser(t *testing.T) {
 
 	t.Run("creatUser", creatUser)
 	t.Run("updateUser", updateUser)
-	// t.Run("getUser", getUser)
-	// t.Run("getUsers", getUsers)
-	// t.Run("deleteUser", deleteUser)
+	t.Run("getUser", getUser)
+	t.Run("getUsers", getUsers)
+	t.Run("deleteUser", deleteUser)
 }
