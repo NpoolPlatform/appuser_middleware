@@ -19,18 +19,17 @@ import (
 
 type queryHandler struct {
 	*Handler
-	stm   *ent.AppRoleUserSelect
-	infos []*npool.User
-	total uint32
+	stmSelect *ent.AppRoleUserSelect
+	stmCount  *ent.AppRoleUserSelect
+	infos     []*npool.User
+	total     uint32
 }
 
-func (h *queryHandler) selectAppRoleUser(stm *ent.AppRoleUserQuery) {
-	h.stm = stm.Select(
-		entapproleuser.FieldID,
-	)
+func (h *queryHandler) selectAppRoleUser(stm *ent.AppRoleUserQuery) *ent.AppRoleUserSelect {
+	return stm.Select(entapproleuser.FieldID)
 }
 
-func (h *queryHandler) queryAppRoleUser(cli *ent.Client) error {
+func (h *queryHandler) queryAppRoleUser(cli *ent.Client) {
 	stm := cli.AppRoleUser.
 		Query().
 		Where(entapproleuser.DeletedAt(0))
@@ -43,22 +42,27 @@ func (h *queryHandler) queryAppRoleUser(cli *ent.Client) error {
 	if h.EntID != nil {
 		stm.Where(entapproleuser.EntID(*h.EntID))
 	}
-	h.selectAppRoleUser(stm)
-	return nil
+	h.stmSelect = h.selectAppRoleUser(stm)
 }
 
-func (h *queryHandler) queryAppRoleUsers(ctx context.Context, cli *ent.Client) error {
+func (h *queryHandler) queryAppRoleUsers(cli *ent.Client) (*ent.AppRoleUserSelect, error) {
 	stm, err := roleusercrud.SetQueryConds(cli.AppRoleUser.Query(), h.Conds)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	total, err := stm.Count(ctx)
-	if err != nil {
-		return err
-	}
-	h.total = uint32(total)
-	h.selectAppRoleUser(stm)
-	return nil
+	return h.selectAppRoleUser(stm), nil
+}
+
+func (h *queryHandler) queryJoinMyself(s *sql.Selector) {
+	t := sql.Table(entapproleuser.Table)
+	s.LeftJoin(t).
+		On(
+			s.C(entapproleuser.FieldEntID),
+			t.C(entapproleuser.FieldEntID),
+		).
+		AppendSelect(
+			t.C(entapproleuser.FieldEntID),
+		)
 }
 
 func (h *queryHandler) queryJoinAppRole(s *sql.Selector) {
@@ -112,22 +116,25 @@ func (h *queryHandler) queryJoinAppUser(s *sql.Selector) {
 		)
 }
 
-func (h *queryHandler) queryJoin(ctx context.Context) error {
-	h.stm.Modify(func(s *sql.Selector) {
+func (h *queryHandler) queryJoin(ctx context.Context) {
+	h.stmSelect.Modify(func(s *sql.Selector) {
+		h.queryJoinMyself(s)
 		h.queryJoinAppRole(s)
 		h.queryJoinApp(s)
 		h.queryJoinAppUser(s)
 	})
-	total, err := h.stm.Count(ctx)
-	if err != nil {
-		return err
+	if h.stmCount == nil {
+		return
 	}
-	h.total = uint32(total)
-	return nil
+	h.stmCount.Modify(func(s *sql.Selector) {
+		h.queryJoinAppRole(s)
+		h.queryJoinApp(s)
+		h.queryJoinAppUser(s)
+	})
 }
 
 func (h *queryHandler) scan(ctx context.Context) error {
-	return h.stm.Scan(ctx, &h.infos)
+	return h.stmSelect.Scan(ctx, &h.infos)
 }
 
 func (h *Handler) GetUser(ctx context.Context) (*npool.User, error) {
@@ -136,19 +143,14 @@ func (h *Handler) GetUser(ctx context.Context) (*npool.User, error) {
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryAppRoleUser(cli); err != nil {
-			return err
-		}
-		if err := handler.queryJoin(ctx); err != nil {
-			return err
-		}
+		handler.queryAppRoleUser(cli)
+		handler.queryJoin(ctx)
 		const limit = 2
-		handler.stm = handler.stm.
-			Offset(int(handler.Offset)).
-			Limit(limit).
-			Modify(func(s *sql.Selector) {})
+		handler.stmSelect.
+			Offset(int(0)).
+			Limit(limit)
 		if err := handler.scan(ctx); err != nil {
-			return nil
+			return err
 		}
 		return nil
 	})
@@ -171,16 +173,24 @@ func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryAppRoleUsers(ctx, cli); err != nil {
+		var err error
+		if handler.stmSelect, err = handler.queryAppRoleUsers(cli); err != nil {
 			return err
 		}
-		if err := handler.queryJoin(ctx); err != nil {
+		if handler.stmCount, err = handler.queryAppRoleUsers(cli); err != nil {
 			return err
 		}
-		handler.stm = handler.stm.
+		handler.queryJoin(ctx)
+
+		total, err := handler.stmCount.Count(_ctx)
+		if err != nil {
+			return err
+		}
+		handler.total = uint32(total)
+
+		handler.stmSelect.
 			Offset(int(handler.Offset)).
-			Limit(int(handler.Limit)).
-			Modify(func(s *sql.Selector) {})
+			Limit(int(handler.Limit))
 		if err := handler.scan(ctx); err != nil {
 			return err
 		}

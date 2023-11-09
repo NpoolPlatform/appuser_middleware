@@ -60,6 +60,30 @@ func setupUser(t *testing.T) func(*testing.T) {
 	)
 	assert.Nil(t, err)
 
+	emailAddress := fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+8000000) //nolint
+	passwordHash := uuid.NewString()
+
+	ret.AppName = ret.AppID
+
+	uh1, err := user.NewHandler(
+		context.Background(),
+		user.WithEntID(&ret.CreatedBy, true),
+		user.WithAppID(&ret.AppID, true),
+		user.WithEmailAddress(&emailAddress, true),
+		user.WithPasswordHash(&passwordHash, true),
+	)
+	assert.Nil(t, err)
+	assert.NotNil(t, uh1)
+	user2, err := uh1.CreateUser(context.Background())
+	assert.Nil(t, err)
+	assert.NotNil(t, user2)
+
+	uh1, err = user.NewHandler(
+		context.Background(),
+		user.WithID(&user2.ID, true),
+	)
+	assert.Nil(t, err)
+
 	rh, err := role.NewHandler(
 		context.Background(),
 		role.WithEntID(&ret.Role, true),
@@ -81,7 +105,7 @@ func setupUser(t *testing.T) func(*testing.T) {
 
 	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+1000000)           //nolint
 	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+7000000) //nolint
-	passwordHash := uuid.NewString()
+	passwordHash = uuid.NewString()
 
 	ret.AppName = ret.AppID
 
@@ -111,6 +135,7 @@ func setupUser(t *testing.T) func(*testing.T) {
 		_, _ = ah.DeleteApp(context.Background())
 		_, _ = rh.DeleteRole(context.Background())
 		_, _ = uh.DeleteUser(context.Background())
+		_, _ = uh1.DeleteUser(context.Background())
 	}
 }
 
