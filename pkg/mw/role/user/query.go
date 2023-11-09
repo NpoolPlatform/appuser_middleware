@@ -116,7 +116,7 @@ func (h *queryHandler) queryJoinAppUser(s *sql.Selector) {
 		)
 }
 
-func (h *queryHandler) queryJoin(ctx context.Context) {
+func (h *queryHandler) queryJoin() {
 	h.stmSelect.Modify(func(s *sql.Selector) {
 		h.queryJoinMyself(s)
 		h.queryJoinAppRole(s)
@@ -144,7 +144,7 @@ func (h *Handler) GetUser(ctx context.Context) (*npool.User, error) {
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		handler.queryAppRoleUser(cli)
-		handler.queryJoin(ctx)
+		handler.queryJoin()
 		const limit = 2
 		handler.stmSelect.
 			Offset(int(0)).
@@ -180,7 +180,7 @@ func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
 		if handler.stmCount, err = handler.queryAppRoleUsers(cli); err != nil {
 			return err
 		}
-		handler.queryJoin(ctx)
+		handler.queryJoin()
 
 		total, err := handler.stmCount.Count(_ctx)
 		if err != nil {
