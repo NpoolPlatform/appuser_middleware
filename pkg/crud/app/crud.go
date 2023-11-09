@@ -58,6 +58,7 @@ type Conds struct {
 	Name      *cruder.Cond
 }
 
+//nolint:gocyclo
 func SetQueryConds(q *ent.AppQuery, conds *Conds) (*ent.AppQuery, error) {
 	if conds == nil {
 		return q, nil

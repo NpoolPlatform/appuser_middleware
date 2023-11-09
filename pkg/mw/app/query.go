@@ -43,7 +43,7 @@ func (h *queryHandler) queryApp(cli *ent.Client) {
 	h.stmSelect = h.selectApp(stm)
 }
 
-func (h *queryHandler) queryApps(ctx context.Context, cli *ent.Client) (*ent.AppSelect, error) {
+func (h *queryHandler) queryApps(cli *ent.Client) (*ent.AppSelect, error) {
 	stm, err := appcrud.SetQueryConds(cli.App.Query(), h.Conds)
 	if err != nil {
 		return nil, err
@@ -192,10 +192,10 @@ func (h *Handler) GetApps(ctx context.Context) ([]*npool.App, uint32, error) {
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		var err error
-		if handler.stmSelect, err = handler.queryApps(_ctx, cli); err != nil {
+		if handler.stmSelect, err = handler.queryApps(cli); err != nil {
 			return err
 		}
-		if handler.stmCount, err = handler.queryApps(_ctx, cli); err != nil {
+		if handler.stmCount, err = handler.queryApps(cli); err != nil {
 			return err
 		}
 

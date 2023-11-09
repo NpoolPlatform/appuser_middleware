@@ -59,7 +59,7 @@ func (h *queryHandler) queryAppUser(cli *ent.Client) {
 	h.stmSelect = h.selectAppUser(stm)
 }
 
-func (h *queryHandler) queryAppUserByConds(ctx context.Context, cli *ent.Client) (*ent.AppUserSelect, error) {
+func (h *queryHandler) queryAppUserByConds(cli *ent.Client) (*ent.AppUserSelect, error) {
 	stm, err := usercrud.SetQueryConds(cli.AppUser.Query(), h.Conds)
 	if err != nil {
 		return nil, err
@@ -457,10 +457,10 @@ func (h *Handler) GetUsers(ctx context.Context) ([]*npool.User, uint32, error) {
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		var err error
-		if handler.stmSelect, err = handler.queryAppUserByConds(ctx, cli); err != nil {
+		if handler.stmSelect, err = handler.queryAppUserByConds(cli); err != nil {
 			return err
 		}
-		if handler.stmCount, err = handler.queryAppUserByConds(ctx, cli); err != nil {
+		if handler.stmCount, err = handler.queryAppUserByConds(cli); err != nil {
 			return err
 		}
 		if err := handler.queryJoin(); err != nil {

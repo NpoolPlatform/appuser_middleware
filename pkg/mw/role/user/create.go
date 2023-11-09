@@ -17,6 +17,7 @@ import (
 	"github.com/google/uuid"
 )
 
+//nolint:gocyclo
 func (h *Handler) CreateUser(ctx context.Context) (*npool.User, error) {
 	id := uuid.New()
 	if h.EntID == nil {

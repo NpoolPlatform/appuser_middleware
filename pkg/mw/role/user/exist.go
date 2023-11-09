@@ -22,24 +22,7 @@ func (h *existHandler) selectAppRoleUser(stm *ent.AppRoleUserQuery) {
 	h.stm = stm.Select(entapproleuser.FieldID)
 }
 
-func (h *existHandler) queryAppRoleUser(cli *ent.Client) error {
-	stm := cli.AppRoleUser.
-		Query().
-		Where(entapproleuser.DeletedAt(0))
-	if h.ID != nil {
-		stm.Where(entapproleuser.ID(*h.ID))
-	}
-	if h.AppID != nil {
-		stm.Where(entapproleuser.AppID(*h.AppID))
-	}
-	if h.EntID != nil {
-		stm.Where(entapproleuser.EntID(*h.EntID))
-	}
-	h.selectAppRoleUser(stm)
-	return nil
-}
-
-func (h *existHandler) queryAppRoleUsers(ctx context.Context, cli *ent.Client) error {
+func (h *existHandler) queryAppRoleUsers(cli *ent.Client) error {
 	stm, err := roleusercrud.SetQueryConds(cli.AppRoleUser.Query(), h.Conds)
 	if err != nil {
 		return err
@@ -70,7 +53,7 @@ func (h *existHandler) queryJoinAppRole(s *sql.Selector) {
 	}
 }
 
-func (h *existHandler) queryJoin(ctx context.Context) {
+func (h *existHandler) queryJoin() {
 	h.stm.Modify(func(s *sql.Selector) {
 		h.queryJoinAppRole(s)
 	})
@@ -85,10 +68,10 @@ func (h *Handler) ExistUserConds(ctx context.Context) (bool, error) {
 	var err error
 
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryAppRoleUsers(ctx, cli); err != nil {
+		if err := handler.queryAppRoleUsers(cli); err != nil {
 			return err
 		}
-		handler.queryJoin(ctx)
+		handler.queryJoin()
 		exist, err = handler.stm.Exist(ctx)
 		if err != nil {
 			return err

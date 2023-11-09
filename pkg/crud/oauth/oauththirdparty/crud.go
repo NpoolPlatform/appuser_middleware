@@ -82,6 +82,7 @@ type Conds struct {
 	DecryptSecret *cruder.Cond
 }
 
+//nolint:funlen,gocyclo
 func SetQueryConds(q *ent.OAuthThirdPartyQuery, conds *Conds) (*ent.OAuthThirdPartyQuery, error) {
 	if conds == nil {
 		return q, nil

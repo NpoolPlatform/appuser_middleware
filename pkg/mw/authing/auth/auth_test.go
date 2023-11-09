@@ -44,6 +44,7 @@ var (
 	userID = uuid.NewString()
 )
 
+//nolint:funlen
 func setupAuth(t *testing.T) func(*testing.T) {
 	ret.AppName = ret.AppID
 	ret.UserID = userID

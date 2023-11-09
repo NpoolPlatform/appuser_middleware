@@ -110,9 +110,10 @@ func (h *Handler) GetHistory(ctx context.Context) (*npool.History, error) {
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		handler.queryAuthHistory(cli)
 		handler.queryJoin()
+		const limit = 2
 		handler.stm.
 			Offset(int(0)).
-			Limit(int(2)) //nolint
+			Limit(int(limit))
 		if err := handler.scan(ctx); err != nil {
 			return err
 		}
