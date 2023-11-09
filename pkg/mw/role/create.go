@@ -141,6 +141,7 @@ func (h *Handler) CreateRoles(ctx context.Context) ([]*npool.Role, error) {
 	h.Conds = &rolecrud.Conds{
 		EntIDs: &cruder.Cond{Op: cruder.IN, Val: ids},
 	}
+	h.Limit = int32(len(ids))
 	infos, _, err := h.GetRoles(ctx)
 	if err != nil {
 		return nil, err
