@@ -10,7 +10,6 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 	entappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuser"
 	entappuserthirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserthirdparty"
-	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 
 	"github.com/google/uuid"
 )
@@ -18,8 +17,6 @@ import (
 type existHandler struct {
 	*Handler
 	stm            *ent.AppUserSelect
-	infos          []*npool.User
-	total          uint32
 	joinThirdParty bool
 }
 
@@ -70,12 +67,6 @@ func (h *existHandler) queryJoinAppUserThirdParty(s *sql.Selector) error {
 		On(
 			s.C(entappuser.FieldDeletedAt),
 			t.C(entappuserthirdparty.FieldDeletedAt),
-		).
-		AppendSelect(
-			sql.As(t.C(entappuserthirdparty.FieldThirdPartyID), "third_party_id"),
-			sql.As(t.C(entappuserthirdparty.FieldThirdPartyUserID), "third_party_user_id"),
-			sql.As(t.C(entappuserthirdparty.FieldThirdPartyUsername), "third_party_username"),
-			sql.As(t.C(entappuserthirdparty.FieldThirdPartyAvatar), "third_party_avatar"),
 		)
 
 	if h.Conds != nil && h.Conds.ThirdPartyID != nil {
