@@ -10,6 +10,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 
+	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
 	entapp "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
 	entapprole "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approle"
 	entapproleuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approleuser"
@@ -20,9 +21,6 @@ import (
 	entappuserthirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserthirdparty"
 	entbanappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/banappuser"
 	entkyc "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/kyc"
-
-	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
-
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
@@ -411,6 +409,10 @@ func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 	handler := &queryHandler{
 		Handler:        h,
 		joinThirdParty: false,
+	}
+
+	if h.Conds != nil && (h.Conds.ThirdPartyID != nil || h.Conds.ThirdPartyUserID != nil) {
+		handler.joinThirdParty = true
 	}
 
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
