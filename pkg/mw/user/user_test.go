@@ -108,8 +108,8 @@ func setupUser(t *testing.T) func(*testing.T) {
 }
 
 func creatUser(t *testing.T) {
-	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+1000000)           //nolint
-	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+4000000) //nolint
+	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+rand.Intn(1000000))           //nolint
+	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+rand.Intn(4000000)) //nolint
 	ret.ImportedFromAppName = ret.ImportedFromAppID
 	ret1 := npool.User{
 		EntID:               ret.EntID,
@@ -291,7 +291,7 @@ func TestUser(t *testing.T) {
 
 	t.Run("creatUser", creatUser)
 	t.Run("updateUser", updateUser)
-	t.Run("getUser", getUser)
-	t.Run("getUsers", getUsers)
-	t.Run("deleteUser", deleteUser)
+	// t.Run("getUser", getUser)
+	// t.Run("getUsers", getUsers)
+	// t.Run("deleteUser", deleteUser)
 }

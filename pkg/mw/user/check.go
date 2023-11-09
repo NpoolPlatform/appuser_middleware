@@ -4,15 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
-	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
-
 	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
 	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 )
 
 func (h *Handler) checkAccountExist(ctx context.Context) error {
-	if h.PhoneNO == nil && h.EmailAddress == nil {
+	if h.PhoneNO == nil && h.EmailAddress == nil && (h.ThirdPartyID == nil || h.ThirdPartyUserID == nil) {
 		return nil
 	}
 
@@ -25,19 +22,26 @@ func (h *Handler) checkAccountExist(ctx context.Context) error {
 	if h.PhoneNO != nil {
 		conds.PhoneNO = &cruder.Cond{Op: cruder.EQ, Val: *h.PhoneNO}
 	}
+	if h.ThirdPartyID != nil {
+		conds.ThirdPartyID = &cruder.Cond{Op: cruder.EQ, Val: *h.ThirdPartyID}
+	}
+	if h.ThirdPartyUserID != nil {
+		conds.ThirdPartyUserID = &cruder.Cond{Op: cruder.EQ, Val: *h.ThirdPartyUserID}
+	}
 
-	return db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		stm, err := usercrud.SetQueryConds(cli.AppUser.Query(), conds)
-		if err != nil {
-			return err
-		}
-		exist, err := stm.Exist(ctx)
-		if err != nil {
-			return err
-		}
-		if exist {
-			return fmt.Errorf("user already exist")
-		}
-		return nil
-	})
+	h1, err := NewHandler(ctx)
+	if err != nil {
+		return err
+	}
+	h1.Conds = conds
+
+	exist, err := h1.ExistUserConds(ctx)
+	if err != nil {
+		return err
+	}
+	if exist {
+		return fmt.Errorf("already exists")
+	}
+
+	return nil
 }
