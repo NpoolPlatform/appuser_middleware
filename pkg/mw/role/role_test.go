@@ -3,6 +3,7 @@ package role
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"os"
 	"strconv"
 	"testing"
@@ -13,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
+	user "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/testinit"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
@@ -60,7 +62,30 @@ func setup(t *testing.T) func(*testing.T) {
 	)
 	assert.Nil(t, err)
 
+	emailAddress := fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+7000000) //nolint
+	passwordHash := uuid.NewString()
+
+	uh, err := user.NewHandler(
+		context.Background(),
+		user.WithEntID(&ret.CreatedBy, true),
+		user.WithAppID(&ret.AppID, true),
+		user.WithEmailAddress(&emailAddress, true),
+		user.WithPasswordHash(&passwordHash, true),
+	)
+	assert.Nil(t, err)
+	assert.NotNil(t, uh)
+	user1, err := uh.CreateUser(context.Background())
+	assert.Nil(t, err)
+	assert.NotNil(t, user1)
+
+	uh, err = user.NewHandler(
+		context.Background(),
+		user.WithID(&user1.ID, true),
+	)
+	assert.Nil(t, err)
+
 	return func(*testing.T) {
+		_, _ = uh.DeleteUser(context.Background())
 		_, _ = ah.DeleteApp(context.Background())
 	}
 }
