@@ -16,6 +16,10 @@ import (
 	"github.com/google/uuid"
 )
 
+type createHandler struct {
+	*Handler
+}
+
 func (h *Handler) CreateAuth(ctx context.Context) (*npool.Auth, error) {
 	id := uuid.New()
 	if h.EntID == nil {
@@ -81,6 +85,22 @@ func (h *Handler) CreateAuths(ctx context.Context) ([]*npool.Auth, error) {
 
 	err := db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {
 		for _, req := range h.Reqs {
+			handler := &createHandler{
+				Handler: h,
+			}
+			handler.EntID = req.EntID
+			handler.AppID = req.AppID
+			handler.Resource = req.Resource
+			handler.Method = req.Method
+			handler.UserID = req.UserID
+			handler.RoleID = req.RoleID
+			exist, err := handler.ExistAuth(ctx)
+			if err != nil {
+				return err
+			}
+			if exist {
+				continue
+			}
 			id := uuid.New()
 			if req.EntID == nil {
 				req.EntID = &id
