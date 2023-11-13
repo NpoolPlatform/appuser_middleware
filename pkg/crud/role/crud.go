@@ -162,6 +162,8 @@ func SetQueryConds(q *ent.AppRoleQuery, conds *Conds) (*ent.AppRoleQuery, error)
 		switch conds.Role.Op {
 		case cruder.EQ:
 			q.Where(entapprole.Role(role))
+		case cruder.NEQ:
+			q.Where(entapprole.RoleNEQ(role))
 		default:
 			return nil, fmt.Errorf("invalid approle field")
 		}
