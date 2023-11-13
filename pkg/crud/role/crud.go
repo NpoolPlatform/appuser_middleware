@@ -121,7 +121,7 @@ func SetQueryConds(q *ent.AppRoleQuery, conds *Conds) (*ent.AppRoleQuery, error)
 	if conds.AppID != nil {
 		id, ok := conds.AppID.Val.(uuid.UUID)
 		if !ok {
-			return nil, fmt.Errorf("invalid id")
+			return nil, fmt.Errorf("invalid appid")
 		}
 		switch conds.AppID.Op {
 		case cruder.EQ:
@@ -145,7 +145,7 @@ func SetQueryConds(q *ent.AppRoleQuery, conds *Conds) (*ent.AppRoleQuery, error)
 	if conds.CreatedBy != nil {
 		id, ok := conds.CreatedBy.Val.(uuid.UUID)
 		if !ok {
-			return nil, fmt.Errorf("invalid id")
+			return nil, fmt.Errorf("invalid createdby")
 		}
 		switch conds.CreatedBy.Op {
 		case cruder.EQ:
@@ -183,7 +183,7 @@ func SetQueryConds(q *ent.AppRoleQuery, conds *Conds) (*ent.AppRoleQuery, error)
 	if conds.Genesis != nil {
 		genesis, ok := conds.Genesis.Val.(bool)
 		if !ok {
-			return nil, fmt.Errorf("invalid default")
+			return nil, fmt.Errorf("invalid genesis")
 		}
 		switch conds.Genesis.Op {
 		case cruder.EQ:

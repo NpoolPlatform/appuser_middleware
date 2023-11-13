@@ -31,8 +31,8 @@ func (h *Handler) UpdateRole(ctx context.Context) (*npool.Role, error) {
 		if h.Default != nil && *h.Default {
 			stm, err := rolecrud.SetQueryConds(tx.AppRole.Query(), &rolecrud.Conds{
 				Default: &cruder.Cond{Op: cruder.EQ, Val: *h.Default},
-				AppID:   &cruder.Cond{Op: cruder.EQ, Val: &info.AppID},
-				Role:    &cruder.Cond{Op: cruder.NEQ, Val: &info.Role},
+				AppID:   &cruder.Cond{Op: cruder.EQ, Val: info.AppID},
+				Role:    &cruder.Cond{Op: cruder.NEQ, Val: info.Role},
 			})
 			if err != nil {
 				return err
