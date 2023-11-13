@@ -359,7 +359,7 @@ func (h *queryHandler) queryUserRoles(ctx context.Context) error {
 				s.LeftJoin(t).
 					On(
 						s.C(entapproleuser.FieldRoleID),
-						t.C(entapprole.FieldID),
+						t.C(entapprole.FieldEntID),
 					).
 					AppendSelect(
 						sql.As(t.C(entapprole.FieldRole), "role_name"),
