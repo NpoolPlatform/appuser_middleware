@@ -38,6 +38,9 @@ func CreateSet(c *ent.AppCreate, req *Req) *ent.AppCreate {
 }
 
 func UpdateSet(u *ent.AppUpdateOne, req *Req) *ent.AppUpdateOne {
+	if req.EntID != nil {
+		u.SetEntID(*req.EntID)
+	}
 	if req.Name != nil {
 		u.SetName(*req.Name)
 	}

@@ -6,10 +6,12 @@ import (
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
+	"github.com/google/uuid"
 
 	appcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/app"
 	banappcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/app/ban"
 	ctrlcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/app/control"
+	entapp "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
 	entappctrl "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appcontrol"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
@@ -17,21 +19,43 @@ import (
 
 type updateHandler struct {
 	*Handler
+	oldAppID *uuid.UUID
 }
 
 func (h *updateHandler) updateApp(ctx context.Context, tx *ent.Tx) error {
-	info, err := appcrud.UpdateSet(
-		tx.App.UpdateOneID(*h.ID),
-		&appcrud.Req{
-			Name:        h.Name,
-			Logo:        h.Logo,
-			Description: h.Description,
-		},
+	info, err := tx.
+		App.
+		Query().
+		Where(
+			entapp.ID(*h.ID),
+			entapp.DeletedAt(0),
+		).
+		ForUpdate().
+		Only(ctx)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return err
+		}
+	}
+	h.oldAppID = &info.EntID
+	req := &appcrud.Req{
+		Name:        h.Name,
+		Logo:        h.Logo,
+		Description: h.Description,
+	}
+	if h.EntID != nil && h.oldAppID != h.EntID {
+		req.EntID = h.EntID
+	}
+	info, err = appcrud.UpdateSet(
+		info.Update(),
+		req,
 	).Save(ctx)
 	if err != nil {
 		return err
 	}
-	h.EntID = &info.EntID
+	if h.EntID == nil {
+		h.EntID = &info.EntID
+	}
 	return nil
 }
 
@@ -40,7 +64,7 @@ func (h *updateHandler) updateAppCtrl(ctx context.Context, tx *ent.Tx) error {
 		AppControl.
 		Query().
 		Where(
-			entappctrl.AppID(*h.EntID),
+			entappctrl.AppID(*h.oldAppID),
 			entappctrl.DeletedAt(0),
 		).
 		ForUpdate().
@@ -89,7 +113,7 @@ func (h *updateHandler) updateBanApp(ctx context.Context, tx *ent.Tx) error {
 	stm, err := banappcrud.SetQueryConds(
 		tx.BanApp.Query(),
 		&banappcrud.Conds{
-			AppID: &cruder.Cond{Op: cruder.EQ, Val: *h.EntID},
+			AppID: &cruder.Cond{Op: cruder.EQ, Val: *h.oldAppID},
 		})
 	if err != nil {
 		return err
@@ -117,6 +141,7 @@ func (h *updateHandler) updateBanApp(ctx context.Context, tx *ent.Tx) error {
 		if _, err := banappcrud.UpdateSet(
 			tx.BanApp.UpdateOneID(info.ID),
 			&banappcrud.Req{
+				AppID:     h.EntID,
 				EntID:     &info.EntID,
 				DeletedAt: &now,
 			},

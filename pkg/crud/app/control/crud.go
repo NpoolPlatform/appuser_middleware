@@ -76,6 +76,9 @@ func CreateSet(c *ent.AppControlCreate, req *Req) *ent.AppControlCreate {
 }
 
 func UpdateSet(u *ent.AppControlUpdateOne, req *Req) *ent.AppControlUpdateOne {
+	if req.EntID != nil {
+		u.SetEntID(*req.EntID)
+	}
 	if len(req.SignupMethods) > 0 {
 		methods := []string{}
 		for _, m := range req.SignupMethods {
