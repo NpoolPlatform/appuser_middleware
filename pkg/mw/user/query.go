@@ -361,6 +361,9 @@ func (h *queryHandler) queryUserRoles(ctx context.Context) error {
 						s.C(entapproleuser.FieldRoleID),
 						t.C(entapprole.FieldEntID),
 					).
+					OnP(
+						sql.EQ(t.C(entapprole.FieldDeletedAt), 0),
+					).
 					AppendSelect(
 						sql.As(t.C(entapprole.FieldRole), "role_name"),
 					)
@@ -374,6 +377,9 @@ func (h *queryHandler) queryUserRoles(ctx context.Context) error {
 	for _, role := range roles {
 		for _, info := range h.infos {
 			if info.EntID == role.UserID.String() {
+				if role.RoleName == "" {
+					continue
+				}
 				info.Roles = append(info.Roles, role.RoleName)
 			}
 		}
