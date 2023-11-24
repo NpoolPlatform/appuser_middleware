@@ -32,6 +32,7 @@ func (h *deleteHandler) deleteAppUser(ctx context.Context, tx *ent.Tx) error {
 		SetDeletedAt(uint32(time.Now().Unix())).
 		Save(ctx)
 	if err != nil {
+		fmt.Println("invalid id: ", err)
 		return err
 	}
 	h.AppID = &info.AppID
@@ -165,6 +166,10 @@ func (h *Handler) DeleteUser(ctx context.Context) (info *npool.User, err error) 
 	if err != nil {
 		return nil, err
 	}
+	if info == nil {
+		return nil, fmt.Errorf("invalid user")
+	}
+	h.ID = &info.ID
 
 	handler := &deleteHandler{
 		Handler: h,
