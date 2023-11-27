@@ -45,8 +45,10 @@ func (h *Handler) CreateAuth(ctx context.Context) (*npool.Auth, error) {
 	}
 	if h.RoleID != nil {
 		h.Conds = &authcrud.Conds{
-			AppID:  &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
-			RoleID: &cruder.Cond{Op: cruder.EQ, Val: *h.RoleID},
+			AppID:    &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
+			RoleID:   &cruder.Cond{Op: cruder.EQ, Val: *h.RoleID},
+			Resource: &cruder.Cond{Op: cruder.EQ, Val: *h.Resource},
+			Method:   &cruder.Cond{Op: cruder.EQ, Val: *h.Method},
 		}
 		exist, err := h.ExistAuthConds(ctx)
 		if err != nil {
