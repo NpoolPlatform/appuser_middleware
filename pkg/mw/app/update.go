@@ -37,6 +37,9 @@ func (h *updateHandler) updateApp(ctx context.Context, tx *ent.Tx) error {
 			return err
 		}
 	}
+	if info == nil {
+		return nil
+	}
 	h.oldAppID = &info.EntID
 	req := &appcrud.Req{
 		Name:        h.Name,
@@ -60,6 +63,9 @@ func (h *updateHandler) updateApp(ctx context.Context, tx *ent.Tx) error {
 }
 
 func (h *updateHandler) updateAppCtrl(ctx context.Context, tx *ent.Tx) error {
+	if h.oldAppID == nil {
+		return nil
+	}
 	info, err := tx.
 		AppControl.
 		Query().
@@ -107,6 +113,9 @@ func (h *updateHandler) updateAppCtrl(ctx context.Context, tx *ent.Tx) error {
 
 func (h *updateHandler) updateBanApp(ctx context.Context, tx *ent.Tx) error {
 	if h.Banned == nil {
+		return nil
+	}
+	if h.oldAppID == nil {
 		return nil
 	}
 
