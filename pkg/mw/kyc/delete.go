@@ -19,6 +19,7 @@ func (h *Handler) DeleteKyc(ctx context.Context) (*npool.Kyc, error) {
 	if info == nil {
 		return nil, nil
 	}
+	h.ID = &info.ID
 
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		now := uint32(time.Now().Unix())

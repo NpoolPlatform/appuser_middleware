@@ -44,6 +44,9 @@ func (h *queryHandler) selectKyc(stm *ent.KycQuery) {
 }
 
 func (h *queryHandler) queryKyc(cli *ent.Client) error {
+	if h.ID == nil && h.EntID == nil {
+		return fmt.Errorf("invalid id")
+	}
 	stm := cli.Kyc.
 		Query().
 		Where(entkyc.DeletedAt(0))

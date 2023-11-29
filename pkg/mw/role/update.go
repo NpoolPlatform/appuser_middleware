@@ -2,10 +2,12 @@ package role
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 	entapprole "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approle"
+	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 
 	rolecrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/role"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/role"
@@ -24,6 +26,25 @@ func (h *Handler) UpdateRole(ctx context.Context) (*npool.Role, error) {
 			Only(_ctx)
 		if err != nil {
 			return err
+		}
+
+		if h.Default != nil && *h.Default {
+			stm, err := rolecrud.SetQueryConds(tx.AppRole.Query(), &rolecrud.Conds{
+				Default: &cruder.Cond{Op: cruder.EQ, Val: *h.Default},
+				AppID:   &cruder.Cond{Op: cruder.EQ, Val: info.AppID},
+				Role:    &cruder.Cond{Op: cruder.NEQ, Val: info.Role},
+			})
+			if err != nil {
+				return err
+			}
+
+			exist, err := stm.Exist(_ctx)
+			if err != nil {
+				return err
+			}
+			if exist {
+				return fmt.Errorf("default role exist")
+			}
 		}
 
 		info, err = rolecrud.UpdateSet(

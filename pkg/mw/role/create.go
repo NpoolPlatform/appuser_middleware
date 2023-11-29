@@ -15,6 +15,7 @@ import (
 	"github.com/google/uuid"
 )
 
+//nolint:gocyclo
 func (h *Handler) CreateRole(ctx context.Context) (*npool.Role, error) {
 	id := uuid.New()
 	if h.EntID == nil {
@@ -44,6 +45,25 @@ func (h *Handler) CreateRole(ctx context.Context) (*npool.Role, error) {
 		}
 		if exist {
 			return fmt.Errorf("role exist")
+		}
+
+		if h.Default != nil && *h.Default {
+			stm, err := rolecrud.SetQueryConds(cli.AppRole.Query(), &rolecrud.Conds{
+				Default: &cruder.Cond{Op: cruder.EQ, Val: *h.Default},
+				AppID:   &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
+				Role:    &cruder.Cond{Op: cruder.NEQ, Val: *h.Role},
+			})
+			if err != nil {
+				return err
+			}
+
+			exist, err := stm.Exist(_ctx)
+			if err != nil {
+				return err
+			}
+			if exist {
+				return fmt.Errorf("default role exist")
+			}
 		}
 
 		if _, err := rolecrud.CreateSet(

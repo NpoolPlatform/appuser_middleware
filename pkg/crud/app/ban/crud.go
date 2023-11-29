@@ -30,6 +30,9 @@ func CreateSet(c *ent.BanAppCreate, req *Req) *ent.BanAppCreate {
 }
 
 func UpdateSet(u *ent.BanAppUpdateOne, req *Req) *ent.BanAppUpdateOne {
+	if req.AppID != nil {
+		u.SetAppID(*req.AppID)
+	}
 	if req.Message != nil {
 		u.SetMessage(*req.Message)
 	}

@@ -119,7 +119,7 @@ func (h *Handler) GetHistory(ctx context.Context) (*npool.History, error) {
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		handler.queryHistory(cli.Debug())
+		handler.queryHistory(cli)
 		handler.queryJoin()
 		if err := handler.scan(ctx); err != nil {
 			return err

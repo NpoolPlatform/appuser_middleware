@@ -41,7 +41,10 @@ func (h *queryHandler) selectAppUser(stm *ent.AppUserQuery) *ent.AppUserSelect {
 	return stm.Select(entappuser.FieldID)
 }
 
-func (h *queryHandler) queryAppUser(cli *ent.Client) {
+func (h *queryHandler) queryAppUser(cli *ent.Client) error {
+	if h.ID == nil && h.EntID == nil {
+		return fmt.Errorf("invalid id")
+	}
 	stm := cli.AppUser.
 		Query().
 		Where(entappuser.DeletedAt(0))
@@ -55,6 +58,7 @@ func (h *queryHandler) queryAppUser(cli *ent.Client) {
 		stm.Where(entappuser.EntID(*h.EntID))
 	}
 	h.stmSelect = h.selectAppUser(stm)
+	return nil
 }
 
 func (h *queryHandler) queryAppUserByConds(cli *ent.Client) (*ent.AppUserSelect, error) {
@@ -359,7 +363,10 @@ func (h *queryHandler) queryUserRoles(ctx context.Context) error {
 				s.LeftJoin(t).
 					On(
 						s.C(entapproleuser.FieldRoleID),
-						t.C(entapprole.FieldID),
+						t.C(entapprole.FieldEntID),
+					).
+					OnP(
+						sql.EQ(t.C(entapprole.FieldDeletedAt), 0),
 					).
 					AppendSelect(
 						sql.As(t.C(entapprole.FieldRole), "role_name"),
@@ -374,6 +381,9 @@ func (h *queryHandler) queryUserRoles(ctx context.Context) error {
 	for _, role := range roles {
 		for _, info := range h.infos {
 			if info.EntID == role.UserID.String() {
+				if role.RoleName == "" {
+					continue
+				}
 				info.Roles = append(info.Roles, role.RoleName)
 			}
 		}
@@ -416,7 +426,9 @@ func (h *Handler) GetUser(ctx context.Context) (info *npool.User, err error) {
 	}
 
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		handler.queryAppUser(cli)
+		if err := handler.queryAppUser(cli); err != nil {
+			return err
+		}
 		if err := handler.queryJoin(); err != nil {
 			return err
 		}

@@ -22,7 +22,8 @@ func (s *Server) DeleteKyc(ctx context.Context, in *npool.DeleteKycRequest) (*np
 	}
 	handler, err := kyc1.NewHandler(
 		ctx,
-		kyc1.WithID(req.ID, true),
+		kyc1.WithID(req.ID, false),
+		kyc1.WithEntID(req.EntID, false),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
