@@ -32,7 +32,7 @@ var (
 	extSignupMethodsStr = `[]`
 	commitButton        = uuid.NewString()
 	ret                 = npool.App{
-		ID:                          uuid.NewString(),
+		EntID:                       uuid.NewString(),
 		CreatedBy:                   uuid.NewString(),
 		Name:                        uuid.NewString(),
 		Logo:                        uuid.NewString(),
@@ -59,26 +59,27 @@ var (
 func creatApp(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
-		WithCreatedBy(ret.GetCreatedBy()),
-		WithName(&ret.Name),
-		WithLogo(&ret.Logo),
-		WithDescription(&ret.Description),
-		WithSignupMethods(ret.GetSignupMethods()),
-		WithExtSigninMethods(ret.GetExtSigninMethods()),
-		WithRecaptchaMethod(&ret.RecaptchaMethod),
-		WithKycEnable(&ret.KycEnable),
-		WithSigninVerifyEnable(&ret.SigninVerifyEnable),
-		WithInvitationCodeMust(&ret.InvitationCodeMust),
-		WithCreateInvitationCodeWhen(&ret.CreateInvitationCodeWhen),
-		WithMaxTypedCouponsPerOrder(&ret.MaxTypedCouponsPerOrder),
-		WithMaintaining(&ret.Maintaining),
-		WithCommitButtonTargets(ret.GetCommitButtonTargets()),
+		WithEntID(&ret.EntID, true),
+		WithCreatedBy(&ret.CreatedBy, true),
+		WithName(&ret.Name, true),
+		WithLogo(&ret.Logo, true),
+		WithDescription(&ret.Description, true),
+		WithSignupMethods(ret.GetSignupMethods(), true),
+		WithExtSigninMethods(ret.GetExtSigninMethods(), true),
+		WithRecaptchaMethod(&ret.RecaptchaMethod, true),
+		WithKycEnable(&ret.KycEnable, true),
+		WithSigninVerifyEnable(&ret.SigninVerifyEnable, true),
+		WithInvitationCodeMust(&ret.InvitationCodeMust, true),
+		WithCreateInvitationCodeWhen(&ret.CreateInvitationCodeWhen, true),
+		WithMaxTypedCouponsPerOrder(&ret.MaxTypedCouponsPerOrder, true),
+		WithMaintaining(&ret.Maintaining, true),
+		WithCommitButtonTargets(ret.GetCommitButtonTargets(), true),
 	)
 	assert.Nil(t, err)
 	info, err := handler.CreateApp(context.Background())
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
+		ret.ID = info.ID
 		assert.Equal(t, info, &ret)
 	}
 }
@@ -95,20 +96,20 @@ func updateApp(t *testing.T) {
 
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
-		WithName(&ret.Name),
-		WithLogo(&ret.Logo),
-		WithDescription(&ret.Description),
-		WithSignupMethods(ret.GetSignupMethods()),
-		WithExtSigninMethods(ret.GetExtSigninMethods()),
-		WithRecaptchaMethod(&ret.RecaptchaMethod),
-		WithKycEnable(&ret.KycEnable),
-		WithSigninVerifyEnable(&ret.SigninVerifyEnable),
-		WithInvitationCodeMust(&ret.InvitationCodeMust),
-		WithCreateInvitationCodeWhen(&ret.CreateInvitationCodeWhen),
-		WithMaxTypedCouponsPerOrder(&ret.MaxTypedCouponsPerOrder),
-		WithMaintaining(&ret.Maintaining),
-		WithCommitButtonTargets(ret.GetCommitButtonTargets()),
+		WithID(&ret.ID, true),
+		WithName(&ret.Name, true),
+		WithLogo(&ret.Logo, true),
+		WithDescription(&ret.Description, true),
+		WithSignupMethods(ret.GetSignupMethods(), true),
+		WithExtSigninMethods(ret.GetExtSigninMethods(), true),
+		WithRecaptchaMethod(&ret.RecaptchaMethod, true),
+		WithKycEnable(&ret.KycEnable, true),
+		WithSigninVerifyEnable(&ret.SigninVerifyEnable, true),
+		WithInvitationCodeMust(&ret.InvitationCodeMust, true),
+		WithCreateInvitationCodeWhen(&ret.CreateInvitationCodeWhen, true),
+		WithMaxTypedCouponsPerOrder(&ret.MaxTypedCouponsPerOrder, true),
+		WithMaintaining(&ret.Maintaining, true),
+		WithCommitButtonTargets(ret.GetCommitButtonTargets(), true),
 	)
 	assert.Nil(t, err)
 
@@ -121,7 +122,7 @@ func updateApp(t *testing.T) {
 func getApp(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
+		WithEntID(&ret.EntID, true),
 	)
 	assert.Nil(t, err)
 	info, err := handler.GetApp(context.Background())
@@ -143,38 +144,10 @@ func getApps(t *testing.T) {
 	}
 }
 
-func getUserApps(t *testing.T) {
-	handler, err := NewHandler(
-		context.Background(),
-		WithUserID(ret.CreatedBy),
-		WithOffset(0),
-		WithLimit(10),
-	)
-	assert.Nil(t, err)
-	infos, _, err := handler.GetApps(context.Background())
-	if assert.Nil(t, err) {
-		assert.Equal(t, infos[0], &ret)
-	}
-}
-
-func getManyApps(t *testing.T) {
-	handler, err := NewHandler(
-		context.Background(),
-		WithIDs([]string{ret.ID}),
-		WithOffset(0),
-		WithLimit(1),
-	)
-	assert.Nil(t, err)
-	infos, _, err := handler.GetApps(context.Background())
-	if assert.Nil(t, err) {
-		assert.Equal(t, infos[0], &ret)
-	}
-}
-
 func deleteApp(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
+		WithID(&ret.ID, true),
 	)
 	assert.Nil(t, err)
 	info, err := handler.DeleteApp(context.Background())
@@ -182,6 +155,11 @@ func deleteApp(t *testing.T) {
 		assert.Equal(t, info, &ret)
 	}
 
+	handler, err = NewHandler(
+		context.Background(),
+		WithEntID(&ret.EntID, true),
+	)
+	assert.Nil(t, err)
 	info, err = handler.GetApp(context.Background())
 	assert.Nil(t, err)
 	assert.Nil(t, info)
@@ -195,7 +173,5 @@ func TestMainOrder(t *testing.T) {
 	t.Run("updateApp", updateApp)
 	t.Run("getApp", getApp)
 	t.Run("getApps", getApps)
-	t.Run("getUserApps", getUserApps)
-	t.Run("getManyApps", getManyApps)
 	t.Run("deleteApp", deleteApp)
 }

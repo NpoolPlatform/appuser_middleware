@@ -13,10 +13,17 @@ import (
 )
 
 func (s *Server) DeleteApp(ctx context.Context, in *npool.DeleteAppRequest) (*npool.DeleteAppResponse, error) {
-	id := in.GetInfo().GetID()
+	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"DeleteApp",
+			"In", in,
+		)
+		return &npool.DeleteAppResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	handler, err := app1.NewHandler(
 		ctx,
-		app1.WithID(&id),
+		app1.WithID(req.ID, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

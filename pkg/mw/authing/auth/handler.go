@@ -16,7 +16,7 @@ import (
 type Handler struct {
 	*handler.Handler
 	Conds *authcrud.Conds
-	Reqs  []*npool.AuthReq
+	Reqs  []*authcrud.Req
 }
 
 func NewHandler(ctx context.Context, options ...interface{}) (*Handler, error) {
@@ -47,11 +47,17 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 			return nil
 		}
 		if conds.ID != nil {
-			id, err := uuid.Parse(conds.GetID().GetValue())
+			h.Conds.ID = &cruder.Cond{
+				Op:  conds.GetID().GetOp(),
+				Val: conds.GetID().GetValue(),
+			}
+		}
+		if conds.EntID != nil {
+			id, err := uuid.Parse(conds.GetEntID().GetValue())
 			if err != nil {
 				return err
 			}
-			h.Conds.ID = &cruder.Cond{Op: conds.GetID().GetOp(), Val: id}
+			h.Conds.EntID = &cruder.Cond{Op: conds.GetEntID().GetOp(), Val: id}
 		}
 		if conds.AppID != nil {
 			id, err := uuid.Parse(conds.GetAppID().GetValue())
@@ -90,30 +96,49 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 	}
 }
 
-func WithReqs(reqs []*npool.AuthReq) func(context.Context, *Handler) error {
+func WithReqs(reqs []*npool.AuthReq, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		for _, req := range reqs {
-			if req.ID != nil {
-				if _, err := uuid.Parse(*req.ID); err != nil {
+			_req := &authcrud.Req{}
+			if req.EntID != nil {
+				id, err := uuid.Parse(*req.EntID)
+				if err != nil {
 					return err
 				}
+				_req.EntID = &id
 			}
-			if _, err := uuid.Parse(*req.AppID); err != nil {
+			if req.AppID == nil {
+				return fmt.Errorf("invalid appid")
+			}
+			appID, err := uuid.Parse(*req.AppID)
+			if err != nil {
 				return err
 			}
+			_req.AppID = &appID
 			if req.UserID != nil {
-				if _, err := uuid.Parse(*req.UserID); err != nil {
+				userID, err := uuid.Parse(*req.UserID)
+				if err != nil {
 					return err
 				}
+				_req.UserID = &userID
 			}
 			if req.RoleID != nil {
-				if _, err := uuid.Parse(*req.RoleID); err != nil {
+				roleID, err := uuid.Parse(*req.RoleID)
+				if err != nil {
 					return err
 				}
+				_req.RoleID = &roleID
+			}
+			if req.Resource == nil {
+				return fmt.Errorf("invalid resource")
 			}
 			const leastResourceLen = 3
 			if len(*req.Resource) < leastResourceLen {
 				return fmt.Errorf("resource %v invalid", *req.Resource)
+			}
+			_req.Resource = req.Resource
+			if req.Method == nil {
+				return fmt.Errorf("invalid method")
 			}
 			switch *req.Method {
 			case "POST":
@@ -121,8 +146,9 @@ func WithReqs(reqs []*npool.AuthReq) func(context.Context, *Handler) error {
 			default:
 				return fmt.Errorf("method %v invalid", *req.Method)
 			}
+			_req.Method = req.Method
+			h.Reqs = append(h.Reqs, _req)
 		}
-		h.Reqs = reqs
 		return nil
 	}
 }

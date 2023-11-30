@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 
-	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -65,6 +64,20 @@ func (bac *BanAppCreate) SetNillableDeletedAt(u *uint32) *BanAppCreate {
 	return bac
 }
 
+// SetEntID sets the "ent_id" field.
+func (bac *BanAppCreate) SetEntID(u uuid.UUID) *BanAppCreate {
+	bac.mutation.SetEntID(u)
+	return bac
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (bac *BanAppCreate) SetNillableEntID(u *uuid.UUID) *BanAppCreate {
+	if u != nil {
+		bac.SetEntID(*u)
+	}
+	return bac
+}
+
 // SetAppID sets the "app_id" field.
 func (bac *BanAppCreate) SetAppID(u uuid.UUID) *BanAppCreate {
 	bac.mutation.SetAppID(u)
@@ -86,16 +99,8 @@ func (bac *BanAppCreate) SetNillableMessage(s *string) *BanAppCreate {
 }
 
 // SetID sets the "id" field.
-func (bac *BanAppCreate) SetID(u uuid.UUID) *BanAppCreate {
+func (bac *BanAppCreate) SetID(u uint32) *BanAppCreate {
 	bac.mutation.SetID(u)
-	return bac
-}
-
-// SetNillableID sets the "id" field if the given value is not nil.
-func (bac *BanAppCreate) SetNillableID(u *uuid.UUID) *BanAppCreate {
-	if u != nil {
-		bac.SetID(*u)
-	}
 	return bac
 }
 
@@ -199,16 +204,16 @@ func (bac *BanAppCreate) defaults() error {
 		v := banapp.DefaultDeletedAt()
 		bac.mutation.SetDeletedAt(v)
 	}
+	if _, ok := bac.mutation.EntID(); !ok {
+		if banapp.DefaultEntID == nil {
+			return fmt.Errorf("ent: uninitialized banapp.DefaultEntID (forgotten import ent/runtime?)")
+		}
+		v := banapp.DefaultEntID()
+		bac.mutation.SetEntID(v)
+	}
 	if _, ok := bac.mutation.Message(); !ok {
 		v := banapp.DefaultMessage
 		bac.mutation.SetMessage(v)
-	}
-	if _, ok := bac.mutation.ID(); !ok {
-		if banapp.DefaultID == nil {
-			return fmt.Errorf("ent: uninitialized banapp.DefaultID (forgotten import ent/runtime?)")
-		}
-		v := banapp.DefaultID()
-		bac.mutation.SetID(v)
 	}
 	return nil
 }
@@ -223,6 +228,9 @@ func (bac *BanAppCreate) check() error {
 	}
 	if _, ok := bac.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "BanApp.deleted_at"`)}
+	}
+	if _, ok := bac.mutation.EntID(); !ok {
+		return &ValidationError{Name: "ent_id", err: errors.New(`ent: missing required field "BanApp.ent_id"`)}
 	}
 	if _, ok := bac.mutation.AppID(); !ok {
 		return &ValidationError{Name: "app_id", err: errors.New(`ent: missing required field "BanApp.app_id"`)}
@@ -241,12 +249,9 @@ func (bac *BanAppCreate) sqlSave(ctx context.Context) (*BanApp, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
-			_node.ID = *id
-		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
-			return nil, err
-		}
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = uint32(id)
 	}
 	return _node, nil
 }
@@ -257,7 +262,7 @@ func (bac *BanAppCreate) createSpec() (*BanApp, *sqlgraph.CreateSpec) {
 		_spec = &sqlgraph.CreateSpec{
 			Table: banapp.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: banapp.FieldID,
 			},
 		}
@@ -265,7 +270,7 @@ func (bac *BanAppCreate) createSpec() (*BanApp, *sqlgraph.CreateSpec) {
 	_spec.OnConflict = bac.conflict
 	if id, ok := bac.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = &id
+		_spec.ID.Value = id
 	}
 	if value, ok := bac.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -290,6 +295,14 @@ func (bac *BanAppCreate) createSpec() (*BanApp, *sqlgraph.CreateSpec) {
 			Column: banapp.FieldDeletedAt,
 		})
 		_node.DeletedAt = value
+	}
+	if value, ok := bac.mutation.EntID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: banapp.FieldEntID,
+		})
+		_node.EntID = value
 	}
 	if value, ok := bac.mutation.AppID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -412,6 +425,18 @@ func (u *BanAppUpsert) UpdateDeletedAt() *BanAppUpsert {
 // AddDeletedAt adds v to the "deleted_at" field.
 func (u *BanAppUpsert) AddDeletedAt(v uint32) *BanAppUpsert {
 	u.Add(banapp.FieldDeletedAt, v)
+	return u
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *BanAppUpsert) SetEntID(v uuid.UUID) *BanAppUpsert {
+	u.Set(banapp.FieldEntID, v)
+	return u
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *BanAppUpsert) UpdateEntID() *BanAppUpsert {
+	u.SetExcluded(banapp.FieldEntID)
 	return u
 }
 
@@ -552,6 +577,20 @@ func (u *BanAppUpsertOne) UpdateDeletedAt() *BanAppUpsertOne {
 	})
 }
 
+// SetEntID sets the "ent_id" field.
+func (u *BanAppUpsertOne) SetEntID(v uuid.UUID) *BanAppUpsertOne {
+	return u.Update(func(s *BanAppUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *BanAppUpsertOne) UpdateEntID() *BanAppUpsertOne {
+	return u.Update(func(s *BanAppUpsert) {
+		s.UpdateEntID()
+	})
+}
+
 // SetAppID sets the "app_id" field.
 func (u *BanAppUpsertOne) SetAppID(v uuid.UUID) *BanAppUpsertOne {
 	return u.Update(func(s *BanAppUpsert) {
@@ -596,12 +635,7 @@ func (u *BanAppUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *BanAppUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: BanAppUpsertOne.ID is not supported by MySQL driver. Use BanAppUpsertOne.Exec instead")
-	}
+func (u *BanAppUpsertOne) ID(ctx context.Context) (id uint32, err error) {
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -610,7 +644,7 @@ func (u *BanAppUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *BanAppUpsertOne) IDX(ctx context.Context) uuid.UUID {
+func (u *BanAppUpsertOne) IDX(ctx context.Context) uint32 {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -661,6 +695,10 @@ func (bacb *BanAppCreateBulk) Save(ctx context.Context) ([]*BanApp, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = uint32(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -856,6 +894,20 @@ func (u *BanAppUpsertBulk) AddDeletedAt(v uint32) *BanAppUpsertBulk {
 func (u *BanAppUpsertBulk) UpdateDeletedAt() *BanAppUpsertBulk {
 	return u.Update(func(s *BanAppUpsert) {
 		s.UpdateDeletedAt()
+	})
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *BanAppUpsertBulk) SetEntID(v uuid.UUID) *BanAppUpsertBulk {
+	return u.Update(func(s *BanAppUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *BanAppUpsertBulk) UpdateEntID() *BanAppUpsertBulk {
+	return u.Update(func(s *BanAppUpsert) {
+		s.UpdateEntID()
 	})
 }
 

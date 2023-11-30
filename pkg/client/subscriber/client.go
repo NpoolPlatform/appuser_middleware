@@ -63,10 +63,10 @@ func UpdateSubscriber(ctx context.Context, in *npool.SubscriberReq) (*npool.Subs
 	return info.(*npool.Subscriber), nil
 }
 
-func GetSubscriber(ctx context.Context, appID string) (*npool.Subscriber, error) {
+func GetSubscriber(ctx context.Context, id string) (*npool.Subscriber, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetSubscriber(ctx, &npool.GetSubscriberRequest{
-			ID: appID,
+			EntID: id,
 		})
 		if err != nil {
 			return nil, err
@@ -125,7 +125,7 @@ func GetSubscriberOnly(ctx context.Context, conds *npool.Conds) (*npool.Subscrib
 	return infos.([]*npool.Subscriber)[0], nil
 }
 
-func DeleteSubscriber(ctx context.Context, id string) (*npool.Subscriber, error) {
+func DeleteSubscriber(ctx context.Context, id uint32) (*npool.Subscriber, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.DeleteSubscriber(ctx, &npool.DeleteSubscriberRequest{
 			Info: &npool.SubscriberReq{

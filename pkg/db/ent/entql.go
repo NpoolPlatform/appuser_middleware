@@ -38,7 +38,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   app.Table,
 			Columns: app.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: app.FieldID,
 			},
 		},
@@ -47,6 +47,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			app.FieldCreatedAt:   {Type: field.TypeUint32, Column: app.FieldCreatedAt},
 			app.FieldUpdatedAt:   {Type: field.TypeUint32, Column: app.FieldUpdatedAt},
 			app.FieldDeletedAt:   {Type: field.TypeUint32, Column: app.FieldDeletedAt},
+			app.FieldEntID:       {Type: field.TypeUUID, Column: app.FieldEntID},
 			app.FieldCreatedBy:   {Type: field.TypeUUID, Column: app.FieldCreatedBy},
 			app.FieldName:        {Type: field.TypeString, Column: app.FieldName},
 			app.FieldLogo:        {Type: field.TypeString, Column: app.FieldLogo},
@@ -58,7 +59,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   appcontrol.Table,
 			Columns: appcontrol.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appcontrol.FieldID,
 			},
 		},
@@ -67,6 +68,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			appcontrol.FieldCreatedAt:                {Type: field.TypeUint32, Column: appcontrol.FieldCreatedAt},
 			appcontrol.FieldUpdatedAt:                {Type: field.TypeUint32, Column: appcontrol.FieldUpdatedAt},
 			appcontrol.FieldDeletedAt:                {Type: field.TypeUint32, Column: appcontrol.FieldDeletedAt},
+			appcontrol.FieldEntID:                    {Type: field.TypeUUID, Column: appcontrol.FieldEntID},
 			appcontrol.FieldAppID:                    {Type: field.TypeUUID, Column: appcontrol.FieldAppID},
 			appcontrol.FieldSignupMethods:            {Type: field.TypeJSON, Column: appcontrol.FieldSignupMethods},
 			appcontrol.FieldExternSigninMethods:      {Type: field.TypeJSON, Column: appcontrol.FieldExternSigninMethods},
@@ -85,7 +87,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   appoauththirdparty.Table,
 			Columns: appoauththirdparty.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appoauththirdparty.FieldID,
 			},
 		},
@@ -94,6 +96,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			appoauththirdparty.FieldCreatedAt:    {Type: field.TypeUint32, Column: appoauththirdparty.FieldCreatedAt},
 			appoauththirdparty.FieldUpdatedAt:    {Type: field.TypeUint32, Column: appoauththirdparty.FieldUpdatedAt},
 			appoauththirdparty.FieldDeletedAt:    {Type: field.TypeUint32, Column: appoauththirdparty.FieldDeletedAt},
+			appoauththirdparty.FieldEntID:        {Type: field.TypeUUID, Column: appoauththirdparty.FieldEntID},
 			appoauththirdparty.FieldAppID:        {Type: field.TypeUUID, Column: appoauththirdparty.FieldAppID},
 			appoauththirdparty.FieldThirdPartyID: {Type: field.TypeUUID, Column: appoauththirdparty.FieldThirdPartyID},
 			appoauththirdparty.FieldClientID:     {Type: field.TypeString, Column: appoauththirdparty.FieldClientID},
@@ -107,7 +110,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   approle.Table,
 			Columns: approle.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: approle.FieldID,
 			},
 		},
@@ -116,6 +119,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			approle.FieldCreatedAt:   {Type: field.TypeUint32, Column: approle.FieldCreatedAt},
 			approle.FieldUpdatedAt:   {Type: field.TypeUint32, Column: approle.FieldUpdatedAt},
 			approle.FieldDeletedAt:   {Type: field.TypeUint32, Column: approle.FieldDeletedAt},
+			approle.FieldEntID:       {Type: field.TypeUUID, Column: approle.FieldEntID},
 			approle.FieldCreatedBy:   {Type: field.TypeUUID, Column: approle.FieldCreatedBy},
 			approle.FieldRole:        {Type: field.TypeString, Column: approle.FieldRole},
 			approle.FieldDescription: {Type: field.TypeString, Column: approle.FieldDescription},
@@ -129,7 +133,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   approleuser.Table,
 			Columns: approleuser.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: approleuser.FieldID,
 			},
 		},
@@ -138,6 +142,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			approleuser.FieldCreatedAt: {Type: field.TypeUint32, Column: approleuser.FieldCreatedAt},
 			approleuser.FieldUpdatedAt: {Type: field.TypeUint32, Column: approleuser.FieldUpdatedAt},
 			approleuser.FieldDeletedAt: {Type: field.TypeUint32, Column: approleuser.FieldDeletedAt},
+			approleuser.FieldEntID:     {Type: field.TypeUUID, Column: approleuser.FieldEntID},
 			approleuser.FieldAppID:     {Type: field.TypeUUID, Column: approleuser.FieldAppID},
 			approleuser.FieldRoleID:    {Type: field.TypeUUID, Column: approleuser.FieldRoleID},
 			approleuser.FieldUserID:    {Type: field.TypeUUID, Column: approleuser.FieldUserID},
@@ -148,7 +153,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   appsubscribe.Table,
 			Columns: appsubscribe.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appsubscribe.FieldID,
 			},
 		},
@@ -157,6 +162,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			appsubscribe.FieldCreatedAt:      {Type: field.TypeUint32, Column: appsubscribe.FieldCreatedAt},
 			appsubscribe.FieldUpdatedAt:      {Type: field.TypeUint32, Column: appsubscribe.FieldUpdatedAt},
 			appsubscribe.FieldDeletedAt:      {Type: field.TypeUint32, Column: appsubscribe.FieldDeletedAt},
+			appsubscribe.FieldEntID:          {Type: field.TypeUUID, Column: appsubscribe.FieldEntID},
 			appsubscribe.FieldAppID:          {Type: field.TypeUUID, Column: appsubscribe.FieldAppID},
 			appsubscribe.FieldSubscribeAppID: {Type: field.TypeUUID, Column: appsubscribe.FieldSubscribeAppID},
 		},
@@ -166,7 +172,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   appuser.Table,
 			Columns: appuser.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appuser.FieldID,
 			},
 		},
@@ -175,6 +181,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			appuser.FieldCreatedAt:     {Type: field.TypeUint32, Column: appuser.FieldCreatedAt},
 			appuser.FieldUpdatedAt:     {Type: field.TypeUint32, Column: appuser.FieldUpdatedAt},
 			appuser.FieldDeletedAt:     {Type: field.TypeUint32, Column: appuser.FieldDeletedAt},
+			appuser.FieldEntID:         {Type: field.TypeUUID, Column: appuser.FieldEntID},
 			appuser.FieldAppID:         {Type: field.TypeUUID, Column: appuser.FieldAppID},
 			appuser.FieldEmailAddress:  {Type: field.TypeString, Column: appuser.FieldEmailAddress},
 			appuser.FieldPhoneNo:       {Type: field.TypeString, Column: appuser.FieldPhoneNo},
@@ -186,7 +193,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   appusercontrol.Table,
 			Columns: appusercontrol.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appusercontrol.FieldID,
 			},
 		},
@@ -195,6 +202,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			appusercontrol.FieldCreatedAt:                          {Type: field.TypeUint32, Column: appusercontrol.FieldCreatedAt},
 			appusercontrol.FieldUpdatedAt:                          {Type: field.TypeUint32, Column: appusercontrol.FieldUpdatedAt},
 			appusercontrol.FieldDeletedAt:                          {Type: field.TypeUint32, Column: appusercontrol.FieldDeletedAt},
+			appusercontrol.FieldEntID:                              {Type: field.TypeUUID, Column: appusercontrol.FieldEntID},
 			appusercontrol.FieldAppID:                              {Type: field.TypeUUID, Column: appusercontrol.FieldAppID},
 			appusercontrol.FieldUserID:                             {Type: field.TypeUUID, Column: appusercontrol.FieldUserID},
 			appusercontrol.FieldSigninVerifyByGoogleAuthentication: {Type: field.TypeBool, Column: appusercontrol.FieldSigninVerifyByGoogleAuthentication},
@@ -210,7 +218,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   appuserextra.Table,
 			Columns: appuserextra.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appuserextra.FieldID,
 			},
 		},
@@ -219,6 +227,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			appuserextra.FieldCreatedAt:     {Type: field.TypeUint32, Column: appuserextra.FieldCreatedAt},
 			appuserextra.FieldUpdatedAt:     {Type: field.TypeUint32, Column: appuserextra.FieldUpdatedAt},
 			appuserextra.FieldDeletedAt:     {Type: field.TypeUint32, Column: appuserextra.FieldDeletedAt},
+			appuserextra.FieldEntID:         {Type: field.TypeUUID, Column: appuserextra.FieldEntID},
 			appuserextra.FieldAppID:         {Type: field.TypeUUID, Column: appuserextra.FieldAppID},
 			appuserextra.FieldUserID:        {Type: field.TypeUUID, Column: appuserextra.FieldUserID},
 			appuserextra.FieldUsername:      {Type: field.TypeString, Column: appuserextra.FieldUsername},
@@ -240,7 +249,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   appusersecret.Table,
 			Columns: appusersecret.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appusersecret.FieldID,
 			},
 		},
@@ -249,6 +258,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			appusersecret.FieldCreatedAt:    {Type: field.TypeUint32, Column: appusersecret.FieldCreatedAt},
 			appusersecret.FieldUpdatedAt:    {Type: field.TypeUint32, Column: appusersecret.FieldUpdatedAt},
 			appusersecret.FieldDeletedAt:    {Type: field.TypeUint32, Column: appusersecret.FieldDeletedAt},
+			appusersecret.FieldEntID:        {Type: field.TypeUUID, Column: appusersecret.FieldEntID},
 			appusersecret.FieldAppID:        {Type: field.TypeUUID, Column: appusersecret.FieldAppID},
 			appusersecret.FieldUserID:       {Type: field.TypeUUID, Column: appusersecret.FieldUserID},
 			appusersecret.FieldPasswordHash: {Type: field.TypeString, Column: appusersecret.FieldPasswordHash},
@@ -261,7 +271,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   appuserthirdparty.Table,
 			Columns: appuserthirdparty.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appuserthirdparty.FieldID,
 			},
 		},
@@ -270,6 +280,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			appuserthirdparty.FieldCreatedAt:          {Type: field.TypeUint32, Column: appuserthirdparty.FieldCreatedAt},
 			appuserthirdparty.FieldUpdatedAt:          {Type: field.TypeUint32, Column: appuserthirdparty.FieldUpdatedAt},
 			appuserthirdparty.FieldDeletedAt:          {Type: field.TypeUint32, Column: appuserthirdparty.FieldDeletedAt},
+			appuserthirdparty.FieldEntID:              {Type: field.TypeUUID, Column: appuserthirdparty.FieldEntID},
 			appuserthirdparty.FieldAppID:              {Type: field.TypeUUID, Column: appuserthirdparty.FieldAppID},
 			appuserthirdparty.FieldUserID:             {Type: field.TypeUUID, Column: appuserthirdparty.FieldUserID},
 			appuserthirdparty.FieldThirdPartyUserID:   {Type: field.TypeString, Column: appuserthirdparty.FieldThirdPartyUserID},
@@ -283,7 +294,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   auth.Table,
 			Columns: auth.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: auth.FieldID,
 			},
 		},
@@ -292,6 +303,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			auth.FieldCreatedAt: {Type: field.TypeUint32, Column: auth.FieldCreatedAt},
 			auth.FieldUpdatedAt: {Type: field.TypeUint32, Column: auth.FieldUpdatedAt},
 			auth.FieldDeletedAt: {Type: field.TypeUint32, Column: auth.FieldDeletedAt},
+			auth.FieldEntID:     {Type: field.TypeUUID, Column: auth.FieldEntID},
 			auth.FieldAppID:     {Type: field.TypeUUID, Column: auth.FieldAppID},
 			auth.FieldRoleID:    {Type: field.TypeUUID, Column: auth.FieldRoleID},
 			auth.FieldUserID:    {Type: field.TypeUUID, Column: auth.FieldUserID},
@@ -304,7 +316,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   authhistory.Table,
 			Columns: authhistory.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: authhistory.FieldID,
 			},
 		},
@@ -313,6 +325,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			authhistory.FieldCreatedAt: {Type: field.TypeUint32, Column: authhistory.FieldCreatedAt},
 			authhistory.FieldUpdatedAt: {Type: field.TypeUint32, Column: authhistory.FieldUpdatedAt},
 			authhistory.FieldDeletedAt: {Type: field.TypeUint32, Column: authhistory.FieldDeletedAt},
+			authhistory.FieldEntID:     {Type: field.TypeUUID, Column: authhistory.FieldEntID},
 			authhistory.FieldAppID:     {Type: field.TypeUUID, Column: authhistory.FieldAppID},
 			authhistory.FieldUserID:    {Type: field.TypeUUID, Column: authhistory.FieldUserID},
 			authhistory.FieldResource:  {Type: field.TypeString, Column: authhistory.FieldResource},
@@ -325,7 +338,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   banapp.Table,
 			Columns: banapp.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: banapp.FieldID,
 			},
 		},
@@ -334,6 +347,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			banapp.FieldCreatedAt: {Type: field.TypeUint32, Column: banapp.FieldCreatedAt},
 			banapp.FieldUpdatedAt: {Type: field.TypeUint32, Column: banapp.FieldUpdatedAt},
 			banapp.FieldDeletedAt: {Type: field.TypeUint32, Column: banapp.FieldDeletedAt},
+			banapp.FieldEntID:     {Type: field.TypeUUID, Column: banapp.FieldEntID},
 			banapp.FieldAppID:     {Type: field.TypeUUID, Column: banapp.FieldAppID},
 			banapp.FieldMessage:   {Type: field.TypeString, Column: banapp.FieldMessage},
 		},
@@ -343,7 +357,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   banappuser.Table,
 			Columns: banappuser.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: banappuser.FieldID,
 			},
 		},
@@ -352,6 +366,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			banappuser.FieldCreatedAt: {Type: field.TypeUint32, Column: banappuser.FieldCreatedAt},
 			banappuser.FieldUpdatedAt: {Type: field.TypeUint32, Column: banappuser.FieldUpdatedAt},
 			banappuser.FieldDeletedAt: {Type: field.TypeUint32, Column: banappuser.FieldDeletedAt},
+			banappuser.FieldEntID:     {Type: field.TypeUUID, Column: banappuser.FieldEntID},
 			banappuser.FieldAppID:     {Type: field.TypeUUID, Column: banappuser.FieldAppID},
 			banappuser.FieldUserID:    {Type: field.TypeUUID, Column: banappuser.FieldUserID},
 			banappuser.FieldMessage:   {Type: field.TypeString, Column: banappuser.FieldMessage},
@@ -362,7 +377,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   kyc.Table,
 			Columns: kyc.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: kyc.FieldID,
 			},
 		},
@@ -371,6 +386,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			kyc.FieldCreatedAt:    {Type: field.TypeUint32, Column: kyc.FieldCreatedAt},
 			kyc.FieldUpdatedAt:    {Type: field.TypeUint32, Column: kyc.FieldUpdatedAt},
 			kyc.FieldDeletedAt:    {Type: field.TypeUint32, Column: kyc.FieldDeletedAt},
+			kyc.FieldEntID:        {Type: field.TypeUUID, Column: kyc.FieldEntID},
 			kyc.FieldAppID:        {Type: field.TypeUUID, Column: kyc.FieldAppID},
 			kyc.FieldUserID:       {Type: field.TypeUUID, Column: kyc.FieldUserID},
 			kyc.FieldDocumentType: {Type: field.TypeString, Column: kyc.FieldDocumentType},
@@ -388,7 +404,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   loginhistory.Table,
 			Columns: loginhistory.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: loginhistory.FieldID,
 			},
 		},
@@ -397,6 +413,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			loginhistory.FieldCreatedAt: {Type: field.TypeUint32, Column: loginhistory.FieldCreatedAt},
 			loginhistory.FieldUpdatedAt: {Type: field.TypeUint32, Column: loginhistory.FieldUpdatedAt},
 			loginhistory.FieldDeletedAt: {Type: field.TypeUint32, Column: loginhistory.FieldDeletedAt},
+			loginhistory.FieldEntID:     {Type: field.TypeUUID, Column: loginhistory.FieldEntID},
 			loginhistory.FieldAppID:     {Type: field.TypeUUID, Column: loginhistory.FieldAppID},
 			loginhistory.FieldUserID:    {Type: field.TypeUUID, Column: loginhistory.FieldUserID},
 			loginhistory.FieldClientIP:  {Type: field.TypeString, Column: loginhistory.FieldClientIP},
@@ -410,7 +427,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   oauththirdparty.Table,
 			Columns: oauththirdparty.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: oauththirdparty.FieldID,
 			},
 		},
@@ -419,6 +436,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			oauththirdparty.FieldCreatedAt:      {Type: field.TypeUint32, Column: oauththirdparty.FieldCreatedAt},
 			oauththirdparty.FieldUpdatedAt:      {Type: field.TypeUint32, Column: oauththirdparty.FieldUpdatedAt},
 			oauththirdparty.FieldDeletedAt:      {Type: field.TypeUint32, Column: oauththirdparty.FieldDeletedAt},
+			oauththirdparty.FieldEntID:          {Type: field.TypeUUID, Column: oauththirdparty.FieldEntID},
 			oauththirdparty.FieldClientName:     {Type: field.TypeString, Column: oauththirdparty.FieldClientName},
 			oauththirdparty.FieldClientTag:      {Type: field.TypeString, Column: oauththirdparty.FieldClientTag},
 			oauththirdparty.FieldClientLogoURL:  {Type: field.TypeString, Column: oauththirdparty.FieldClientLogoURL},
@@ -432,7 +450,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   pubsubmessage.Table,
 			Columns: pubsubmessage.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: pubsubmessage.FieldID,
 			},
 		},
@@ -441,6 +459,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			pubsubmessage.FieldCreatedAt: {Type: field.TypeUint32, Column: pubsubmessage.FieldCreatedAt},
 			pubsubmessage.FieldUpdatedAt: {Type: field.TypeUint32, Column: pubsubmessage.FieldUpdatedAt},
 			pubsubmessage.FieldDeletedAt: {Type: field.TypeUint32, Column: pubsubmessage.FieldDeletedAt},
+			pubsubmessage.FieldEntID:     {Type: field.TypeUUID, Column: pubsubmessage.FieldEntID},
 			pubsubmessage.FieldMessageID: {Type: field.TypeString, Column: pubsubmessage.FieldMessageID},
 			pubsubmessage.FieldState:     {Type: field.TypeString, Column: pubsubmessage.FieldState},
 			pubsubmessage.FieldRespToID:  {Type: field.TypeUUID, Column: pubsubmessage.FieldRespToID},
@@ -453,7 +472,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   subscriber.Table,
 			Columns: subscriber.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: subscriber.FieldID,
 			},
 		},
@@ -462,6 +481,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			subscriber.FieldCreatedAt:    {Type: field.TypeUint32, Column: subscriber.FieldCreatedAt},
 			subscriber.FieldUpdatedAt:    {Type: field.TypeUint32, Column: subscriber.FieldUpdatedAt},
 			subscriber.FieldDeletedAt:    {Type: field.TypeUint32, Column: subscriber.FieldDeletedAt},
+			subscriber.FieldEntID:        {Type: field.TypeUUID, Column: subscriber.FieldEntID},
 			subscriber.FieldAppID:        {Type: field.TypeUUID, Column: subscriber.FieldAppID},
 			subscriber.FieldEmailAddress: {Type: field.TypeString, Column: subscriber.FieldEmailAddress},
 			subscriber.FieldRegistered:   {Type: field.TypeBool, Column: subscriber.FieldRegistered},
@@ -511,8 +531,8 @@ func (f *AppFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *AppFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *AppFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(app.FieldID))
 }
 
@@ -529,6 +549,11 @@ func (f *AppFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *AppFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(app.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *AppFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(app.FieldEntID))
 }
 
 // WhereCreatedBy applies the entql [16]byte predicate on the created_by field.
@@ -586,8 +611,8 @@ func (f *AppControlFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *AppControlFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *AppControlFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(appcontrol.FieldID))
 }
 
@@ -604,6 +629,11 @@ func (f *AppControlFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *AppControlFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(appcontrol.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *AppControlFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(appcontrol.FieldEntID))
 }
 
 // WhereAppID applies the entql [16]byte predicate on the app_id field.
@@ -696,8 +726,8 @@ func (f *AppOAuthThirdPartyFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *AppOAuthThirdPartyFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *AppOAuthThirdPartyFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(appoauththirdparty.FieldID))
 }
 
@@ -714,6 +744,11 @@ func (f *AppOAuthThirdPartyFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *AppOAuthThirdPartyFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(appoauththirdparty.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *AppOAuthThirdPartyFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(appoauththirdparty.FieldEntID))
 }
 
 // WhereAppID applies the entql [16]byte predicate on the app_id field.
@@ -781,8 +816,8 @@ func (f *AppRoleFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *AppRoleFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *AppRoleFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(approle.FieldID))
 }
 
@@ -799,6 +834,11 @@ func (f *AppRoleFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *AppRoleFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(approle.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *AppRoleFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(approle.FieldEntID))
 }
 
 // WhereCreatedBy applies the entql [16]byte predicate on the created_by field.
@@ -866,8 +906,8 @@ func (f *AppRoleUserFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *AppRoleUserFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *AppRoleUserFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(approleuser.FieldID))
 }
 
@@ -884,6 +924,11 @@ func (f *AppRoleUserFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *AppRoleUserFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(approleuser.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *AppRoleUserFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(approleuser.FieldEntID))
 }
 
 // WhereAppID applies the entql [16]byte predicate on the app_id field.
@@ -936,8 +981,8 @@ func (f *AppSubscribeFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *AppSubscribeFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *AppSubscribeFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(appsubscribe.FieldID))
 }
 
@@ -954,6 +999,11 @@ func (f *AppSubscribeFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *AppSubscribeFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(appsubscribe.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *AppSubscribeFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(appsubscribe.FieldEntID))
 }
 
 // WhereAppID applies the entql [16]byte predicate on the app_id field.
@@ -1001,8 +1051,8 @@ func (f *AppUserFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *AppUserFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *AppUserFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(appuser.FieldID))
 }
 
@@ -1019,6 +1069,11 @@ func (f *AppUserFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *AppUserFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(appuser.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *AppUserFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(appuser.FieldEntID))
 }
 
 // WhereAppID applies the entql [16]byte predicate on the app_id field.
@@ -1076,8 +1131,8 @@ func (f *AppUserControlFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *AppUserControlFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *AppUserControlFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(appusercontrol.FieldID))
 }
 
@@ -1094,6 +1149,11 @@ func (f *AppUserControlFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *AppUserControlFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(appusercontrol.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *AppUserControlFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(appusercontrol.FieldEntID))
 }
 
 // WhereAppID applies the entql [16]byte predicate on the app_id field.
@@ -1171,8 +1231,8 @@ func (f *AppUserExtraFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *AppUserExtraFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *AppUserExtraFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(appuserextra.FieldID))
 }
 
@@ -1189,6 +1249,11 @@ func (f *AppUserExtraFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *AppUserExtraFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(appuserextra.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *AppUserExtraFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(appuserextra.FieldEntID))
 }
 
 // WhereAppID applies the entql [16]byte predicate on the app_id field.
@@ -1296,8 +1361,8 @@ func (f *AppUserSecretFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *AppUserSecretFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *AppUserSecretFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(appusersecret.FieldID))
 }
 
@@ -1314,6 +1379,11 @@ func (f *AppUserSecretFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *AppUserSecretFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(appusersecret.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *AppUserSecretFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(appusersecret.FieldEntID))
 }
 
 // WhereAppID applies the entql [16]byte predicate on the app_id field.
@@ -1376,8 +1446,8 @@ func (f *AppUserThirdPartyFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *AppUserThirdPartyFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *AppUserThirdPartyFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(appuserthirdparty.FieldID))
 }
 
@@ -1394,6 +1464,11 @@ func (f *AppUserThirdPartyFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *AppUserThirdPartyFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(appuserthirdparty.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *AppUserThirdPartyFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(appuserthirdparty.FieldEntID))
 }
 
 // WhereAppID applies the entql [16]byte predicate on the app_id field.
@@ -1461,8 +1536,8 @@ func (f *AuthFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *AuthFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *AuthFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(auth.FieldID))
 }
 
@@ -1479,6 +1554,11 @@ func (f *AuthFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *AuthFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(auth.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *AuthFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(auth.FieldEntID))
 }
 
 // WhereAppID applies the entql [16]byte predicate on the app_id field.
@@ -1541,8 +1621,8 @@ func (f *AuthHistoryFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *AuthHistoryFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *AuthHistoryFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(authhistory.FieldID))
 }
 
@@ -1559,6 +1639,11 @@ func (f *AuthHistoryFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *AuthHistoryFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(authhistory.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *AuthHistoryFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(authhistory.FieldEntID))
 }
 
 // WhereAppID applies the entql [16]byte predicate on the app_id field.
@@ -1621,8 +1706,8 @@ func (f *BanAppFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *BanAppFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *BanAppFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(banapp.FieldID))
 }
 
@@ -1639,6 +1724,11 @@ func (f *BanAppFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *BanAppFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(banapp.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *BanAppFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(banapp.FieldEntID))
 }
 
 // WhereAppID applies the entql [16]byte predicate on the app_id field.
@@ -1686,8 +1776,8 @@ func (f *BanAppUserFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *BanAppUserFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *BanAppUserFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(banappuser.FieldID))
 }
 
@@ -1704,6 +1794,11 @@ func (f *BanAppUserFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *BanAppUserFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(banappuser.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *BanAppUserFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(banappuser.FieldEntID))
 }
 
 // WhereAppID applies the entql [16]byte predicate on the app_id field.
@@ -1756,8 +1851,8 @@ func (f *KycFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *KycFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *KycFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(kyc.FieldID))
 }
 
@@ -1774,6 +1869,11 @@ func (f *KycFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *KycFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(kyc.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *KycFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(kyc.FieldEntID))
 }
 
 // WhereAppID applies the entql [16]byte predicate on the app_id field.
@@ -1861,8 +1961,8 @@ func (f *LoginHistoryFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *LoginHistoryFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *LoginHistoryFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(loginhistory.FieldID))
 }
 
@@ -1879,6 +1979,11 @@ func (f *LoginHistoryFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *LoginHistoryFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(loginhistory.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *LoginHistoryFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(loginhistory.FieldEntID))
 }
 
 // WhereAppID applies the entql [16]byte predicate on the app_id field.
@@ -1946,8 +2051,8 @@ func (f *OAuthThirdPartyFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *OAuthThirdPartyFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *OAuthThirdPartyFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(oauththirdparty.FieldID))
 }
 
@@ -1964,6 +2069,11 @@ func (f *OAuthThirdPartyFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *OAuthThirdPartyFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(oauththirdparty.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *OAuthThirdPartyFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(oauththirdparty.FieldEntID))
 }
 
 // WhereClientName applies the entql string predicate on the client_name field.
@@ -2031,8 +2141,8 @@ func (f *PubsubMessageFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *PubsubMessageFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *PubsubMessageFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(pubsubmessage.FieldID))
 }
 
@@ -2049,6 +2159,11 @@ func (f *PubsubMessageFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *PubsubMessageFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(pubsubmessage.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *PubsubMessageFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(pubsubmessage.FieldEntID))
 }
 
 // WhereMessageID applies the entql string predicate on the message_id field.
@@ -2111,8 +2226,8 @@ func (f *SubscriberFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql [16]byte predicate on the id field.
-func (f *SubscriberFilter) WhereID(p entql.ValueP) {
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *SubscriberFilter) WhereID(p entql.Uint32P) {
 	f.Where(p.Field(subscriber.FieldID))
 }
 
@@ -2129,6 +2244,11 @@ func (f *SubscriberFilter) WhereUpdatedAt(p entql.Uint32P) {
 // WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
 func (f *SubscriberFilter) WhereDeletedAt(p entql.Uint32P) {
 	f.Where(p.Field(subscriber.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *SubscriberFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(subscriber.FieldEntID))
 }
 
 // WhereAppID applies the entql [16]byte predicate on the app_id field.

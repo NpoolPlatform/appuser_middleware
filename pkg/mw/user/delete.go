@@ -3,18 +3,22 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 
+	usercrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user"
 	entapproleuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/approleuser"
 	entappusercontrol "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appusercontrol"
 	entappuserextra "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserextra"
 	entappusersecret "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appusersecret"
 	entappuserthirdparty "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserthirdparty"
-
+	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user"
+
+	"github.com/google/uuid"
 )
 
 type deleteHandler struct {
@@ -22,15 +26,17 @@ type deleteHandler struct {
 }
 
 func (h *deleteHandler) deleteAppUser(ctx context.Context, tx *ent.Tx) error {
-	if _, err := tx.
+	info, err := tx.
 		AppUser.
 		UpdateOneID(*h.ID).
 		SetDeletedAt(uint32(time.Now().Unix())).
-		Save(ctx); err != nil {
-		if !ent.IsNotFound(err) {
-			return err
-		}
+		Save(ctx)
+	if err != nil {
+		fmt.Println("invalid id: ", err)
+		return err
 	}
+	h.AppID = &info.AppID
+	h.EntID = &info.EntID
 	return nil
 }
 
@@ -39,8 +45,8 @@ func (h *deleteHandler) deleteAppUserExtra(ctx context.Context, tx *ent.Tx) erro
 		AppUserExtra.
 		Query().
 		Where(
-			entappuserextra.AppID(h.AppID),
-			entappuserextra.UserID(*h.ID),
+			entappuserextra.AppID(*h.AppID),
+			entappuserextra.UserID(*h.EntID),
 		).
 		ForUpdate().
 		Only(ctx)
@@ -65,8 +71,8 @@ func (h *deleteHandler) deleteAppUserControl(ctx context.Context, tx *ent.Tx) er
 		AppUserControl.
 		Query().
 		Where(
-			entappusercontrol.AppID(h.AppID),
-			entappusercontrol.UserID(*h.ID),
+			entappusercontrol.AppID(*h.AppID),
+			entappusercontrol.UserID(*h.EntID),
 		).
 		ForUpdate().
 		Only(ctx)
@@ -91,8 +97,8 @@ func (h *deleteHandler) deleteAppUserSecret(ctx context.Context, tx *ent.Tx) err
 		AppUserSecret.
 		Query().
 		Where(
-			entappusersecret.AppID(h.AppID),
-			entappusersecret.UserID(*h.ID),
+			entappusersecret.AppID(*h.AppID),
+			entappusersecret.UserID(*h.EntID),
 		).
 		ForUpdate().
 		Only(ctx)
@@ -112,28 +118,19 @@ func (h *deleteHandler) deleteAppUserSecret(ctx context.Context, tx *ent.Tx) err
 	return nil
 }
 
-func (h *deleteHandler) deleteAppUserThirdParty(ctx context.Context, tx *ent.Tx) error {
-	info, err := tx.
+func (h *deleteHandler) deleteAppUserThirdParties(ctx context.Context, tx *ent.Tx) error {
+	if _, err := tx.
 		AppUserThirdParty.
-		Query().
+		Update().
 		Where(
-			entappuserthirdparty.AppID(h.AppID),
-			entappuserthirdparty.UserID(*h.ID),
+			entappuserthirdparty.AppID(*h.AppID),
+			entappuserthirdparty.UserID(*h.EntID),
 		).
-		ForUpdate().
-		Only(ctx)
-	if err != nil {
+		SetDeletedAt(uint32(time.Now().Unix())).
+		Save(ctx); err != nil {
 		if !ent.IsNotFound(err) {
 			return err
 		}
-		return nil
-	}
-
-	if _, err := info.
-		Update().
-		SetDeletedAt(uint32(time.Now().Unix())).
-		Save(ctx); err != nil {
-		return err
 	}
 	return nil
 }
@@ -143,8 +140,8 @@ func (h *deleteHandler) deleteAppRoleUser(ctx context.Context, tx *ent.Tx) error
 		AppRoleUser.
 		Query().
 		Where(
-			entapproleuser.AppID(h.AppID),
-			entapproleuser.UserID(*h.ID),
+			entapproleuser.AppID(*h.AppID),
+			entapproleuser.UserID(*h.EntID),
 		).
 		ForUpdate().
 		Only(ctx)
@@ -169,6 +166,10 @@ func (h *Handler) DeleteUser(ctx context.Context) (info *npool.User, err error) 
 	if err != nil {
 		return nil, err
 	}
+	if info == nil {
+		return nil, fmt.Errorf("invalid user")
+	}
+	h.ID = &info.ID
 
 	handler := &deleteHandler{
 		Handler: h,
@@ -187,7 +188,7 @@ func (h *Handler) DeleteUser(ctx context.Context) (info *npool.User, err error) 
 		if err := handler.deleteAppUserSecret(_ctx, tx); err != nil {
 			return err
 		}
-		if err := handler.deleteAppUserThirdParty(_ctx, tx); err != nil {
+		if err := handler.deleteAppUserThirdParties(_ctx, tx); err != nil {
 			return err
 		}
 		if err := handler.deleteAppRoleUser(_ctx, tx); err != nil {
@@ -203,18 +204,49 @@ func (h *Handler) DeleteUser(ctx context.Context) (info *npool.User, err error) 
 }
 
 func (h *Handler) DeleteThirdUser(ctx context.Context) (info *npool.User, err error) {
+	h.Conds = &usercrud.Conds{
+		ThirdPartyID:     &cruder.Cond{Op: cruder.EQ, Val: *h.ThirdPartyID},
+		ThirdPartyUserID: &cruder.Cond{Op: cruder.EQ, Val: *h.ThirdPartyUserID},
+	}
 	info, err = h.GetUser(ctx)
 	if err != nil {
 		return nil, err
 	}
+	if info == nil {
+		return nil, nil
+	}
+
+	if info.ThirdPartyID == nil || info.ThirdPartyUserID == nil {
+		return nil, fmt.Errorf("invalid thirdparty")
+	}
+
+	id1, err := uuid.Parse(info.EntID)
+	if err != nil {
+		return nil, err
+	}
+	h.EntID = &id1
+
+	id2, err := uuid.Parse(info.AppID)
+	if err != nil {
+		return nil, err
+	}
+	h.AppID = &id2
+
+	h.ThirdPartyUserID = info.ThirdPartyUserID
+
+	id3, err := uuid.Parse(*info.ThirdPartyID)
+	if err != nil {
+		return nil, err
+	}
+	h.ThirdPartyID = &id3
 
 	err = db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {
 		info, err := tx.
 			AppUserThirdParty.
 			Query().
 			Where(
-				entappuserthirdparty.AppID(h.AppID),
-				entappuserthirdparty.UserID(*h.ID),
+				entappuserthirdparty.AppID(*h.AppID),
+				entappuserthirdparty.UserID(*h.EntID),
 				entappuserthirdparty.ThirdPartyUserID(*h.ThirdPartyUserID),
 				entappuserthirdparty.ThirdPartyID(*h.ThirdPartyID),
 			).

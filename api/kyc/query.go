@@ -14,7 +14,7 @@ import (
 func (s *Server) GetKyc(ctx context.Context, in *npool.GetKycRequest) (*npool.GetKycResponse, error) {
 	handler, err := kyc1.NewHandler(
 		ctx,
-		kyc1.WithID(&in.ID),
+		kyc1.WithEntID(&in.EntID, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

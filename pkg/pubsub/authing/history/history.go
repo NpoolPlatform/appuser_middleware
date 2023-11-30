@@ -26,12 +26,12 @@ func Apply(ctx context.Context, req interface{}) error {
 
 	_handler, err := history1.NewHandler(
 		ctx,
-		handler.WithID(_req.ID),
-		handler.WithAppID(_req.GetAppID()),
-		handler.WithUserID(_req.UserID),
-		handler.WithResource(_req.Resource),
-		handler.WithMethod(_req.Method),
-		history1.WithAllowed(_req.Allowed),
+		handler.WithEntID(_req.EntID, false),
+		handler.WithAppID(_req.AppID, true),
+		handler.WithUserID(_req.UserID, true),
+		handler.WithResource(_req.Resource, true),
+		handler.WithMethod(_req.Method, true),
+		history1.WithAllowed(_req.Allowed, true),
 	)
 	if err != nil {
 		return err

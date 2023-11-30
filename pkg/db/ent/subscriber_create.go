@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 
-	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -65,6 +64,20 @@ func (sc *SubscriberCreate) SetNillableDeletedAt(u *uint32) *SubscriberCreate {
 	return sc
 }
 
+// SetEntID sets the "ent_id" field.
+func (sc *SubscriberCreate) SetEntID(u uuid.UUID) *SubscriberCreate {
+	sc.mutation.SetEntID(u)
+	return sc
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (sc *SubscriberCreate) SetNillableEntID(u *uuid.UUID) *SubscriberCreate {
+	if u != nil {
+		sc.SetEntID(*u)
+	}
+	return sc
+}
+
 // SetAppID sets the "app_id" field.
 func (sc *SubscriberCreate) SetAppID(u uuid.UUID) *SubscriberCreate {
 	sc.mutation.SetAppID(u)
@@ -108,16 +121,8 @@ func (sc *SubscriberCreate) SetNillableRegistered(b *bool) *SubscriberCreate {
 }
 
 // SetID sets the "id" field.
-func (sc *SubscriberCreate) SetID(u uuid.UUID) *SubscriberCreate {
+func (sc *SubscriberCreate) SetID(u uint32) *SubscriberCreate {
 	sc.mutation.SetID(u)
-	return sc
-}
-
-// SetNillableID sets the "id" field if the given value is not nil.
-func (sc *SubscriberCreate) SetNillableID(u *uuid.UUID) *SubscriberCreate {
-	if u != nil {
-		sc.SetID(*u)
-	}
 	return sc
 }
 
@@ -221,6 +226,13 @@ func (sc *SubscriberCreate) defaults() error {
 		v := subscriber.DefaultDeletedAt()
 		sc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := sc.mutation.EntID(); !ok {
+		if subscriber.DefaultEntID == nil {
+			return fmt.Errorf("ent: uninitialized subscriber.DefaultEntID (forgotten import ent/runtime?)")
+		}
+		v := subscriber.DefaultEntID()
+		sc.mutation.SetEntID(v)
+	}
 	if _, ok := sc.mutation.AppID(); !ok {
 		if subscriber.DefaultAppID == nil {
 			return fmt.Errorf("ent: uninitialized subscriber.DefaultAppID (forgotten import ent/runtime?)")
@@ -236,13 +248,6 @@ func (sc *SubscriberCreate) defaults() error {
 		v := subscriber.DefaultRegistered
 		sc.mutation.SetRegistered(v)
 	}
-	if _, ok := sc.mutation.ID(); !ok {
-		if subscriber.DefaultID == nil {
-			return fmt.Errorf("ent: uninitialized subscriber.DefaultID (forgotten import ent/runtime?)")
-		}
-		v := subscriber.DefaultID()
-		sc.mutation.SetID(v)
-	}
 	return nil
 }
 
@@ -257,6 +262,9 @@ func (sc *SubscriberCreate) check() error {
 	if _, ok := sc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "Subscriber.deleted_at"`)}
 	}
+	if _, ok := sc.mutation.EntID(); !ok {
+		return &ValidationError{Name: "ent_id", err: errors.New(`ent: missing required field "Subscriber.ent_id"`)}
+	}
 	return nil
 }
 
@@ -268,12 +276,9 @@ func (sc *SubscriberCreate) sqlSave(ctx context.Context) (*Subscriber, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
-			_node.ID = *id
-		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
-			return nil, err
-		}
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = uint32(id)
 	}
 	return _node, nil
 }
@@ -284,7 +289,7 @@ func (sc *SubscriberCreate) createSpec() (*Subscriber, *sqlgraph.CreateSpec) {
 		_spec = &sqlgraph.CreateSpec{
 			Table: subscriber.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: subscriber.FieldID,
 			},
 		}
@@ -292,7 +297,7 @@ func (sc *SubscriberCreate) createSpec() (*Subscriber, *sqlgraph.CreateSpec) {
 	_spec.OnConflict = sc.conflict
 	if id, ok := sc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = &id
+		_spec.ID.Value = id
 	}
 	if value, ok := sc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -317,6 +322,14 @@ func (sc *SubscriberCreate) createSpec() (*Subscriber, *sqlgraph.CreateSpec) {
 			Column: subscriber.FieldDeletedAt,
 		})
 		_node.DeletedAt = value
+	}
+	if value, ok := sc.mutation.EntID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: subscriber.FieldEntID,
+		})
+		_node.EntID = value
 	}
 	if value, ok := sc.mutation.AppID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -447,6 +460,18 @@ func (u *SubscriberUpsert) UpdateDeletedAt() *SubscriberUpsert {
 // AddDeletedAt adds v to the "deleted_at" field.
 func (u *SubscriberUpsert) AddDeletedAt(v uint32) *SubscriberUpsert {
 	u.Add(subscriber.FieldDeletedAt, v)
+	return u
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *SubscriberUpsert) SetEntID(v uuid.UUID) *SubscriberUpsert {
+	u.Set(subscriber.FieldEntID, v)
+	return u
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *SubscriberUpsert) UpdateEntID() *SubscriberUpsert {
+	u.SetExcluded(subscriber.FieldEntID)
 	return u
 }
 
@@ -617,6 +642,20 @@ func (u *SubscriberUpsertOne) UpdateDeletedAt() *SubscriberUpsertOne {
 	})
 }
 
+// SetEntID sets the "ent_id" field.
+func (u *SubscriberUpsertOne) SetEntID(v uuid.UUID) *SubscriberUpsertOne {
+	return u.Update(func(s *SubscriberUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *SubscriberUpsertOne) UpdateEntID() *SubscriberUpsertOne {
+	return u.Update(func(s *SubscriberUpsert) {
+		s.UpdateEntID()
+	})
+}
+
 // SetAppID sets the "app_id" field.
 func (u *SubscriberUpsertOne) SetAppID(v uuid.UUID) *SubscriberUpsertOne {
 	return u.Update(func(s *SubscriberUpsert) {
@@ -696,12 +735,7 @@ func (u *SubscriberUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *SubscriberUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: SubscriberUpsertOne.ID is not supported by MySQL driver. Use SubscriberUpsertOne.Exec instead")
-	}
+func (u *SubscriberUpsertOne) ID(ctx context.Context) (id uint32, err error) {
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -710,7 +744,7 @@ func (u *SubscriberUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) 
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *SubscriberUpsertOne) IDX(ctx context.Context) uuid.UUID {
+func (u *SubscriberUpsertOne) IDX(ctx context.Context) uint32 {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -761,6 +795,10 @@ func (scb *SubscriberCreateBulk) Save(ctx context.Context) ([]*Subscriber, error
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = uint32(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -956,6 +994,20 @@ func (u *SubscriberUpsertBulk) AddDeletedAt(v uint32) *SubscriberUpsertBulk {
 func (u *SubscriberUpsertBulk) UpdateDeletedAt() *SubscriberUpsertBulk {
 	return u.Update(func(s *SubscriberUpsert) {
 		s.UpdateDeletedAt()
+	})
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *SubscriberUpsertBulk) SetEntID(v uuid.UUID) *SubscriberUpsertBulk {
+	return u.Update(func(s *SubscriberUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *SubscriberUpsertBulk) UpdateEntID() *SubscriberUpsertBulk {
+	return u.Update(func(s *SubscriberUpsert) {
+		s.UpdateEntID()
 	})
 }
 

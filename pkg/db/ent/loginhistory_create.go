@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 
-	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -61,6 +60,20 @@ func (lhc *LoginHistoryCreate) SetDeletedAt(u uint32) *LoginHistoryCreate {
 func (lhc *LoginHistoryCreate) SetNillableDeletedAt(u *uint32) *LoginHistoryCreate {
 	if u != nil {
 		lhc.SetDeletedAt(*u)
+	}
+	return lhc
+}
+
+// SetEntID sets the "ent_id" field.
+func (lhc *LoginHistoryCreate) SetEntID(u uuid.UUID) *LoginHistoryCreate {
+	lhc.mutation.SetEntID(u)
+	return lhc
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (lhc *LoginHistoryCreate) SetNillableEntID(u *uuid.UUID) *LoginHistoryCreate {
+	if u != nil {
+		lhc.SetEntID(*u)
 	}
 	return lhc
 }
@@ -150,16 +163,8 @@ func (lhc *LoginHistoryCreate) SetNillableLoginType(s *string) *LoginHistoryCrea
 }
 
 // SetID sets the "id" field.
-func (lhc *LoginHistoryCreate) SetID(u uuid.UUID) *LoginHistoryCreate {
+func (lhc *LoginHistoryCreate) SetID(u uint32) *LoginHistoryCreate {
 	lhc.mutation.SetID(u)
-	return lhc
-}
-
-// SetNillableID sets the "id" field if the given value is not nil.
-func (lhc *LoginHistoryCreate) SetNillableID(u *uuid.UUID) *LoginHistoryCreate {
-	if u != nil {
-		lhc.SetID(*u)
-	}
 	return lhc
 }
 
@@ -263,6 +268,13 @@ func (lhc *LoginHistoryCreate) defaults() error {
 		v := loginhistory.DefaultDeletedAt()
 		lhc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := lhc.mutation.EntID(); !ok {
+		if loginhistory.DefaultEntID == nil {
+			return fmt.Errorf("ent: uninitialized loginhistory.DefaultEntID (forgotten import ent/runtime?)")
+		}
+		v := loginhistory.DefaultEntID()
+		lhc.mutation.SetEntID(v)
+	}
 	if _, ok := lhc.mutation.AppID(); !ok {
 		if loginhistory.DefaultAppID == nil {
 			return fmt.Errorf("ent: uninitialized loginhistory.DefaultAppID (forgotten import ent/runtime?)")
@@ -293,13 +305,6 @@ func (lhc *LoginHistoryCreate) defaults() error {
 		v := loginhistory.DefaultLoginType
 		lhc.mutation.SetLoginType(v)
 	}
-	if _, ok := lhc.mutation.ID(); !ok {
-		if loginhistory.DefaultID == nil {
-			return fmt.Errorf("ent: uninitialized loginhistory.DefaultID (forgotten import ent/runtime?)")
-		}
-		v := loginhistory.DefaultID()
-		lhc.mutation.SetID(v)
-	}
 	return nil
 }
 
@@ -314,6 +319,9 @@ func (lhc *LoginHistoryCreate) check() error {
 	if _, ok := lhc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "LoginHistory.deleted_at"`)}
 	}
+	if _, ok := lhc.mutation.EntID(); !ok {
+		return &ValidationError{Name: "ent_id", err: errors.New(`ent: missing required field "LoginHistory.ent_id"`)}
+	}
 	return nil
 }
 
@@ -325,12 +333,9 @@ func (lhc *LoginHistoryCreate) sqlSave(ctx context.Context) (*LoginHistory, erro
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
-			_node.ID = *id
-		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
-			return nil, err
-		}
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = uint32(id)
 	}
 	return _node, nil
 }
@@ -341,7 +346,7 @@ func (lhc *LoginHistoryCreate) createSpec() (*LoginHistory, *sqlgraph.CreateSpec
 		_spec = &sqlgraph.CreateSpec{
 			Table: loginhistory.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: loginhistory.FieldID,
 			},
 		}
@@ -349,7 +354,7 @@ func (lhc *LoginHistoryCreate) createSpec() (*LoginHistory, *sqlgraph.CreateSpec
 	_spec.OnConflict = lhc.conflict
 	if id, ok := lhc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = &id
+		_spec.ID.Value = id
 	}
 	if value, ok := lhc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -374,6 +379,14 @@ func (lhc *LoginHistoryCreate) createSpec() (*LoginHistory, *sqlgraph.CreateSpec
 			Column: loginhistory.FieldDeletedAt,
 		})
 		_node.DeletedAt = value
+	}
+	if value, ok := lhc.mutation.EntID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: loginhistory.FieldEntID,
+		})
+		_node.EntID = value
 	}
 	if value, ok := lhc.mutation.AppID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -528,6 +541,18 @@ func (u *LoginHistoryUpsert) UpdateDeletedAt() *LoginHistoryUpsert {
 // AddDeletedAt adds v to the "deleted_at" field.
 func (u *LoginHistoryUpsert) AddDeletedAt(v uint32) *LoginHistoryUpsert {
 	u.Add(loginhistory.FieldDeletedAt, v)
+	return u
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *LoginHistoryUpsert) SetEntID(v uuid.UUID) *LoginHistoryUpsert {
+	u.Set(loginhistory.FieldEntID, v)
+	return u
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *LoginHistoryUpsert) UpdateEntID() *LoginHistoryUpsert {
+	u.SetExcluded(loginhistory.FieldEntID)
 	return u
 }
 
@@ -752,6 +777,20 @@ func (u *LoginHistoryUpsertOne) UpdateDeletedAt() *LoginHistoryUpsertOne {
 	})
 }
 
+// SetEntID sets the "ent_id" field.
+func (u *LoginHistoryUpsertOne) SetEntID(v uuid.UUID) *LoginHistoryUpsertOne {
+	return u.Update(func(s *LoginHistoryUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *LoginHistoryUpsertOne) UpdateEntID() *LoginHistoryUpsertOne {
+	return u.Update(func(s *LoginHistoryUpsert) {
+		s.UpdateEntID()
+	})
+}
+
 // SetAppID sets the "app_id" field.
 func (u *LoginHistoryUpsertOne) SetAppID(v uuid.UUID) *LoginHistoryUpsertOne {
 	return u.Update(func(s *LoginHistoryUpsert) {
@@ -894,12 +933,7 @@ func (u *LoginHistoryUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *LoginHistoryUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: LoginHistoryUpsertOne.ID is not supported by MySQL driver. Use LoginHistoryUpsertOne.Exec instead")
-	}
+func (u *LoginHistoryUpsertOne) ID(ctx context.Context) (id uint32, err error) {
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -908,7 +942,7 @@ func (u *LoginHistoryUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *LoginHistoryUpsertOne) IDX(ctx context.Context) uuid.UUID {
+func (u *LoginHistoryUpsertOne) IDX(ctx context.Context) uint32 {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -959,6 +993,10 @@ func (lhcb *LoginHistoryCreateBulk) Save(ctx context.Context) ([]*LoginHistory, 
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = uint32(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -1154,6 +1192,20 @@ func (u *LoginHistoryUpsertBulk) AddDeletedAt(v uint32) *LoginHistoryUpsertBulk 
 func (u *LoginHistoryUpsertBulk) UpdateDeletedAt() *LoginHistoryUpsertBulk {
 	return u.Update(func(s *LoginHistoryUpsert) {
 		s.UpdateDeletedAt()
+	})
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *LoginHistoryUpsertBulk) SetEntID(v uuid.UUID) *LoginHistoryUpsertBulk {
+	return u.Update(func(s *LoginHistoryUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *LoginHistoryUpsertBulk) UpdateEntID() *LoginHistoryUpsertBulk {
+	return u.Update(func(s *LoginHistoryUpsert) {
+		s.UpdateEntID()
 	})
 }
 

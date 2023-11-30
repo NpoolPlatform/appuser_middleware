@@ -31,14 +31,16 @@ func (h *queryHandler) selectOAuthThirdParty(stm *ent.AppOAuthThirdPartyQuery) *
 }
 
 func (h *queryHandler) queryOAuthThirdParty(cli *ent.Client) {
-	h.stmSelect = h.selectOAuthThirdParty(
-		cli.AppOAuthThirdParty.
-			Query().
-			Where(
-				entappoauththirdparty.ID(*h.ID),
-				entappoauththirdparty.DeletedAt(0),
-			),
-	)
+	stm := cli.AppOAuthThirdParty.
+		Query().
+		Where(entappoauththirdparty.DeletedAt(0))
+	if h.ID != nil {
+		stm.Where(entappoauththirdparty.ID(*h.ID))
+	}
+	if h.EntID != nil {
+		stm.Where(entappoauththirdparty.EntID(*h.EntID))
+	}
+	h.stmSelect = h.selectOAuthThirdParty(stm)
 }
 
 func (h *queryHandler) queryOAuthThirdParties(cli *ent.Client) (*ent.AppOAuthThirdPartySelect, error) {
@@ -52,6 +54,7 @@ func (h *queryHandler) queryOAuthThirdParties(cli *ent.Client) (*ent.AppOAuthThi
 func (h *queryHandler) queryJoinMyself(s *sql.Selector) {
 	t := sql.Table(entappoauththirdparty.Table)
 	s.AppendSelect(
+		t.C(entappoauththirdparty.FieldEntID),
 		t.C(entappoauththirdparty.FieldAppID),
 		t.C(entappoauththirdparty.FieldThirdPartyID),
 		t.C(entappoauththirdparty.FieldClientID),
@@ -68,7 +71,7 @@ func (h *queryHandler) queryJoinOAuthThirdParty(s *sql.Selector) error {
 	s.Join(t).
 		On(
 			s.C(entappoauththirdparty.FieldThirdPartyID),
-			t.C(entoauththirdparty.FieldID),
+			t.C(entoauththirdparty.FieldEntID),
 		).
 		OnP(
 			sql.EQ(t.C(entoauththirdparty.FieldDeletedAt), 0),
@@ -149,10 +152,6 @@ func (h *queryHandler) formalize() error {
 }
 
 func (h *Handler) GetOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdParty, error) {
-	if h.ID == nil {
-		return nil, fmt.Errorf("invalid id")
-	}
-
 	handler := &queryHandler{
 		Handler: h,
 	}

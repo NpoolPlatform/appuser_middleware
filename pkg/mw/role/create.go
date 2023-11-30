@@ -4,14 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	rolecrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/role"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
-
-	rolecrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/role"
+	redis2 "github.com/NpoolPlatform/go-service-framework/pkg/redis"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/role"
-
-	redis2 "github.com/NpoolPlatform/go-service-framework/pkg/redis"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/google/uuid"
@@ -19,11 +17,11 @@ import (
 
 func (h *Handler) CreateRole(ctx context.Context) (*npool.Role, error) {
 	id := uuid.New()
-	if h.ID == nil {
-		h.ID = &id
+	if h.EntID == nil {
+		h.EntID = &id
 	}
 
-	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateRole, h.AppID, *h.Role)
+	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateRole, *h.AppID, *h.Role)
 	if err := redis2.TryLock(key, 0); err != nil {
 		return nil, err
 	}
@@ -33,7 +31,7 @@ func (h *Handler) CreateRole(ctx context.Context) (*npool.Role, error) {
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		stm, err := rolecrud.SetQueryConds(cli.AppRole.Query(), &rolecrud.Conds{
-			AppID: &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+			AppID: &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
 			Role:  &cruder.Cond{Op: cruder.EQ, Val: *h.Role},
 		})
 		if err != nil {
@@ -48,11 +46,30 @@ func (h *Handler) CreateRole(ctx context.Context) (*npool.Role, error) {
 			return fmt.Errorf("role exist")
 		}
 
+		if h.Default != nil && *h.Default {
+			stm, err := rolecrud.SetQueryConds(cli.AppRole.Query(), &rolecrud.Conds{
+				Default: &cruder.Cond{Op: cruder.EQ, Val: *h.Default},
+				AppID:   &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
+				Role:    &cruder.Cond{Op: cruder.NEQ, Val: *h.Role},
+			})
+			if err != nil {
+				return err
+			}
+
+			exist, err := stm.Exist(_ctx)
+			if err != nil {
+				return err
+			}
+			if exist {
+				return fmt.Errorf("default role exist")
+			}
+		}
+
 		if _, err := rolecrud.CreateSet(
 			cli.AppRole.Create(),
 			&rolecrud.Req{
-				ID:          h.ID,
-				AppID:       &h.AppID,
+				EntID:       h.EntID,
+				AppID:       h.AppID,
 				CreatedBy:   h.CreatedBy,
 				Role:        h.Role,
 				Description: h.Description,
@@ -76,19 +93,17 @@ func (h *Handler) CreateRoles(ctx context.Context) ([]*npool.Role, error) {
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		for _, req := range h.Reqs {
 			id := uuid.New()
-			if req.ID != nil {
-				id = uuid.MustParse(*req.ID)
+			if req.EntID == nil {
+				req.EntID = &id
 			}
-			appID := uuid.MustParse(*req.AppID)
-			createdBy := uuid.MustParse(*req.CreatedBy)
 
-			key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateRole, appID, *req.Role)
+			key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateRole, *req.AppID, *req.Role)
 			if err := redis2.TryLock(key, 0); err != nil {
 				return err
 			}
 
 			stm, err := rolecrud.SetQueryConds(cli.AppRole.Query(), &rolecrud.Conds{
-				AppID: &cruder.Cond{Op: cruder.EQ, Val: appID},
+				AppID: &cruder.Cond{Op: cruder.EQ, Val: *req.AppID},
 				Role:  &cruder.Cond{Op: cruder.EQ, Val: *req.Role},
 			})
 			if err != nil {
@@ -108,15 +123,7 @@ func (h *Handler) CreateRoles(ctx context.Context) ([]*npool.Role, error) {
 
 			if _, err := rolecrud.CreateSet(
 				cli.AppRole.Create(),
-				&rolecrud.Req{
-					ID:          &id,
-					AppID:       &appID,
-					CreatedBy:   &createdBy,
-					Role:        req.Role,
-					Description: req.Description,
-					Default:     req.Default,
-					Genesis:     req.Genesis,
-				},
+				req,
 			).Save(ctx); err != nil {
 				_ = redis2.Unlock(key)
 				return err
@@ -131,8 +138,9 @@ func (h *Handler) CreateRoles(ctx context.Context) ([]*npool.Role, error) {
 	}
 
 	h.Conds = &rolecrud.Conds{
-		IDs: &cruder.Cond{Op: cruder.IN, Val: ids},
+		EntIDs: &cruder.Cond{Op: cruder.IN, Val: ids},
 	}
+	h.Limit = int32(len(ids))
 	infos, _, err := h.GetRoles(ctx)
 	if err != nil {
 		return nil, err

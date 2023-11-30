@@ -2,15 +2,16 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
+	"github.com/google/uuid"
 
 	appcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/app"
 	banappcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/app/ban"
 	ctrlcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/app/control"
+	entapp "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
 	entappctrl "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appcontrol"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
@@ -18,32 +19,58 @@ import (
 
 type updateHandler struct {
 	*Handler
+	oldAppID *uuid.UUID
 }
 
 func (h *updateHandler) updateApp(ctx context.Context, tx *ent.Tx) error {
-	if h.ID == nil {
-		return fmt.Errorf("invalid id")
+	info, err := tx.
+		App.
+		Query().
+		Where(
+			entapp.ID(*h.ID),
+			entapp.DeletedAt(0),
+		).
+		ForUpdate().
+		Only(ctx)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return err
+		}
 	}
-
-	if _, err := appcrud.UpdateSet(
-		tx.App.UpdateOneID(*h.ID),
-		&appcrud.Req{
-			Name:        h.Name,
-			Logo:        h.Logo,
-			Description: h.Description,
-		},
-	).Save(ctx); err != nil {
+	if info == nil {
+		return nil
+	}
+	h.oldAppID = &info.EntID
+	req := &appcrud.Req{
+		Name:        h.Name,
+		Logo:        h.Logo,
+		Description: h.Description,
+	}
+	if h.EntID != nil && h.oldAppID != h.EntID {
+		req.EntID = h.EntID
+	}
+	info, err = appcrud.UpdateSet(
+		info.Update(),
+		req,
+	).Save(ctx)
+	if err != nil {
 		return err
+	}
+	if h.EntID == nil {
+		h.EntID = &info.EntID
 	}
 	return nil
 }
 
 func (h *updateHandler) updateAppCtrl(ctx context.Context, tx *ent.Tx) error {
+	if h.oldAppID == nil {
+		return nil
+	}
 	info, err := tx.
 		AppControl.
 		Query().
 		Where(
-			entappctrl.AppID(*h.ID),
+			entappctrl.AppID(*h.oldAppID),
 			entappctrl.DeletedAt(0),
 		).
 		ForUpdate().
@@ -55,7 +82,7 @@ func (h *updateHandler) updateAppCtrl(ctx context.Context, tx *ent.Tx) error {
 	}
 
 	req := &ctrlcrud.Req{
-		AppID:                    h.ID,
+		AppID:                    h.EntID,
 		SignupMethods:            h.SignupMethods,
 		ExtSigninMethods:         h.ExtSigninMethods,
 		RecaptchaMethod:          h.RecaptchaMethod,
@@ -88,14 +115,14 @@ func (h *updateHandler) updateBanApp(ctx context.Context, tx *ent.Tx) error {
 	if h.Banned == nil {
 		return nil
 	}
-	if h.ID == nil {
-		return fmt.Errorf("invalid id")
+	if h.oldAppID == nil {
+		return nil
 	}
 
 	stm, err := banappcrud.SetQueryConds(
 		tx.BanApp.Query(),
 		&banappcrud.Conds{
-			AppID: &cruder.Cond{Op: cruder.EQ, Val: *h.ID},
+			AppID: &cruder.Cond{Op: cruder.EQ, Val: *h.oldAppID},
 		})
 	if err != nil {
 		return err
@@ -112,7 +139,7 @@ func (h *updateHandler) updateBanApp(ctx context.Context, tx *ent.Tx) error {
 		if _, err := banappcrud.CreateSet(
 			tx.BanApp.Create(),
 			&banappcrud.Req{
-				AppID:   h.ID,
+				AppID:   h.EntID,
 				Message: h.BanMessage,
 			},
 		).Save(ctx); err != nil {
@@ -123,7 +150,8 @@ func (h *updateHandler) updateBanApp(ctx context.Context, tx *ent.Tx) error {
 		if _, err := banappcrud.UpdateSet(
 			tx.BanApp.UpdateOneID(info.ID),
 			&banappcrud.Req{
-				ID:        &info.ID,
+				AppID:     h.EntID,
+				EntID:     &info.EntID,
 				DeletedAt: &now,
 			},
 		).Save(ctx); err != nil {

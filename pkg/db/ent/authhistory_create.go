@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 
-	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -61,6 +60,20 @@ func (ahc *AuthHistoryCreate) SetDeletedAt(u uint32) *AuthHistoryCreate {
 func (ahc *AuthHistoryCreate) SetNillableDeletedAt(u *uint32) *AuthHistoryCreate {
 	if u != nil {
 		ahc.SetDeletedAt(*u)
+	}
+	return ahc
+}
+
+// SetEntID sets the "ent_id" field.
+func (ahc *AuthHistoryCreate) SetEntID(u uuid.UUID) *AuthHistoryCreate {
+	ahc.mutation.SetEntID(u)
+	return ahc
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (ahc *AuthHistoryCreate) SetNillableEntID(u *uuid.UUID) *AuthHistoryCreate {
+	if u != nil {
+		ahc.SetEntID(*u)
 	}
 	return ahc
 }
@@ -136,16 +149,8 @@ func (ahc *AuthHistoryCreate) SetNillableAllowed(b *bool) *AuthHistoryCreate {
 }
 
 // SetID sets the "id" field.
-func (ahc *AuthHistoryCreate) SetID(u uuid.UUID) *AuthHistoryCreate {
+func (ahc *AuthHistoryCreate) SetID(u uint32) *AuthHistoryCreate {
 	ahc.mutation.SetID(u)
-	return ahc
-}
-
-// SetNillableID sets the "id" field if the given value is not nil.
-func (ahc *AuthHistoryCreate) SetNillableID(u *uuid.UUID) *AuthHistoryCreate {
-	if u != nil {
-		ahc.SetID(*u)
-	}
 	return ahc
 }
 
@@ -249,6 +254,13 @@ func (ahc *AuthHistoryCreate) defaults() error {
 		v := authhistory.DefaultDeletedAt()
 		ahc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := ahc.mutation.EntID(); !ok {
+		if authhistory.DefaultEntID == nil {
+			return fmt.Errorf("ent: uninitialized authhistory.DefaultEntID (forgotten import ent/runtime?)")
+		}
+		v := authhistory.DefaultEntID()
+		ahc.mutation.SetEntID(v)
+	}
 	if _, ok := ahc.mutation.AppID(); !ok {
 		if authhistory.DefaultAppID == nil {
 			return fmt.Errorf("ent: uninitialized authhistory.DefaultAppID (forgotten import ent/runtime?)")
@@ -275,13 +287,6 @@ func (ahc *AuthHistoryCreate) defaults() error {
 		v := authhistory.DefaultAllowed
 		ahc.mutation.SetAllowed(v)
 	}
-	if _, ok := ahc.mutation.ID(); !ok {
-		if authhistory.DefaultID == nil {
-			return fmt.Errorf("ent: uninitialized authhistory.DefaultID (forgotten import ent/runtime?)")
-		}
-		v := authhistory.DefaultID()
-		ahc.mutation.SetID(v)
-	}
 	return nil
 }
 
@@ -296,6 +301,9 @@ func (ahc *AuthHistoryCreate) check() error {
 	if _, ok := ahc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "AuthHistory.deleted_at"`)}
 	}
+	if _, ok := ahc.mutation.EntID(); !ok {
+		return &ValidationError{Name: "ent_id", err: errors.New(`ent: missing required field "AuthHistory.ent_id"`)}
+	}
 	return nil
 }
 
@@ -307,12 +315,9 @@ func (ahc *AuthHistoryCreate) sqlSave(ctx context.Context) (*AuthHistory, error)
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
-			_node.ID = *id
-		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
-			return nil, err
-		}
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = uint32(id)
 	}
 	return _node, nil
 }
@@ -323,7 +328,7 @@ func (ahc *AuthHistoryCreate) createSpec() (*AuthHistory, *sqlgraph.CreateSpec) 
 		_spec = &sqlgraph.CreateSpec{
 			Table: authhistory.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: authhistory.FieldID,
 			},
 		}
@@ -331,7 +336,7 @@ func (ahc *AuthHistoryCreate) createSpec() (*AuthHistory, *sqlgraph.CreateSpec) 
 	_spec.OnConflict = ahc.conflict
 	if id, ok := ahc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = &id
+		_spec.ID.Value = id
 	}
 	if value, ok := ahc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -356,6 +361,14 @@ func (ahc *AuthHistoryCreate) createSpec() (*AuthHistory, *sqlgraph.CreateSpec) 
 			Column: authhistory.FieldDeletedAt,
 		})
 		_node.DeletedAt = value
+	}
+	if value, ok := ahc.mutation.EntID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: authhistory.FieldEntID,
+		})
+		_node.EntID = value
 	}
 	if value, ok := ahc.mutation.AppID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -502,6 +515,18 @@ func (u *AuthHistoryUpsert) UpdateDeletedAt() *AuthHistoryUpsert {
 // AddDeletedAt adds v to the "deleted_at" field.
 func (u *AuthHistoryUpsert) AddDeletedAt(v uint32) *AuthHistoryUpsert {
 	u.Add(authhistory.FieldDeletedAt, v)
+	return u
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *AuthHistoryUpsert) SetEntID(v uuid.UUID) *AuthHistoryUpsert {
+	u.Set(authhistory.FieldEntID, v)
+	return u
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AuthHistoryUpsert) UpdateEntID() *AuthHistoryUpsert {
+	u.SetExcluded(authhistory.FieldEntID)
 	return u
 }
 
@@ -708,6 +733,20 @@ func (u *AuthHistoryUpsertOne) UpdateDeletedAt() *AuthHistoryUpsertOne {
 	})
 }
 
+// SetEntID sets the "ent_id" field.
+func (u *AuthHistoryUpsertOne) SetEntID(v uuid.UUID) *AuthHistoryUpsertOne {
+	return u.Update(func(s *AuthHistoryUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AuthHistoryUpsertOne) UpdateEntID() *AuthHistoryUpsertOne {
+	return u.Update(func(s *AuthHistoryUpsert) {
+		s.UpdateEntID()
+	})
+}
+
 // SetAppID sets the "app_id" field.
 func (u *AuthHistoryUpsertOne) SetAppID(v uuid.UUID) *AuthHistoryUpsertOne {
 	return u.Update(func(s *AuthHistoryUpsert) {
@@ -829,12 +868,7 @@ func (u *AuthHistoryUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *AuthHistoryUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: AuthHistoryUpsertOne.ID is not supported by MySQL driver. Use AuthHistoryUpsertOne.Exec instead")
-	}
+func (u *AuthHistoryUpsertOne) ID(ctx context.Context) (id uint32, err error) {
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -843,7 +877,7 @@ func (u *AuthHistoryUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error)
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *AuthHistoryUpsertOne) IDX(ctx context.Context) uuid.UUID {
+func (u *AuthHistoryUpsertOne) IDX(ctx context.Context) uint32 {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -894,6 +928,10 @@ func (ahcb *AuthHistoryCreateBulk) Save(ctx context.Context) ([]*AuthHistory, er
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = uint32(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -1089,6 +1127,20 @@ func (u *AuthHistoryUpsertBulk) AddDeletedAt(v uint32) *AuthHistoryUpsertBulk {
 func (u *AuthHistoryUpsertBulk) UpdateDeletedAt() *AuthHistoryUpsertBulk {
 	return u.Update(func(s *AuthHistoryUpsert) {
 		s.UpdateDeletedAt()
+	})
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *AuthHistoryUpsertBulk) SetEntID(v uuid.UUID) *AuthHistoryUpsertBulk {
+	return u.Update(func(s *AuthHistoryUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AuthHistoryUpsertBulk) UpdateEntID() *AuthHistoryUpsertBulk {
+	return u.Update(func(s *AuthHistoryUpsert) {
+		s.UpdateEntID()
 	})
 }
 

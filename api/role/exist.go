@@ -15,7 +15,7 @@ import (
 func (s *Server) ExistRole(ctx context.Context, in *npool.ExistRoleRequest) (*npool.ExistRoleResponse, error) {
 	handler, err := role1.NewHandler(
 		ctx,
-		role1.WithID(&in.ID),
+		role1.WithEntID(&in.EntID, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

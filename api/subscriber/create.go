@@ -13,11 +13,18 @@ import (
 
 func (s *Server) CreateSubscriber(ctx context.Context, in *npool.CreateSubscriberRequest) (*npool.CreateSubscriberResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"CreateSubscriber",
+			"In", in,
+		)
+		return &npool.CreateSubscriberResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	handler, err := subscriber1.NewHandler(
 		ctx,
-		subscriber1.WithID(req.ID),
-		subscriber1.WithAppID(req.GetAppID()),
-		subscriber1.WithEmailAddress(req.EmailAddress),
+		subscriber1.WithEntID(req.EntID, false),
+		subscriber1.WithAppID(req.AppID, true),
+		subscriber1.WithEmailAddress(req.EmailAddress, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

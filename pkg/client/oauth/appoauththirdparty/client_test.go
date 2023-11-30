@@ -45,7 +45,7 @@ var (
 	appID        = uuid.NewString()
 	thirdPartyID = uuid.NewString()
 	ret          = npool.OAuthThirdParty{
-		ID:             id,
+		EntID:          id,
 		AppID:          appID,
 		ThirdPartyID:   thirdPartyID,
 		ClientID:       "123123123123",
@@ -65,8 +65,8 @@ func setupOAuthThirdParty(t *testing.T) func(*testing.T) {
 	app1, err := appmwcli.CreateApp(
 		context.Background(),
 		&appmwpb.AppReq{
-			ID:        &ret.AppID,
-			CreatedBy: &ret.ID,
+			EntID:     &ret.AppID,
+			CreatedBy: &ret.EntID,
 			Name:      &ret.AppID,
 		},
 	)
@@ -76,7 +76,7 @@ func setupOAuthThirdParty(t *testing.T) func(*testing.T) {
 	oauth1, err := oauththirdpartymwcli.CreateOAuthThirdParty(
 		context.Background(),
 		&oauththirdpartymwpb.OAuthThirdPartyReq{
-			ID:             &ret.ThirdPartyID,
+			EntID:          &ret.ThirdPartyID,
 			ClientName:     &ret.ClientName,
 			ClientTag:      &ret.ClientTag,
 			ClientLogoURL:  &ret.ClientLogoURL,
@@ -87,12 +87,12 @@ func setupOAuthThirdParty(t *testing.T) func(*testing.T) {
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, oauth1)
-	ret.ThirdPartyID = oauth1.ID
+	ret.ThirdPartyID = oauth1.EntID
 
 	return func(*testing.T) {
-		_, _ = appmwcli.DeleteApp(context.Background(), ret.AppID)
-		if thirdPartyID == oauth1.ID {
-			_, _ = oauththirdpartymwcli.DeleteOAuthThirdParty(context.Background(), ret.ThirdPartyID)
+		_, _ = appmwcli.DeleteApp(context.Background(), app1.ID)
+		if thirdPartyID == oauth1.EntID {
+			_, _ = oauththirdpartymwcli.DeleteOAuthThirdParty(context.Background(), oauth1.ID)
 		}
 	}
 }
@@ -100,7 +100,7 @@ func setupOAuthThirdParty(t *testing.T) func(*testing.T) {
 func createOAuthThirdParty(t *testing.T) {
 	var (
 		req = npool.OAuthThirdPartyReq{
-			ID:           &ret.ID,
+			EntID:        &ret.EntID,
 			AppID:        &ret.AppID,
 			ThirdPartyID: &ret.ThirdPartyID,
 			ClientID:     &ret.ClientID,
@@ -115,6 +115,7 @@ func createOAuthThirdParty(t *testing.T) {
 		ret.CreatedAt = info.CreatedAt
 		ret.UpdatedAt = info.UpdatedAt
 		ret.ClientSecret = info.ClientSecret
+		ret.ID = info.ID
 		assert.Equal(t, info, &ret)
 	}
 }
@@ -134,7 +135,7 @@ func updateOAuthThirdParty(t *testing.T) {
 		}
 	)
 
-	if ret.ID == id {
+	if ret.EntID == id {
 		info, err := UpdateOAuthThirdParty(context.Background(), &req)
 		if assert.Nil(t, err) {
 			ret.ClientID = clientID
@@ -147,7 +148,7 @@ func updateOAuthThirdParty(t *testing.T) {
 }
 
 func getOAuthThirdParty(t *testing.T) {
-	info, err := GetOAuthThirdParty(context.Background(), ret.ID)
+	info, err := GetOAuthThirdParty(context.Background(), ret.EntID)
 	if assert.Nil(t, err) {
 		assert.Equal(t, info, &ret)
 	}
@@ -163,13 +164,13 @@ func getOAuthThirdParties(t *testing.T) {
 }
 
 func deleteOAuthThirdParty(t *testing.T) {
-	if ret.ID == id {
+	if ret.EntID == id {
 		info, err := DeleteOAuthThirdParty(context.Background(), ret.ID)
 		if assert.Nil(t, err) {
 			assert.Equal(t, info, &ret)
 		}
 
-		info, err = GetOAuthThirdParty(context.Background(), ret.ID)
+		info, err = GetOAuthThirdParty(context.Background(), ret.EntID)
 		assert.Nil(t, err)
 		assert.Nil(t, info)
 	}

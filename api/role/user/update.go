@@ -13,10 +13,17 @@ import (
 
 func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*npool.UpdateUserResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"UpdateUser",
+			"In", in,
+		)
+		return &npool.UpdateUserResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	handler, err := user1.NewHandler(
 		ctx,
-		user1.WithID(req.ID),
-		user1.WithRoleID(req.RoleID),
+		user1.WithID(req.ID, true),
+		user1.WithRoleID(req.RoleID, false),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

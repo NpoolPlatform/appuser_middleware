@@ -15,9 +15,10 @@ import (
 func (s *Server) VerifyAccount(ctx context.Context, in *npool.VerifyAccountRequest) (*npool.VerifyAccountResponse, error) {
 	handler, err := user1.NewHandler(
 		ctx,
-		user1.WithAppID(in.GetAppID()),
-		user1.WithAccount(in.GetAccount(), in.GetAccountType()),
-		user1.WithPasswordHash(&in.PasswordHash),
+		user1.WithAppID(&in.AppID, true),
+		user1.WithAccount(&in.Account, true),
+		user1.WithAccountType(&in.AccountType, true),
+		user1.WithPasswordHash(&in.PasswordHash, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
@@ -29,6 +30,11 @@ func (s *Server) VerifyAccount(ctx context.Context, in *npool.VerifyAccountReque
 	}
 	info, err := handler.VerifyAccount(ctx)
 	if err != nil {
+		logger.Sugar().Errorw(
+			"VerifyAccount",
+			"In", in,
+			"error", err,
+		)
 		return &npool.VerifyAccountResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
@@ -40,9 +46,9 @@ func (s *Server) VerifyAccount(ctx context.Context, in *npool.VerifyAccountReque
 func (s *Server) VerifyUser(ctx context.Context, in *npool.VerifyUserRequest) (*npool.VerifyUserResponse, error) {
 	handler, err := user1.NewHandler(
 		ctx,
-		user1.WithAppID(in.GetAppID()),
-		user1.WithID(&in.UserID),
-		user1.WithPasswordHash(&in.PasswordHash),
+		user1.WithAppID(&in.AppID, true),
+		user1.WithEntID(&in.UserID, true),
+		user1.WithPasswordHash(&in.PasswordHash, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
@@ -54,6 +60,11 @@ func (s *Server) VerifyUser(ctx context.Context, in *npool.VerifyUserRequest) (*
 	}
 	info, err := handler.VerifyUser(ctx)
 	if err != nil {
+		logger.Sugar().Errorw(
+			"VerifyUser",
+			"In", in,
+			"error", err,
+		)
 		return &npool.VerifyUserResponse{}, status.Error(codes.Internal, err.Error())
 	}
 

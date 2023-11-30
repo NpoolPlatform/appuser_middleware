@@ -27,11 +27,11 @@ func (h *existUserHandler) queryJoinApp(s *sql.Selector) {
 	t := sql.Table(entapp.Table)
 	s.LeftJoin(t).
 		On(
-			t.C(entapp.FieldID),
+			t.C(entapp.FieldEntID),
 			s.C(entappuser.FieldAppID),
 		).
 		AppendSelect(
-			sql.As(t.C(entapp.FieldID), "app_vid"),
+			sql.As(t.C(entapp.FieldEntID), "app_vid"),
 		)
 }
 
@@ -56,7 +56,7 @@ func (h *existUserHandler) queryJoinBanAppUser(s *sql.Selector) {
 		).
 		On(
 			t.C(entbanappuser.FieldUserID),
-			s.C(entappuser.FieldID),
+			s.C(entappuser.FieldEntID),
 		).
 		AppendSelect(
 			sql.As(t.C(entbanappuser.FieldUserID), "user_bid"),
@@ -72,11 +72,11 @@ func (h *existUserHandler) queryJoinAuth(s *sql.Selector) {
 		).
 		On(
 			t.C(entauth.FieldUserID),
-			s.C(entappuser.FieldID),
+			s.C(entappuser.FieldEntID),
 		).
 		Where(
 			sql.And(
-				sql.EQ(s.C(entappuser.FieldAppID), h.AppID),
+				sql.EQ(s.C(entappuser.FieldAppID), *h.AppID),
 				sql.EQ(t.C(entauth.FieldUserID), *h.UserID),
 				sql.EQ(t.C(entauth.FieldResource), *h.Resource),
 				sql.EQ(t.C(entauth.FieldMethod), *h.Method),
@@ -94,17 +94,17 @@ func (h *existUserHandler) queryAppUser(cli *ent.Client) error {
 		return fmt.Errorf("invalid userid")
 	}
 
-	h.stm = cli.
-		AppUser.
+	h.stm = cli.AppUser.
 		Query().
 		Where(
-			entappuser.AppID(h.AppID),
-			entappuser.ID(*h.UserID),
+			entappuser.AppID(*h.AppID),
+			entappuser.EntID(*h.UserID),
+			entappuser.DeletedAt(0),
 		).
 		Modify(func(s *sql.Selector) {
 			s.Select(
 				sql.As(s.C(entappuser.FieldAppID), "app_id"),
-				sql.As(s.C(entappuser.FieldID), "user_id"),
+				sql.As(s.C(entappuser.FieldEntID), "user_id"),
 			)
 		})
 	return nil

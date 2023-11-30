@@ -36,7 +36,7 @@ func init() {
 
 var (
 	ret = npool.Kyc{
-		ID:              uuid.NewString(),
+		EntID:           uuid.NewString(),
 		AppID:           uuid.NewString(),
 		UserID:          uuid.NewString(),
 		DocumentType:    basetypes.KycDocumentType_IDCard,
@@ -56,15 +56,21 @@ var (
 func setupKyc(t *testing.T) func(*testing.T) {
 	ah, err := app.NewHandler(
 		context.Background(),
-		app.WithID(&ret.AppID),
-		app.WithCreatedBy(ret.UserID),
-		app.WithName(&ret.AppID),
+		app.WithEntID(&ret.AppID, true),
+		app.WithCreatedBy(&ret.UserID, true),
+		app.WithName(&ret.AppID, true),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, ah)
 	app1, err := ah.CreateApp(context.Background())
 	assert.Nil(t, err)
 	assert.NotNil(t, app1)
+
+	ah, err = app.NewHandler(
+		context.Background(),
+		app.WithID(&app1.ID, true),
+	)
+	assert.Nil(t, err)
 
 	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+1000000)           //nolint
 	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+2000000) //nolint
@@ -74,17 +80,23 @@ func setupKyc(t *testing.T) func(*testing.T) {
 
 	uh, err := user.NewHandler(
 		context.Background(),
-		user.WithID(&ret.UserID),
-		user.WithAppID(ret.GetAppID()),
-		user.WithPhoneNO(&ret.PhoneNO),
-		user.WithEmailAddress(&ret.EmailAddress),
-		user.WithPasswordHash(&passwordHash),
+		user.WithEntID(&ret.UserID, true),
+		user.WithAppID(&ret.AppID, true),
+		user.WithPhoneNO(&ret.PhoneNO, true),
+		user.WithEmailAddress(&ret.EmailAddress, true),
+		user.WithPasswordHash(&passwordHash, true),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, uh)
 	user1, err := uh.CreateUser(context.Background())
 	assert.Nil(t, err)
 	assert.NotNil(t, user1)
+
+	uh, err = user.NewHandler(
+		context.Background(),
+		user.WithID(&user1.ID, true),
+	)
+	assert.Nil(t, err)
 
 	return func(*testing.T) {
 		_, _ = ah.DeleteApp(context.Background())
@@ -94,7 +106,7 @@ func setupKyc(t *testing.T) func(*testing.T) {
 
 func createKyc(t *testing.T) {
 	req := npool.KycReq{
-		ID:           &ret.ID,
+		EntID:        &ret.EntID,
 		AppID:        &ret.AppID,
 		UserID:       &ret.UserID,
 		DocumentType: &ret.DocumentType,
@@ -110,6 +122,7 @@ func createKyc(t *testing.T) {
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
 		ret.UpdatedAt = info.UpdatedAt
+		ret.ID = info.ID
 		assert.Equal(t, info, &ret)
 	}
 }
@@ -122,6 +135,7 @@ func updateKyc(t *testing.T) {
 
 	req := npool.KycReq{
 		ID:           &ret.ID,
+		EntID:        &ret.EntID,
 		DocumentType: &ret.DocumentType,
 		IDNumber:     &ret.IDNumber,
 		FrontImg:     &ret.FrontImg,
@@ -139,7 +153,7 @@ func updateKyc(t *testing.T) {
 }
 
 func getKyc(t *testing.T) {
-	info, err := GetKyc(context.Background(), ret.ID)
+	info, err := GetKyc(context.Background(), ret.EntID)
 	if assert.Nil(t, err) {
 		assert.Equal(t, info, &ret)
 	}
@@ -160,7 +174,7 @@ func deleteKyc(t *testing.T) {
 		assert.Equal(t, info, &ret)
 	}
 
-	info, err = GetKyc(context.Background(), ret.ID)
+	info, err = GetKyc(context.Background(), ret.EntID)
 	assert.Nil(t, err)
 	assert.Nil(t, info)
 }

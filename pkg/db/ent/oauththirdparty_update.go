@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/oauththirdparty"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/predicate"
+	"github.com/google/uuid"
 )
 
 // OAuthThirdPartyUpdate is the builder for updating OAuthThirdParty entities.
@@ -80,6 +81,20 @@ func (otpu *OAuthThirdPartyUpdate) SetNillableDeletedAt(u *uint32) *OAuthThirdPa
 // AddDeletedAt adds u to the "deleted_at" field.
 func (otpu *OAuthThirdPartyUpdate) AddDeletedAt(u int32) *OAuthThirdPartyUpdate {
 	otpu.mutation.AddDeletedAt(u)
+	return otpu
+}
+
+// SetEntID sets the "ent_id" field.
+func (otpu *OAuthThirdPartyUpdate) SetEntID(u uuid.UUID) *OAuthThirdPartyUpdate {
+	otpu.mutation.SetEntID(u)
+	return otpu
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (otpu *OAuthThirdPartyUpdate) SetNillableEntID(u *uuid.UUID) *OAuthThirdPartyUpdate {
+	if u != nil {
+		otpu.SetEntID(*u)
+	}
 	return otpu
 }
 
@@ -289,7 +304,7 @@ func (otpu *OAuthThirdPartyUpdate) sqlSave(ctx context.Context) (n int, err erro
 			Table:   oauththirdparty.Table,
 			Columns: oauththirdparty.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: oauththirdparty.FieldID,
 			},
 		},
@@ -341,6 +356,13 @@ func (otpu *OAuthThirdPartyUpdate) sqlSave(ctx context.Context) (n int, err erro
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: oauththirdparty.FieldDeletedAt,
+		})
+	}
+	if value, ok := otpu.mutation.EntID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: oauththirdparty.FieldEntID,
 		})
 	}
 	if value, ok := otpu.mutation.ClientName(); ok {
@@ -494,6 +516,20 @@ func (otpuo *OAuthThirdPartyUpdateOne) SetNillableDeletedAt(u *uint32) *OAuthThi
 // AddDeletedAt adds u to the "deleted_at" field.
 func (otpuo *OAuthThirdPartyUpdateOne) AddDeletedAt(u int32) *OAuthThirdPartyUpdateOne {
 	otpuo.mutation.AddDeletedAt(u)
+	return otpuo
+}
+
+// SetEntID sets the "ent_id" field.
+func (otpuo *OAuthThirdPartyUpdateOne) SetEntID(u uuid.UUID) *OAuthThirdPartyUpdateOne {
+	otpuo.mutation.SetEntID(u)
+	return otpuo
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (otpuo *OAuthThirdPartyUpdateOne) SetNillableEntID(u *uuid.UUID) *OAuthThirdPartyUpdateOne {
+	if u != nil {
+		otpuo.SetEntID(*u)
+	}
 	return otpuo
 }
 
@@ -716,7 +752,7 @@ func (otpuo *OAuthThirdPartyUpdateOne) sqlSave(ctx context.Context) (_node *OAut
 			Table:   oauththirdparty.Table,
 			Columns: oauththirdparty.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: oauththirdparty.FieldID,
 			},
 		},
@@ -785,6 +821,13 @@ func (otpuo *OAuthThirdPartyUpdateOne) sqlSave(ctx context.Context) (_node *OAut
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: oauththirdparty.FieldDeletedAt,
+		})
+	}
+	if value, ok := otpuo.mutation.EntID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: oauththirdparty.FieldEntID,
 		})
 	}
 	if value, ok := otpuo.mutation.ClientName(); ok {

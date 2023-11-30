@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 
-	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -61,6 +60,20 @@ func (aucc *AppUserControlCreate) SetDeletedAt(u uint32) *AppUserControlCreate {
 func (aucc *AppUserControlCreate) SetNillableDeletedAt(u *uint32) *AppUserControlCreate {
 	if u != nil {
 		aucc.SetDeletedAt(*u)
+	}
+	return aucc
+}
+
+// SetEntID sets the "ent_id" field.
+func (aucc *AppUserControlCreate) SetEntID(u uuid.UUID) *AppUserControlCreate {
+	aucc.mutation.SetEntID(u)
+	return aucc
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (aucc *AppUserControlCreate) SetNillableEntID(u *uuid.UUID) *AppUserControlCreate {
+	if u != nil {
+		aucc.SetEntID(*u)
 	}
 	return aucc
 }
@@ -178,16 +191,8 @@ func (aucc *AppUserControlCreate) SetNillableSelectedLangID(u *uuid.UUID) *AppUs
 }
 
 // SetID sets the "id" field.
-func (aucc *AppUserControlCreate) SetID(u uuid.UUID) *AppUserControlCreate {
+func (aucc *AppUserControlCreate) SetID(u uint32) *AppUserControlCreate {
 	aucc.mutation.SetID(u)
-	return aucc
-}
-
-// SetNillableID sets the "id" field if the given value is not nil.
-func (aucc *AppUserControlCreate) SetNillableID(u *uuid.UUID) *AppUserControlCreate {
-	if u != nil {
-		aucc.SetID(*u)
-	}
 	return aucc
 }
 
@@ -291,6 +296,13 @@ func (aucc *AppUserControlCreate) defaults() error {
 		v := appusercontrol.DefaultDeletedAt()
 		aucc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := aucc.mutation.EntID(); !ok {
+		if appusercontrol.DefaultEntID == nil {
+			return fmt.Errorf("ent: uninitialized appusercontrol.DefaultEntID (forgotten import ent/runtime?)")
+		}
+		v := appusercontrol.DefaultEntID()
+		aucc.mutation.SetEntID(v)
+	}
 	if _, ok := aucc.mutation.AppID(); !ok {
 		if appusercontrol.DefaultAppID == nil {
 			return fmt.Errorf("ent: uninitialized appusercontrol.DefaultAppID (forgotten import ent/runtime?)")
@@ -332,13 +344,6 @@ func (aucc *AppUserControlCreate) defaults() error {
 		v := appusercontrol.DefaultSelectedLangID()
 		aucc.mutation.SetSelectedLangID(v)
 	}
-	if _, ok := aucc.mutation.ID(); !ok {
-		if appusercontrol.DefaultID == nil {
-			return fmt.Errorf("ent: uninitialized appusercontrol.DefaultID (forgotten import ent/runtime?)")
-		}
-		v := appusercontrol.DefaultID()
-		aucc.mutation.SetID(v)
-	}
 	return nil
 }
 
@@ -352,6 +357,9 @@ func (aucc *AppUserControlCreate) check() error {
 	}
 	if _, ok := aucc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "AppUserControl.deleted_at"`)}
+	}
+	if _, ok := aucc.mutation.EntID(); !ok {
+		return &ValidationError{Name: "ent_id", err: errors.New(`ent: missing required field "AppUserControl.ent_id"`)}
 	}
 	if _, ok := aucc.mutation.Kol(); !ok {
 		return &ValidationError{Name: "kol", err: errors.New(`ent: missing required field "AppUserControl.kol"`)}
@@ -370,12 +378,9 @@ func (aucc *AppUserControlCreate) sqlSave(ctx context.Context) (*AppUserControl,
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
-			_node.ID = *id
-		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
-			return nil, err
-		}
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = uint32(id)
 	}
 	return _node, nil
 }
@@ -386,7 +391,7 @@ func (aucc *AppUserControlCreate) createSpec() (*AppUserControl, *sqlgraph.Creat
 		_spec = &sqlgraph.CreateSpec{
 			Table: appusercontrol.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appusercontrol.FieldID,
 			},
 		}
@@ -394,7 +399,7 @@ func (aucc *AppUserControlCreate) createSpec() (*AppUserControl, *sqlgraph.Creat
 	_spec.OnConflict = aucc.conflict
 	if id, ok := aucc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = &id
+		_spec.ID.Value = id
 	}
 	if value, ok := aucc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -419,6 +424,14 @@ func (aucc *AppUserControlCreate) createSpec() (*AppUserControl, *sqlgraph.Creat
 			Column: appusercontrol.FieldDeletedAt,
 		})
 		_node.DeletedAt = value
+	}
+	if value, ok := aucc.mutation.EntID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: appusercontrol.FieldEntID,
+		})
+		_node.EntID = value
 	}
 	if value, ok := aucc.mutation.AppID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -589,6 +602,18 @@ func (u *AppUserControlUpsert) UpdateDeletedAt() *AppUserControlUpsert {
 // AddDeletedAt adds v to the "deleted_at" field.
 func (u *AppUserControlUpsert) AddDeletedAt(v uint32) *AppUserControlUpsert {
 	u.Add(appusercontrol.FieldDeletedAt, v)
+	return u
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *AppUserControlUpsert) SetEntID(v uuid.UUID) *AppUserControlUpsert {
+	u.Set(appusercontrol.FieldEntID, v)
+	return u
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AppUserControlUpsert) UpdateEntID() *AppUserControlUpsert {
+	u.SetExcluded(appusercontrol.FieldEntID)
 	return u
 }
 
@@ -837,6 +862,20 @@ func (u *AppUserControlUpsertOne) UpdateDeletedAt() *AppUserControlUpsertOne {
 	})
 }
 
+// SetEntID sets the "ent_id" field.
+func (u *AppUserControlUpsertOne) SetEntID(v uuid.UUID) *AppUserControlUpsertOne {
+	return u.Update(func(s *AppUserControlUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AppUserControlUpsertOne) UpdateEntID() *AppUserControlUpsertOne {
+	return u.Update(func(s *AppUserControlUpsert) {
+		s.UpdateEntID()
+	})
+}
+
 // SetAppID sets the "app_id" field.
 func (u *AppUserControlUpsertOne) SetAppID(v uuid.UUID) *AppUserControlUpsertOne {
 	return u.Update(func(s *AppUserControlUpsert) {
@@ -1007,12 +1046,7 @@ func (u *AppUserControlUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *AppUserControlUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: AppUserControlUpsertOne.ID is not supported by MySQL driver. Use AppUserControlUpsertOne.Exec instead")
-	}
+func (u *AppUserControlUpsertOne) ID(ctx context.Context) (id uint32, err error) {
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -1021,7 +1055,7 @@ func (u *AppUserControlUpsertOne) ID(ctx context.Context) (id uuid.UUID, err err
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *AppUserControlUpsertOne) IDX(ctx context.Context) uuid.UUID {
+func (u *AppUserControlUpsertOne) IDX(ctx context.Context) uint32 {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -1072,6 +1106,10 @@ func (auccb *AppUserControlCreateBulk) Save(ctx context.Context) ([]*AppUserCont
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = uint32(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -1267,6 +1305,20 @@ func (u *AppUserControlUpsertBulk) AddDeletedAt(v uint32) *AppUserControlUpsertB
 func (u *AppUserControlUpsertBulk) UpdateDeletedAt() *AppUserControlUpsertBulk {
 	return u.Update(func(s *AppUserControlUpsert) {
 		s.UpdateDeletedAt()
+	})
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *AppUserControlUpsertBulk) SetEntID(v uuid.UUID) *AppUserControlUpsertBulk {
+	return u.Update(func(s *AppUserControlUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AppUserControlUpsertBulk) UpdateEntID() *AppUserControlUpsertBulk {
+	return u.Update(func(s *AppUserControlUpsert) {
+		s.UpdateEntID()
 	})
 }
 

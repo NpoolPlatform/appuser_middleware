@@ -15,10 +15,10 @@ import (
 func (s *Server) ExistAuth(ctx context.Context, in *npool.ExistAuthRequest) (*npool.ExistAuthResponse, error) {
 	_handler, err := auth1.NewHandler(
 		ctx,
-		handler.WithAppID(in.GetAppID()),
-		handler.WithUserID(in.UserID),
-		handler.WithResource(&in.Resource),
-		handler.WithMethod(&in.Method),
+		handler.WithAppID(&in.AppID, true),
+		handler.WithUserID(in.UserID, false),
+		handler.WithResource(&in.Resource, true),
+		handler.WithMethod(&in.Method, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

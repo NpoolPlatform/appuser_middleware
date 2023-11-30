@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 
-	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -61,6 +60,20 @@ func (kc *KycCreate) SetDeletedAt(u uint32) *KycCreate {
 func (kc *KycCreate) SetNillableDeletedAt(u *uint32) *KycCreate {
 	if u != nil {
 		kc.SetDeletedAt(*u)
+	}
+	return kc
+}
+
+// SetEntID sets the "ent_id" field.
+func (kc *KycCreate) SetEntID(u uuid.UUID) *KycCreate {
+	kc.mutation.SetEntID(u)
+	return kc
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (kc *KycCreate) SetNillableEntID(u *uuid.UUID) *KycCreate {
+	if u != nil {
+		kc.SetEntID(*u)
 	}
 	return kc
 }
@@ -206,16 +219,8 @@ func (kc *KycCreate) SetNillableState(s *string) *KycCreate {
 }
 
 // SetID sets the "id" field.
-func (kc *KycCreate) SetID(u uuid.UUID) *KycCreate {
+func (kc *KycCreate) SetID(u uint32) *KycCreate {
 	kc.mutation.SetID(u)
-	return kc
-}
-
-// SetNillableID sets the "id" field if the given value is not nil.
-func (kc *KycCreate) SetNillableID(u *uuid.UUID) *KycCreate {
-	if u != nil {
-		kc.SetID(*u)
-	}
 	return kc
 }
 
@@ -319,6 +324,13 @@ func (kc *KycCreate) defaults() error {
 		v := kyc.DefaultDeletedAt()
 		kc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := kc.mutation.EntID(); !ok {
+		if kyc.DefaultEntID == nil {
+			return fmt.Errorf("ent: uninitialized kyc.DefaultEntID (forgotten import ent/runtime?)")
+		}
+		v := kyc.DefaultEntID()
+		kc.mutation.SetEntID(v)
+	}
 	if _, ok := kc.mutation.AppID(); !ok {
 		if kyc.DefaultAppID == nil {
 			return fmt.Errorf("ent: uninitialized kyc.DefaultAppID (forgotten import ent/runtime?)")
@@ -368,13 +380,6 @@ func (kc *KycCreate) defaults() error {
 		v := kyc.DefaultState
 		kc.mutation.SetState(v)
 	}
-	if _, ok := kc.mutation.ID(); !ok {
-		if kyc.DefaultID == nil {
-			return fmt.Errorf("ent: uninitialized kyc.DefaultID (forgotten import ent/runtime?)")
-		}
-		v := kyc.DefaultID()
-		kc.mutation.SetID(v)
-	}
 	return nil
 }
 
@@ -389,6 +394,9 @@ func (kc *KycCreate) check() error {
 	if _, ok := kc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "Kyc.deleted_at"`)}
 	}
+	if _, ok := kc.mutation.EntID(); !ok {
+		return &ValidationError{Name: "ent_id", err: errors.New(`ent: missing required field "Kyc.ent_id"`)}
+	}
 	return nil
 }
 
@@ -400,12 +408,9 @@ func (kc *KycCreate) sqlSave(ctx context.Context) (*Kyc, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
-			_node.ID = *id
-		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
-			return nil, err
-		}
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = uint32(id)
 	}
 	return _node, nil
 }
@@ -416,7 +421,7 @@ func (kc *KycCreate) createSpec() (*Kyc, *sqlgraph.CreateSpec) {
 		_spec = &sqlgraph.CreateSpec{
 			Table: kyc.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: kyc.FieldID,
 			},
 		}
@@ -424,7 +429,7 @@ func (kc *KycCreate) createSpec() (*Kyc, *sqlgraph.CreateSpec) {
 	_spec.OnConflict = kc.conflict
 	if id, ok := kc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = &id
+		_spec.ID.Value = id
 	}
 	if value, ok := kc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -449,6 +454,14 @@ func (kc *KycCreate) createSpec() (*Kyc, *sqlgraph.CreateSpec) {
 			Column: kyc.FieldDeletedAt,
 		})
 		_node.DeletedAt = value
+	}
+	if value, ok := kc.mutation.EntID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: kyc.FieldEntID,
+		})
+		_node.EntID = value
 	}
 	if value, ok := kc.mutation.AppID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -635,6 +648,18 @@ func (u *KycUpsert) UpdateDeletedAt() *KycUpsert {
 // AddDeletedAt adds v to the "deleted_at" field.
 func (u *KycUpsert) AddDeletedAt(v uint32) *KycUpsert {
 	u.Add(kyc.FieldDeletedAt, v)
+	return u
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *KycUpsert) SetEntID(v uuid.UUID) *KycUpsert {
+	u.Set(kyc.FieldEntID, v)
+	return u
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *KycUpsert) UpdateEntID() *KycUpsert {
+	u.SetExcluded(kyc.FieldEntID)
 	return u
 }
 
@@ -931,6 +956,20 @@ func (u *KycUpsertOne) UpdateDeletedAt() *KycUpsertOne {
 	})
 }
 
+// SetEntID sets the "ent_id" field.
+func (u *KycUpsertOne) SetEntID(v uuid.UUID) *KycUpsertOne {
+	return u.Update(func(s *KycUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *KycUpsertOne) UpdateEntID() *KycUpsertOne {
+	return u.Update(func(s *KycUpsert) {
+		s.UpdateEntID()
+	})
+}
+
 // SetAppID sets the "app_id" field.
 func (u *KycUpsertOne) SetAppID(v uuid.UUID) *KycUpsertOne {
 	return u.Update(func(s *KycUpsert) {
@@ -1157,12 +1196,7 @@ func (u *KycUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *KycUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: KycUpsertOne.ID is not supported by MySQL driver. Use KycUpsertOne.Exec instead")
-	}
+func (u *KycUpsertOne) ID(ctx context.Context) (id uint32, err error) {
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -1171,7 +1205,7 @@ func (u *KycUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *KycUpsertOne) IDX(ctx context.Context) uuid.UUID {
+func (u *KycUpsertOne) IDX(ctx context.Context) uint32 {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -1222,6 +1256,10 @@ func (kcb *KycCreateBulk) Save(ctx context.Context) ([]*Kyc, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = uint32(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -1417,6 +1455,20 @@ func (u *KycUpsertBulk) AddDeletedAt(v uint32) *KycUpsertBulk {
 func (u *KycUpsertBulk) UpdateDeletedAt() *KycUpsertBulk {
 	return u.Update(func(s *KycUpsert) {
 		s.UpdateDeletedAt()
+	})
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *KycUpsertBulk) SetEntID(v uuid.UUID) *KycUpsertBulk {
+	return u.Update(func(s *KycUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *KycUpsertBulk) UpdateEntID() *KycUpsertBulk {
+	return u.Update(func(s *KycUpsert) {
+		s.UpdateEntID()
 	})
 }
 

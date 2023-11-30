@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/loginhistory"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/predicate"
-	"github.com/google/uuid"
 )
 
 // LoginHistoryQuery is the builder for querying LoginHistory entities.
@@ -87,8 +86,8 @@ func (lhq *LoginHistoryQuery) FirstX(ctx context.Context) *LoginHistory {
 
 // FirstID returns the first LoginHistory ID from the query.
 // Returns a *NotFoundError when no LoginHistory ID was found.
-func (lhq *LoginHistoryQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (lhq *LoginHistoryQuery) FirstID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = lhq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -100,7 +99,7 @@ func (lhq *LoginHistoryQuery) FirstID(ctx context.Context) (id uuid.UUID, err er
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (lhq *LoginHistoryQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (lhq *LoginHistoryQuery) FirstIDX(ctx context.Context) uint32 {
 	id, err := lhq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -138,8 +137,8 @@ func (lhq *LoginHistoryQuery) OnlyX(ctx context.Context) *LoginHistory {
 // OnlyID is like Only, but returns the only LoginHistory ID in the query.
 // Returns a *NotSingularError when more than one LoginHistory ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (lhq *LoginHistoryQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (lhq *LoginHistoryQuery) OnlyID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = lhq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -155,7 +154,7 @@ func (lhq *LoginHistoryQuery) OnlyID(ctx context.Context) (id uuid.UUID, err err
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (lhq *LoginHistoryQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (lhq *LoginHistoryQuery) OnlyIDX(ctx context.Context) uint32 {
 	id, err := lhq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -181,8 +180,8 @@ func (lhq *LoginHistoryQuery) AllX(ctx context.Context) []*LoginHistory {
 }
 
 // IDs executes the query and returns a list of LoginHistory IDs.
-func (lhq *LoginHistoryQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
-	var ids []uuid.UUID
+func (lhq *LoginHistoryQuery) IDs(ctx context.Context) ([]uint32, error) {
+	var ids []uint32
 	if err := lhq.Select(loginhistory.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -190,7 +189,7 @@ func (lhq *LoginHistoryQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (lhq *LoginHistoryQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (lhq *LoginHistoryQuery) IDsX(ctx context.Context) []uint32 {
 	ids, err := lhq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -377,7 +376,7 @@ func (lhq *LoginHistoryQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   loginhistory.Table,
 			Columns: loginhistory.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: loginhistory.FieldID,
 			},
 		},

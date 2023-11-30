@@ -84,6 +84,20 @@ func (bauu *BanAppUserUpdate) AddDeletedAt(u int32) *BanAppUserUpdate {
 	return bauu
 }
 
+// SetEntID sets the "ent_id" field.
+func (bauu *BanAppUserUpdate) SetEntID(u uuid.UUID) *BanAppUserUpdate {
+	bauu.mutation.SetEntID(u)
+	return bauu
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (bauu *BanAppUserUpdate) SetNillableEntID(u *uuid.UUID) *BanAppUserUpdate {
+	if u != nil {
+		bauu.SetEntID(*u)
+	}
+	return bauu
+}
+
 // SetAppID sets the "app_id" field.
 func (bauu *BanAppUserUpdate) SetAppID(u uuid.UUID) *BanAppUserUpdate {
 	bauu.mutation.SetAppID(u)
@@ -196,7 +210,7 @@ func (bauu *BanAppUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Table:   banappuser.Table,
 			Columns: banappuser.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: banappuser.FieldID,
 			},
 		},
@@ -248,6 +262,13 @@ func (bauu *BanAppUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: banappuser.FieldDeletedAt,
+		})
+	}
+	if value, ok := bauu.mutation.EntID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: banappuser.FieldEntID,
 		})
 	}
 	if value, ok := bauu.mutation.AppID(); ok {
@@ -344,6 +365,20 @@ func (bauuo *BanAppUserUpdateOne) SetNillableDeletedAt(u *uint32) *BanAppUserUpd
 // AddDeletedAt adds u to the "deleted_at" field.
 func (bauuo *BanAppUserUpdateOne) AddDeletedAt(u int32) *BanAppUserUpdateOne {
 	bauuo.mutation.AddDeletedAt(u)
+	return bauuo
+}
+
+// SetEntID sets the "ent_id" field.
+func (bauuo *BanAppUserUpdateOne) SetEntID(u uuid.UUID) *BanAppUserUpdateOne {
+	bauuo.mutation.SetEntID(u)
+	return bauuo
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (bauuo *BanAppUserUpdateOne) SetNillableEntID(u *uuid.UUID) *BanAppUserUpdateOne {
+	if u != nil {
+		bauuo.SetEntID(*u)
+	}
 	return bauuo
 }
 
@@ -472,7 +507,7 @@ func (bauuo *BanAppUserUpdateOne) sqlSave(ctx context.Context) (_node *BanAppUse
 			Table:   banappuser.Table,
 			Columns: banappuser.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: banappuser.FieldID,
 			},
 		},
@@ -541,6 +576,13 @@ func (bauuo *BanAppUserUpdateOne) sqlSave(ctx context.Context) (_node *BanAppUse
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: banappuser.FieldDeletedAt,
+		})
+	}
+	if value, ok := bauuo.mutation.EntID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: banappuser.FieldEntID,
 		})
 	}
 	if value, ok := bauuo.mutation.AppID(); ok {

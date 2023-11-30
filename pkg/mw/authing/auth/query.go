@@ -26,6 +26,7 @@ type queryHandler struct {
 func (h *queryHandler) selectAuth(stm *ent.AuthQuery) {
 	h.stm = stm.Select(
 		entauth.FieldID,
+		entauth.FieldEntID,
 		entauth.FieldResource,
 		entauth.FieldMethod,
 		entauth.FieldCreatedAt,
@@ -35,20 +36,20 @@ func (h *queryHandler) selectAuth(stm *ent.AuthQuery) {
 	)
 }
 
-func (h *queryHandler) queryAuth(cli *ent.Client) error {
-	if h.ID == nil {
-		return fmt.Errorf("invalid id")
+func (h *queryHandler) queryAuth(cli *ent.Client) {
+	stm := cli.Auth.
+		Query().
+		Where(entauth.DeletedAt(0))
+	if h.ID != nil {
+		stm.Where(entauth.ID(*h.ID))
 	}
-
-	h.selectAuth(
-		cli.Auth.
-			Query().
-			Where(
-				entauth.ID(*h.ID),
-				entauth.DeletedAt(0),
-			),
-	)
-	return nil
+	if h.AppID != nil {
+		stm.Where(entauth.AppID(*h.AppID))
+	}
+	if h.EntID != nil {
+		stm.Where(entauth.EntID(*h.EntID))
+	}
+	h.selectAuth(stm)
 }
 
 func (h *queryHandler) queryAuths(ctx context.Context, cli *ent.Client) error {
@@ -73,7 +74,7 @@ func (h *queryHandler) queryJoinApp(s *sql.Selector) {
 	s.LeftJoin(t).
 		On(
 			s.C(entauth.FieldAppID),
-			t.C(entapp.FieldID),
+			t.C(entapp.FieldEntID),
 		).
 		AppendSelect(
 			sql.As(t.C(entapp.FieldName), "app_name"),
@@ -86,7 +87,7 @@ func (h *queryHandler) queryJoinAppRole(s *sql.Selector) {
 	s.LeftJoin(t).
 		On(
 			s.C(entauth.FieldRoleID),
-			t.C(entapprole.FieldID),
+			t.C(entapprole.FieldEntID),
 		).
 		AppendSelect(
 			sql.As(t.C(entapprole.FieldRole), "role_name"),
@@ -98,7 +99,7 @@ func (h *queryHandler) queryJoinAppUser(s *sql.Selector) {
 	s.LeftJoin(t).
 		On(
 			s.C(entauth.FieldUserID),
-			t.C(entappuser.FieldID),
+			t.C(entappuser.FieldEntID),
 		).
 		AppendSelect(
 			sql.As(t.C(entappuser.FieldEmailAddress), "email_address"),
@@ -124,9 +125,7 @@ func (h *Handler) GetAuth(ctx context.Context) (*npool.Auth, error) {
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryAuth(cli); err != nil {
-			return nil
-		}
+		handler.queryAuth(cli)
 		handler.queryJoin()
 		if err := handler.scan(ctx); err != nil {
 			return err

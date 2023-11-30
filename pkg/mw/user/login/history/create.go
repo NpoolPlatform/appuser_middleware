@@ -15,15 +15,17 @@ import (
 
 func (h *Handler) CreateHistory(ctx context.Context) (*npool.History, error) {
 	id := uuid.New()
-	if h.ID == nil {
-		h.ID = &id
+	if h.EntID == nil {
+		h.EntID = &id
 	}
 
 	userID := h.UserID.String()
+	appID := h.AppID.String()
+
 	handler, err := user1.NewHandler(
 		ctx,
-		user1.WithID(&userID),
-		user1.WithAppID(h.AppID.String()),
+		user1.WithEntID(&userID, true),
+		user1.WithAppID(&appID, true),
 	)
 	if err != nil {
 		return nil, err
@@ -37,20 +39,22 @@ func (h *Handler) CreateHistory(ctx context.Context) (*npool.History, error) {
 	}
 
 	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if _, err := historycrud.CreateSet(
+		info, err := historycrud.CreateSet(
 			cli.LoginHistory.Create(),
 			&historycrud.Req{
-				ID:        h.ID,
-				AppID:     &h.AppID,
-				UserID:    &h.UserID,
+				EntID:     h.EntID,
+				AppID:     h.AppID,
+				UserID:    h.UserID,
 				ClientIP:  h.ClientIP,
 				UserAgent: h.UserAgent,
 				Location:  h.Location,
 				LoginType: h.LoginType,
 			},
-		).Save(_ctx); err != nil {
+		).Save(_ctx)
+		if err != nil {
 			return err
 		}
+		h.ID = &info.ID
 		return nil
 	})
 	if err != nil {

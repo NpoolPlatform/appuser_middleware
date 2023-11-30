@@ -26,8 +26,8 @@ func (h *createHandler) createApp(ctx context.Context, tx *ent.Tx) error {
 	if _, err := appcrud.CreateSet(
 		tx.App.Create(),
 		&appcrud.Req{
-			ID:          h.ID,
-			CreatedBy:   &h.CreatedBy,
+			EntID:       h.EntID,
+			CreatedBy:   h.CreatedBy,
 			Name:        h.Name,
 			Logo:        h.Logo,
 			Description: h.Description,
@@ -42,7 +42,7 @@ func (h *createHandler) createAppCtrl(ctx context.Context, tx *ent.Tx) error {
 	if _, err := ctrlcrud.CreateSet(
 		tx.AppControl.Create(),
 		&ctrlcrud.Req{
-			AppID:                    h.ID,
+			AppID:                    h.EntID,
 			SignupMethods:            h.SignupMethods,
 			ExtSigninMethods:         h.ExtSigninMethods,
 			RecaptchaMethod:          h.RecaptchaMethod,
@@ -74,8 +74,8 @@ func (h *Handler) CreateApp(ctx context.Context) (info *npool.App, err error) {
 	}()
 
 	id := uuid.New()
-	if handler.ID == nil {
-		handler.ID = &id
+	if handler.EntID == nil {
+		handler.EntID = &id
 	}
 
 	err = db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {
@@ -113,39 +113,19 @@ func (h *Handler) CreateApps(ctx context.Context) (infos []*npool.App, err error
 	err = db.WithTx(ctx, func(_ctx context.Context, tx *ent.Tx) error {
 		for _, req := range h.Reqs {
 			id := uuid.New()
-			if req.ID != nil {
-				id = uuid.MustParse(*req.ID)
+			if req.EntID == nil {
+				req.EntID = &id
+				req.Control.AppID = &id
 			}
-
-			createdBy := uuid.MustParse(*req.CreatedBy)
-
 			if _, err := appcrud.CreateSet(
 				tx.App.Create(),
-				&appcrud.Req{
-					ID:          &id,
-					CreatedBy:   &createdBy,
-					Name:        req.Name,
-					Logo:        req.Logo,
-					Description: req.Description,
-				},
+				req.Req,
 			).Save(ctx); err != nil {
 				return err
 			}
 			if _, err := ctrlcrud.CreateSet(
 				tx.AppControl.Create(),
-				&ctrlcrud.Req{
-					AppID:                    &id,
-					SignupMethods:            req.SignupMethods,
-					ExtSigninMethods:         req.ExtSigninMethods,
-					RecaptchaMethod:          req.RecaptchaMethod,
-					KycEnable:                req.KycEnable,
-					SigninVerifyEnable:       req.SigninVerifyEnable,
-					InvitationCodeMust:       req.InvitationCodeMust,
-					CreateInvitationCodeWhen: req.CreateInvitationCodeWhen,
-					MaxTypedCouponsPerOrder:  req.MaxTypedCouponsPerOrder,
-					Maintaining:              req.Maintaining,
-					CommitButtonTargets:      req.CommitButtonTargets,
-				},
+				req.Control,
 			).Save(ctx); err != nil {
 				return err
 			}
@@ -158,8 +138,9 @@ func (h *Handler) CreateApps(ctx context.Context) (infos []*npool.App, err error
 	}
 
 	h.Conds = &appcrud.Conds{
-		IDs: &cruder.Cond{Op: cruder.IN, Val: ids},
+		EntIDs: &cruder.Cond{Op: cruder.IN, Val: ids},
 	}
+	h.Limit = int32(len(ids))
 	infos, _, err = h.GetApps(ctx)
 	if err != nil {
 		return nil, err

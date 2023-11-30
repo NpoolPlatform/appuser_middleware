@@ -11,6 +11,7 @@ import (
 
 	apicli "github.com/NpoolPlatform/basal-middleware/pkg/client/api"
 
+	"github.com/NpoolPlatform/appuser-middleware/pkg/migrator"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/pubsub"
 	cli "github.com/urfave/cli/v2"
 
@@ -34,6 +35,9 @@ var runCmd = &cli.Command{
 }
 
 func run(ctx context.Context) error {
+	if err := migrator.Migrate(ctx); err != nil {
+		return err
+	}
 	if err := db.Init(); err != nil {
 		return err
 	}

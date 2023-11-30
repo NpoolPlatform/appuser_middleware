@@ -84,6 +84,20 @@ func (ahu *AuthHistoryUpdate) AddDeletedAt(u int32) *AuthHistoryUpdate {
 	return ahu
 }
 
+// SetEntID sets the "ent_id" field.
+func (ahu *AuthHistoryUpdate) SetEntID(u uuid.UUID) *AuthHistoryUpdate {
+	ahu.mutation.SetEntID(u)
+	return ahu
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (ahu *AuthHistoryUpdate) SetNillableEntID(u *uuid.UUID) *AuthHistoryUpdate {
+	if u != nil {
+		ahu.SetEntID(*u)
+	}
+	return ahu
+}
+
 // SetAppID sets the "app_id" field.
 func (ahu *AuthHistoryUpdate) SetAppID(u uuid.UUID) *AuthHistoryUpdate {
 	ahu.mutation.SetAppID(u)
@@ -270,7 +284,7 @@ func (ahu *AuthHistoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Table:   authhistory.Table,
 			Columns: authhistory.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: authhistory.FieldID,
 			},
 		},
@@ -322,6 +336,13 @@ func (ahu *AuthHistoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: authhistory.FieldDeletedAt,
+		})
+	}
+	if value, ok := ahu.mutation.EntID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: authhistory.FieldEntID,
 		})
 	}
 	if value, ok := ahu.mutation.AppID(); ok {
@@ -462,6 +483,20 @@ func (ahuo *AuthHistoryUpdateOne) SetNillableDeletedAt(u *uint32) *AuthHistoryUp
 // AddDeletedAt adds u to the "deleted_at" field.
 func (ahuo *AuthHistoryUpdateOne) AddDeletedAt(u int32) *AuthHistoryUpdateOne {
 	ahuo.mutation.AddDeletedAt(u)
+	return ahuo
+}
+
+// SetEntID sets the "ent_id" field.
+func (ahuo *AuthHistoryUpdateOne) SetEntID(u uuid.UUID) *AuthHistoryUpdateOne {
+	ahuo.mutation.SetEntID(u)
+	return ahuo
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (ahuo *AuthHistoryUpdateOne) SetNillableEntID(u *uuid.UUID) *AuthHistoryUpdateOne {
+	if u != nil {
+		ahuo.SetEntID(*u)
+	}
 	return ahuo
 }
 
@@ -664,7 +699,7 @@ func (ahuo *AuthHistoryUpdateOne) sqlSave(ctx context.Context) (_node *AuthHisto
 			Table:   authhistory.Table,
 			Columns: authhistory.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: authhistory.FieldID,
 			},
 		},
@@ -733,6 +768,13 @@ func (ahuo *AuthHistoryUpdateOne) sqlSave(ctx context.Context) (_node *AuthHisto
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: authhistory.FieldDeletedAt,
+		})
+	}
+	if value, ok := ahuo.mutation.EntID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: authhistory.FieldEntID,
 		})
 	}
 	if value, ok := ahuo.mutation.AppID(); ok {

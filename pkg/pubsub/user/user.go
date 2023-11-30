@@ -27,9 +27,9 @@ func Apply(ctx context.Context, req interface{}) error {
 	for _, credit := range credits {
 		handler, err := user1.NewHandler(
 			ctx,
-			user1.WithAppID(credit.GetAppID()),
-			user1.WithID(&credit.UserID),
-			user1.WithActionCredits(&credit.Credits),
+			user1.WithAppID(&credit.AppID, true),
+			user1.WithEntID(&credit.UserID, true),
+			user1.WithActionCredits(&credit.Credits, true),
 		)
 		if err != nil {
 			return err

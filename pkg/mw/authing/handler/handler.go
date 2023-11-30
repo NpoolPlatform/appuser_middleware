@@ -10,8 +10,9 @@ import (
 )
 
 type Handler struct {
-	ID       *uuid.UUID
-	AppID    uuid.UUID
+	ID       *uint32
+	EntID    *uuid.UUID
+	AppID    *uuid.UUID
 	UserID   *uuid.UUID
 	RoleID   *uuid.UUID
 	Method   *string
@@ -34,34 +35,59 @@ func NewHandler(ctx context.Context, options ...interface{}) (*Handler, error) {
 	return handler, nil
 }
 
-func WithID(id *string) func(context.Context, *Handler) error {
+func WithID(id *uint32, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if id == nil {
+			if must {
+				return fmt.Errorf("invalid id")
+			}
+			return nil
+		}
+		h.ID = id
+		return nil
+	}
+}
+
+func WithEntID(id *string, must bool) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if id == nil {
+			if must {
+				return fmt.Errorf("invalid entid")
+			}
 			return nil
 		}
 		_id, err := uuid.Parse(*id)
 		if err != nil {
 			return err
 		}
-		h.ID = &_id
+		h.EntID = &_id
 		return nil
 	}
 }
 
-func WithAppID(id string) func(context.Context, *Handler) error {
+func WithAppID(id *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
-		_id, err := uuid.Parse(id)
+		if id == nil {
+			if must {
+				return fmt.Errorf("invalid appid")
+			}
+			return nil
+		}
+		_id, err := uuid.Parse(*id)
 		if err != nil {
 			return err
 		}
-		h.AppID = _id
+		h.AppID = &_id
 		return nil
 	}
 }
 
-func WithRoleID(id *string) func(context.Context, *Handler) error {
+func WithRoleID(id *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if id == nil {
+			if must {
+				return fmt.Errorf("invalid roleid")
+			}
 			return nil
 		}
 		_id, err := uuid.Parse(*id)
@@ -73,9 +99,12 @@ func WithRoleID(id *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithUserID(id *string) func(context.Context, *Handler) error {
+func WithUserID(id *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if id == nil {
+			if must {
+				return fmt.Errorf("invalid userid")
+			}
 			return nil
 		}
 		_id, err := uuid.Parse(*id)
@@ -87,9 +116,12 @@ func WithUserID(id *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithMethod(method *string) func(context.Context, *Handler) error {
+func WithMethod(method *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if method == nil {
+			if must {
+				return fmt.Errorf("invalid method")
+			}
 			return nil
 		}
 		switch *method {
@@ -103,9 +135,12 @@ func WithMethod(method *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithResource(resource *string) func(context.Context, *Handler) error {
+func WithResource(resource *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if resource == nil {
+			if must {
+				return fmt.Errorf("invalid resource")
+			}
 			return nil
 		}
 		const leastResourceLen = 3

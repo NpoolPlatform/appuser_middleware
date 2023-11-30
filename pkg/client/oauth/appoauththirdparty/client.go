@@ -63,7 +63,7 @@ func UpdateOAuthThirdParty(ctx context.Context, req *npool.OAuthThirdPartyReq) (
 func ExistOAuthThirdParty(ctx context.Context, id string) (bool, error) {
 	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.ExistOAuthThirdParty(ctx, &npool.ExistOAuthThirdPartyRequest{
-			ID: id,
+			EntID: id,
 		})
 		if err != nil {
 			return nil, err
@@ -79,7 +79,7 @@ func ExistOAuthThirdParty(ctx context.Context, id string) (bool, error) {
 func GetOAuthThirdParty(ctx context.Context, id string) (*npool.OAuthThirdParty, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetOAuthThirdParty(ctx, &npool.GetOAuthThirdPartyRequest{
-			ID: id,
+			EntID: id,
 		})
 		if err != nil {
 			return nil, err
@@ -129,7 +129,7 @@ func ExistOAuthThirdPartyConds(ctx context.Context, conds *npool.Conds) (bool, e
 	return info.(bool), nil
 }
 
-func DeleteOAuthThirdParty(ctx context.Context, id string) (*npool.OAuthThirdParty, error) {
+func DeleteOAuthThirdParty(ctx context.Context, id uint32) (*npool.OAuthThirdParty, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.DeleteOAuthThirdParty(ctx, &npool.DeleteOAuthThirdPartyRequest{
 			Info: &npool.OAuthThirdPartyReq{

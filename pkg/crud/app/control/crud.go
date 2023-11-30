@@ -13,7 +13,7 @@ import (
 )
 
 type Req struct {
-	ID                       *uuid.UUID
+	EntID                    *uuid.UUID
 	AppID                    *uuid.UUID
 	SignupMethods            []basetypes.SignMethod
 	ExtSigninMethods         []basetypes.SignMethod
@@ -28,8 +28,8 @@ type Req struct {
 }
 
 func CreateSet(c *ent.AppControlCreate, req *Req) *ent.AppControlCreate {
-	if req.ID != nil {
-		c.SetID(*req.ID)
+	if req.EntID != nil {
+		c.SetEntID(*req.EntID)
 	}
 	if req.AppID != nil {
 		c.SetAppID(*req.AppID)
@@ -76,6 +76,9 @@ func CreateSet(c *ent.AppControlCreate, req *Req) *ent.AppControlCreate {
 }
 
 func UpdateSet(u *ent.AppControlUpdateOne, req *Req) *ent.AppControlUpdateOne {
+	if req.AppID != nil {
+		u.SetAppID(*req.AppID)
+	}
 	if len(req.SignupMethods) > 0 {
 		methods := []string{}
 		for _, m := range req.SignupMethods {
@@ -118,7 +121,7 @@ func UpdateSet(u *ent.AppControlUpdateOne, req *Req) *ent.AppControlUpdateOne {
 }
 
 type Conds struct {
-	ID    *cruder.Cond
+	EntID *cruder.Cond
 	AppID *cruder.Cond
 }
 
@@ -126,21 +129,21 @@ func SetQueryConds(q *ent.AppControlQuery, conds *Conds) (*ent.AppControlQuery, 
 	if conds == nil {
 		return q, nil
 	}
-	if conds.ID != nil {
-		id, ok := conds.ID.Val.(uuid.UUID)
+	if conds.EntID != nil {
+		id, ok := conds.EntID.Val.(uuid.UUID)
 		if !ok {
-			return nil, fmt.Errorf("invalid id")
+			return nil, fmt.Errorf("invalid entid")
 		}
-		switch conds.ID.Op {
+		switch conds.EntID.Op {
 		case cruder.EQ:
-			q.Where(entappctrl.ID(id))
+			q.Where(entappctrl.EntID(id))
 		default:
 			return nil, fmt.Errorf("invalid appcontrol field")
 		}
 	}
 
 	if conds.AppID != nil {
-		id, ok := conds.ID.Val.(uuid.UUID)
+		id, ok := conds.AppID.Val.(uuid.UUID)
 		if !ok {
 			return nil, fmt.Errorf("invalid appid")
 		}

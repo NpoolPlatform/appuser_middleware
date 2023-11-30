@@ -19,34 +19,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type createHandler struct {
-	*Handler
-}
-
-func (h *createHandler) validtate() error {
-	if h.ThirdPartyID == nil {
-		return fmt.Errorf("invalid clientsecret")
-	}
-	if h.ClientID == nil {
-		return fmt.Errorf("invalid clientid")
-	}
-	if h.ClientSecret == nil {
-		return fmt.Errorf("invalid clientsecret")
-	}
-	if h.CallbackURL == nil {
-		return fmt.Errorf("invalid callbackurl")
-	}
-	return nil
-}
-
 func (h *Handler) CreateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdParty, error) {
-	handler := &createHandler{
-		Handler: h,
-	}
-	if err := handler.validtate(); err != nil {
-		return nil, err
-	}
-
 	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateAppOAuthThirdParty, h.AppID, h.ThirdPartyID)
 	if err := redis2.TryLock(key, 0); err != nil {
 		return nil, err
@@ -74,8 +47,8 @@ func (h *Handler) CreateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 	}
 
 	id := uuid.New()
-	if h.ID == nil {
-		h.ID = &id
+	if h.EntID == nil {
+		h.EntID = &id
 	}
 	salt, err := aes.NewAesKey(aes.AES256)
 	if err != nil {
@@ -92,7 +65,7 @@ func (h *Handler) CreateOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdP
 		if _, err := appoauththirdpartycrud.CreateSet(
 			tx.AppOAuthThirdParty.Create(),
 			&appoauththirdpartycrud.Req{
-				ID:           h.ID,
+				EntID:        h.EntID,
 				AppID:        &h.AppID,
 				ThirdPartyID: h.ThirdPartyID,
 				ClientID:     h.ClientID,

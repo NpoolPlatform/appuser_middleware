@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 
-	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -61,6 +60,20 @@ func (ac *AuthCreate) SetDeletedAt(u uint32) *AuthCreate {
 func (ac *AuthCreate) SetNillableDeletedAt(u *uint32) *AuthCreate {
 	if u != nil {
 		ac.SetDeletedAt(*u)
+	}
+	return ac
+}
+
+// SetEntID sets the "ent_id" field.
+func (ac *AuthCreate) SetEntID(u uuid.UUID) *AuthCreate {
+	ac.mutation.SetEntID(u)
+	return ac
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (ac *AuthCreate) SetNillableEntID(u *uuid.UUID) *AuthCreate {
+	if u != nil {
+		ac.SetEntID(*u)
 	}
 	return ac
 }
@@ -136,16 +149,8 @@ func (ac *AuthCreate) SetNillableMethod(s *string) *AuthCreate {
 }
 
 // SetID sets the "id" field.
-func (ac *AuthCreate) SetID(u uuid.UUID) *AuthCreate {
+func (ac *AuthCreate) SetID(u uint32) *AuthCreate {
 	ac.mutation.SetID(u)
-	return ac
-}
-
-// SetNillableID sets the "id" field if the given value is not nil.
-func (ac *AuthCreate) SetNillableID(u *uuid.UUID) *AuthCreate {
-	if u != nil {
-		ac.SetID(*u)
-	}
 	return ac
 }
 
@@ -249,6 +254,13 @@ func (ac *AuthCreate) defaults() error {
 		v := auth.DefaultDeletedAt()
 		ac.mutation.SetDeletedAt(v)
 	}
+	if _, ok := ac.mutation.EntID(); !ok {
+		if auth.DefaultEntID == nil {
+			return fmt.Errorf("ent: uninitialized auth.DefaultEntID (forgotten import ent/runtime?)")
+		}
+		v := auth.DefaultEntID()
+		ac.mutation.SetEntID(v)
+	}
 	if _, ok := ac.mutation.AppID(); !ok {
 		if auth.DefaultAppID == nil {
 			return fmt.Errorf("ent: uninitialized auth.DefaultAppID (forgotten import ent/runtime?)")
@@ -278,13 +290,6 @@ func (ac *AuthCreate) defaults() error {
 		v := auth.DefaultMethod
 		ac.mutation.SetMethod(v)
 	}
-	if _, ok := ac.mutation.ID(); !ok {
-		if auth.DefaultID == nil {
-			return fmt.Errorf("ent: uninitialized auth.DefaultID (forgotten import ent/runtime?)")
-		}
-		v := auth.DefaultID()
-		ac.mutation.SetID(v)
-	}
 	return nil
 }
 
@@ -299,6 +304,9 @@ func (ac *AuthCreate) check() error {
 	if _, ok := ac.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "Auth.deleted_at"`)}
 	}
+	if _, ok := ac.mutation.EntID(); !ok {
+		return &ValidationError{Name: "ent_id", err: errors.New(`ent: missing required field "Auth.ent_id"`)}
+	}
 	return nil
 }
 
@@ -310,12 +318,9 @@ func (ac *AuthCreate) sqlSave(ctx context.Context) (*Auth, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
-			_node.ID = *id
-		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
-			return nil, err
-		}
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = uint32(id)
 	}
 	return _node, nil
 }
@@ -326,7 +331,7 @@ func (ac *AuthCreate) createSpec() (*Auth, *sqlgraph.CreateSpec) {
 		_spec = &sqlgraph.CreateSpec{
 			Table: auth.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: auth.FieldID,
 			},
 		}
@@ -334,7 +339,7 @@ func (ac *AuthCreate) createSpec() (*Auth, *sqlgraph.CreateSpec) {
 	_spec.OnConflict = ac.conflict
 	if id, ok := ac.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = &id
+		_spec.ID.Value = id
 	}
 	if value, ok := ac.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -359,6 +364,14 @@ func (ac *AuthCreate) createSpec() (*Auth, *sqlgraph.CreateSpec) {
 			Column: auth.FieldDeletedAt,
 		})
 		_node.DeletedAt = value
+	}
+	if value, ok := ac.mutation.EntID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: auth.FieldEntID,
+		})
+		_node.EntID = value
 	}
 	if value, ok := ac.mutation.AppID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -505,6 +518,18 @@ func (u *AuthUpsert) UpdateDeletedAt() *AuthUpsert {
 // AddDeletedAt adds v to the "deleted_at" field.
 func (u *AuthUpsert) AddDeletedAt(v uint32) *AuthUpsert {
 	u.Add(auth.FieldDeletedAt, v)
+	return u
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *AuthUpsert) SetEntID(v uuid.UUID) *AuthUpsert {
+	u.Set(auth.FieldEntID, v)
+	return u
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AuthUpsert) UpdateEntID() *AuthUpsert {
+	u.SetExcluded(auth.FieldEntID)
 	return u
 }
 
@@ -711,6 +736,20 @@ func (u *AuthUpsertOne) UpdateDeletedAt() *AuthUpsertOne {
 	})
 }
 
+// SetEntID sets the "ent_id" field.
+func (u *AuthUpsertOne) SetEntID(v uuid.UUID) *AuthUpsertOne {
+	return u.Update(func(s *AuthUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AuthUpsertOne) UpdateEntID() *AuthUpsertOne {
+	return u.Update(func(s *AuthUpsert) {
+		s.UpdateEntID()
+	})
+}
+
 // SetAppID sets the "app_id" field.
 func (u *AuthUpsertOne) SetAppID(v uuid.UUID) *AuthUpsertOne {
 	return u.Update(func(s *AuthUpsert) {
@@ -832,12 +871,7 @@ func (u *AuthUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *AuthUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: AuthUpsertOne.ID is not supported by MySQL driver. Use AuthUpsertOne.Exec instead")
-	}
+func (u *AuthUpsertOne) ID(ctx context.Context) (id uint32, err error) {
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -846,7 +880,7 @@ func (u *AuthUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *AuthUpsertOne) IDX(ctx context.Context) uuid.UUID {
+func (u *AuthUpsertOne) IDX(ctx context.Context) uint32 {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -897,6 +931,10 @@ func (acb *AuthCreateBulk) Save(ctx context.Context) ([]*Auth, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = uint32(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -1092,6 +1130,20 @@ func (u *AuthUpsertBulk) AddDeletedAt(v uint32) *AuthUpsertBulk {
 func (u *AuthUpsertBulk) UpdateDeletedAt() *AuthUpsertBulk {
 	return u.Update(func(s *AuthUpsert) {
 		s.UpdateDeletedAt()
+	})
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *AuthUpsertBulk) SetEntID(v uuid.UUID) *AuthUpsertBulk {
+	return u.Update(func(s *AuthUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AuthUpsertBulk) UpdateEntID() *AuthUpsertBulk {
+	return u.Update(func(s *AuthUpsert) {
+		s.UpdateEntID()
 	})
 }
 

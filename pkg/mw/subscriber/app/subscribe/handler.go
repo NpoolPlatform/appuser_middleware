@@ -16,9 +16,10 @@ import (
 )
 
 type Handler struct {
-	ID             *uuid.UUID
-	AppID          uuid.UUID
-	SubscribeAppID uuid.UUID
+	ID             *uint32
+	EntID          *uuid.UUID
+	AppID          *uuid.UUID
+	SubscribeAppID *uuid.UUID
 	Conds          *appsubscribecrud.Conds
 	Offset         int32
 	Limit          int32
@@ -34,25 +35,47 @@ func NewHandler(ctx context.Context, options ...func(context.Context, *Handler) 
 	return handler, nil
 }
 
-func WithID(id *string) func(context.Context, *Handler) error {
+func WithID(id *uint32, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if id == nil {
+			if must {
+				return fmt.Errorf("invalid id")
+			}
+			return nil
+		}
+		h.ID = id
+		return nil
+	}
+}
+
+func WithEntID(id *string, must bool) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if id == nil {
+			if must {
+				return fmt.Errorf("invalid entid")
+			}
 			return nil
 		}
 		_id, err := uuid.Parse(*id)
 		if err != nil {
 			return err
 		}
-		h.ID = &_id
+		h.EntID = &_id
 		return nil
 	}
 }
 
-func WithAppID(id string) func(context.Context, *Handler) error {
+func WithAppID(id *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
+		if id == nil {
+			if must {
+				return fmt.Errorf("invalid appid")
+			}
+			return nil
+		}
 		handler, err := app.NewHandler(
 			ctx,
-			app.WithID(&id),
+			app.WithEntID(id, true),
 		)
 		if err != nil {
 			return err
@@ -64,20 +87,26 @@ func WithAppID(id string) func(context.Context, *Handler) error {
 		if !exist {
 			return fmt.Errorf("invalid app")
 		}
-		_id, err := uuid.Parse(id)
+		_id, err := uuid.Parse(*id)
 		if err != nil {
 			return err
 		}
-		h.AppID = _id
+		h.AppID = &_id
 		return nil
 	}
 }
 
-func WithSubscribeAppID(id string) func(context.Context, *Handler) error {
+func WithSubscribeAppID(id *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
+		if id == nil {
+			if must {
+				return fmt.Errorf("invalid subscribeappid")
+			}
+			return nil
+		}
 		handler, err := app.NewHandler(
 			ctx,
-			app.WithID(&id),
+			app.WithEntID(id, true),
 		)
 		if err != nil {
 			return err
@@ -89,11 +118,11 @@ func WithSubscribeAppID(id string) func(context.Context, *Handler) error {
 		if !exist {
 			return fmt.Errorf("invalid subscribe app")
 		}
-		_id, err := uuid.Parse(id)
+		_id, err := uuid.Parse(*id)
 		if err != nil {
 			return err
 		}
-		h.SubscribeAppID = _id
+		h.SubscribeAppID = &_id
 		return nil
 	}
 }
@@ -105,11 +134,17 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 			return nil
 		}
 		if conds.ID != nil {
-			id, err := uuid.Parse(conds.GetID().GetValue())
+			h.Conds.ID = &cruder.Cond{
+				Op:  conds.GetID().GetOp(),
+				Val: conds.GetID().GetValue(),
+			}
+		}
+		if conds.EntID != nil {
+			id, err := uuid.Parse(conds.GetEntID().GetValue())
 			if err != nil {
 				return err
 			}
-			h.Conds.ID = &cruder.Cond{Op: conds.GetID().GetOp(), Val: id}
+			h.Conds.EntID = &cruder.Cond{Op: conds.GetEntID().GetOp(), Val: id}
 		}
 		if conds.AppID != nil {
 			id, err := uuid.Parse(conds.GetAppID().GetValue())

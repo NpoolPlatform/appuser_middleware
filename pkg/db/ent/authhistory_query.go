@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/authhistory"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/predicate"
-	"github.com/google/uuid"
 )
 
 // AuthHistoryQuery is the builder for querying AuthHistory entities.
@@ -87,8 +86,8 @@ func (ahq *AuthHistoryQuery) FirstX(ctx context.Context) *AuthHistory {
 
 // FirstID returns the first AuthHistory ID from the query.
 // Returns a *NotFoundError when no AuthHistory ID was found.
-func (ahq *AuthHistoryQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (ahq *AuthHistoryQuery) FirstID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = ahq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -100,7 +99,7 @@ func (ahq *AuthHistoryQuery) FirstID(ctx context.Context) (id uuid.UUID, err err
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (ahq *AuthHistoryQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (ahq *AuthHistoryQuery) FirstIDX(ctx context.Context) uint32 {
 	id, err := ahq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -138,8 +137,8 @@ func (ahq *AuthHistoryQuery) OnlyX(ctx context.Context) *AuthHistory {
 // OnlyID is like Only, but returns the only AuthHistory ID in the query.
 // Returns a *NotSingularError when more than one AuthHistory ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (ahq *AuthHistoryQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (ahq *AuthHistoryQuery) OnlyID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = ahq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -155,7 +154,7 @@ func (ahq *AuthHistoryQuery) OnlyID(ctx context.Context) (id uuid.UUID, err erro
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (ahq *AuthHistoryQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (ahq *AuthHistoryQuery) OnlyIDX(ctx context.Context) uint32 {
 	id, err := ahq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -181,8 +180,8 @@ func (ahq *AuthHistoryQuery) AllX(ctx context.Context) []*AuthHistory {
 }
 
 // IDs executes the query and returns a list of AuthHistory IDs.
-func (ahq *AuthHistoryQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
-	var ids []uuid.UUID
+func (ahq *AuthHistoryQuery) IDs(ctx context.Context) ([]uint32, error) {
+	var ids []uint32
 	if err := ahq.Select(authhistory.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -190,7 +189,7 @@ func (ahq *AuthHistoryQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (ahq *AuthHistoryQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (ahq *AuthHistoryQuery) IDsX(ctx context.Context) []uint32 {
 	ids, err := ahq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -377,7 +376,7 @@ func (ahq *AuthHistoryQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   authhistory.Table,
 			Columns: authhistory.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: authhistory.FieldID,
 			},
 		},

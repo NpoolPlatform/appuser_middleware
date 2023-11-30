@@ -18,6 +18,8 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
+	// FieldEntID holds the string denoting the ent_id field in the database.
+	FieldEntID = "ent_id"
 	// FieldCreatedBy holds the string denoting the created_by field in the database.
 	FieldCreatedBy = "created_by"
 	// FieldRole holds the string denoting the role field in the database.
@@ -40,6 +42,7 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
+	FieldEntID,
 	FieldCreatedBy,
 	FieldRole,
 	FieldDescription,
@@ -75,6 +78,8 @@ var (
 	UpdateDefaultUpdatedAt func() uint32
 	// DefaultDeletedAt holds the default value on creation for the "deleted_at" field.
 	DefaultDeletedAt func() uint32
+	// DefaultEntID holds the default value on creation for the "ent_id" field.
+	DefaultEntID func() uuid.UUID
 	// DefaultCreatedBy holds the default value on creation for the "created_by" field.
 	DefaultCreatedBy func() uuid.UUID
 	// DefaultRole holds the default value on creation for the "role" field.
@@ -87,6 +92,4 @@ var (
 	DefaultDefault bool
 	// DefaultGenesis holds the default value on creation for the "genesis" field.
 	DefaultGenesis bool
-	// DefaultID holds the default value on creation for the "id" field.
-	DefaultID func() uuid.UUID
 )

@@ -24,6 +24,7 @@ type queryHandler struct {
 func (h *queryHandler) selectAppRole(stm *ent.AppRoleQuery) {
 	h.stm = stm.Select(
 		entapprole.FieldID,
+		entapprole.FieldEntID,
 		entapprole.FieldCreatedBy,
 		entapprole.FieldRole,
 		entapprole.FieldDescription,
@@ -33,18 +34,19 @@ func (h *queryHandler) selectAppRole(stm *ent.AppRoleQuery) {
 }
 
 func (h *queryHandler) queryAppRole(cli *ent.Client) error {
-	if h.ID == nil {
-		return fmt.Errorf("invalid roleid")
+	stm := cli.AppRole.
+		Query().
+		Where(entapprole.DeletedAt(0))
+	if h.ID != nil {
+		stm.Where(entapprole.ID(*h.ID))
 	}
-
-	h.selectAppRole(
-		cli.AppRole.
-			Query().
-			Where(
-				entapprole.ID(*h.ID),
-				entapprole.DeletedAt(0),
-			),
-	)
+	if h.AppID != nil {
+		stm.Where(entapprole.AppID(*h.AppID))
+	}
+	if h.EntID != nil {
+		stm.Where(entapprole.EntID(*h.EntID))
+	}
+	h.selectAppRole(stm)
 	return nil
 }
 
@@ -67,10 +69,10 @@ func (h *queryHandler) queryJoinApp(s *sql.Selector) {
 	s.LeftJoin(t).
 		On(
 			s.C(entapprole.FieldAppID),
-			t.C(entapp.FieldID),
+			t.C(entapp.FieldEntID),
 		).
 		AppendSelect(
-			sql.As(t.C(entapp.FieldID), "app_id"),
+			sql.As(t.C(entapp.FieldEntID), "app_id"),
 			sql.As(t.C(entapp.FieldName), "app_name"),
 			sql.As(t.C(entapp.FieldLogo), "app_logo"),
 			t.C(entapp.FieldCreatedAt),
@@ -99,7 +101,6 @@ func (h *Handler) GetRole(ctx context.Context) (*npool.Role, error) {
 		handler.queryJoin()
 		const limit = 2
 		handler.stm.
-			Offset(int(handler.Offset)).
 			Limit(limit).
 			Modify(func(s *sql.Selector) {})
 		if err := handler.scan(ctx); err != nil {

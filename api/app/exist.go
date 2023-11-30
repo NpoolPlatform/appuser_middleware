@@ -15,7 +15,7 @@ import (
 func (s *Server) ExistApp(ctx context.Context, in *npool.ExistAppRequest) (*npool.ExistAppResponse, error) {
 	handler, err := app1.NewHandler(
 		ctx,
-		app1.WithID(&in.ID),
+		app1.WithEntID(&in.EntID, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

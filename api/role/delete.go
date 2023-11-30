@@ -13,9 +13,16 @@ import (
 
 func (s *Server) DeleteRole(ctx context.Context, in *npool.DeleteRoleRequest) (*npool.DeleteRoleResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"DeleteRole",
+			"In", in,
+		)
+		return &npool.DeleteRoleResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	handler, err := role1.NewHandler(
 		ctx,
-		role1.WithID(req.ID),
+		role1.WithID(req.ID, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

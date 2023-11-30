@@ -26,7 +26,7 @@ func (h *existAppHandler) queryJoinBanApp(s *sql.Selector) {
 	s.LeftJoin(t).
 		On(
 			t.C(entbanapp.FieldAppID),
-			s.C(entapp.FieldID),
+			s.C(entapp.FieldEntID),
 		).
 		AppendSelect(
 			sql.As(t.C(entbanapp.FieldAppID), "app_bid"),
@@ -34,15 +34,15 @@ func (h *existAppHandler) queryJoinBanApp(s *sql.Selector) {
 }
 
 func (h *existAppHandler) queryApp(cli *ent.Client) {
-	h.stm = cli.
-		App.
+	h.stm = cli.App.
 		Query().
 		Where(
-			entapp.ID(h.AppID),
+			entapp.EntID(*h.AppID),
+			entapp.DeletedAt(0),
 		).
 		Modify(func(s *sql.Selector) {
 			s.Select(
-				sql.As(s.C(entapp.FieldID), "app_id"),
+				sql.As(s.C(entapp.FieldEntID), "app_id"),
 			)
 		})
 }
@@ -52,14 +52,14 @@ func (h *existAppHandler) queryJoinAuth(s *sql.Selector) {
 	s.LeftJoin(t).
 		On(
 			t.C(entauth.FieldAppID),
-			s.C(entapp.FieldID),
+			s.C(entapp.FieldEntID),
 		).
 		AppendSelect(
 			sql.As(t.C(entauth.FieldAppID), "app_vid"),
 		).
 		Where(
 			sql.And(
-				sql.EQ(t.C(entauth.FieldAppID), h.AppID),
+				sql.EQ(t.C(entauth.FieldAppID), *h.AppID),
 				sql.EQ(t.C(entauth.FieldUserID), uuid.UUID{}),
 				sql.EQ(t.C(entauth.FieldRoleID), uuid.UUID{}),
 				sql.EQ(t.C(entauth.FieldResource), *h.Resource),

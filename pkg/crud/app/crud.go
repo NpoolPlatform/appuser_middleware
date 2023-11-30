@@ -11,7 +11,7 @@ import (
 )
 
 type Req struct {
-	ID          *uuid.UUID
+	EntID       *uuid.UUID
 	CreatedBy   *uuid.UUID
 	Name        *string
 	Logo        *string
@@ -19,8 +19,8 @@ type Req struct {
 }
 
 func CreateSet(c *ent.AppCreate, req *Req) *ent.AppCreate {
-	if req.ID != nil {
-		c.SetID(*req.ID)
+	if req.EntID != nil {
+		c.SetEntID(*req.EntID)
 	}
 	if req.CreatedBy != nil {
 		c.SetCreatedBy(*req.CreatedBy)
@@ -38,6 +38,9 @@ func CreateSet(c *ent.AppCreate, req *Req) *ent.AppCreate {
 }
 
 func UpdateSet(u *ent.AppUpdateOne, req *Req) *ent.AppUpdateOne {
+	if req.EntID != nil {
+		u.SetEntID(*req.EntID)
+	}
 	if req.Name != nil {
 		u.SetName(*req.Name)
 	}
@@ -52,17 +55,19 @@ func UpdateSet(u *ent.AppUpdateOne, req *Req) *ent.AppUpdateOne {
 
 type Conds struct {
 	ID        *cruder.Cond
-	IDs       *cruder.Cond
+	EntID     *cruder.Cond
+	EntIDs    *cruder.Cond
 	CreatedBy *cruder.Cond
 	Name      *cruder.Cond
 }
 
+//nolint:gocyclo
 func SetQueryConds(q *ent.AppQuery, conds *Conds) (*ent.AppQuery, error) {
 	if conds == nil {
 		return q, nil
 	}
 	if conds.ID != nil {
-		id, ok := conds.ID.Val.(uuid.UUID)
+		id, ok := conds.ID.Val.(uint32)
 		if !ok {
 			return nil, fmt.Errorf("invalid app id")
 		}
@@ -73,14 +78,26 @@ func SetQueryConds(q *ent.AppQuery, conds *Conds) (*ent.AppQuery, error) {
 			return nil, fmt.Errorf("invalid app field")
 		}
 	}
-	if conds.IDs != nil {
-		ids, ok := conds.IDs.Val.([]uuid.UUID)
+	if conds.EntID != nil {
+		id, ok := conds.EntID.Val.(uuid.UUID)
 		if !ok {
-			return nil, fmt.Errorf("invalid app ids")
+			return nil, fmt.Errorf("invalid app entid")
 		}
-		switch conds.IDs.Op {
+		switch conds.EntID.Op {
+		case cruder.EQ:
+			q.Where(entapp.EntID(id))
+		default:
+			return nil, fmt.Errorf("invalid app field")
+		}
+	}
+	if conds.EntIDs != nil {
+		ids, ok := conds.EntIDs.Val.([]uuid.UUID)
+		if !ok {
+			return nil, fmt.Errorf("invalid app entids")
+		}
+		switch conds.EntIDs.Op {
 		case cruder.IN:
-			q.Where(entapp.IDIn(ids...))
+			q.Where(entapp.EntIDIn(ids...))
 		default:
 			return nil, fmt.Errorf("invalid app field")
 		}

@@ -38,7 +38,7 @@ var (
 	extSigninMethods    = []basetypes.SignMethod{}
 	extSigninMethodsStr = `[]`
 	ret                 = npool.App{
-		ID:                          uuid.NewString(),
+		EntID:                       uuid.NewString(),
 		CreatedBy:                   uuid.NewString(),
 		Name:                        uuid.NewString(),
 		Logo:                        uuid.NewString(),
@@ -64,11 +64,11 @@ var (
 
 func creatApp(t *testing.T) {
 	var (
-		id        = ret.ID
+		id        = ret.EntID
 		createdBy = ret.CreatedBy
 		boolVal   = true
 		req       = npool.AppReq{
-			ID:                       &id,
+			EntID:                    &id,
 			CreatedBy:                &createdBy,
 			Name:                     &ret.Name,
 			Logo:                     &ret.Logo,
@@ -90,12 +90,13 @@ func creatApp(t *testing.T) {
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
 		ret.ExtSigninMethods = info.ExtSigninMethods
+		ret.ID = info.ID
 		assert.Equal(t, info, &ret)
 	}
 }
 
 func updateApp(t *testing.T) {
-	ret.BanAppID = ret.ID
+	ret.BanAppID = ret.EntID
 	ret.Banned = true
 	ret.BanMessage = uuid.NewString()
 	var (
@@ -104,6 +105,7 @@ func updateApp(t *testing.T) {
 		maxTypedCouponsPerOrder = uint32(5)
 		req                     = npool.AppReq{
 			ID:                       &ret.ID,
+			EntID:                    &ret.EntID,
 			CreatedBy:                &ret.Name,
 			Name:                     &ret.Name,
 			Logo:                     &ret.Logo,
@@ -133,7 +135,7 @@ func updateApp(t *testing.T) {
 }
 
 func getApp(t *testing.T) {
-	info, err := GetApp(context.Background(), ret.ID)
+	info, err := GetApp(context.Background(), ret.EntID)
 	if assert.Nil(t, err) {
 		info.CreatedAt = ret.CreatedAt
 		assert.Equal(t, info, &ret)
@@ -153,7 +155,7 @@ func deleteApp(t *testing.T) {
 		assert.Equal(t, info, &ret)
 	}
 
-	info, err = GetApp(context.Background(), ret.ID)
+	info, err = GetApp(context.Background(), ret.EntID)
 	assert.Nil(t, err)
 	assert.Nil(t, info)
 }

@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 
-	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -61,6 +60,20 @@ func (auc *AppUserCreate) SetDeletedAt(u uint32) *AppUserCreate {
 func (auc *AppUserCreate) SetNillableDeletedAt(u *uint32) *AppUserCreate {
 	if u != nil {
 		auc.SetDeletedAt(*u)
+	}
+	return auc
+}
+
+// SetEntID sets the "ent_id" field.
+func (auc *AppUserCreate) SetEntID(u uuid.UUID) *AppUserCreate {
+	auc.mutation.SetEntID(u)
+	return auc
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (auc *AppUserCreate) SetNillableEntID(u *uuid.UUID) *AppUserCreate {
+	if u != nil {
+		auc.SetEntID(*u)
 	}
 	return auc
 }
@@ -122,16 +135,8 @@ func (auc *AppUserCreate) SetNillableImportFromApp(u *uuid.UUID) *AppUserCreate 
 }
 
 // SetID sets the "id" field.
-func (auc *AppUserCreate) SetID(u uuid.UUID) *AppUserCreate {
+func (auc *AppUserCreate) SetID(u uint32) *AppUserCreate {
 	auc.mutation.SetID(u)
-	return auc
-}
-
-// SetNillableID sets the "id" field if the given value is not nil.
-func (auc *AppUserCreate) SetNillableID(u *uuid.UUID) *AppUserCreate {
-	if u != nil {
-		auc.SetID(*u)
-	}
 	return auc
 }
 
@@ -235,6 +240,13 @@ func (auc *AppUserCreate) defaults() error {
 		v := appuser.DefaultDeletedAt()
 		auc.mutation.SetDeletedAt(v)
 	}
+	if _, ok := auc.mutation.EntID(); !ok {
+		if appuser.DefaultEntID == nil {
+			return fmt.Errorf("ent: uninitialized appuser.DefaultEntID (forgotten import ent/runtime?)")
+		}
+		v := appuser.DefaultEntID()
+		auc.mutation.SetEntID(v)
+	}
 	if _, ok := auc.mutation.AppID(); !ok {
 		if appuser.DefaultAppID == nil {
 			return fmt.Errorf("ent: uninitialized appuser.DefaultAppID (forgotten import ent/runtime?)")
@@ -257,13 +269,6 @@ func (auc *AppUserCreate) defaults() error {
 		v := appuser.DefaultImportFromApp()
 		auc.mutation.SetImportFromApp(v)
 	}
-	if _, ok := auc.mutation.ID(); !ok {
-		if appuser.DefaultID == nil {
-			return fmt.Errorf("ent: uninitialized appuser.DefaultID (forgotten import ent/runtime?)")
-		}
-		v := appuser.DefaultID()
-		auc.mutation.SetID(v)
-	}
 	return nil
 }
 
@@ -278,6 +283,9 @@ func (auc *AppUserCreate) check() error {
 	if _, ok := auc.mutation.DeletedAt(); !ok {
 		return &ValidationError{Name: "deleted_at", err: errors.New(`ent: missing required field "AppUser.deleted_at"`)}
 	}
+	if _, ok := auc.mutation.EntID(); !ok {
+		return &ValidationError{Name: "ent_id", err: errors.New(`ent: missing required field "AppUser.ent_id"`)}
+	}
 	return nil
 }
 
@@ -289,12 +297,9 @@ func (auc *AppUserCreate) sqlSave(ctx context.Context) (*AppUser, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
-			_node.ID = *id
-		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
-			return nil, err
-		}
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = uint32(id)
 	}
 	return _node, nil
 }
@@ -305,7 +310,7 @@ func (auc *AppUserCreate) createSpec() (*AppUser, *sqlgraph.CreateSpec) {
 		_spec = &sqlgraph.CreateSpec{
 			Table: appuser.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appuser.FieldID,
 			},
 		}
@@ -313,7 +318,7 @@ func (auc *AppUserCreate) createSpec() (*AppUser, *sqlgraph.CreateSpec) {
 	_spec.OnConflict = auc.conflict
 	if id, ok := auc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = &id
+		_spec.ID.Value = id
 	}
 	if value, ok := auc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -338,6 +343,14 @@ func (auc *AppUserCreate) createSpec() (*AppUser, *sqlgraph.CreateSpec) {
 			Column: appuser.FieldDeletedAt,
 		})
 		_node.DeletedAt = value
+	}
+	if value, ok := auc.mutation.EntID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: appuser.FieldEntID,
+		})
+		_node.EntID = value
 	}
 	if value, ok := auc.mutation.AppID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -476,6 +489,18 @@ func (u *AppUserUpsert) UpdateDeletedAt() *AppUserUpsert {
 // AddDeletedAt adds v to the "deleted_at" field.
 func (u *AppUserUpsert) AddDeletedAt(v uint32) *AppUserUpsert {
 	u.Add(appuser.FieldDeletedAt, v)
+	return u
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *AppUserUpsert) SetEntID(v uuid.UUID) *AppUserUpsert {
+	u.Set(appuser.FieldEntID, v)
+	return u
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AppUserUpsert) UpdateEntID() *AppUserUpsert {
+	u.SetExcluded(appuser.FieldEntID)
 	return u
 }
 
@@ -664,6 +689,20 @@ func (u *AppUserUpsertOne) UpdateDeletedAt() *AppUserUpsertOne {
 	})
 }
 
+// SetEntID sets the "ent_id" field.
+func (u *AppUserUpsertOne) SetEntID(v uuid.UUID) *AppUserUpsertOne {
+	return u.Update(func(s *AppUserUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AppUserUpsertOne) UpdateEntID() *AppUserUpsertOne {
+	return u.Update(func(s *AppUserUpsert) {
+		s.UpdateEntID()
+	})
+}
+
 // SetAppID sets the "app_id" field.
 func (u *AppUserUpsertOne) SetAppID(v uuid.UUID) *AppUserUpsertOne {
 	return u.Update(func(s *AppUserUpsert) {
@@ -764,12 +803,7 @@ func (u *AppUserUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *AppUserUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: AppUserUpsertOne.ID is not supported by MySQL driver. Use AppUserUpsertOne.Exec instead")
-	}
+func (u *AppUserUpsertOne) ID(ctx context.Context) (id uint32, err error) {
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -778,7 +812,7 @@ func (u *AppUserUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *AppUserUpsertOne) IDX(ctx context.Context) uuid.UUID {
+func (u *AppUserUpsertOne) IDX(ctx context.Context) uint32 {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -829,6 +863,10 @@ func (aucb *AppUserCreateBulk) Save(ctx context.Context) ([]*AppUser, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = uint32(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -1024,6 +1062,20 @@ func (u *AppUserUpsertBulk) AddDeletedAt(v uint32) *AppUserUpsertBulk {
 func (u *AppUserUpsertBulk) UpdateDeletedAt() *AppUserUpsertBulk {
 	return u.Update(func(s *AppUserUpsert) {
 		s.UpdateDeletedAt()
+	})
+}
+
+// SetEntID sets the "ent_id" field.
+func (u *AppUserUpsertBulk) SetEntID(v uuid.UUID) *AppUserUpsertBulk {
+	return u.Update(func(s *AppUserUpsert) {
+		s.SetEntID(v)
+	})
+}
+
+// UpdateEntID sets the "ent_id" field to the value that was provided on create.
+func (u *AppUserUpsertBulk) UpdateEntID() *AppUserUpsertBulk {
+	return u.Update(func(s *AppUserUpsert) {
+		s.UpdateEntID()
 	})
 }
 

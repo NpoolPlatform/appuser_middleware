@@ -13,15 +13,22 @@ import (
 
 func (s *Server) CreateRole(ctx context.Context, in *npool.CreateRoleRequest) (*npool.CreateRoleResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"CreateRole",
+			"In", in,
+		)
+		return &npool.CreateRoleResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	handler, err := role1.NewHandler(
 		ctx,
-		role1.WithID(req.ID),
-		role1.WithAppID(req.GetAppID()),
-		role1.WithCreatedBy(req.CreatedBy),
-		role1.WithRole(req.Role),
-		role1.WithDescription(req.Description),
-		role1.WithDefault(req.Default),
-		role1.WithGenesis(req.Genesis),
+		role1.WithEntID(req.EntID, false),
+		role1.WithAppID(req.AppID, true),
+		role1.WithCreatedBy(req.CreatedBy, true),
+		role1.WithRole(req.Role, true),
+		role1.WithDescription(req.Description, true),
+		role1.WithDefault(req.Default, true),
+		role1.WithGenesis(req.Genesis, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
@@ -48,7 +55,7 @@ func (s *Server) CreateRole(ctx context.Context, in *npool.CreateRoleRequest) (*
 func (s *Server) CreateRoles(ctx context.Context, in *npool.CreateRolesRequest) (*npool.CreateRolesResponse, error) {
 	handler, err := role1.NewHandler(
 		ctx,
-		role1.WithReqs(in.GetInfos()),
+		role1.WithReqs(in.GetInfos(), true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

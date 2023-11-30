@@ -19,15 +19,15 @@ import (
 
 func (h *Handler) CreateAppSubscribe(ctx context.Context) (*npool.AppSubscribe, error) {
 	id := uuid.New()
-	if h.ID == nil {
-		h.ID = &id
+	if h.EntID == nil {
+		h.EntID = &id
 	}
 
-	if h.AppID == h.SubscribeAppID {
+	if *h.AppID == *h.SubscribeAppID {
 		return nil, fmt.Errorf("cannot subscribe self")
 	}
 
-	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateAppSubscribe, h.AppID, h.SubscribeAppID)
+	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateAppSubscribe, *h.AppID, *h.SubscribeAppID)
 	if err := redis2.TryLock(key, 0); err != nil {
 		return nil, err
 	}
@@ -39,8 +39,8 @@ func (h *Handler) CreateAppSubscribe(ctx context.Context) (*npool.AppSubscribe, 
 		stm, err := appsubscribecrud.SetQueryConds(
 			cli.AppSubscribe.Query(),
 			&appsubscribecrud.Conds{
-				AppID:          &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
-				SubscribeAppID: &cruder.Cond{Op: cruder.EQ, Val: h.SubscribeAppID},
+				AppID:          &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
+				SubscribeAppID: &cruder.Cond{Op: cruder.EQ, Val: *h.SubscribeAppID},
 			},
 		)
 		if err != nil {
@@ -61,9 +61,9 @@ func (h *Handler) CreateAppSubscribe(ctx context.Context) (*npool.AppSubscribe, 
 		if _, err := appsubscribecrud.CreateSet(
 			cli.AppSubscribe.Create(),
 			&appsubscribecrud.Req{
-				ID:             h.ID,
-				AppID:          &h.AppID,
-				SubscribeAppID: &h.SubscribeAppID,
+				EntID:          h.EntID,
+				AppID:          h.AppID,
+				SubscribeAppID: h.SubscribeAppID,
 			},
 		).Save(_ctx); err != nil {
 			return err

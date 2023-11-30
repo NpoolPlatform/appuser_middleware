@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/app"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/predicate"
-	"github.com/google/uuid"
 )
 
 // AppQuery is the builder for querying App entities.
@@ -87,8 +86,8 @@ func (aq *AppQuery) FirstX(ctx context.Context) *App {
 
 // FirstID returns the first App ID from the query.
 // Returns a *NotFoundError when no App ID was found.
-func (aq *AppQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (aq *AppQuery) FirstID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = aq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -100,7 +99,7 @@ func (aq *AppQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (aq *AppQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (aq *AppQuery) FirstIDX(ctx context.Context) uint32 {
 	id, err := aq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -138,8 +137,8 @@ func (aq *AppQuery) OnlyX(ctx context.Context) *App {
 // OnlyID is like Only, but returns the only App ID in the query.
 // Returns a *NotSingularError when more than one App ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (aq *AppQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (aq *AppQuery) OnlyID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = aq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -155,7 +154,7 @@ func (aq *AppQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (aq *AppQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (aq *AppQuery) OnlyIDX(ctx context.Context) uint32 {
 	id, err := aq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -181,8 +180,8 @@ func (aq *AppQuery) AllX(ctx context.Context) []*App {
 }
 
 // IDs executes the query and returns a list of App IDs.
-func (aq *AppQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
-	var ids []uuid.UUID
+func (aq *AppQuery) IDs(ctx context.Context) ([]uint32, error) {
+	var ids []uint32
 	if err := aq.Select(app.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -190,7 +189,7 @@ func (aq *AppQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (aq *AppQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (aq *AppQuery) IDsX(ctx context.Context) []uint32 {
 	ids, err := aq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -377,7 +376,7 @@ func (aq *AppQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   app.Table,
 			Columns: app.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: app.FieldID,
 			},
 		},

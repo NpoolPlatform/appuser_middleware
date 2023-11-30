@@ -15,7 +15,8 @@ import (
 )
 
 type Handler struct {
-	ID             *uuid.UUID
+	ID             *uint32
+	EntID          *uuid.UUID
 	ClientName     *basetypes.SignMethod
 	ClientTag      *string
 	ClientLogoURL  *string
@@ -37,23 +38,42 @@ func NewHandler(ctx context.Context, options ...func(context.Context, *Handler) 
 	return handler, nil
 }
 
-func WithID(id *string) func(context.Context, *Handler) error {
+func WithID(id *uint32, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if id == nil {
+			if must {
+				return fmt.Errorf("invalid id")
+			}
+			return nil
+		}
+		h.ID = id
+		return nil
+	}
+}
+
+func WithEntID(id *string, must bool) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if id == nil {
+			if must {
+				return fmt.Errorf("invalid entid")
+			}
 			return nil
 		}
 		_id, err := uuid.Parse(*id)
 		if err != nil {
 			return err
 		}
-		h.ID = &_id
+		h.EntID = &_id
 		return nil
 	}
 }
 
-func WithClientName(clientName *basetypes.SignMethod) func(context.Context, *Handler) error {
+func WithClientName(clientName *basetypes.SignMethod, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if clientName == nil {
+			if must {
+				return fmt.Errorf("invalid clientname")
+			}
 			return nil
 		}
 		switch *clientName {
@@ -71,9 +91,12 @@ func WithClientName(clientName *basetypes.SignMethod) func(context.Context, *Han
 	}
 }
 
-func WithClientTag(clientTag *string) func(context.Context, *Handler) error {
+func WithClientTag(clientTag *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if clientTag == nil {
+			if must {
+				return fmt.Errorf("invalid clienttag")
+			}
 			return nil
 		}
 		if *clientTag == "" {
@@ -84,9 +107,12 @@ func WithClientTag(clientTag *string) func(context.Context, *Handler) error {
 	}
 }
 
-func WithClientLogoURL(clientLogoURL *string) func(context.Context, *Handler) error {
+func WithClientLogoURL(clientLogoURL *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if clientLogoURL == nil {
+			if must {
+				return fmt.Errorf("invalid clientlogourl")
+			}
 			return nil
 		}
 		if *clientLogoURL == "" {
@@ -97,9 +123,12 @@ func WithClientLogoURL(clientLogoURL *string) func(context.Context, *Handler) er
 	}
 }
 
-func WithClientOAuthURL(clientOAuthURL *string) func(context.Context, *Handler) error {
+func WithClientOAuthURL(clientOAuthURL *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if clientOAuthURL == nil {
+			if must {
+				return fmt.Errorf("invalid clientoauthurl")
+			}
 			return nil
 		}
 		if *clientOAuthURL == "" {
@@ -110,9 +139,12 @@ func WithClientOAuthURL(clientOAuthURL *string) func(context.Context, *Handler) 
 	}
 }
 
-func WithResponseType(responseType *string) func(context.Context, *Handler) error {
+func WithResponseType(responseType *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if responseType == nil {
+			if must {
+				return fmt.Errorf("invalid responsetype")
+			}
 			return nil
 		}
 		if *responseType == "" {
@@ -123,9 +155,12 @@ func WithResponseType(responseType *string) func(context.Context, *Handler) erro
 	}
 }
 
-func WithScope(scope *string) func(context.Context, *Handler) error {
+func WithScope(scope *string, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		if scope == nil {
+			if must {
+				return fmt.Errorf("invalid scope")
+			}
 			return nil
 		}
 		h.Scope = scope
@@ -140,26 +175,35 @@ func WithConds(conds *npool.Conds) func(context.Context, *Handler) error {
 			return nil
 		}
 		if conds.ID != nil {
-			id, err := uuid.Parse(conds.GetID().GetValue())
+			h.Conds.ID = &cruder.Cond{
+				Op:  conds.GetID().GetOp(),
+				Val: conds.GetID().GetValue(),
+			}
+		}
+		if conds.EntID != nil {
+			id, err := uuid.Parse(conds.GetEntID().GetValue())
 			if err != nil {
 				return err
 			}
-			h.Conds.ID = &cruder.Cond{Op: conds.GetID().GetOp(), Val: id}
+			h.Conds.EntID = &cruder.Cond{Op: conds.GetEntID().GetOp(), Val: id}
 		}
 
 		if conds.ClientName != nil {
-			h.Conds.ClientName = &cruder.Cond{Op: conds.GetClientName().GetOp(), Val: basetypes.SignMethod(conds.GetClientName().GetValue())}
+			h.Conds.ClientName = &cruder.Cond{
+				Op:  conds.GetClientName().GetOp(),
+				Val: basetypes.SignMethod(conds.GetClientName().GetValue()),
+			}
 		}
-		if len(conds.GetIDs().GetValue()) > 0 {
+		if len(conds.GetEntIDs().GetValue()) > 0 {
 			_ids := []uuid.UUID{}
-			for _, id := range conds.GetIDs().GetValue() {
+			for _, id := range conds.GetEntIDs().GetValue() {
 				_id, err := uuid.Parse(id)
 				if err != nil {
 					return err
 				}
 				_ids = append(_ids, _id)
 			}
-			h.Conds.IDs = &cruder.Cond{Op: conds.GetIDs().GetOp(), Val: _ids}
+			h.Conds.EntIDs = &cruder.Cond{Op: conds.GetEntIDs().GetOp(), Val: _ids}
 		}
 		return nil
 	}

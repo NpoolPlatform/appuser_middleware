@@ -84,6 +84,20 @@ func (lhu *LoginHistoryUpdate) AddDeletedAt(u int32) *LoginHistoryUpdate {
 	return lhu
 }
 
+// SetEntID sets the "ent_id" field.
+func (lhu *LoginHistoryUpdate) SetEntID(u uuid.UUID) *LoginHistoryUpdate {
+	lhu.mutation.SetEntID(u)
+	return lhu
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (lhu *LoginHistoryUpdate) SetNillableEntID(u *uuid.UUID) *LoginHistoryUpdate {
+	if u != nil {
+		lhu.SetEntID(*u)
+	}
+	return lhu
+}
+
 // SetAppID sets the "app_id" field.
 func (lhu *LoginHistoryUpdate) SetAppID(u uuid.UUID) *LoginHistoryUpdate {
 	lhu.mutation.SetAppID(u)
@@ -290,7 +304,7 @@ func (lhu *LoginHistoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Table:   loginhistory.Table,
 			Columns: loginhistory.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: loginhistory.FieldID,
 			},
 		},
@@ -342,6 +356,13 @@ func (lhu *LoginHistoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: loginhistory.FieldDeletedAt,
+		})
+	}
+	if value, ok := lhu.mutation.EntID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: loginhistory.FieldEntID,
 		})
 	}
 	if value, ok := lhu.mutation.AppID(); ok {
@@ -495,6 +516,20 @@ func (lhuo *LoginHistoryUpdateOne) SetNillableDeletedAt(u *uint32) *LoginHistory
 // AddDeletedAt adds u to the "deleted_at" field.
 func (lhuo *LoginHistoryUpdateOne) AddDeletedAt(u int32) *LoginHistoryUpdateOne {
 	lhuo.mutation.AddDeletedAt(u)
+	return lhuo
+}
+
+// SetEntID sets the "ent_id" field.
+func (lhuo *LoginHistoryUpdateOne) SetEntID(u uuid.UUID) *LoginHistoryUpdateOne {
+	lhuo.mutation.SetEntID(u)
+	return lhuo
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (lhuo *LoginHistoryUpdateOne) SetNillableEntID(u *uuid.UUID) *LoginHistoryUpdateOne {
+	if u != nil {
+		lhuo.SetEntID(*u)
+	}
 	return lhuo
 }
 
@@ -717,7 +752,7 @@ func (lhuo *LoginHistoryUpdateOne) sqlSave(ctx context.Context) (_node *LoginHis
 			Table:   loginhistory.Table,
 			Columns: loginhistory.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: loginhistory.FieldID,
 			},
 		},
@@ -786,6 +821,13 @@ func (lhuo *LoginHistoryUpdateOne) sqlSave(ctx context.Context) (_node *LoginHis
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: loginhistory.FieldDeletedAt,
+		})
+	}
+	if value, ok := lhuo.mutation.EntID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: loginhistory.FieldEntID,
 		})
 	}
 	if value, ok := lhuo.mutation.AppID(); ok {

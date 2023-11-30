@@ -38,14 +38,14 @@ func init() {
 
 var (
 	app = appmwpb.App{
-		ID:        uuid.NewString(),
+		EntID:     uuid.NewString(),
 		Name:      uuid.NewString(),
 		CreatedBy: uuid.NewString(),
 	}
 
 	user = appusermwpb.User{
-		ID:                uuid.NewString(),
-		AppID:             app.ID,
+		EntID:             uuid.NewString(),
+		AppID:             app.EntID,
 		EmailAddress:      "aaa@aaa.aaa",
 		PhoneNO:           "+8613612203133",
 		ImportedFromAppID: uuid.NewString(),
@@ -54,11 +54,11 @@ var (
 
 	passwordHash = "AAA"
 	ret          = npool.History{
-		ID:           uuid.NewString(),
-		AppID:        app.ID,
+		EntID:        uuid.NewString(),
+		AppID:        app.EntID,
 		AppName:      app.Name,
 		AppLogo:      app.Logo,
-		UserID:       user.ID,
+		UserID:       user.EntID,
 		EmailAddress: user.EmailAddress,
 		ClientIP:     "192.168.1.2",
 		UserAgent:    uuid.NewString(),
@@ -72,9 +72,9 @@ func setupHistory(t *testing.T) func(*testing.T) {
 	// app
 	handler, err := app1.NewHandler(
 		context.Background(),
-		app1.WithID(&app.ID),
-		app1.WithCreatedBy(app.CreatedBy),
-		app1.WithName(&app.Name),
+		app1.WithEntID(&app.EntID, true),
+		app1.WithCreatedBy(&app.CreatedBy, true),
+		app1.WithName(&app.Name, true),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, handler)
@@ -83,13 +83,19 @@ func setupHistory(t *testing.T) func(*testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, info)
 
+	handler, err = app1.NewHandler(
+		context.Background(),
+		app1.WithID(&info.ID, true),
+	)
+	assert.Nil(t, err)
+
 	// user
 	userHandler, err := user1.NewHandler(
 		context.TODO(),
-		user1.WithID(&user.ID),
-		user1.WithAppID(user.AppID),
-		user1.WithEmailAddress(&user.EmailAddress),
-		user1.WithPasswordHash(&passwordHash),
+		user1.WithEntID(&user.EntID, true),
+		user1.WithAppID(&user.AppID, true),
+		user1.WithEmailAddress(&user.EmailAddress, true),
+		user1.WithPasswordHash(&passwordHash, true),
 	)
 
 	assert.Nil(t, err)
@@ -99,6 +105,12 @@ func setupHistory(t *testing.T) func(*testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, _user)
 
+	userHandler, err = user1.NewHandler(
+		context.TODO(),
+		user1.WithID(&_user.ID, true),
+	)
+	assert.Nil(t, err)
+
 	return func(*testing.T) {
 		_, _ = handler.DeleteApp(context.Background())
 		_, _ = userHandler.DeleteUser(context.Background())
@@ -107,7 +119,7 @@ func setupHistory(t *testing.T) func(*testing.T) {
 
 func createHistory(t *testing.T) {
 	req := &npool.HistoryReq{
-		ID:        &ret.ID,
+		EntID:     &ret.EntID,
 		AppID:     &ret.AppID,
 		UserID:    &ret.UserID,
 		ClientIP:  &ret.ClientIP,
@@ -117,17 +129,17 @@ func createHistory(t *testing.T) {
 	}
 
 	info, err := CreateHistory(context.Background(), req)
-	fmt.Printf("err %v\n", err)
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
-		info.AppName = ret.AppName
-		info.AppLogo = ret.AppLogo
+		ret.AppName = info.AppName
+		ret.AppLogo = info.AppLogo
+		ret.ID = info.ID
 		assert.Equal(t, info, &ret)
 	}
 }
 
 func getHistory(t *testing.T) {
-	info, err := GetHistory(context.Background(), ret.ID)
+	info, err := GetHistory(context.Background(), ret.EntID)
 	if assert.Nil(t, err) {
 		assert.Equal(t, info, &ret)
 	}

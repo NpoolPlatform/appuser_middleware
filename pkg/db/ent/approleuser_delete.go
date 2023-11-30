@@ -72,7 +72,7 @@ func (arud *AppRoleUserDelete) sqlExec(ctx context.Context) (int, error) {
 		Node: &sqlgraph.NodeSpec{
 			Table: approleuser.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: approleuser.FieldID,
 			},
 		},

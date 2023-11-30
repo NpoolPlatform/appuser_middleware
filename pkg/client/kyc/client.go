@@ -64,7 +64,7 @@ func UpdateKyc(ctx context.Context, req *npool.KycReq) (*npool.Kyc, error) {
 func GetKyc(ctx context.Context, id string) (*npool.Kyc, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GetKyc(ctx, &npool.GetKycRequest{
-			ID: id,
+			EntID: id,
 		})
 		if err != nil {
 			return nil, err
@@ -121,7 +121,7 @@ func GetKycOnly(ctx context.Context, conds *npool.Conds) (info *npool.Kyc, err e
 	return infos.([]*npool.Kyc)[0], nil
 }
 
-func DeleteKyc(ctx context.Context, id string) (*npool.Kyc, error) {
+func DeleteKyc(ctx context.Context, id uint32) (*npool.Kyc, error) {
 	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.DeleteKyc(ctx, &npool.DeleteKycRequest{
 			Info: &npool.KycReq{

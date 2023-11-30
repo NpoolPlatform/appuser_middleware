@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuserextra"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/predicate"
-	"github.com/google/uuid"
 )
 
 // AppUserExtraQuery is the builder for querying AppUserExtra entities.
@@ -87,8 +86,8 @@ func (aueq *AppUserExtraQuery) FirstX(ctx context.Context) *AppUserExtra {
 
 // FirstID returns the first AppUserExtra ID from the query.
 // Returns a *NotFoundError when no AppUserExtra ID was found.
-func (aueq *AppUserExtraQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (aueq *AppUserExtraQuery) FirstID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = aueq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -100,7 +99,7 @@ func (aueq *AppUserExtraQuery) FirstID(ctx context.Context) (id uuid.UUID, err e
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (aueq *AppUserExtraQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (aueq *AppUserExtraQuery) FirstIDX(ctx context.Context) uint32 {
 	id, err := aueq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -138,8 +137,8 @@ func (aueq *AppUserExtraQuery) OnlyX(ctx context.Context) *AppUserExtra {
 // OnlyID is like Only, but returns the only AppUserExtra ID in the query.
 // Returns a *NotSingularError when more than one AppUserExtra ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (aueq *AppUserExtraQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (aueq *AppUserExtraQuery) OnlyID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = aueq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -155,7 +154,7 @@ func (aueq *AppUserExtraQuery) OnlyID(ctx context.Context) (id uuid.UUID, err er
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (aueq *AppUserExtraQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (aueq *AppUserExtraQuery) OnlyIDX(ctx context.Context) uint32 {
 	id, err := aueq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -181,8 +180,8 @@ func (aueq *AppUserExtraQuery) AllX(ctx context.Context) []*AppUserExtra {
 }
 
 // IDs executes the query and returns a list of AppUserExtra IDs.
-func (aueq *AppUserExtraQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
-	var ids []uuid.UUID
+func (aueq *AppUserExtraQuery) IDs(ctx context.Context) ([]uint32, error) {
+	var ids []uint32
 	if err := aueq.Select(appuserextra.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -190,7 +189,7 @@ func (aueq *AppUserExtraQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (aueq *AppUserExtraQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (aueq *AppUserExtraQuery) IDsX(ctx context.Context) []uint32 {
 	ids, err := aueq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -377,7 +376,7 @@ func (aueq *AppUserExtraQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   appuserextra.Table,
 			Columns: appuserextra.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appuserextra.FieldID,
 			},
 		},

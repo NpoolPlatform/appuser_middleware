@@ -13,9 +13,16 @@ import (
 
 func (s *Server) DeleteOAuthThirdParty(ctx context.Context, in *npool.DeleteOAuthThirdPartyRequest) (*npool.DeleteOAuthThirdPartyResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"DeleteOAuthThirdParty",
+			"In", in,
+		)
+		return &npool.DeleteOAuthThirdPartyResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	handler, err := oauththirdparty1.NewHandler(
 		ctx,
-		oauththirdparty1.WithID(req.ID),
+		oauththirdparty1.WithID(req.ID, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

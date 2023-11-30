@@ -27,6 +27,7 @@ type queryHandler struct {
 func (h *queryHandler) selectHistory(stm *ent.LoginHistoryQuery) {
 	h.stm = stm.Select(
 		entloginhistory.FieldID,
+		entloginhistory.FieldEntID,
 		entloginhistory.FieldAppID,
 		entloginhistory.FieldUserID,
 		entloginhistory.FieldClientIP,
@@ -37,20 +38,17 @@ func (h *queryHandler) selectHistory(stm *ent.LoginHistoryQuery) {
 	)
 }
 
-func (h *queryHandler) queryHistory(cli *ent.Client) error {
-	if h.ID == nil {
-		return fmt.Errorf("invalid id")
+func (h *queryHandler) queryHistory(cli *ent.Client) {
+	stm := cli.LoginHistory.
+		Query().
+		Where(entloginhistory.DeletedAt(0))
+	if h.ID != nil {
+		stm.Where(entloginhistory.ID(*h.ID))
 	}
-
-	h.selectHistory(
-		cli.LoginHistory.
-			Query().
-			Where(
-				entloginhistory.ID(*h.ID),
-				entloginhistory.DeletedAt(0),
-			),
-	)
-	return nil
+	if h.EntID != nil {
+		stm.Where(entloginhistory.EntID(*h.EntID))
+	}
+	h.selectHistory(stm)
 }
 
 func (h *queryHandler) queryLoginHistories(ctx context.Context, cli *ent.Client) error {
@@ -73,7 +71,7 @@ func (h *queryHandler) queryJoinApp(s *sql.Selector) {
 	s.LeftJoin(t).
 		On(
 			s.C(entloginhistory.FieldAppID),
-			t.C(entapp.FieldID),
+			t.C(entapp.FieldEntID),
 		).
 		AppendSelect(
 			sql.As(t.C(entapp.FieldName), "app_name"),
@@ -90,7 +88,7 @@ func (h *queryHandler) queryJoinAppUser(s *sql.Selector) {
 		).
 		On(
 			s.C(entloginhistory.FieldUserID),
-			t.C(entappuser.FieldID),
+			t.C(entappuser.FieldEntID),
 		).
 		AppendSelect(
 			sql.As(t.C(entappuser.FieldEmailAddress), "email_address"),
@@ -121,12 +119,10 @@ func (h *Handler) GetHistory(ctx context.Context) (*npool.History, error) {
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryHistory(cli); err != nil {
-			return err
-		}
+		handler.queryHistory(cli)
 		handler.queryJoin()
 		if err := handler.scan(ctx); err != nil {
-			return nil
+			return err
 		}
 		return nil
 	})
@@ -160,7 +156,7 @@ func (h *Handler) GetHistories(ctx context.Context) ([]*npool.History, uint32, e
 			Offset(int(h.Offset)).
 			Limit(int(h.Limit))
 		if err := handler.scan(ctx); err != nil {
-			return nil
+			return err
 		}
 		return nil
 	})

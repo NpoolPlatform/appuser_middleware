@@ -11,7 +11,7 @@ import (
 )
 
 type Req struct {
-	ID        *uuid.UUID
+	EntID     *uuid.UUID
 	AppID     *uuid.UUID
 	RoleID    *uuid.UUID
 	UserID    *uuid.UUID
@@ -21,8 +21,8 @@ type Req struct {
 }
 
 func CreateSet(c *ent.AuthCreate, req *Req) *ent.AuthCreate {
-	if req.ID != nil {
-		c.SetID(*req.ID)
+	if req.EntID != nil {
+		c.SetEntID(*req.EntID)
 	}
 	if req.AppID != nil {
 		c.SetAppID(*req.AppID)
@@ -57,7 +57,8 @@ func UpdateSet(u *ent.AuthUpdateOne, req *Req) *ent.AuthUpdateOne {
 
 type Conds struct {
 	ID       *cruder.Cond
-	IDs      *cruder.Cond
+	EntID    *cruder.Cond
+	EntIDs   *cruder.Cond
 	AppID    *cruder.Cond
 	RoleID   *cruder.Cond
 	UserID   *cruder.Cond
@@ -71,7 +72,7 @@ func SetQueryConds(q *ent.AuthQuery, conds *Conds) (*ent.AuthQuery, error) {
 		return q, nil
 	}
 	if conds.ID != nil {
-		id, ok := conds.ID.Val.(uuid.UUID)
+		id, ok := conds.ID.Val.(uint32)
 		if !ok {
 			return nil, fmt.Errorf("invalid id")
 		}
@@ -82,14 +83,26 @@ func SetQueryConds(q *ent.AuthQuery, conds *Conds) (*ent.AuthQuery, error) {
 			return nil, fmt.Errorf("invalid auth field")
 		}
 	}
-	if conds.IDs != nil {
-		ids, ok := conds.IDs.Val.([]uuid.UUID)
+	if conds.EntID != nil {
+		id, ok := conds.EntID.Val.(uuid.UUID)
 		if !ok {
-			return nil, fmt.Errorf("invalid ids")
+			return nil, fmt.Errorf("invalid entid")
 		}
-		switch conds.IDs.Op {
+		switch conds.EntID.Op {
+		case cruder.EQ:
+			q.Where(entauth.EntID(id))
+		default:
+			return nil, fmt.Errorf("invalid auth field")
+		}
+	}
+	if conds.EntIDs != nil {
+		ids, ok := conds.EntIDs.Val.([]uuid.UUID)
+		if !ok {
+			return nil, fmt.Errorf("invalid entids")
+		}
+		switch conds.EntIDs.Op {
 		case cruder.IN:
-			q.Where(entauth.IDIn(ids...))
+			q.Where(entauth.EntIDIn(ids...))
 		default:
 			return nil, fmt.Errorf("invalid auth field")
 		}

@@ -13,15 +13,22 @@ import (
 
 func (s *Server) CreateHistory(ctx context.Context, in *npool.CreateHistoryRequest) (*npool.CreateHistoryResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"CreateHistory",
+			"Req", req,
+		)
+		return &npool.CreateHistoryResponse{}, status.Error(codes.InvalidArgument, "Info is empty")
+	}
 	handler, err := history1.NewHandler(
 		ctx,
-		history1.WithID(req.ID),
-		history1.WithAppID(req.GetAppID()),
-		history1.WithUserID(req.GetUserID()),
-		history1.WithClientIP(req.ClientIP),
-		history1.WithUserAgent(req.UserAgent),
-		history1.WithLocation(req.Location),
-		history1.WithLoginType(req.LoginType),
+		history1.WithEntID(req.EntID, false),
+		history1.WithAppID(req.AppID, true),
+		history1.WithUserID(req.UserID, true),
+		history1.WithClientIP(req.ClientIP, true),
+		history1.WithUserAgent(req.UserAgent, true),
+		history1.WithLocation(req.Location, true),
+		history1.WithLoginType(req.LoginType, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

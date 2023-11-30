@@ -84,6 +84,20 @@ func (aotpu *AppOAuthThirdPartyUpdate) AddDeletedAt(u int32) *AppOAuthThirdParty
 	return aotpu
 }
 
+// SetEntID sets the "ent_id" field.
+func (aotpu *AppOAuthThirdPartyUpdate) SetEntID(u uuid.UUID) *AppOAuthThirdPartyUpdate {
+	aotpu.mutation.SetEntID(u)
+	return aotpu
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (aotpu *AppOAuthThirdPartyUpdate) SetNillableEntID(u *uuid.UUID) *AppOAuthThirdPartyUpdate {
+	if u != nil {
+		aotpu.SetEntID(*u)
+	}
+	return aotpu
+}
+
 // SetAppID sets the "app_id" field.
 func (aotpu *AppOAuthThirdPartyUpdate) SetAppID(u uuid.UUID) *AppOAuthThirdPartyUpdate {
 	aotpu.mutation.SetAppID(u)
@@ -290,7 +304,7 @@ func (aotpu *AppOAuthThirdPartyUpdate) sqlSave(ctx context.Context) (n int, err 
 			Table:   appoauththirdparty.Table,
 			Columns: appoauththirdparty.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appoauththirdparty.FieldID,
 			},
 		},
@@ -342,6 +356,13 @@ func (aotpu *AppOAuthThirdPartyUpdate) sqlSave(ctx context.Context) (n int, err 
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: appoauththirdparty.FieldDeletedAt,
+		})
+	}
+	if value, ok := aotpu.mutation.EntID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: appoauththirdparty.FieldEntID,
 		})
 	}
 	if value, ok := aotpu.mutation.AppID(); ok {
@@ -495,6 +516,20 @@ func (aotpuo *AppOAuthThirdPartyUpdateOne) SetNillableDeletedAt(u *uint32) *AppO
 // AddDeletedAt adds u to the "deleted_at" field.
 func (aotpuo *AppOAuthThirdPartyUpdateOne) AddDeletedAt(u int32) *AppOAuthThirdPartyUpdateOne {
 	aotpuo.mutation.AddDeletedAt(u)
+	return aotpuo
+}
+
+// SetEntID sets the "ent_id" field.
+func (aotpuo *AppOAuthThirdPartyUpdateOne) SetEntID(u uuid.UUID) *AppOAuthThirdPartyUpdateOne {
+	aotpuo.mutation.SetEntID(u)
+	return aotpuo
+}
+
+// SetNillableEntID sets the "ent_id" field if the given value is not nil.
+func (aotpuo *AppOAuthThirdPartyUpdateOne) SetNillableEntID(u *uuid.UUID) *AppOAuthThirdPartyUpdateOne {
+	if u != nil {
+		aotpuo.SetEntID(*u)
+	}
 	return aotpuo
 }
 
@@ -717,7 +752,7 @@ func (aotpuo *AppOAuthThirdPartyUpdateOne) sqlSave(ctx context.Context) (_node *
 			Table:   appoauththirdparty.Table,
 			Columns: appoauththirdparty.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appoauththirdparty.FieldID,
 			},
 		},
@@ -786,6 +821,13 @@ func (aotpuo *AppOAuthThirdPartyUpdateOne) sqlSave(ctx context.Context) (_node *
 			Type:   field.TypeUint32,
 			Value:  value,
 			Column: appoauththirdparty.FieldDeletedAt,
+		})
+	}
+	if value, ok := aotpuo.mutation.EntID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
+			Value:  value,
+			Column: appoauththirdparty.FieldEntID,
 		})
 	}
 	if value, ok := aotpuo.mutation.AppID(); ok {

@@ -72,7 +72,7 @@ func (baud *BanAppUserDelete) sqlExec(ctx context.Context) (int, error) {
 		Node: &sqlgraph.NodeSpec{
 			Table: banappuser.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: banappuser.FieldID,
 			},
 		},

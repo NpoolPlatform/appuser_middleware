@@ -34,21 +34,19 @@ func (h *queryHistoryHandler) selectAuthHistory(stm *ent.AuthHistoryQuery) {
 	)
 }
 
-func (h *queryHistoryHandler) queryAuthHistory(cli *ent.Client) error {
-	if h.ID == nil {
-		return fmt.Errorf("invalid id")
+func (h *queryHistoryHandler) queryAuthHistory(cli *ent.Client) {
+	stm := cli.AuthHistory.
+		Query().
+		Where(
+			entauthhistory.DeletedAt(0),
+		)
+	if h.ID != nil {
+		stm.Where(entauthhistory.ID(*h.ID))
 	}
-
-	h.selectAuthHistory(
-		cli.
-			AuthHistory.
-			Query().
-			Where(
-				entauthhistory.ID(*h.ID),
-				entauthhistory.DeletedAt(0),
-			),
-	)
-	return nil
+	if h.EntID != nil {
+		stm.Where(entauthhistory.EntID(*h.EntID))
+	}
+	h.selectAuthHistory(stm)
 }
 
 func (h *queryHistoryHandler) queryAuthHistories(ctx context.Context, cli *ent.Client) error {
@@ -110,13 +108,12 @@ func (h *Handler) GetHistory(ctx context.Context) (*npool.History, error) {
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryAuthHistory(cli); err != nil {
-			return nil
-		}
+		handler.queryAuthHistory(cli)
 		handler.queryJoin()
+		const limit = 2
 		handler.stm.
-			Offset(int(h.Offset)).
-			Limit(int(h.Limit))
+			Offset(int(0)).
+			Limit(int(limit))
 		if err := handler.scan(ctx); err != nil {
 			return err
 		}
@@ -142,7 +139,7 @@ func (h *Handler) GetHistories(ctx context.Context) ([]*npool.History, uint32, e
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		if err := handler.queryAuthHistories(ctx, cli); err != nil {
-			return nil
+			return err
 		}
 		handler.queryJoin()
 		handler.stm.

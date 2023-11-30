@@ -15,13 +15,15 @@ import (
 type AppUserThirdParty struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID uuid.UUID `json:"id,omitempty"`
+	ID uint32 `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt uint32 `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt uint32 `json:"updated_at,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt uint32 `json:"deleted_at,omitempty"`
+	// EntID holds the value of the "ent_id" field.
+	EntID uuid.UUID `json:"ent_id,omitempty"`
 	// AppID holds the value of the "app_id" field.
 	AppID uuid.UUID `json:"app_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
@@ -41,11 +43,11 @@ func (*AppUserThirdParty) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case appuserthirdparty.FieldCreatedAt, appuserthirdparty.FieldUpdatedAt, appuserthirdparty.FieldDeletedAt:
+		case appuserthirdparty.FieldID, appuserthirdparty.FieldCreatedAt, appuserthirdparty.FieldUpdatedAt, appuserthirdparty.FieldDeletedAt:
 			values[i] = new(sql.NullInt64)
 		case appuserthirdparty.FieldThirdPartyUserID, appuserthirdparty.FieldThirdPartyUsername, appuserthirdparty.FieldThirdPartyAvatar:
 			values[i] = new(sql.NullString)
-		case appuserthirdparty.FieldID, appuserthirdparty.FieldAppID, appuserthirdparty.FieldUserID, appuserthirdparty.FieldThirdPartyID:
+		case appuserthirdparty.FieldEntID, appuserthirdparty.FieldAppID, appuserthirdparty.FieldUserID, appuserthirdparty.FieldThirdPartyID:
 			values[i] = new(uuid.UUID)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type AppUserThirdParty", columns[i])
@@ -63,11 +65,11 @@ func (autp *AppUserThirdParty) assignValues(columns []string, values []interface
 	for i := range columns {
 		switch columns[i] {
 		case appuserthirdparty.FieldID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value != nil {
-				autp.ID = *value
+			value, ok := values[i].(*sql.NullInt64)
+			if !ok {
+				return fmt.Errorf("unexpected type %T for field id", value)
 			}
+			autp.ID = uint32(value.Int64)
 		case appuserthirdparty.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -85,6 +87,12 @@ func (autp *AppUserThirdParty) assignValues(columns []string, values []interface
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
 				autp.DeletedAt = uint32(value.Int64)
+			}
+		case appuserthirdparty.FieldEntID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field ent_id", values[i])
+			} else if value != nil {
+				autp.EntID = *value
 			}
 		case appuserthirdparty.FieldAppID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -158,6 +166,9 @@ func (autp *AppUserThirdParty) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("deleted_at=")
 	builder.WriteString(fmt.Sprintf("%v", autp.DeletedAt))
+	builder.WriteString(", ")
+	builder.WriteString("ent_id=")
+	builder.WriteString(fmt.Sprintf("%v", autp.EntID))
 	builder.WriteString(", ")
 	builder.WriteString("app_id=")
 	builder.WriteString(fmt.Sprintf("%v", autp.AppID))

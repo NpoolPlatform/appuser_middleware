@@ -23,6 +23,7 @@ type queryHandler struct {
 func (h *queryHandler) selectOAuthThirdParty(stm *ent.OAuthThirdPartyQuery) {
 	h.stm = stm.Select(
 		entoauththirdparty.FieldID,
+		entoauththirdparty.FieldEntID,
 		entoauththirdparty.FieldClientName,
 		entoauththirdparty.FieldClientTag,
 		entoauththirdparty.FieldClientLogoURL,
@@ -35,14 +36,16 @@ func (h *queryHandler) selectOAuthThirdParty(stm *ent.OAuthThirdPartyQuery) {
 }
 
 func (h *queryHandler) queryOAuthThirdParty(cli *ent.Client) {
-	h.selectOAuthThirdParty(
-		cli.OAuthThirdParty.
-			Query().
-			Where(
-				entoauththirdparty.ID(*h.ID),
-				entoauththirdparty.DeletedAt(0),
-			),
-	)
+	stm := cli.OAuthThirdParty.
+		Query().
+		Where(entoauththirdparty.DeletedAt(0))
+	if h.ID != nil {
+		stm.Where(entoauththirdparty.ID(*h.ID))
+	}
+	if h.EntID != nil {
+		stm.Where(entoauththirdparty.EntID(*h.EntID))
+	}
+	h.selectOAuthThirdParty(stm)
 }
 
 func (h *queryHandler) queryOAuthThirdParties(ctx context.Context, cli *ent.Client) error {
@@ -72,10 +75,6 @@ func (h *queryHandler) formalize() {
 }
 
 func (h *Handler) GetOAuthThirdParty(ctx context.Context) (*npool.OAuthThirdParty, error) {
-	if h.ID == nil {
-		return nil, fmt.Errorf("invalid id")
-	}
-
 	handler := &queryHandler{
 		Handler: h,
 	}

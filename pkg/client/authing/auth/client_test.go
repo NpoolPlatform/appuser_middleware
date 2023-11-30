@@ -38,7 +38,7 @@ func init() {
 
 var (
 	ret = npool.Auth{
-		ID:       uuid.NewString(),
+		EntID:    uuid.NewString(),
 		AppID:    uuid.NewString(),
 		Resource: uuid.NewString(),
 		Method:   "POST",
@@ -54,9 +54,9 @@ func setupAuth(t *testing.T) func(*testing.T) {
 
 	ah, err := app.NewHandler(
 		context.Background(),
-		app.WithID(&ret.AppID),
-		app.WithCreatedBy(ret.UserID),
-		app.WithName(&ret.AppID),
+		app.WithEntID(&ret.AppID, true),
+		app.WithCreatedBy(&ret.UserID, true),
+		app.WithName(&ret.AppID, true),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, ah)
@@ -64,18 +64,11 @@ func setupAuth(t *testing.T) func(*testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, app1)
 
-	rh, err := role.NewHandler(
+	ah, err = app.NewHandler(
 		context.Background(),
-		role.WithID(&roleID),
-		role.WithAppID(ret.GetAppID()),
-		role.WithCreatedBy(&ret.UserID),
-		role.WithRole(&roleID),
+		app.WithID(&app1.ID, true),
 	)
 	assert.Nil(t, err)
-	assert.NotNil(t, rh)
-	role1, err := rh.CreateRole(context.Background())
-	assert.Nil(t, err)
-	assert.NotNil(t, role1)
 
 	ret.PhoneNO = fmt.Sprintf("+86%v", rand.Intn(100000000)+1000000)           //nolint
 	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+8000000) //nolint
@@ -85,11 +78,11 @@ func setupAuth(t *testing.T) func(*testing.T) {
 
 	uh, err := user.NewHandler(
 		context.Background(),
-		user.WithID(&ret.UserID),
-		user.WithAppID(ret.GetAppID()),
-		user.WithPhoneNO(&ret.PhoneNO),
-		user.WithEmailAddress(&ret.EmailAddress),
-		user.WithPasswordHash(&passwordHash),
+		user.WithEntID(&ret.UserID, true),
+		user.WithAppID(&ret.AppID, true),
+		user.WithPhoneNO(&ret.PhoneNO, true),
+		user.WithEmailAddress(&ret.EmailAddress, true),
+		user.WithPasswordHash(&passwordHash, true),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, uh)
@@ -97,17 +90,48 @@ func setupAuth(t *testing.T) func(*testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, user1)
 
+	uh, err = user.NewHandler(
+		context.Background(),
+		user.WithID(&user1.ID, true),
+	)
+	assert.Nil(t, err)
+
+	rh, err := role.NewHandler(
+		context.Background(),
+		role.WithEntID(&roleID, true),
+		role.WithAppID(&ret.AppID, true),
+		role.WithCreatedBy(&ret.UserID, true),
+		role.WithRole(&roleID, true),
+	)
+	assert.Nil(t, err)
+	assert.NotNil(t, rh)
+	role1, err := rh.CreateRole(context.Background())
+	assert.Nil(t, err)
+	assert.NotNil(t, role1)
+
+	rh, err = role.NewHandler(
+		context.Background(),
+		role.WithID(&role1.ID, true),
+	)
+	assert.Nil(t, err)
+
 	ruh, err := roleuser.NewHandler(
 		context.Background(),
-		roleuser.WithAppID(ret.GetAppID()),
-		roleuser.WithRoleID(&roleID),
-		roleuser.WithUserID(&userID),
+		roleuser.WithAppID(&ret.AppID, true),
+		roleuser.WithRoleID(&roleID, true),
+		roleuser.WithUserID(&userID, true),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, ruh)
 	roleuser1, err := ruh.CreateUser(context.Background())
 	assert.Nil(t, err)
 	assert.NotNil(t, roleuser1)
+
+	ruh, err = roleuser.NewHandler(
+		context.Background(),
+		roleuser.WithID(&roleuser1.ID, true),
+	)
+	assert.Nil(t, err)
 
 	return func(*testing.T) {
 		_, _ = ah.DeleteApp(context.Background())
@@ -137,7 +161,7 @@ func existAppFalseAuth(t *testing.T) {
 
 func createUserAuth(t *testing.T) {
 	req := &npool.AuthReq{
-		ID:       &ret.ID,
+		EntID:    &ret.EntID,
 		AppID:    &ret.AppID,
 		UserID:   &ret.UserID,
 		Resource: &ret.Resource,
@@ -146,12 +170,13 @@ func createUserAuth(t *testing.T) {
 	info, err := CreateAuth(context.Background(), req)
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
+		ret.ID = info.ID
 		assert.Equal(t, &ret, info)
 	}
 }
 
 func getAuth(t *testing.T) {
-	info, err := GetAuth(context.Background(), ret.ID)
+	info, err := GetAuth(context.Background(), ret.EntID)
 	if assert.Nil(t, err) {
 		assert.Equal(t, &ret, info)
 	}
@@ -179,7 +204,7 @@ func deleteAuth(t *testing.T) {
 		assert.Equal(t, &ret, info)
 	}
 
-	info, err = GetAuth(context.Background(), ret.ID)
+	info, err = GetAuth(context.Background(), ret.EntID)
 	assert.Nil(t, err)
 	assert.Nil(t, info)
 
@@ -193,7 +218,7 @@ func deleteAuth(t *testing.T) {
 }
 
 func createRoleAuth(t *testing.T) {
-	ret.ID = uuid.NewString()
+	ret.EntID = uuid.NewString()
 	ret.Resource = uuid.NewString()
 	ret.RoleID = roleID
 	ret.RoleName = roleID
@@ -202,7 +227,7 @@ func createRoleAuth(t *testing.T) {
 	ret.PhoneNO = ""
 
 	req := &npool.AuthReq{
-		ID:       &ret.ID,
+		EntID:    &ret.EntID,
 		AppID:    &ret.AppID,
 		RoleID:   &roleID,
 		Resource: &ret.Resource,
@@ -211,12 +236,13 @@ func createRoleAuth(t *testing.T) {
 	info, err := CreateAuth(context.Background(), req)
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
+		ret.ID = info.ID
 		assert.Equal(t, &ret, info)
 	}
 }
 
 func createAppAuth(t *testing.T) {
-	ret.ID = uuid.NewString()
+	ret.EntID = uuid.NewString()
 	ret.Resource = uuid.NewString()
 	ret.RoleID = uuid.UUID{}.String()
 	ret.RoleName = ""
@@ -225,7 +251,7 @@ func createAppAuth(t *testing.T) {
 	ret.PhoneNO = ""
 
 	req := &npool.AuthReq{
-		ID:       &ret.ID,
+		EntID:    &ret.EntID,
 		AppID:    &ret.AppID,
 		Resource: &ret.Resource,
 		Method:   &ret.Method,
@@ -233,6 +259,7 @@ func createAppAuth(t *testing.T) {
 	info, err := CreateAuth(context.Background(), req)
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
+		ret.ID = info.ID
 		assert.Equal(t, &ret, info)
 	}
 }

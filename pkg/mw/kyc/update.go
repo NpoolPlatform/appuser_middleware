@@ -2,7 +2,6 @@ package kyc
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
@@ -12,17 +11,13 @@ import (
 )
 
 func (h *Handler) UpdateKyc(ctx context.Context) (*npool.Kyc, error) {
-	if h.ID == nil {
-		return nil, fmt.Errorf("invalid id")
-	}
-
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		if _, err := kyccrud.UpdateSet(
 			cli.Kyc.UpdateOneID(*h.ID),
 			&kyccrud.Req{
-				ID:           h.ID,
-				AppID:        &h.AppID,
-				UserID:       &h.UserID,
+				EntID:        h.EntID,
+				AppID:        h.AppID,
+				UserID:       h.UserID,
 				DocumentType: h.DocumentType,
 				IDNumber:     h.IDNumber,
 				FrontImg:     h.FrontImg,

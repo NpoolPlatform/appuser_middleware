@@ -35,25 +35,32 @@ func init() {
 
 var (
 	ret = npool.Subscriber{
-		ID:    uuid.NewString(),
+		EntID: uuid.NewString(),
 		AppID: uuid.NewString(),
 	}
 )
 
 func setupSubscriber(t *testing.T) func(*testing.T) {
 	ret.AppName = ret.AppID
+	createdBy := uuid.NewString()
 
 	ah, err := app.NewHandler(
 		context.Background(),
-		app.WithID(&ret.AppID),
-		app.WithCreatedBy(uuid.NewString()),
-		app.WithName(&ret.AppID),
+		app.WithEntID(&ret.AppID, true),
+		app.WithCreatedBy(&createdBy, true),
+		app.WithName(&ret.AppID, true),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, ah)
 	app1, err := ah.CreateApp(context.Background())
 	assert.Nil(t, err)
 	assert.NotNil(t, app1)
+
+	ah, err = app.NewHandler(
+		context.Background(),
+		app.WithID(&app1.ID, true),
+	)
+	assert.Nil(t, err)
 
 	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+10000000) //nolint
 
@@ -64,7 +71,7 @@ func setupSubscriber(t *testing.T) func(*testing.T) {
 
 func createSubscriber(t *testing.T) {
 	req := npool.SubscriberReq{
-		ID:           &ret.ID,
+		EntID:        &ret.EntID,
 		AppID:        &ret.AppID,
 		EmailAddress: &ret.EmailAddress,
 	}
@@ -72,6 +79,7 @@ func createSubscriber(t *testing.T) {
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
 		ret.UpdatedAt = info.UpdatedAt
+		ret.ID = info.ID
 		assert.Equal(t, info, &ret)
 	}
 }
@@ -90,7 +98,7 @@ func updateSubscriber(t *testing.T) {
 }
 
 func getSubscriber(t *testing.T) {
-	info, err := GetSubscriber(context.Background(), ret.ID)
+	info, err := GetSubscriber(context.Background(), ret.EntID)
 	if assert.Nil(t, err) {
 		assert.Equal(t, info, &ret)
 	}
@@ -111,7 +119,7 @@ func deleteSubscriber(t *testing.T) {
 		assert.Equal(t, info, &ret)
 	}
 
-	info, err = GetSubscriber(context.Background(), ret.ID)
+	info, err = GetSubscriber(context.Background(), ret.EntID)
 	assert.Nil(t, err)
 	assert.Nil(t, info)
 }

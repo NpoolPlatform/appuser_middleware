@@ -29,15 +29,18 @@ type updateHandler struct {
 }
 
 func (h *updateHandler) updateAppUser(ctx context.Context, tx *ent.Tx) error {
-	if _, err := usercrud.UpdateSet(
+	info, err := usercrud.UpdateSet(
 		tx.AppUser.UpdateOneID(*h.ID),
 		&usercrud.Req{
 			PhoneNO:       h.PhoneNO,
 			EmailAddress:  h.EmailAddress,
 			ImportFromApp: h.ImportFromAppID,
-		}).Save(ctx); err != nil {
+		}).Save(ctx)
+	if err != nil {
 		return err
 	}
+	h.AppID = &info.AppID
+	h.EntID = &info.EntID
 	return nil
 }
 
@@ -45,8 +48,8 @@ func (h *updateHandler) updateAppUserExtra(ctx context.Context, tx *ent.Tx) erro
 	stm, err := userextracrud.SetQueryConds(
 		tx.AppUserExtra.Query(),
 		&userextracrud.Conds{
-			AppID:  &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
-			UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.ID},
+			AppID:  &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
+			UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.EntID},
 		},
 	)
 	if err != nil {
@@ -60,8 +63,8 @@ func (h *updateHandler) updateAppUserExtra(ctx context.Context, tx *ent.Tx) erro
 	}
 
 	req := &userextracrud.Req{
-		AppID:         &h.AppID,
-		UserID:        h.ID,
+		AppID:         h.AppID,
+		UserID:        h.EntID,
 		FirstName:     h.FirstName,
 		Birthday:      h.Birthday,
 		LastName:      h.LastName,
@@ -104,8 +107,8 @@ func (h *updateHandler) updateAppUserControl(ctx context.Context, tx *ent.Tx) er
 	stm, err := userctrlcrud.SetQueryConds(
 		tx.AppUserControl.Query(),
 		&userctrlcrud.Conds{
-			AppID:  &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
-			UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.ID},
+			AppID:  &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
+			UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.EntID},
 		},
 	)
 	if err != nil {
@@ -119,8 +122,8 @@ func (h *updateHandler) updateAppUserControl(ctx context.Context, tx *ent.Tx) er
 	}
 
 	req := &userctrlcrud.Req{
-		AppID:              &h.AppID,
-		UserID:             h.ID,
+		AppID:              h.AppID,
+		UserID:             h.EntID,
 		GoogleAuthVerified: h.GoogleAuthVerified,
 		SigninVerifyType:   h.SigninVerifyType,
 		Kol:                h.Kol,
@@ -164,8 +167,8 @@ func (h *updateHandler) updateAppUserSecret(ctx context.Context, tx *ent.Tx) err
 	stm, err := usersecretcrud.SetQueryConds(
 		tx.AppUserSecret.Query(),
 		&usersecretcrud.Conds{
-			AppID:  &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
-			UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.ID},
+			AppID:  &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
+			UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.EntID},
 		},
 	)
 	if err != nil {
@@ -197,7 +200,7 @@ func (h *updateHandler) updateAppUserThirdParty(ctx context.Context, tx *ent.Tx)
 		tx.AppUserThirdParty.Query(),
 		&userthirdpartycrud.Conds{
 			ThirdPartyUserID: &cruder.Cond{Op: cruder.EQ, Val: *h.ThirdPartyUserID},
-			AppID:            &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
+			AppID:            &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
 		},
 	)
 	if err != nil {
@@ -232,15 +235,12 @@ func (h *updateHandler) updateBanAppUser(ctx context.Context, tx *ent.Tx) error 
 	if h.Banned == nil {
 		return nil
 	}
-	if h.ID == nil {
-		return fmt.Errorf("invalid id")
-	}
 
 	stm, err := banappusercrud.SetQueryConds(
 		tx.BanAppUser.Query(),
 		&banappusercrud.Conds{
-			AppID:  &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
-			UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.ID},
+			AppID:  &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
+			UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.EntID},
 		})
 	if err != nil {
 		return err
@@ -253,8 +253,6 @@ func (h *updateHandler) updateBanAppUser(ctx context.Context, tx *ent.Tx) error 
 		}
 	}
 
-	fmt.Printf("banned=%v,info=%v,err=%v,app_id=%v,user_id=%v\n", *h.Banned, info, err, h.AppID, h.ID)
-
 	if info != nil {
 		now := uint32(0)
 		if !*h.Banned {
@@ -263,8 +261,8 @@ func (h *updateHandler) updateBanAppUser(ctx context.Context, tx *ent.Tx) error 
 		if _, err := banappusercrud.UpdateSet(
 			tx.BanAppUser.UpdateOneID(info.ID),
 			&banappusercrud.Req{
-				AppID:     &h.AppID,
-				UserID:    h.ID,
+				AppID:     h.AppID,
+				UserID:    h.EntID,
 				DeletedAt: &now,
 				Message:   h.BanMessage,
 			},
@@ -281,8 +279,8 @@ func (h *updateHandler) updateBanAppUser(ctx context.Context, tx *ent.Tx) error 
 	if _, err := banappusercrud.CreateSet(
 		tx.BanAppUser.Create(),
 		&banappusercrud.Req{
-			AppID:   &h.AppID,
-			UserID:  h.ID,
+			AppID:   h.AppID,
+			UserID:  h.EntID,
 			Message: h.BanMessage,
 		},
 	).Save(ctx); err != nil {

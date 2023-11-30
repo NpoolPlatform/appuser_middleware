@@ -3,6 +3,7 @@ package role
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"os"
 	"strconv"
 	"testing"
@@ -13,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
+	user "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/testinit"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
@@ -30,7 +32,7 @@ func init() {
 
 var (
 	ret = npool.Role{
-		ID:          uuid.NewString(),
+		EntID:       uuid.NewString(),
 		AppID:       uuid.NewString(),
 		AppName:     uuid.NewString(),
 		CreatedBy:   uuid.NewString(),
@@ -44,9 +46,9 @@ var (
 func setup(t *testing.T) func(*testing.T) {
 	ah, err := app.NewHandler(
 		context.Background(),
-		app.WithID(&ret.AppID),
-		app.WithCreatedBy(ret.ID),
-		app.WithName(&ret.AppName),
+		app.WithEntID(&ret.AppID, true),
+		app.WithCreatedBy(&ret.EntID, true),
+		app.WithName(&ret.AppName, true),
 	)
 	assert.Nil(t, err)
 	assert.NotNil(t, ah)
@@ -54,7 +56,36 @@ func setup(t *testing.T) func(*testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, app1)
 
+	ah, err = app.NewHandler(
+		context.Background(),
+		app.WithID(&app1.ID, true),
+	)
+	assert.Nil(t, err)
+
+	emailAddress := fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+7000000) //nolint
+	passwordHash := uuid.NewString()
+
+	uh, err := user.NewHandler(
+		context.Background(),
+		user.WithEntID(&ret.CreatedBy, true),
+		user.WithAppID(&ret.AppID, true),
+		user.WithEmailAddress(&emailAddress, true),
+		user.WithPasswordHash(&passwordHash, true),
+	)
+	assert.Nil(t, err)
+	assert.NotNil(t, uh)
+	user1, err := uh.CreateUser(context.Background())
+	assert.Nil(t, err)
+	assert.NotNil(t, user1)
+
+	uh, err = user.NewHandler(
+		context.Background(),
+		user.WithID(&user1.ID, true),
+	)
+	assert.Nil(t, err)
+
 	return func(*testing.T) {
+		_, _ = uh.DeleteUser(context.Background())
 		_, _ = ah.DeleteApp(context.Background())
 	}
 }
@@ -62,19 +93,20 @@ func setup(t *testing.T) func(*testing.T) {
 func creatRole(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
-		WithAppID(ret.AppID),
-		WithCreatedBy(&ret.CreatedBy),
-		WithRole(&ret.Role),
-		WithDescription(&ret.Description),
-		WithDefault(&ret.Default),
-		WithGenesis(&ret.Genesis),
+		WithEntID(&ret.EntID, true),
+		WithAppID(&ret.AppID, true),
+		WithCreatedBy(&ret.CreatedBy, true),
+		WithRole(&ret.Role, true),
+		WithDescription(&ret.Description, true),
+		WithDefault(&ret.Default, true),
+		WithGenesis(&ret.Genesis, true),
 	)
 	assert.Nil(t, err)
 
 	info, err := handler.CreateRole(context.Background())
 	if assert.Nil(t, err) {
 		ret.CreatedAt = info.CreatedAt
+		ret.ID = info.ID
 		assert.Equal(t, info, &ret)
 	}
 }
@@ -83,11 +115,11 @@ func updateRole(t *testing.T) {
 	ret.Role = uuid.NewString()
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
-		WithRole(&ret.Role),
-		WithDescription(&ret.Description),
-		WithDefault(&ret.Default),
-		WithGenesis(&ret.Genesis),
+		WithID(&ret.ID, true),
+		WithRole(&ret.Role, true),
+		WithDescription(&ret.Description, true),
+		WithDefault(&ret.Default, true),
+		WithGenesis(&ret.Genesis, true),
 	)
 	assert.Nil(t, err)
 
@@ -100,7 +132,7 @@ func updateRole(t *testing.T) {
 func getRole(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
+		WithEntID(&ret.EntID, true),
 	)
 	assert.Nil(t, err)
 
@@ -132,7 +164,8 @@ func getRoles(t *testing.T) {
 func deleteRole(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
-		WithID(&ret.ID),
+		WithID(&ret.ID, true),
+		WithEntID(&ret.EntID, true),
 	)
 	assert.Nil(t, err)
 

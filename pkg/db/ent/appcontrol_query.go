@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appcontrol"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/predicate"
-	"github.com/google/uuid"
 )
 
 // AppControlQuery is the builder for querying AppControl entities.
@@ -87,8 +86,8 @@ func (acq *AppControlQuery) FirstX(ctx context.Context) *AppControl {
 
 // FirstID returns the first AppControl ID from the query.
 // Returns a *NotFoundError when no AppControl ID was found.
-func (acq *AppControlQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (acq *AppControlQuery) FirstID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = acq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -100,7 +99,7 @@ func (acq *AppControlQuery) FirstID(ctx context.Context) (id uuid.UUID, err erro
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (acq *AppControlQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (acq *AppControlQuery) FirstIDX(ctx context.Context) uint32 {
 	id, err := acq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -138,8 +137,8 @@ func (acq *AppControlQuery) OnlyX(ctx context.Context) *AppControl {
 // OnlyID is like Only, but returns the only AppControl ID in the query.
 // Returns a *NotSingularError when more than one AppControl ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (acq *AppControlQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
-	var ids []uuid.UUID
+func (acq *AppControlQuery) OnlyID(ctx context.Context) (id uint32, err error) {
+	var ids []uint32
 	if ids, err = acq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -155,7 +154,7 @@ func (acq *AppControlQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (acq *AppControlQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (acq *AppControlQuery) OnlyIDX(ctx context.Context) uint32 {
 	id, err := acq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -181,8 +180,8 @@ func (acq *AppControlQuery) AllX(ctx context.Context) []*AppControl {
 }
 
 // IDs executes the query and returns a list of AppControl IDs.
-func (acq *AppControlQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
-	var ids []uuid.UUID
+func (acq *AppControlQuery) IDs(ctx context.Context) ([]uint32, error) {
+	var ids []uint32
 	if err := acq.Select(appcontrol.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -190,7 +189,7 @@ func (acq *AppControlQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (acq *AppControlQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (acq *AppControlQuery) IDsX(ctx context.Context) []uint32 {
 	ids, err := acq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -377,7 +376,7 @@ func (acq *AppControlQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   appcontrol.Table,
 			Columns: appcontrol.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeUUID,
+				Type:   field.TypeUint32,
 				Column: appcontrol.FieldID,
 			},
 		},

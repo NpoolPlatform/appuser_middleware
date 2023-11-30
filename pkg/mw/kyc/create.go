@@ -4,14 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	kyccrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/kyc"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
-
-	kyccrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/kyc"
+	user1 "github.com/NpoolPlatform/appuser-middleware/pkg/mw/user"
+	redis2 "github.com/NpoolPlatform/go-service-framework/pkg/redis"
 	cruder "github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/kyc"
-
-	redis2 "github.com/NpoolPlatform/go-service-framework/pkg/redis"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/google/uuid"
@@ -19,11 +18,11 @@ import (
 
 func (h *Handler) CreateKyc(ctx context.Context) (*npool.Kyc, error) {
 	id := uuid.New()
-	if h.ID == nil {
-		h.ID = &id
+	if h.EntID == nil {
+		h.EntID = &id
 	}
 
-	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateUser, h.AppID, h.UserID)
+	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateUser, *h.AppID, *h.UserID)
 	if err := redis2.TryLock(key, 0); err != nil {
 		return nil, err
 	}
@@ -31,12 +30,31 @@ func (h *Handler) CreateKyc(ctx context.Context) (*npool.Kyc, error) {
 		_ = redis2.Unlock(key)
 	}()
 
-	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+	userID := h.UserID.String()
+	appID := h.AppID.String()
+
+	h1, err := user1.NewHandler(
+		ctx,
+		user1.WithAppID(&appID, true),
+		user1.WithEntID(&userID, true),
+	)
+	if err != nil {
+		return nil, err
+	}
+	exist, err := h1.ExistUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, fmt.Errorf("invalid user")
+	}
+
+	err = db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		stm, err := kyccrud.SetQueryConds(
 			cli.Kyc.Query(),
 			&kyccrud.Conds{
-				AppID:  &cruder.Cond{Op: cruder.EQ, Val: h.AppID},
-				UserID: &cruder.Cond{Op: cruder.EQ, Val: h.UserID},
+				AppID:  &cruder.Cond{Op: cruder.EQ, Val: *h.AppID},
+				UserID: &cruder.Cond{Op: cruder.EQ, Val: *h.UserID},
 			},
 		)
 		if err != nil {
@@ -56,9 +74,9 @@ func (h *Handler) CreateKyc(ctx context.Context) (*npool.Kyc, error) {
 		if _, err := kyccrud.CreateSet(
 			cli.Kyc.Create(),
 			&kyccrud.Req{
-				ID:           h.ID,
-				AppID:        &h.AppID,
-				UserID:       &h.UserID,
+				EntID:        h.EntID,
+				AppID:        h.AppID,
+				UserID:       h.UserID,
 				DocumentType: h.DocumentType,
 				IDNumber:     h.IDNumber,
 				FrontImg:     h.FrontImg,

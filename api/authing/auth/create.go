@@ -15,14 +15,21 @@ import (
 
 func (s *Server) CreateAuth(ctx context.Context, in *npool.CreateAuthRequest) (*npool.CreateAuthResponse, error) {
 	req := in.GetInfo()
+	if req == nil {
+		logger.Sugar().Errorw(
+			"CreateAuth",
+			"In", in,
+		)
+		return &npool.CreateAuthResponse{}, status.Error(codes.Aborted, "Info is empty")
+	}
 	_handler, err := auth1.NewHandler(
 		ctx,
-		handler.WithID(req.ID),
-		handler.WithAppID(req.GetAppID()),
-		handler.WithRoleID(req.RoleID),
-		handler.WithUserID(req.UserID),
-		handler.WithResource(req.Resource),
-		handler.WithMethod(req.Method),
+		handler.WithEntID(req.EntID, false),
+		handler.WithAppID(req.AppID, true),
+		handler.WithRoleID(req.RoleID, false),
+		handler.WithUserID(req.UserID, false),
+		handler.WithResource(req.Resource, true),
+		handler.WithMethod(req.Method, true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(
@@ -62,7 +69,7 @@ func (s *Server) CreateAuth(ctx context.Context, in *npool.CreateAuthRequest) (*
 func (s *Server) CreateAuths(ctx context.Context, in *npool.CreateAuthsRequest) (*npool.CreateAuthsResponse, error) {
 	_handler, err := auth1.NewHandler(
 		ctx,
-		auth1.WithReqs(in.GetInfos()),
+		auth1.WithReqs(in.GetInfos(), true),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

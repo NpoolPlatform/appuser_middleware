@@ -20,71 +20,59 @@ import (
 
 type queryHandler struct {
 	*Handler
-	stm   *ent.AppSelect
-	infos []*npool.App
-	total uint32
+	stmSelect *ent.AppSelect
+	stmCount  *ent.AppSelect
+	infos     []*npool.App
+	total     uint32
 }
 
-func (h *queryHandler) selectApp(stm *ent.AppQuery) {
-	h.stm = stm.Select(
-		entapp.FieldID,
-		entapp.FieldCreatedBy,
-		entapp.FieldLogo,
-		entapp.FieldName,
-		entapp.FieldDescription,
-		entapp.FieldCreatedAt,
-	)
+func (h *queryHandler) selectApp(stm *ent.AppQuery) *ent.AppSelect {
+	return stm.Select(entapp.FieldID)
 }
 
-func (h *queryHandler) queryApp(cli *ent.Client) error {
-	if h.ID == nil {
-		return fmt.Errorf("invalid appid")
+func (h *queryHandler) queryApp(cli *ent.Client) {
+	stm := cli.App.
+		Query().
+		Where(entapp.DeletedAt(0))
+	if h.ID != nil {
+		stm.Where(entapp.ID(*h.ID))
 	}
-
-	h.selectApp(
-		cli.App.
-			Query().
-			Where(
-				entapp.ID(*h.ID),
-				entapp.DeletedAt(0),
-			),
-	)
-
-	return nil
+	if h.EntID != nil {
+		stm.Where(entapp.EntID(*h.EntID))
+	}
+	h.stmSelect = h.selectApp(stm)
 }
 
-func (h *queryHandler) queryApps(ctx context.Context, cli *ent.Client) (err error) {
-	stm := cli.App.Query()
-	if len(h.IDs) > 0 {
-		stm.Where(
-			entapp.IDIn(h.IDs...),
-		)
-	}
-	if h.UserID != nil {
-		stm.Where(
-			entapp.CreatedBy(*h.UserID),
-		)
-	}
-	stm, err = appcrud.SetQueryConds(stm, h.Conds)
+func (h *queryHandler) queryApps(cli *ent.Client) (*ent.AppSelect, error) {
+	stm, err := appcrud.SetQueryConds(cli.App.Query(), h.Conds)
 	if err != nil {
-		return err
+		return nil, err
 	}
+	return h.selectApp(stm), nil
+}
 
-	total, err := stm.Count(ctx)
-	if err != nil {
-		return err
-	}
-
-	h.total = uint32(total)
-	h.selectApp(stm)
-	return nil
+func (h *queryHandler) queryJoinMyself(s *sql.Selector) {
+	t := sql.Table(entapp.Table)
+	s.LeftJoin(t).
+		On(
+			s.C(entapp.FieldID),
+			t.C(entapp.FieldID),
+		).
+		AppendSelect(
+			t.C(entapp.FieldEntID),
+			t.C(entapp.FieldCreatedBy),
+			t.C(entapp.FieldLogo),
+			t.C(entapp.FieldName),
+			t.C(entapp.FieldDescription),
+			t.C(entapp.FieldCreatedAt),
+		)
 }
 
 func (h *queryHandler) queryJoinAppCtrl(s *sql.Selector) {
 	t := sql.Table(entappctrl.Table)
 	s.LeftJoin(t).
 		On(
-			s.C(entapp.FieldID),
+			s.C(entapp.FieldEntID),
 			t.C(entappctrl.FieldAppID),
 		).
 		AppendSelect(
@@ -105,7 +93,7 @@ func (h *queryHandler) queryJoinBanApp(s *sql.Selector) {
 	t := sql.Table(entbanapp.Table)
 	s.LeftJoin(t).
 		On(
-			s.C(entapp.FieldID),
+			s.C(entapp.FieldEntID),
 			t.C(entbanapp.FieldAppID),
 		).
 		On(
@@ -119,14 +107,22 @@ func (h *queryHandler) queryJoinBanApp(s *sql.Selector) {
 }
 
 func (h *queryHandler) queryJoin() {
-	h.stm.Modify(func(s *sql.Selector) {
+	h.stmSelect.Modify(func(s *sql.Selector) {
+		h.queryJoinMyself(s)
+		h.queryJoinAppCtrl(s)
+		h.queryJoinBanApp(s)
+	})
+	if h.stmCount == nil {
+		return
+	}
+	h.stmCount.Modify(func(s *sql.Selector) {
 		h.queryJoinAppCtrl(s)
 		h.queryJoinBanApp(s)
 	})
 }
 
 func (h *queryHandler) scan(ctx context.Context) error {
-	return h.stm.Scan(ctx, &h.infos)
+	return h.stmSelect.Scan(ctx, &h.infos)
 }
 
 func (h *queryHandler) formalize() {
@@ -167,9 +163,7 @@ func (h *Handler) GetApp(ctx context.Context) (*npool.App, error) {
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryApp(cli); err != nil {
-			return err
-		}
+		handler.queryApp(cli)
 		handler.queryJoin()
 		if err := handler.scan(_ctx); err != nil {
 			return err
@@ -197,11 +191,22 @@ func (h *Handler) GetApps(ctx context.Context) ([]*npool.App, uint32, error) {
 	}
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
-		if err := handler.queryApps(_ctx, cli); err != nil {
+		var err error
+		if handler.stmSelect, err = handler.queryApps(cli); err != nil {
 			return err
 		}
+		if handler.stmCount, err = handler.queryApps(cli); err != nil {
+			return err
+		}
+
+		total, err := handler.stmCount.Count(ctx)
+		if err != nil {
+			return err
+		}
+		handler.total = uint32(total)
+
 		handler.queryJoin()
-		handler.stm.
+		handler.stmSelect.
 			Offset(int(h.Offset)).
 			Limit(int(h.Limit))
 		if err := handler.scan(_ctx); err != nil {

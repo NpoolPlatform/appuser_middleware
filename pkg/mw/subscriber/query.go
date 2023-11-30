@@ -25,6 +25,7 @@ type queryHandler struct {
 func (h *queryHandler) selectSubscriber(stm *ent.SubscriberQuery) {
 	h.stm = stm.Select(
 		entsubscriber.FieldID,
+		entsubscriber.FieldEntID,
 		entsubscriber.FieldAppID,
 		entsubscriber.FieldEmailAddress,
 		entsubscriber.FieldRegistered,
@@ -34,18 +35,19 @@ func (h *queryHandler) selectSubscriber(stm *ent.SubscriberQuery) {
 }
 
 func (h *queryHandler) querySubscriber(cli *ent.Client) error {
-	if h.ID == nil {
-		return fmt.Errorf("invalid subscriber id")
+	stm := cli.Subscriber.
+		Query().
+		Where(entsubscriber.DeletedAt(0))
+	if h.ID != nil {
+		stm.Where(entsubscriber.ID(*h.ID))
 	}
-
-	h.selectSubscriber(
-		cli.Subscriber.
-			Query().
-			Where(
-				entsubscriber.ID(*h.ID),
-				entsubscriber.DeletedAt(0),
-			),
-	)
+	if h.AppID != nil {
+		stm.Where(entsubscriber.AppID(*h.AppID))
+	}
+	if h.EntID != nil {
+		stm.Where(entsubscriber.EntID(*h.EntID))
+	}
+	h.selectSubscriber(stm)
 	return nil
 }
 
@@ -68,7 +70,7 @@ func (h *queryHandler) queryJoinApp(s *sql.Selector) {
 	s.LeftJoin(t).
 		On(
 			s.C(entsubscriber.FieldAppID),
-			t.C(entapp.FieldID),
+			t.C(entapp.FieldEntID),
 		).
 		AppendSelect(
 			sql.As(t.C(entapp.FieldName), "app_name"),
