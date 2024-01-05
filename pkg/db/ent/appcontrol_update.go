@@ -289,6 +289,26 @@ func (acu *AppControlUpdate) ClearMaintaining() *AppControlUpdate {
 	return acu
 }
 
+// SetCouponWithdrawEnable sets the "coupon_withdraw_enable" field.
+func (acu *AppControlUpdate) SetCouponWithdrawEnable(b bool) *AppControlUpdate {
+	acu.mutation.SetCouponWithdrawEnable(b)
+	return acu
+}
+
+// SetNillableCouponWithdrawEnable sets the "coupon_withdraw_enable" field if the given value is not nil.
+func (acu *AppControlUpdate) SetNillableCouponWithdrawEnable(b *bool) *AppControlUpdate {
+	if b != nil {
+		acu.SetCouponWithdrawEnable(*b)
+	}
+	return acu
+}
+
+// ClearCouponWithdrawEnable clears the value of the "coupon_withdraw_enable" field.
+func (acu *AppControlUpdate) ClearCouponWithdrawEnable() *AppControlUpdate {
+	acu.mutation.ClearCouponWithdrawEnable()
+	return acu
+}
+
 // SetCommitButtonTargets sets the "commit_button_targets" field.
 func (acu *AppControlUpdate) SetCommitButtonTargets(s []string) *AppControlUpdate {
 	acu.mutation.SetCommitButtonTargets(s)
@@ -585,6 +605,19 @@ func (acu *AppControlUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: appcontrol.FieldMaintaining,
 		})
 	}
+	if value, ok := acu.mutation.CouponWithdrawEnable(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: appcontrol.FieldCouponWithdrawEnable,
+		})
+	}
+	if acu.mutation.CouponWithdrawEnableCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Column: appcontrol.FieldCouponWithdrawEnable,
+		})
+	}
 	if value, ok := acu.mutation.CommitButtonTargets(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeJSON,
@@ -876,6 +909,26 @@ func (acuo *AppControlUpdateOne) SetNillableMaintaining(b *bool) *AppControlUpda
 // ClearMaintaining clears the value of the "maintaining" field.
 func (acuo *AppControlUpdateOne) ClearMaintaining() *AppControlUpdateOne {
 	acuo.mutation.ClearMaintaining()
+	return acuo
+}
+
+// SetCouponWithdrawEnable sets the "coupon_withdraw_enable" field.
+func (acuo *AppControlUpdateOne) SetCouponWithdrawEnable(b bool) *AppControlUpdateOne {
+	acuo.mutation.SetCouponWithdrawEnable(b)
+	return acuo
+}
+
+// SetNillableCouponWithdrawEnable sets the "coupon_withdraw_enable" field if the given value is not nil.
+func (acuo *AppControlUpdateOne) SetNillableCouponWithdrawEnable(b *bool) *AppControlUpdateOne {
+	if b != nil {
+		acuo.SetCouponWithdrawEnable(*b)
+	}
+	return acuo
+}
+
+// ClearCouponWithdrawEnable clears the value of the "coupon_withdraw_enable" field.
+func (acuo *AppControlUpdateOne) ClearCouponWithdrawEnable() *AppControlUpdateOne {
+	acuo.mutation.ClearCouponWithdrawEnable()
 	return acuo
 }
 
@@ -1203,6 +1256,19 @@ func (acuo *AppControlUpdateOne) sqlSave(ctx context.Context) (_node *AppControl
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
 			Type:   field.TypeBool,
 			Column: appcontrol.FieldMaintaining,
+		})
+	}
+	if value, ok := acuo.mutation.CouponWithdrawEnable(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: appcontrol.FieldCouponWithdrawEnable,
+		})
+	}
+	if acuo.mutation.CouponWithdrawEnableCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Column: appcontrol.FieldCouponWithdrawEnable,
 		})
 	}
 	if value, ok := acuo.mutation.CommitButtonTargets(); ok {

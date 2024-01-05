@@ -45,6 +45,8 @@ type AppControl struct {
 	MaxTypedCouponsPerOrder uint32 `json:"max_typed_coupons_per_order,omitempty"`
 	// Maintaining holds the value of the "maintaining" field.
 	Maintaining bool `json:"maintaining,omitempty"`
+	// CouponWithdrawEnable holds the value of the "coupon_withdraw_enable" field.
+	CouponWithdrawEnable bool `json:"coupon_withdraw_enable,omitempty"`
 	// CommitButtonTargets holds the value of the "commit_button_targets" field.
 	CommitButtonTargets []string `json:"commit_button_targets,omitempty"`
 }
@@ -56,7 +58,7 @@ func (*AppControl) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case appcontrol.FieldSignupMethods, appcontrol.FieldExternSigninMethods, appcontrol.FieldCommitButtonTargets:
 			values[i] = new([]byte)
-		case appcontrol.FieldKycEnable, appcontrol.FieldSigninVerifyEnable, appcontrol.FieldInvitationCodeMust, appcontrol.FieldMaintaining:
+		case appcontrol.FieldKycEnable, appcontrol.FieldSigninVerifyEnable, appcontrol.FieldInvitationCodeMust, appcontrol.FieldMaintaining, appcontrol.FieldCouponWithdrawEnable:
 			values[i] = new(sql.NullBool)
 		case appcontrol.FieldID, appcontrol.FieldCreatedAt, appcontrol.FieldUpdatedAt, appcontrol.FieldDeletedAt, appcontrol.FieldMaxTypedCouponsPerOrder:
 			values[i] = new(sql.NullInt64)
@@ -173,6 +175,12 @@ func (ac *AppControl) assignValues(columns []string, values []interface{}) error
 			} else if value.Valid {
 				ac.Maintaining = value.Bool
 			}
+		case appcontrol.FieldCouponWithdrawEnable:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field coupon_withdraw_enable", values[i])
+			} else if value.Valid {
+				ac.CouponWithdrawEnable = value.Bool
+			}
 		case appcontrol.FieldCommitButtonTargets:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field commit_button_targets", values[i])
@@ -250,6 +258,9 @@ func (ac *AppControl) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("maintaining=")
 	builder.WriteString(fmt.Sprintf("%v", ac.Maintaining))
+	builder.WriteString(", ")
+	builder.WriteString("coupon_withdraw_enable=")
+	builder.WriteString(fmt.Sprintf("%v", ac.CouponWithdrawEnable))
 	builder.WriteString(", ")
 	builder.WriteString("commit_button_targets=")
 	builder.WriteString(fmt.Sprintf("%v", ac.CommitButtonTargets))

@@ -74,6 +74,10 @@ func (AppControl) Fields() []ent.Field {
 			Optional().
 			Default(false),
 		field.
+			Bool("coupon_withdraw_enable").
+			Optional().
+			Default(false),
+		field.
 			JSON("commit_button_targets", []string{}).
 			Optional().
 			Default(func() []string {

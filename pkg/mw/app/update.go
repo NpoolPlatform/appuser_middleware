@@ -92,6 +92,7 @@ func (h *updateHandler) updateAppCtrl(ctx context.Context, tx *ent.Tx) error {
 		CreateInvitationCodeWhen: h.CreateInvitationCodeWhen,
 		MaxTypedCouponsPerOrder:  h.MaxTypedCouponsPerOrder,
 		Maintaining:              h.Maintaining,
+		CouponWithdrawEnable:     h.CouponWithdrawEnable,
 		CommitButtonTargets:      h.CommitButtonTargets,
 	}
 
