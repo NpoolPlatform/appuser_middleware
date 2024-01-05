@@ -31,6 +31,7 @@ type Handler struct {
 	CreateInvitationCodeWhen *basetypes.CreateInvitationCodeWhen
 	MaxTypedCouponsPerOrder  *uint32
 	Maintaining              *bool
+	CouponWithdrawEnable     *bool
 	CommitButtonTargets      []string
 	UserID                   *uuid.UUID
 	Reqs                     []*AppReq
@@ -265,6 +266,13 @@ func WithMaxTypedCouponsPerOrder(count *uint32, must bool) func(context.Context,
 func WithMaintaining(enable *bool, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.Maintaining = enable
+		return nil
+	}
+}
+
+func WithCouponWithdrawEnable(enable *bool, must bool) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		h.CouponWithdrawEnable = enable
 		return nil
 	}
 }

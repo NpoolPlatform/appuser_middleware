@@ -202,6 +202,20 @@ func (acc *AppControlCreate) SetNillableMaintaining(b *bool) *AppControlCreate {
 	return acc
 }
 
+// SetCouponWithdrawEnable sets the "coupon_withdraw_enable" field.
+func (acc *AppControlCreate) SetCouponWithdrawEnable(b bool) *AppControlCreate {
+	acc.mutation.SetCouponWithdrawEnable(b)
+	return acc
+}
+
+// SetNillableCouponWithdrawEnable sets the "coupon_withdraw_enable" field if the given value is not nil.
+func (acc *AppControlCreate) SetNillableCouponWithdrawEnable(b *bool) *AppControlCreate {
+	if b != nil {
+		acc.SetCouponWithdrawEnable(*b)
+	}
+	return acc
+}
+
 // SetCommitButtonTargets sets the "commit_button_targets" field.
 func (acc *AppControlCreate) SetCommitButtonTargets(s []string) *AppControlCreate {
 	acc.mutation.SetCommitButtonTargets(s)
@@ -369,6 +383,10 @@ func (acc *AppControlCreate) defaults() error {
 	if _, ok := acc.mutation.Maintaining(); !ok {
 		v := appcontrol.DefaultMaintaining
 		acc.mutation.SetMaintaining(v)
+	}
+	if _, ok := acc.mutation.CouponWithdrawEnable(); !ok {
+		v := appcontrol.DefaultCouponWithdrawEnable
+		acc.mutation.SetCouponWithdrawEnable(v)
 	}
 	if _, ok := acc.mutation.CommitButtonTargets(); !ok {
 		if appcontrol.DefaultCommitButtonTargets == nil {
@@ -539,6 +557,14 @@ func (acc *AppControlCreate) createSpec() (*AppControl, *sqlgraph.CreateSpec) {
 			Column: appcontrol.FieldMaintaining,
 		})
 		_node.Maintaining = value
+	}
+	if value, ok := acc.mutation.CouponWithdrawEnable(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: appcontrol.FieldCouponWithdrawEnable,
+		})
+		_node.CouponWithdrawEnable = value
 	}
 	if value, ok := acc.mutation.CommitButtonTargets(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -851,6 +877,24 @@ func (u *AppControlUpsert) UpdateMaintaining() *AppControlUpsert {
 // ClearMaintaining clears the value of the "maintaining" field.
 func (u *AppControlUpsert) ClearMaintaining() *AppControlUpsert {
 	u.SetNull(appcontrol.FieldMaintaining)
+	return u
+}
+
+// SetCouponWithdrawEnable sets the "coupon_withdraw_enable" field.
+func (u *AppControlUpsert) SetCouponWithdrawEnable(v bool) *AppControlUpsert {
+	u.Set(appcontrol.FieldCouponWithdrawEnable, v)
+	return u
+}
+
+// UpdateCouponWithdrawEnable sets the "coupon_withdraw_enable" field to the value that was provided on create.
+func (u *AppControlUpsert) UpdateCouponWithdrawEnable() *AppControlUpsert {
+	u.SetExcluded(appcontrol.FieldCouponWithdrawEnable)
+	return u
+}
+
+// ClearCouponWithdrawEnable clears the value of the "coupon_withdraw_enable" field.
+func (u *AppControlUpsert) ClearCouponWithdrawEnable() *AppControlUpsert {
+	u.SetNull(appcontrol.FieldCouponWithdrawEnable)
 	return u
 }
 
@@ -1213,6 +1257,27 @@ func (u *AppControlUpsertOne) UpdateMaintaining() *AppControlUpsertOne {
 func (u *AppControlUpsertOne) ClearMaintaining() *AppControlUpsertOne {
 	return u.Update(func(s *AppControlUpsert) {
 		s.ClearMaintaining()
+	})
+}
+
+// SetCouponWithdrawEnable sets the "coupon_withdraw_enable" field.
+func (u *AppControlUpsertOne) SetCouponWithdrawEnable(v bool) *AppControlUpsertOne {
+	return u.Update(func(s *AppControlUpsert) {
+		s.SetCouponWithdrawEnable(v)
+	})
+}
+
+// UpdateCouponWithdrawEnable sets the "coupon_withdraw_enable" field to the value that was provided on create.
+func (u *AppControlUpsertOne) UpdateCouponWithdrawEnable() *AppControlUpsertOne {
+	return u.Update(func(s *AppControlUpsert) {
+		s.UpdateCouponWithdrawEnable()
+	})
+}
+
+// ClearCouponWithdrawEnable clears the value of the "coupon_withdraw_enable" field.
+func (u *AppControlUpsertOne) ClearCouponWithdrawEnable() *AppControlUpsertOne {
+	return u.Update(func(s *AppControlUpsert) {
+		s.ClearCouponWithdrawEnable()
 	})
 }
 
@@ -1743,6 +1808,27 @@ func (u *AppControlUpsertBulk) UpdateMaintaining() *AppControlUpsertBulk {
 func (u *AppControlUpsertBulk) ClearMaintaining() *AppControlUpsertBulk {
 	return u.Update(func(s *AppControlUpsert) {
 		s.ClearMaintaining()
+	})
+}
+
+// SetCouponWithdrawEnable sets the "coupon_withdraw_enable" field.
+func (u *AppControlUpsertBulk) SetCouponWithdrawEnable(v bool) *AppControlUpsertBulk {
+	return u.Update(func(s *AppControlUpsert) {
+		s.SetCouponWithdrawEnable(v)
+	})
+}
+
+// UpdateCouponWithdrawEnable sets the "coupon_withdraw_enable" field to the value that was provided on create.
+func (u *AppControlUpsertBulk) UpdateCouponWithdrawEnable() *AppControlUpsertBulk {
+	return u.Update(func(s *AppControlUpsert) {
+		s.UpdateCouponWithdrawEnable()
+	})
+}
+
+// ClearCouponWithdrawEnable clears the value of the "coupon_withdraw_enable" field.
+func (u *AppControlUpsertBulk) ClearCouponWithdrawEnable() *AppControlUpsertBulk {
+	return u.Update(func(s *AppControlUpsert) {
+		s.ClearCouponWithdrawEnable()
 	})
 }
 

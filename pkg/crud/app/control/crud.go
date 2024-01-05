@@ -20,6 +20,7 @@ type Req struct {
 	RecaptchaMethod          *basetypes.RecaptchaMethod
 	KycEnable                *bool
 	SigninVerifyEnable       *bool
+	CouponWithdrawEnable     *bool
 	InvitationCodeMust       *bool
 	CreateInvitationCodeWhen *basetypes.CreateInvitationCodeWhen
 	MaxTypedCouponsPerOrder  *uint32
@@ -27,7 +28,7 @@ type Req struct {
 	CommitButtonTargets      []string
 }
 
-func CreateSet(c *ent.AppControlCreate, req *Req) *ent.AppControlCreate {
+func CreateSet(c *ent.AppControlCreate, req *Req) *ent.AppControlCreate { //nolint
 	if req.EntID != nil {
 		c.SetEntID(*req.EntID)
 	}
@@ -71,6 +72,9 @@ func CreateSet(c *ent.AppControlCreate, req *Req) *ent.AppControlCreate {
 	}
 	if len(req.CommitButtonTargets) > 0 {
 		c.SetCommitButtonTargets(req.CommitButtonTargets)
+	}
+	if req.CouponWithdrawEnable != nil {
+		c.SetCouponWithdrawEnable(*req.CouponWithdrawEnable)
 	}
 	return c
 }
@@ -116,6 +120,9 @@ func UpdateSet(u *ent.AppControlUpdateOne, req *Req) *ent.AppControlUpdateOne {
 	}
 	if len(req.CommitButtonTargets) > 0 {
 		u.SetCommitButtonTargets(req.CommitButtonTargets)
+	}
+	if req.CouponWithdrawEnable != nil {
+		u.SetCouponWithdrawEnable(*req.CouponWithdrawEnable)
 	}
 	return u
 }
