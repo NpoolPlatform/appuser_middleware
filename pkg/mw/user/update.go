@@ -299,6 +299,9 @@ func (h *Handler) UpdateUser(ctx context.Context) (*npool.User, error) {
 	if info == nil {
 		return nil, fmt.Errorf("invalid user")
 	}
+	if h.ID == nil {
+		h.ID = &info.ID
+	}
 
 	if info.EmailAddress != "" || info.PhoneNO != "" {
 		if (h.EmailAddress != nil && info.EmailAddress != *h.EmailAddress) ||
