@@ -22,6 +22,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/loginhistory"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/oauththirdparty"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/pubsubmessage"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/recoverycode"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/subscriber"
 
 	"entgo.io/ent/dialect/sql"
@@ -32,7 +33,7 @@ import (
 
 // schemaGraph holds a representation of ent/schema at runtime.
 var schemaGraph = func() *sqlgraph.Schema {
-	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 20)}
+	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 21)}
 	graph.Nodes[0] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   app.Table,
@@ -469,6 +470,27 @@ var schemaGraph = func() *sqlgraph.Schema {
 		},
 	}
 	graph.Nodes[19] = &sqlgraph.Node{
+		NodeSpec: sqlgraph.NodeSpec{
+			Table:   recoverycode.Table,
+			Columns: recoverycode.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeUint32,
+				Column: recoverycode.FieldID,
+			},
+		},
+		Type: "RecoveryCode",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			recoverycode.FieldCreatedAt: {Type: field.TypeUint32, Column: recoverycode.FieldCreatedAt},
+			recoverycode.FieldUpdatedAt: {Type: field.TypeUint32, Column: recoverycode.FieldUpdatedAt},
+			recoverycode.FieldDeletedAt: {Type: field.TypeUint32, Column: recoverycode.FieldDeletedAt},
+			recoverycode.FieldEntID:     {Type: field.TypeUUID, Column: recoverycode.FieldEntID},
+			recoverycode.FieldAppID:     {Type: field.TypeUUID, Column: recoverycode.FieldAppID},
+			recoverycode.FieldUserID:    {Type: field.TypeUUID, Column: recoverycode.FieldUserID},
+			recoverycode.FieldCode:      {Type: field.TypeString, Column: recoverycode.FieldCode},
+			recoverycode.FieldUsed:      {Type: field.TypeBool, Column: recoverycode.FieldUsed},
+		},
+	}
+	graph.Nodes[20] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   subscriber.Table,
 			Columns: subscriber.Columns,
@@ -2198,6 +2220,86 @@ func (f *PubsubMessageFilter) WhereArguments(p entql.StringP) {
 }
 
 // addPredicate implements the predicateAdder interface.
+func (rcq *RecoveryCodeQuery) addPredicate(pred func(s *sql.Selector)) {
+	rcq.predicates = append(rcq.predicates, pred)
+}
+
+// Filter returns a Filter implementation to apply filters on the RecoveryCodeQuery builder.
+func (rcq *RecoveryCodeQuery) Filter() *RecoveryCodeFilter {
+	return &RecoveryCodeFilter{config: rcq.config, predicateAdder: rcq}
+}
+
+// addPredicate implements the predicateAdder interface.
+func (m *RecoveryCodeMutation) addPredicate(pred func(s *sql.Selector)) {
+	m.predicates = append(m.predicates, pred)
+}
+
+// Filter returns an entql.Where implementation to apply filters on the RecoveryCodeMutation builder.
+func (m *RecoveryCodeMutation) Filter() *RecoveryCodeFilter {
+	return &RecoveryCodeFilter{config: m.config, predicateAdder: m}
+}
+
+// RecoveryCodeFilter provides a generic filtering capability at runtime for RecoveryCodeQuery.
+type RecoveryCodeFilter struct {
+	predicateAdder
+	config
+}
+
+// Where applies the entql predicate on the query filter.
+func (f *RecoveryCodeFilter) Where(p entql.P) {
+	f.addPredicate(func(s *sql.Selector) {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[19].Type, p, s); err != nil {
+			s.AddError(err)
+		}
+	})
+}
+
+// WhereID applies the entql uint32 predicate on the id field.
+func (f *RecoveryCodeFilter) WhereID(p entql.Uint32P) {
+	f.Where(p.Field(recoverycode.FieldID))
+}
+
+// WhereCreatedAt applies the entql uint32 predicate on the created_at field.
+func (f *RecoveryCodeFilter) WhereCreatedAt(p entql.Uint32P) {
+	f.Where(p.Field(recoverycode.FieldCreatedAt))
+}
+
+// WhereUpdatedAt applies the entql uint32 predicate on the updated_at field.
+func (f *RecoveryCodeFilter) WhereUpdatedAt(p entql.Uint32P) {
+	f.Where(p.Field(recoverycode.FieldUpdatedAt))
+}
+
+// WhereDeletedAt applies the entql uint32 predicate on the deleted_at field.
+func (f *RecoveryCodeFilter) WhereDeletedAt(p entql.Uint32P) {
+	f.Where(p.Field(recoverycode.FieldDeletedAt))
+}
+
+// WhereEntID applies the entql [16]byte predicate on the ent_id field.
+func (f *RecoveryCodeFilter) WhereEntID(p entql.ValueP) {
+	f.Where(p.Field(recoverycode.FieldEntID))
+}
+
+// WhereAppID applies the entql [16]byte predicate on the app_id field.
+func (f *RecoveryCodeFilter) WhereAppID(p entql.ValueP) {
+	f.Where(p.Field(recoverycode.FieldAppID))
+}
+
+// WhereUserID applies the entql [16]byte predicate on the user_id field.
+func (f *RecoveryCodeFilter) WhereUserID(p entql.ValueP) {
+	f.Where(p.Field(recoverycode.FieldUserID))
+}
+
+// WhereCode applies the entql string predicate on the code field.
+func (f *RecoveryCodeFilter) WhereCode(p entql.StringP) {
+	f.Where(p.Field(recoverycode.FieldCode))
+}
+
+// WhereUsed applies the entql bool predicate on the used field.
+func (f *RecoveryCodeFilter) WhereUsed(p entql.BoolP) {
+	f.Where(p.Field(recoverycode.FieldUsed))
+}
+
+// addPredicate implements the predicateAdder interface.
 func (sq *SubscriberQuery) addPredicate(pred func(s *sql.Selector)) {
 	sq.predicates = append(sq.predicates, pred)
 }
@@ -2226,7 +2328,7 @@ type SubscriberFilter struct {
 // Where applies the entql predicate on the query filter.
 func (f *SubscriberFilter) Where(p entql.P) {
 	f.addPredicate(func(s *sql.Selector) {
-		if err := schemaGraph.EvalP(schemaGraph.Nodes[19].Type, p, s); err != nil {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[20].Type, p, s); err != nil {
 			s.AddError(err)
 		}
 	})

@@ -29,6 +29,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/loginhistory"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/oauththirdparty"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/pubsubmessage"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/recoverycode"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/subscriber"
 
 	"entgo.io/ent/dialect"
@@ -78,6 +79,8 @@ type Client struct {
 	OAuthThirdParty *OAuthThirdPartyClient
 	// PubsubMessage is the client for interacting with the PubsubMessage builders.
 	PubsubMessage *PubsubMessageClient
+	// RecoveryCode is the client for interacting with the RecoveryCode builders.
+	RecoveryCode *RecoveryCodeClient
 	// Subscriber is the client for interacting with the Subscriber builders.
 	Subscriber *SubscriberClient
 }
@@ -112,6 +115,7 @@ func (c *Client) init() {
 	c.LoginHistory = NewLoginHistoryClient(c.config)
 	c.OAuthThirdParty = NewOAuthThirdPartyClient(c.config)
 	c.PubsubMessage = NewPubsubMessageClient(c.config)
+	c.RecoveryCode = NewRecoveryCodeClient(c.config)
 	c.Subscriber = NewSubscriberClient(c.config)
 }
 
@@ -165,6 +169,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		LoginHistory:       NewLoginHistoryClient(cfg),
 		OAuthThirdParty:    NewOAuthThirdPartyClient(cfg),
 		PubsubMessage:      NewPubsubMessageClient(cfg),
+		RecoveryCode:       NewRecoveryCodeClient(cfg),
 		Subscriber:         NewSubscriberClient(cfg),
 	}, nil
 }
@@ -204,6 +209,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		LoginHistory:       NewLoginHistoryClient(cfg),
 		OAuthThirdParty:    NewOAuthThirdPartyClient(cfg),
 		PubsubMessage:      NewPubsubMessageClient(cfg),
+		RecoveryCode:       NewRecoveryCodeClient(cfg),
 		Subscriber:         NewSubscriberClient(cfg),
 	}, nil
 }
@@ -253,6 +259,7 @@ func (c *Client) Use(hooks ...Hook) {
 	c.LoginHistory.Use(hooks...)
 	c.OAuthThirdParty.Use(hooks...)
 	c.PubsubMessage.Use(hooks...)
+	c.RecoveryCode.Use(hooks...)
 	c.Subscriber.Use(hooks...)
 }
 
@@ -1983,6 +1990,97 @@ func (c *PubsubMessageClient) GetX(ctx context.Context, id uint32) *PubsubMessag
 func (c *PubsubMessageClient) Hooks() []Hook {
 	hooks := c.hooks.PubsubMessage
 	return append(hooks[:len(hooks):len(hooks)], pubsubmessage.Hooks[:]...)
+}
+
+// RecoveryCodeClient is a client for the RecoveryCode schema.
+type RecoveryCodeClient struct {
+	config
+}
+
+// NewRecoveryCodeClient returns a client for the RecoveryCode from the given config.
+func NewRecoveryCodeClient(c config) *RecoveryCodeClient {
+	return &RecoveryCodeClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `recoverycode.Hooks(f(g(h())))`.
+func (c *RecoveryCodeClient) Use(hooks ...Hook) {
+	c.hooks.RecoveryCode = append(c.hooks.RecoveryCode, hooks...)
+}
+
+// Create returns a builder for creating a RecoveryCode entity.
+func (c *RecoveryCodeClient) Create() *RecoveryCodeCreate {
+	mutation := newRecoveryCodeMutation(c.config, OpCreate)
+	return &RecoveryCodeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of RecoveryCode entities.
+func (c *RecoveryCodeClient) CreateBulk(builders ...*RecoveryCodeCreate) *RecoveryCodeCreateBulk {
+	return &RecoveryCodeCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for RecoveryCode.
+func (c *RecoveryCodeClient) Update() *RecoveryCodeUpdate {
+	mutation := newRecoveryCodeMutation(c.config, OpUpdate)
+	return &RecoveryCodeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *RecoveryCodeClient) UpdateOne(rc *RecoveryCode) *RecoveryCodeUpdateOne {
+	mutation := newRecoveryCodeMutation(c.config, OpUpdateOne, withRecoveryCode(rc))
+	return &RecoveryCodeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *RecoveryCodeClient) UpdateOneID(id uint32) *RecoveryCodeUpdateOne {
+	mutation := newRecoveryCodeMutation(c.config, OpUpdateOne, withRecoveryCodeID(id))
+	return &RecoveryCodeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for RecoveryCode.
+func (c *RecoveryCodeClient) Delete() *RecoveryCodeDelete {
+	mutation := newRecoveryCodeMutation(c.config, OpDelete)
+	return &RecoveryCodeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *RecoveryCodeClient) DeleteOne(rc *RecoveryCode) *RecoveryCodeDeleteOne {
+	return c.DeleteOneID(rc.ID)
+}
+
+// DeleteOne returns a builder for deleting the given entity by its id.
+func (c *RecoveryCodeClient) DeleteOneID(id uint32) *RecoveryCodeDeleteOne {
+	builder := c.Delete().Where(recoverycode.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &RecoveryCodeDeleteOne{builder}
+}
+
+// Query returns a query builder for RecoveryCode.
+func (c *RecoveryCodeClient) Query() *RecoveryCodeQuery {
+	return &RecoveryCodeQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a RecoveryCode entity by its id.
+func (c *RecoveryCodeClient) Get(ctx context.Context, id uint32) (*RecoveryCode, error) {
+	return c.Query().Where(recoverycode.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *RecoveryCodeClient) GetX(ctx context.Context, id uint32) *RecoveryCode {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *RecoveryCodeClient) Hooks() []Hook {
+	hooks := c.hooks.RecoveryCode
+	return append(hooks[:len(hooks):len(hooks)], recoverycode.Hooks[:]...)
 }
 
 // SubscriberClient is a client for the Subscriber schema.
