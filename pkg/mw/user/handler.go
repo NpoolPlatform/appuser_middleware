@@ -385,6 +385,7 @@ func WithSigninVerifyType(verifyType *basetypes.SignMethod, must bool) func(cont
 		case basetypes.SignMethod_Email:
 		case basetypes.SignMethod_Mobile:
 		case basetypes.SignMethod_Google:
+		case basetypes.SignMethod_Reset:
 		default:
 			return fmt.Errorf("invalid sign verify type")
 		}
