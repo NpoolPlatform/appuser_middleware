@@ -42,7 +42,7 @@ func (h *queryHandler) queryRecoveryCode(cli *ent.Client) error {
 	return nil
 }
 
-func (h *queryHandler) queryRecoveryCodeByConds(cli *ent.Client) (*ent.RecoveryCodeSelect, error) {
+func (h *queryHandler) queryRecoveryCodes(cli *ent.Client) (*ent.RecoveryCodeSelect, error) {
 	stm, err := recoverycodecrud.SetQueryConds(cli.RecoveryCode.Query(), h.Conds)
 	if err != nil {
 		return nil, err
@@ -60,6 +60,7 @@ func (h *queryHandler) queryJoinMyself(s *sql.Selector) {
 		AppendSelect(
 			t.C(entrecoverycode.FieldEntID),
 			t.C(entrecoverycode.FieldAppID),
+			t.C(entrecoverycode.FieldUserID),
 			t.C(entrecoverycode.FieldCode),
 			t.C(entrecoverycode.FieldUsed),
 			t.C(entrecoverycode.FieldCreatedAt),
@@ -92,7 +93,6 @@ func (h *queryHandler) queryJoin() error {
 		return nil
 	}
 	h.stmCount.Modify(func(s *sql.Selector) {
-		h.queryJoinMyself(s)
 		h.queryJoinAppUser(s)
 	})
 	return err
@@ -141,10 +141,10 @@ func (h *Handler) GetRecoveryCodes(ctx context.Context) ([]*npool.RecoveryCode, 
 
 	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
 		var err error
-		if handler.stmSelect, err = handler.queryRecoveryCodeByConds(cli); err != nil {
+		if handler.stmSelect, err = handler.queryRecoveryCodes(cli); err != nil {
 			return err
 		}
-		if handler.stmCount, err = handler.queryRecoveryCodeByConds(cli); err != nil {
+		if handler.stmCount, err = handler.queryRecoveryCodes(cli); err != nil {
 			return err
 		}
 		if err := handler.queryJoin(); err != nil {

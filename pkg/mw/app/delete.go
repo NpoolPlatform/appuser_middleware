@@ -48,7 +48,6 @@ func (h *deleteHandler) deleteAppCtrl(ctx context.Context, tx *ent.Tx) error {
 	if _, err := info.
 		Update().
 		SetDeletedAt(uint32(time.Now().Unix())).
-		SetDeletedAt(uint32(time.Now().Unix())).
 		Save(ctx); err != nil {
 		return err
 	}

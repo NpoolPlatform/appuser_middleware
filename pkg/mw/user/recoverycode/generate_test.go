@@ -85,7 +85,6 @@ func setupRecoveryCode(t *testing.T) func(*testing.T) {
 		user1.WithAppID(&user.AppID, true),
 		user1.WithPhoneNO(&user.PhoneNO, true),
 		user1.WithEmailAddress(&user.EmailAddress, true),
-		user1.WithImportFromAppID(&user.ImportedFromAppID, true),
 		user1.WithPasswordHash(&passwordHash, true),
 	)
 	assert.Nil(t, err)
@@ -94,7 +93,6 @@ func setupRecoveryCode(t *testing.T) func(*testing.T) {
 	assert.NotNil(t, user)
 
 	return func(*testing.T) {
-		_, _ = h1.DeleteApp(context.Background())
 		_, _ = h2.DeleteUser(context.Background())
 	}
 }
@@ -114,12 +112,16 @@ func generateRecoveryCodes(t *testing.T) {
 func getRecoveryCodes(t *testing.T) {
 	h4, err := NewHandler(
 		context.Background(),
-		WithOffset(16),
+		WithAppID(&user.AppID, true),
+		WithUserID(&user.EntID, true),
+		WithOffset(0),
+		WithLimit(16),
 	)
 	assert.Nil(t, err)
+
 	h4.Conds = &recoverycodecrud.Conds{
-		AppID:  &cruder.Cond{Op: cruder.EQ, Val: user.AppID},
-		UserID: &cruder.Cond{Op: cruder.EQ, Val: user.EntID},
+		AppID:  &cruder.Cond{Op: cruder.EQ, Val: *h4.AppID},
+		UserID: &cruder.Cond{Op: cruder.EQ, Val: *h4.UserID},
 	}
 	infos, _, err := h4.GetRecoveryCodes(context.Background())
 	assert.Nil(t, err)
