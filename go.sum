@@ -61,6 +61,7 @@ github.com/NpoolPlatform/libent-cruder v0.0.0-20231008051607-f64457cf6ab6/go.mod
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 github.com/NpoolPlatform/message v0.0.0-20240119020142-799e25722bb0 h1:3vuRZdkRjIFhlRkKd6zBlt85wKpAP+x2TADe+YFebl4=
 github.com/NpoolPlatform/message v0.0.0-20240119020142-799e25722bb0/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
 =======
@@ -75,6 +76,10 @@ github.com/NpoolPlatform/message v0.0.0-20240115034712-52a89cb535cc/go.mod h1:Px
 github.com/NpoolPlatform/message v0.0.0-20240115064536-0049c52b4645 h1:2B60TL5pHaKwnood2NfMONZkdg533RNsnkS5LB0BsOk=
 github.com/NpoolPlatform/message v0.0.0-20240115064536-0049c52b4645/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
 >>>>>>> 1941550 (update recovery code)
+=======
+github.com/NpoolPlatform/message v0.0.0-20240115082615-bd939b92872c h1:he4PXqDUU/9TpNxo+pXPQdVoJ+6bJqwWpwZ7C1b6KgQ=
+github.com/NpoolPlatform/message v0.0.0-20240115082615-bd939b92872c/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
+>>>>>>> 2601d7a (add client)
 github.com/OneOfOne/xxhash v1.2.2 h1:KMrpdQIwFcEqXDklaen+P1axHaj9BSKzvpUUfnHldSE=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/Shonminh/apollo-client v0.4.0 h1:AXGp4wOahrEKjheMXehgsG9B8dEfLQHttRLHeEefvus=

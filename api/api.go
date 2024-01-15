@@ -13,6 +13,7 @@ import (
 	appsubscribe "github.com/NpoolPlatform/appuser-middleware/api/subscriber/app/subscribe"
 	"github.com/NpoolPlatform/appuser-middleware/api/user"
 	loginhistory "github.com/NpoolPlatform/appuser-middleware/api/user/login/history"
+	recoverycode "github.com/NpoolPlatform/appuser-middleware/api/user/recoverycode"
 
 	appoauththirdparty "github.com/NpoolPlatform/appuser-middleware/api/oauth/appoauththirdparty"
 	oauththirdparty "github.com/NpoolPlatform/appuser-middleware/api/oauth/oauththirdparty"
@@ -33,6 +34,7 @@ func Register(server grpc.ServiceRegistrar) {
 	appsubscribe.Register(server)
 	user.Register(server)
 	loginhistory.Register(server)
+	recoverycode.Register(server)
 	role.Register(server)
 	roleuser.Register(server)
 	auth.Register(server)
