@@ -20,6 +20,7 @@ type Handler struct {
 	EntID  *uuid.UUID
 	AppID  *uuid.UUID
 	UserID *uuid.UUID
+	Used   *bool
 	Conds  *codecrud.Conds
 	Offset int32
 	Limit  int32
@@ -44,6 +45,19 @@ func WithID(id *uint32, must bool) func(context.Context, *Handler) error {
 			return nil
 		}
 		h.ID = id
+		return nil
+	}
+}
+
+func WithUsed(used *bool, must bool) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if used == nil {
+			if must {
+				return fmt.Errorf("invalid used")
+			}
+			return nil
+		}
+		h.Used = used
 		return nil
 	}
 }
