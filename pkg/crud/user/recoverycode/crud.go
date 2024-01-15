@@ -53,7 +53,7 @@ func SetQueryConds(q *ent.RecoveryCodeQuery, conds *Conds) (*ent.RecoveryCodeQue
 	if conds.UserID != nil {
 		id, ok := conds.UserID.Val.(uuid.UUID)
 		if !ok {
-			return nil, fmt.Errorf("userid userid")
+			return nil, fmt.Errorf("invalid userid")
 		}
 		switch conds.UserID.Op {
 		case cruder.EQ:
