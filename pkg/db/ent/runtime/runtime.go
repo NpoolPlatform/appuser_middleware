@@ -24,6 +24,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/loginhistory"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/oauththirdparty"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/pubsubmessage"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/recoverycode"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/schema"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/subscriber"
 	"github.com/google/uuid"
@@ -1091,6 +1092,56 @@ func init() {
 	pubsubmessageDescArguments := pubsubmessageFields[4].Descriptor()
 	// pubsubmessage.DefaultArguments holds the default value on creation for the arguments field.
 	pubsubmessage.DefaultArguments = pubsubmessageDescArguments.Default.(string)
+	recoverycodeMixin := schema.RecoveryCode{}.Mixin()
+	recoverycode.Policy = privacy.NewPolicies(recoverycodeMixin[0], schema.RecoveryCode{})
+	recoverycode.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := recoverycode.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	recoverycodeMixinFields0 := recoverycodeMixin[0].Fields()
+	_ = recoverycodeMixinFields0
+	recoverycodeMixinFields1 := recoverycodeMixin[1].Fields()
+	_ = recoverycodeMixinFields1
+	recoverycodeFields := schema.RecoveryCode{}.Fields()
+	_ = recoverycodeFields
+	// recoverycodeDescCreatedAt is the schema descriptor for created_at field.
+	recoverycodeDescCreatedAt := recoverycodeMixinFields0[0].Descriptor()
+	// recoverycode.DefaultCreatedAt holds the default value on creation for the created_at field.
+	recoverycode.DefaultCreatedAt = recoverycodeDescCreatedAt.Default.(func() uint32)
+	// recoverycodeDescUpdatedAt is the schema descriptor for updated_at field.
+	recoverycodeDescUpdatedAt := recoverycodeMixinFields0[1].Descriptor()
+	// recoverycode.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	recoverycode.DefaultUpdatedAt = recoverycodeDescUpdatedAt.Default.(func() uint32)
+	// recoverycode.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	recoverycode.UpdateDefaultUpdatedAt = recoverycodeDescUpdatedAt.UpdateDefault.(func() uint32)
+	// recoverycodeDescDeletedAt is the schema descriptor for deleted_at field.
+	recoverycodeDescDeletedAt := recoverycodeMixinFields0[2].Descriptor()
+	// recoverycode.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	recoverycode.DefaultDeletedAt = recoverycodeDescDeletedAt.Default.(func() uint32)
+	// recoverycodeDescEntID is the schema descriptor for ent_id field.
+	recoverycodeDescEntID := recoverycodeMixinFields1[1].Descriptor()
+	// recoverycode.DefaultEntID holds the default value on creation for the ent_id field.
+	recoverycode.DefaultEntID = recoverycodeDescEntID.Default.(func() uuid.UUID)
+	// recoverycodeDescAppID is the schema descriptor for app_id field.
+	recoverycodeDescAppID := recoverycodeFields[0].Descriptor()
+	// recoverycode.DefaultAppID holds the default value on creation for the app_id field.
+	recoverycode.DefaultAppID = recoverycodeDescAppID.Default.(func() uuid.UUID)
+	// recoverycodeDescUserID is the schema descriptor for user_id field.
+	recoverycodeDescUserID := recoverycodeFields[1].Descriptor()
+	// recoverycode.DefaultUserID holds the default value on creation for the user_id field.
+	recoverycode.DefaultUserID = recoverycodeDescUserID.Default.(func() uuid.UUID)
+	// recoverycodeDescCode is the schema descriptor for code field.
+	recoverycodeDescCode := recoverycodeFields[2].Descriptor()
+	// recoverycode.DefaultCode holds the default value on creation for the code field.
+	recoverycode.DefaultCode = recoverycodeDescCode.Default.(string)
+	// recoverycodeDescUsed is the schema descriptor for used field.
+	recoverycodeDescUsed := recoverycodeFields[3].Descriptor()
+	// recoverycode.DefaultUsed holds the default value on creation for the used field.
+	recoverycode.DefaultUsed = recoverycodeDescUsed.Default.(bool)
 	subscriberMixin := schema.Subscriber{}.Mixin()
 	subscriber.Policy = privacy.NewPolicies(subscriberMixin[0], schema.Subscriber{})
 	subscriber.Hooks[0] = func(next ent.Mutator) ent.Mutator {

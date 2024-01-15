@@ -28,6 +28,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/oauththirdparty"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/predicate"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/pubsubmessage"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/recoverycode"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/subscriber"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -63,6 +64,7 @@ const (
 	TypeLoginHistory       = "LoginHistory"
 	TypeOAuthThirdParty    = "OAuthThirdParty"
 	TypePubsubMessage      = "PubsubMessage"
+	TypeRecoveryCode       = "RecoveryCode"
 	TypeSubscriber         = "Subscriber"
 )
 
@@ -18879,6 +18881,882 @@ func (m *PubsubMessageMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *PubsubMessageMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown PubsubMessage edge %s", name)
+}
+
+// RecoveryCodeMutation represents an operation that mutates the RecoveryCode nodes in the graph.
+type RecoveryCodeMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *uint32
+	created_at    *uint32
+	addcreated_at *int32
+	updated_at    *uint32
+	addupdated_at *int32
+	deleted_at    *uint32
+	adddeleted_at *int32
+	ent_id        *uuid.UUID
+	app_id        *uuid.UUID
+	user_id       *uuid.UUID
+	code          *string
+	used          *bool
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*RecoveryCode, error)
+	predicates    []predicate.RecoveryCode
+}
+
+var _ ent.Mutation = (*RecoveryCodeMutation)(nil)
+
+// recoverycodeOption allows management of the mutation configuration using functional options.
+type recoverycodeOption func(*RecoveryCodeMutation)
+
+// newRecoveryCodeMutation creates new mutation for the RecoveryCode entity.
+func newRecoveryCodeMutation(c config, op Op, opts ...recoverycodeOption) *RecoveryCodeMutation {
+	m := &RecoveryCodeMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeRecoveryCode,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withRecoveryCodeID sets the ID field of the mutation.
+func withRecoveryCodeID(id uint32) recoverycodeOption {
+	return func(m *RecoveryCodeMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *RecoveryCode
+		)
+		m.oldValue = func(ctx context.Context) (*RecoveryCode, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().RecoveryCode.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withRecoveryCode sets the old RecoveryCode of the mutation.
+func withRecoveryCode(node *RecoveryCode) recoverycodeOption {
+	return func(m *RecoveryCodeMutation) {
+		m.oldValue = func(context.Context) (*RecoveryCode, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m RecoveryCodeMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m RecoveryCodeMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of RecoveryCode entities.
+func (m *RecoveryCodeMutation) SetID(id uint32) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *RecoveryCodeMutation) ID() (id uint32, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *RecoveryCodeMutation) IDs(ctx context.Context) ([]uint32, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uint32{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().RecoveryCode.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *RecoveryCodeMutation) SetCreatedAt(u uint32) {
+	m.created_at = &u
+	m.addcreated_at = nil
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *RecoveryCodeMutation) CreatedAt() (r uint32, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the RecoveryCode entity.
+// If the RecoveryCode object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RecoveryCodeMutation) OldCreatedAt(ctx context.Context) (v uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// AddCreatedAt adds u to the "created_at" field.
+func (m *RecoveryCodeMutation) AddCreatedAt(u int32) {
+	if m.addcreated_at != nil {
+		*m.addcreated_at += u
+	} else {
+		m.addcreated_at = &u
+	}
+}
+
+// AddedCreatedAt returns the value that was added to the "created_at" field in this mutation.
+func (m *RecoveryCodeMutation) AddedCreatedAt() (r int32, exists bool) {
+	v := m.addcreated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *RecoveryCodeMutation) ResetCreatedAt() {
+	m.created_at = nil
+	m.addcreated_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *RecoveryCodeMutation) SetUpdatedAt(u uint32) {
+	m.updated_at = &u
+	m.addupdated_at = nil
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *RecoveryCodeMutation) UpdatedAt() (r uint32, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the RecoveryCode entity.
+// If the RecoveryCode object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RecoveryCodeMutation) OldUpdatedAt(ctx context.Context) (v uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// AddUpdatedAt adds u to the "updated_at" field.
+func (m *RecoveryCodeMutation) AddUpdatedAt(u int32) {
+	if m.addupdated_at != nil {
+		*m.addupdated_at += u
+	} else {
+		m.addupdated_at = &u
+	}
+}
+
+// AddedUpdatedAt returns the value that was added to the "updated_at" field in this mutation.
+func (m *RecoveryCodeMutation) AddedUpdatedAt() (r int32, exists bool) {
+	v := m.addupdated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *RecoveryCodeMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+	m.addupdated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *RecoveryCodeMutation) SetDeletedAt(u uint32) {
+	m.deleted_at = &u
+	m.adddeleted_at = nil
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *RecoveryCodeMutation) DeletedAt() (r uint32, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the RecoveryCode entity.
+// If the RecoveryCode object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RecoveryCodeMutation) OldDeletedAt(ctx context.Context) (v uint32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// AddDeletedAt adds u to the "deleted_at" field.
+func (m *RecoveryCodeMutation) AddDeletedAt(u int32) {
+	if m.adddeleted_at != nil {
+		*m.adddeleted_at += u
+	} else {
+		m.adddeleted_at = &u
+	}
+}
+
+// AddedDeletedAt returns the value that was added to the "deleted_at" field in this mutation.
+func (m *RecoveryCodeMutation) AddedDeletedAt() (r int32, exists bool) {
+	v := m.adddeleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *RecoveryCodeMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	m.adddeleted_at = nil
+}
+
+// SetEntID sets the "ent_id" field.
+func (m *RecoveryCodeMutation) SetEntID(u uuid.UUID) {
+	m.ent_id = &u
+}
+
+// EntID returns the value of the "ent_id" field in the mutation.
+func (m *RecoveryCodeMutation) EntID() (r uuid.UUID, exists bool) {
+	v := m.ent_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEntID returns the old "ent_id" field's value of the RecoveryCode entity.
+// If the RecoveryCode object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RecoveryCodeMutation) OldEntID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEntID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEntID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEntID: %w", err)
+	}
+	return oldValue.EntID, nil
+}
+
+// ResetEntID resets all changes to the "ent_id" field.
+func (m *RecoveryCodeMutation) ResetEntID() {
+	m.ent_id = nil
+}
+
+// SetAppID sets the "app_id" field.
+func (m *RecoveryCodeMutation) SetAppID(u uuid.UUID) {
+	m.app_id = &u
+}
+
+// AppID returns the value of the "app_id" field in the mutation.
+func (m *RecoveryCodeMutation) AppID() (r uuid.UUID, exists bool) {
+	v := m.app_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAppID returns the old "app_id" field's value of the RecoveryCode entity.
+// If the RecoveryCode object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RecoveryCodeMutation) OldAppID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAppID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAppID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAppID: %w", err)
+	}
+	return oldValue.AppID, nil
+}
+
+// ClearAppID clears the value of the "app_id" field.
+func (m *RecoveryCodeMutation) ClearAppID() {
+	m.app_id = nil
+	m.clearedFields[recoverycode.FieldAppID] = struct{}{}
+}
+
+// AppIDCleared returns if the "app_id" field was cleared in this mutation.
+func (m *RecoveryCodeMutation) AppIDCleared() bool {
+	_, ok := m.clearedFields[recoverycode.FieldAppID]
+	return ok
+}
+
+// ResetAppID resets all changes to the "app_id" field.
+func (m *RecoveryCodeMutation) ResetAppID() {
+	m.app_id = nil
+	delete(m.clearedFields, recoverycode.FieldAppID)
+}
+
+// SetUserID sets the "user_id" field.
+func (m *RecoveryCodeMutation) SetUserID(u uuid.UUID) {
+	m.user_id = &u
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *RecoveryCodeMutation) UserID() (r uuid.UUID, exists bool) {
+	v := m.user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the RecoveryCode entity.
+// If the RecoveryCode object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RecoveryCodeMutation) OldUserID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ClearUserID clears the value of the "user_id" field.
+func (m *RecoveryCodeMutation) ClearUserID() {
+	m.user_id = nil
+	m.clearedFields[recoverycode.FieldUserID] = struct{}{}
+}
+
+// UserIDCleared returns if the "user_id" field was cleared in this mutation.
+func (m *RecoveryCodeMutation) UserIDCleared() bool {
+	_, ok := m.clearedFields[recoverycode.FieldUserID]
+	return ok
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *RecoveryCodeMutation) ResetUserID() {
+	m.user_id = nil
+	delete(m.clearedFields, recoverycode.FieldUserID)
+}
+
+// SetCode sets the "code" field.
+func (m *RecoveryCodeMutation) SetCode(s string) {
+	m.code = &s
+}
+
+// Code returns the value of the "code" field in the mutation.
+func (m *RecoveryCodeMutation) Code() (r string, exists bool) {
+	v := m.code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCode returns the old "code" field's value of the RecoveryCode entity.
+// If the RecoveryCode object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RecoveryCodeMutation) OldCode(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCode: %w", err)
+	}
+	return oldValue.Code, nil
+}
+
+// ClearCode clears the value of the "code" field.
+func (m *RecoveryCodeMutation) ClearCode() {
+	m.code = nil
+	m.clearedFields[recoverycode.FieldCode] = struct{}{}
+}
+
+// CodeCleared returns if the "code" field was cleared in this mutation.
+func (m *RecoveryCodeMutation) CodeCleared() bool {
+	_, ok := m.clearedFields[recoverycode.FieldCode]
+	return ok
+}
+
+// ResetCode resets all changes to the "code" field.
+func (m *RecoveryCodeMutation) ResetCode() {
+	m.code = nil
+	delete(m.clearedFields, recoverycode.FieldCode)
+}
+
+// SetUsed sets the "used" field.
+func (m *RecoveryCodeMutation) SetUsed(b bool) {
+	m.used = &b
+}
+
+// Used returns the value of the "used" field in the mutation.
+func (m *RecoveryCodeMutation) Used() (r bool, exists bool) {
+	v := m.used
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUsed returns the old "used" field's value of the RecoveryCode entity.
+// If the RecoveryCode object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RecoveryCodeMutation) OldUsed(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUsed is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUsed requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUsed: %w", err)
+	}
+	return oldValue.Used, nil
+}
+
+// ClearUsed clears the value of the "used" field.
+func (m *RecoveryCodeMutation) ClearUsed() {
+	m.used = nil
+	m.clearedFields[recoverycode.FieldUsed] = struct{}{}
+}
+
+// UsedCleared returns if the "used" field was cleared in this mutation.
+func (m *RecoveryCodeMutation) UsedCleared() bool {
+	_, ok := m.clearedFields[recoverycode.FieldUsed]
+	return ok
+}
+
+// ResetUsed resets all changes to the "used" field.
+func (m *RecoveryCodeMutation) ResetUsed() {
+	m.used = nil
+	delete(m.clearedFields, recoverycode.FieldUsed)
+}
+
+// Where appends a list predicates to the RecoveryCodeMutation builder.
+func (m *RecoveryCodeMutation) Where(ps ...predicate.RecoveryCode) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// Op returns the operation name.
+func (m *RecoveryCodeMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (RecoveryCode).
+func (m *RecoveryCodeMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *RecoveryCodeMutation) Fields() []string {
+	fields := make([]string, 0, 8)
+	if m.created_at != nil {
+		fields = append(fields, recoverycode.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, recoverycode.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, recoverycode.FieldDeletedAt)
+	}
+	if m.ent_id != nil {
+		fields = append(fields, recoverycode.FieldEntID)
+	}
+	if m.app_id != nil {
+		fields = append(fields, recoverycode.FieldAppID)
+	}
+	if m.user_id != nil {
+		fields = append(fields, recoverycode.FieldUserID)
+	}
+	if m.code != nil {
+		fields = append(fields, recoverycode.FieldCode)
+	}
+	if m.used != nil {
+		fields = append(fields, recoverycode.FieldUsed)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *RecoveryCodeMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case recoverycode.FieldCreatedAt:
+		return m.CreatedAt()
+	case recoverycode.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case recoverycode.FieldDeletedAt:
+		return m.DeletedAt()
+	case recoverycode.FieldEntID:
+		return m.EntID()
+	case recoverycode.FieldAppID:
+		return m.AppID()
+	case recoverycode.FieldUserID:
+		return m.UserID()
+	case recoverycode.FieldCode:
+		return m.Code()
+	case recoverycode.FieldUsed:
+		return m.Used()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *RecoveryCodeMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case recoverycode.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case recoverycode.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case recoverycode.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case recoverycode.FieldEntID:
+		return m.OldEntID(ctx)
+	case recoverycode.FieldAppID:
+		return m.OldAppID(ctx)
+	case recoverycode.FieldUserID:
+		return m.OldUserID(ctx)
+	case recoverycode.FieldCode:
+		return m.OldCode(ctx)
+	case recoverycode.FieldUsed:
+		return m.OldUsed(ctx)
+	}
+	return nil, fmt.Errorf("unknown RecoveryCode field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *RecoveryCodeMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case recoverycode.FieldCreatedAt:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case recoverycode.FieldUpdatedAt:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case recoverycode.FieldDeletedAt:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case recoverycode.FieldEntID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEntID(v)
+		return nil
+	case recoverycode.FieldAppID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAppID(v)
+		return nil
+	case recoverycode.FieldUserID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case recoverycode.FieldCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCode(v)
+		return nil
+	case recoverycode.FieldUsed:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUsed(v)
+		return nil
+	}
+	return fmt.Errorf("unknown RecoveryCode field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *RecoveryCodeMutation) AddedFields() []string {
+	var fields []string
+	if m.addcreated_at != nil {
+		fields = append(fields, recoverycode.FieldCreatedAt)
+	}
+	if m.addupdated_at != nil {
+		fields = append(fields, recoverycode.FieldUpdatedAt)
+	}
+	if m.adddeleted_at != nil {
+		fields = append(fields, recoverycode.FieldDeletedAt)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *RecoveryCodeMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case recoverycode.FieldCreatedAt:
+		return m.AddedCreatedAt()
+	case recoverycode.FieldUpdatedAt:
+		return m.AddedUpdatedAt()
+	case recoverycode.FieldDeletedAt:
+		return m.AddedDeletedAt()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *RecoveryCodeMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case recoverycode.FieldCreatedAt:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCreatedAt(v)
+		return nil
+	case recoverycode.FieldUpdatedAt:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUpdatedAt(v)
+		return nil
+	case recoverycode.FieldDeletedAt:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeletedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown RecoveryCode numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *RecoveryCodeMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(recoverycode.FieldAppID) {
+		fields = append(fields, recoverycode.FieldAppID)
+	}
+	if m.FieldCleared(recoverycode.FieldUserID) {
+		fields = append(fields, recoverycode.FieldUserID)
+	}
+	if m.FieldCleared(recoverycode.FieldCode) {
+		fields = append(fields, recoverycode.FieldCode)
+	}
+	if m.FieldCleared(recoverycode.FieldUsed) {
+		fields = append(fields, recoverycode.FieldUsed)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *RecoveryCodeMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *RecoveryCodeMutation) ClearField(name string) error {
+	switch name {
+	case recoverycode.FieldAppID:
+		m.ClearAppID()
+		return nil
+	case recoverycode.FieldUserID:
+		m.ClearUserID()
+		return nil
+	case recoverycode.FieldCode:
+		m.ClearCode()
+		return nil
+	case recoverycode.FieldUsed:
+		m.ClearUsed()
+		return nil
+	}
+	return fmt.Errorf("unknown RecoveryCode nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *RecoveryCodeMutation) ResetField(name string) error {
+	switch name {
+	case recoverycode.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case recoverycode.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case recoverycode.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case recoverycode.FieldEntID:
+		m.ResetEntID()
+		return nil
+	case recoverycode.FieldAppID:
+		m.ResetAppID()
+		return nil
+	case recoverycode.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case recoverycode.FieldCode:
+		m.ResetCode()
+		return nil
+	case recoverycode.FieldUsed:
+		m.ResetUsed()
+		return nil
+	}
+	return fmt.Errorf("unknown RecoveryCode field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *RecoveryCodeMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *RecoveryCodeMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *RecoveryCodeMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *RecoveryCodeMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *RecoveryCodeMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *RecoveryCodeMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *RecoveryCodeMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown RecoveryCode unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *RecoveryCodeMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown RecoveryCode edge %s", name)
 }
 
 // SubscriberMutation represents an operation that mutates the Subscriber nodes in the graph.

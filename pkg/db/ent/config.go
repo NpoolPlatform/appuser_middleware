@@ -47,6 +47,7 @@ type hooks struct {
 	LoginHistory       []ent.Hook
 	OAuthThirdParty    []ent.Hook
 	PubsubMessage      []ent.Hook
+	RecoveryCode       []ent.Hook
 	Subscriber         []ent.Hook
 }
 

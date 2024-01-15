@@ -256,6 +256,19 @@ func (f PubsubMessageFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Valu
 	return f(ctx, mv)
 }
 
+// The RecoveryCodeFunc type is an adapter to allow the use of ordinary
+// function as RecoveryCode mutator.
+type RecoveryCodeFunc func(context.Context, *ent.RecoveryCodeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RecoveryCodeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.RecoveryCodeMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RecoveryCodeMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The SubscriberFunc type is an adapter to allow the use of ordinary
 // function as Subscriber mutator.
 type SubscriberFunc func(context.Context, *ent.SubscriberMutation) (ent.Value, error)
