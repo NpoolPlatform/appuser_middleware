@@ -10,6 +10,37 @@ import (
 	"github.com/google/uuid"
 )
 
+type Req struct {
+	EntID     *uuid.UUID
+	AppID     *uuid.UUID
+	UserID    *uuid.UUID
+	Used      *bool
+	DeletedAt *uint32
+}
+
+func CreateSet(c *ent.RecoveryCodeCreate, req *Req) *ent.RecoveryCodeCreate {
+	if req.EntID != nil {
+		c.SetEntID(*req.EntID)
+	}
+	if req.AppID != nil {
+		c.SetAppID(*req.AppID)
+	}
+	if req.UserID != nil {
+		c.SetUserID(*req.UserID)
+	}
+	if req.Used != nil {
+		c.SetUsed(*req.Used)
+	}
+	return c
+}
+
+func UpdateSet(u *ent.RecoveryCodeUpdateOne, req *Req) *ent.RecoveryCodeUpdateOne {
+	if req.DeletedAt != nil {
+		u.SetDeletedAt(*req.DeletedAt)
+	}
+	return u
+}
+
 type Conds struct {
 	ID     *cruder.Cond
 	EntID  *cruder.Cond
