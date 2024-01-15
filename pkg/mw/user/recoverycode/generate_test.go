@@ -128,6 +128,19 @@ func getRecoveryCodes(t *testing.T) {
 	assert.Equal(t, 16, len(infos))
 }
 
+func deleteRecoveryCodes(t *testing.T) {
+	h4, err := NewHandler(
+		context.Background(),
+		WithAppID(&user.AppID, true),
+		WithUserID(&user.EntID, true),
+	)
+	assert.Nil(t, err)
+
+	infos, err := h4.DeleteRecoveryCodes(context.Background())
+	assert.Nil(t, err)
+	assert.Equal(t, 16, len(infos))
+}
+
 func TestUser(t *testing.T) {
 	if runByGithubAction, err := strconv.ParseBool(os.Getenv("RUN_BY_GITHUB_ACTION")); err == nil && runByGithubAction {
 		return
@@ -138,4 +151,5 @@ func TestUser(t *testing.T) {
 
 	t.Run("generateRecoveryCodes", generateRecoveryCodes)
 	t.Run("getRecoveryCodes", getRecoveryCodes)
+	t.Run("deleteRecoveryCodes", deleteRecoveryCodes)
 }
