@@ -24,7 +24,10 @@ require (
 	google.golang.org/protobuf v1.30.0
 )
 
-require golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
+require (
+	github.com/AmirSoleimani/VoucherCodeGenerator/vcgen v0.0.0-20220706103434-bcb25b5bff9c
+	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
+)
 
 require (
 	ariga.io/atlas v0.5.1-0.20220717122844-8593d7eb1a8e // indirect

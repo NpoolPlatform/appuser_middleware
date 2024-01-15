@@ -44,6 +44,8 @@ cloud.google.com/go/storage v1.14.0/go.mod h1:GrKmX003DSIwi9o29oFT7YDnHYwZoctc3f
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 entgo.io/ent v0.11.2 h1:UM2/BUhF2FfsxPHRxLjQbhqJNaDdVlOwNIAMLs2jyto=
 entgo.io/ent v0.11.2/go.mod h1:YGHEQnmmIUgtD5b1ICD5vg74dS3npkNnmC5K+0J+IHU=
+github.com/AmirSoleimani/VoucherCodeGenerator/vcgen v0.0.0-20220706103434-bcb25b5bff9c h1:D6IsNwzhyrCX23DOMj21rSWSLPXAHCg4EN09kGWThKM=
+github.com/AmirSoleimani/VoucherCodeGenerator/vcgen v0.0.0-20220706103434-bcb25b5bff9c/go.mod h1:C1kHOPhIz2FRwwJEIxVg7shHEPpYy83Ud6JZzXIKKCk=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/toml v1.1.0 h1:ksErzDEI1khOiGPgpwuI7x2ebx/uXQNw7xJpn9Eq1+I=
 github.com/BurntSushi/toml v1.1.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
@@ -58,6 +60,7 @@ github.com/NpoolPlatform/libent-cruder v0.0.0-20231008051607-f64457cf6ab6 h1:zbM
 github.com/NpoolPlatform/libent-cruder v0.0.0-20231008051607-f64457cf6ab6/go.mod h1:EXCihQpRNNyWaPu1IphiZFLTyyUK/CJMZdW4My7y48Q=
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 github.com/NpoolPlatform/message v0.0.0-20240119020142-799e25722bb0 h1:3vuRZdkRjIFhlRkKd6zBlt85wKpAP+x2TADe+YFebl4=
 github.com/NpoolPlatform/message v0.0.0-20240119020142-799e25722bb0/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
 =======
@@ -68,6 +71,10 @@ github.com/NpoolPlatform/message v0.0.0-20240115031141-027f68de409f/go.mod h1:Px
 github.com/NpoolPlatform/message v0.0.0-20240115034712-52a89cb535cc h1:Oq6sgGrd6jwM/u+eUzzXy9DZuZA3zvLiBMZpFPC7L50=
 github.com/NpoolPlatform/message v0.0.0-20240115034712-52a89cb535cc/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
 >>>>>>> 4443156 (add crud & exist)
+=======
+github.com/NpoolPlatform/message v0.0.0-20240115064536-0049c52b4645 h1:2B60TL5pHaKwnood2NfMONZkdg533RNsnkS5LB0BsOk=
+github.com/NpoolPlatform/message v0.0.0-20240115064536-0049c52b4645/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
+>>>>>>> 1941550 (update recovery code)
 github.com/OneOfOne/xxhash v1.2.2 h1:KMrpdQIwFcEqXDklaen+P1axHaj9BSKzvpUUfnHldSE=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/Shonminh/apollo-client v0.4.0 h1:AXGp4wOahrEKjheMXehgsG9B8dEfLQHttRLHeEefvus=
