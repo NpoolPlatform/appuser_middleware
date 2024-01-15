@@ -27,6 +27,22 @@ func do(ctx context.Context, fn func(_ctx context.Context, cli npool.MiddlewareC
 	return fn(_ctx, cli)
 }
 
+func UpdateApp(ctx context.Context, in *npool.RecoveryCodeReq) (*npool.RecoveryCode, error) {
+	info, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.UpdateRecoveryCode(ctx, &npool.UpdateRecoveryCodeRequest{
+			Info: in,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Info, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return info.(*npool.RecoveryCode), nil
+}
+
 func GenerateRecoveryCodes(ctx context.Context, in *npool.RecoveryCodeReq) ([]*npool.RecoveryCode, error) {
 	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
 		resp, err := cli.GenerateRecoveryCodes(ctx, &npool.GenerateRecoveryCodesRequest{
