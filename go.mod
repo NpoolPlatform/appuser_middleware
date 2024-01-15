@@ -8,7 +8,7 @@ require (
 	github.com/NpoolPlatform/basal-middleware v0.0.0-20231015112137-254853c60eec
 	github.com/NpoolPlatform/go-service-framework v0.0.0-20230930023319-e48074d9472e
 	github.com/NpoolPlatform/libent-cruder v0.0.0-20231008051607-f64457cf6ab6
-	github.com/NpoolPlatform/message v0.0.0-20240115034712-52a89cb535cc
+	github.com/NpoolPlatform/message v0.0.0-20240115064536-0049c52b4645
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
@@ -24,7 +24,10 @@ require (
 	google.golang.org/protobuf v1.30.0
 )
 
-require golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
+require (
+	github.com/AmirSoleimani/VoucherCodeGenerator/vcgen v0.0.0-20220706103434-bcb25b5bff9c
+	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
+)
 
 require (
 	ariga.io/atlas v0.5.1-0.20220717122844-8593d7eb1a8e // indirect

@@ -13,6 +13,7 @@ import (
 type Conds struct {
 	ID     *cruder.Cond
 	EntID  *cruder.Cond
+	EntIDs *cruder.Cond
 	UserID *cruder.Cond
 	AppID  *cruder.Cond
 	Code   *cruder.Cond
@@ -21,6 +22,7 @@ type Conds struct {
 
 //nolint
 func SetQueryConds(q *ent.RecoveryCodeQuery, conds *Conds) (*ent.RecoveryCodeQuery, error) {
+	q.Where(entrecoverycode.DeletedAt(0))
 	if conds == nil {
 		return q, nil
 	}
@@ -51,7 +53,7 @@ func SetQueryConds(q *ent.RecoveryCodeQuery, conds *Conds) (*ent.RecoveryCodeQue
 	if conds.UserID != nil {
 		id, ok := conds.UserID.Val.(uuid.UUID)
 		if !ok {
-			return nil, fmt.Errorf("userid appid")
+			return nil, fmt.Errorf("userid userid")
 		}
 		switch conds.UserID.Op {
 		case cruder.EQ:
@@ -96,6 +98,17 @@ func SetQueryConds(q *ent.RecoveryCodeQuery, conds *Conds) (*ent.RecoveryCodeQue
 			return nil, fmt.Errorf("invalid used field")
 		}
 	}
-	q.Where(entrecoverycode.DeletedAt(0))
+	if conds.EntIDs != nil {
+		ids, ok := conds.EntIDs.Val.([]uuid.UUID)
+		if !ok {
+			return nil, fmt.Errorf("invalid entids")
+		}
+		switch conds.EntIDs.Op {
+		case cruder.IN:
+			q.Where(entrecoverycode.EntIDIn(ids...))
+		default:
+			return nil, fmt.Errorf("invalid entids field")
+		}
+	}
 	return q, nil
 }
