@@ -11,7 +11,7 @@ import (
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/user/recoverycode"
 )
 
-func (h *Handler) DeleteKyc(ctx context.Context) (*npool.RecoveryCode, error) {
+func (h *Handler) DeleteRecoveryCode(ctx context.Context) (*npool.RecoveryCode, error) {
 	info, err := h.GetRecoveryCode(ctx)
 	if err != nil {
 		return nil, err
@@ -36,6 +36,5 @@ func (h *Handler) DeleteKyc(ctx context.Context) (*npool.RecoveryCode, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return info, nil
 }
