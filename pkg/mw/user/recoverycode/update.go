@@ -3,6 +3,7 @@ package recoverycode
 import (
 	"context"
 
+	recoverycodecrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/recoverycode"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
 
@@ -10,14 +11,13 @@ import (
 )
 
 func (h *Handler) UpdateRecoveryCode(ctx context.Context) (*npool.RecoveryCode, error) {
-	if h.Used == nil {
-		return h.GetRecoveryCode(ctx)
-	}
-	err := db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
-		if _, err := cli.
-			RecoveryCode.UpdateOneID(*h.ID).
-			SetUsed(*h.Used).
-			Save(ctx); err != nil {
+	err := db.WithClient(ctx, func(_ctx context.Context, cli *ent.Client) error {
+		if _, err := recoverycodecrud.UpdateSet(
+			cli.RecoveryCode.UpdateOneID(*h.ID),
+			&recoverycodecrud.Req{
+				Used: h.Used,
+			},
+		).Save(ctx); err != nil {
 			return err
 		}
 		return nil
@@ -25,6 +25,5 @@ func (h *Handler) UpdateRecoveryCode(ctx context.Context) (*npool.RecoveryCode, 
 	if err != nil {
 		return nil, err
 	}
-
 	return h.GetRecoveryCode(ctx)
 }
