@@ -2,6 +2,7 @@ package recoverycode
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	grpc2 "github.com/NpoolPlatform/go-service-framework/pkg/grpc"
@@ -25,6 +26,30 @@ func do(ctx context.Context, fn func(_ctx context.Context, cli npool.MiddlewareC
 	cli := npool.NewMiddlewareClient(conn)
 
 	return fn(_ctx, cli)
+}
+
+func GetRecoveryCodeOnly(ctx context.Context, conds *npool.Conds) (*npool.RecoveryCode, error) {
+	infos, err := do(ctx, func(_ctx context.Context, cli npool.MiddlewareClient) (cruder.Any, error) {
+		resp, err := cli.GetRecoveryCodes(ctx, &npool.GetRecoveryCodesRequest{
+			Conds:  conds,
+			Offset: 0,
+			Limit:  2, //nolint
+		})
+		if err != nil {
+			return nil, err
+		}
+		return resp.Infos, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(infos.([]*npool.RecoveryCode)) == 0 {
+		return nil, nil
+	}
+	if len(infos.([]*npool.RecoveryCode)) > 1 {
+		return nil, fmt.Errorf("too many record")
+	}
+	return infos.([]*npool.RecoveryCode)[0], nil
 }
 
 func UpdateRecoveryCode(ctx context.Context, in *npool.RecoveryCodeReq) (*npool.RecoveryCode, error) {
