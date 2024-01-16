@@ -35,6 +35,9 @@ func CreateSet(c *ent.RecoveryCodeCreate, req *Req) *ent.RecoveryCodeCreate {
 }
 
 func UpdateSet(u *ent.RecoveryCodeUpdateOne, req *Req) *ent.RecoveryCodeUpdateOne {
+	if req.Used != nil {
+		u.SetUsed(*req.Used)
+	}
 	if req.DeletedAt != nil {
 		u.SetDeletedAt(*req.DeletedAt)
 	}
