@@ -15,6 +15,7 @@ import (
 	entbanapp "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/banapp"
 
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
+	appusertypes "github.com/NpoolPlatform/message/npool/basetypes/appuser/v1"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 )
 
@@ -86,6 +87,7 @@ func (h *queryHandler) queryJoinAppCtrl(s *sql.Selector) {
 			t.C(entappctrl.FieldMaxTypedCouponsPerOrder),
 			t.C(entappctrl.FieldMaintaining),
 			t.C(entappctrl.FieldCommitButtonTargets),
+			t.C(entappctrl.FieldResetUserMethod),
 		)
 }
 
@@ -154,6 +156,7 @@ func (h *queryHandler) formalize() {
 		info.RecaptchaMethod = basetypes.RecaptchaMethod(basetypes.RecaptchaMethod_value[info.RecaptchaMethodStr])
 
 		info.Banned = info.BanAppID != ""
+		info.ResetUserMethod = appusertypes.ResetUserMethod(appusertypes.ResetUserMethod_value[info.ResetUserMethodStr])
 	}
 }
 

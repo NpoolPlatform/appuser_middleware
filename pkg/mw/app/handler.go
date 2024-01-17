@@ -8,6 +8,7 @@ import (
 	appcrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/app"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 	npool "github.com/NpoolPlatform/message/npool/appuser/mw/v1/app"
+	appusertypes "github.com/NpoolPlatform/message/npool/basetypes/appuser/v1"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/google/uuid"
@@ -33,6 +34,7 @@ type Handler struct {
 	Maintaining              *bool
 	CommitButtonTargets      []string
 	UserID                   *uuid.UUID
+	ResetUserMethod          *appusertypes.ResetUserMethod
 	Reqs                     []*AppReq
 	Conds                    *appcrud.Conds
 	Offset                   int32
@@ -289,6 +291,25 @@ func WithUserID(id *string, must bool) func(context.Context, *Handler) error {
 			return err
 		}
 		h.UserID = &_id
+		return nil
+	}
+}
+
+func WithResetUserMethod(method *appusertypes.ResetUserMethod, must bool) func(context.Context, *Handler) error {
+	return func(ctx context.Context, h *Handler) error {
+		if method == nil {
+			if must {
+				return fmt.Errorf("invalid reset user method")
+			}
+			return nil
+		}
+		switch *method {
+		case appusertypes.ResetUserMethod_Normal:
+		case appusertypes.ResetUserMethod_Link:
+		default:
+			return fmt.Errorf("invalid reset method %v", method)
+		}
+		h.ResetUserMethod = method
 		return nil
 	}
 }

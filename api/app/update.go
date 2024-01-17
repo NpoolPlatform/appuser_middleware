@@ -39,6 +39,7 @@ func (s *Server) UpdateApp(ctx context.Context, in *npool.UpdateAppRequest) (*np
 		app1.WithCommitButtonTargets(req.GetCommitButtonTargets(), false),
 		app1.WithBanned(req.Banned, false),
 		app1.WithBanMessage(req.BanMessage, false),
+		app1.WithResetUserMethod(req.ResetUserMethod, false),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

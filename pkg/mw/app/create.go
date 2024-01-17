@@ -53,6 +53,7 @@ func (h *createHandler) createAppCtrl(ctx context.Context, tx *ent.Tx) error {
 			MaxTypedCouponsPerOrder:  h.MaxTypedCouponsPerOrder,
 			Maintaining:              h.Maintaining,
 			CommitButtonTargets:      h.CommitButtonTargets,
+			ResetUserMethod:          h.ResetUserMethod,
 		},
 	).Save(ctx); err != nil {
 		return err

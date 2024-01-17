@@ -37,6 +37,7 @@ func (s *Server) CreateApp(ctx context.Context, in *npool.CreateAppRequest) (*np
 		app1.WithMaxTypedCouponsPerOrder(req.MaxTypedCouponsPerOrder, false),
 		app1.WithMaintaining(req.Maintaining, false),
 		app1.WithCommitButtonTargets(req.GetCommitButtonTargets(), false),
+		app1.WithResetUserMethod(req.ResetUserMethod, false),
 	)
 	if err != nil {
 		logger.Sugar().Errorw(

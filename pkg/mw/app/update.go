@@ -93,6 +93,7 @@ func (h *updateHandler) updateAppCtrl(ctx context.Context, tx *ent.Tx) error {
 		MaxTypedCouponsPerOrder:  h.MaxTypedCouponsPerOrder,
 		Maintaining:              h.Maintaining,
 		CommitButtonTargets:      h.CommitButtonTargets,
+		ResetUserMethod:          h.ResetUserMethod,
 	}
 
 	if info == nil {
