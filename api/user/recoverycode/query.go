@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *Server) GetRecoveryCodess(ctx context.Context, in *npool.GetRecoveryCodesRequest) (*npool.GetRecoveryCodesResponse, error) {
+func (s *Server) GetRecoveryCodes(ctx context.Context, in *npool.GetRecoveryCodesRequest) (*npool.GetRecoveryCodesResponse, error) {
 	handler, err := recoverycode1.NewHandler(
 		ctx,
 		recoverycode1.WithConds(in.GetConds()),
