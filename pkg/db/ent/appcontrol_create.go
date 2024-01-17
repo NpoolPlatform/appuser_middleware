@@ -222,6 +222,20 @@ func (acc *AppControlCreate) SetCommitButtonTargets(s []string) *AppControlCreat
 	return acc
 }
 
+// SetResetUserMethod sets the "reset_user_method" field.
+func (acc *AppControlCreate) SetResetUserMethod(s string) *AppControlCreate {
+	acc.mutation.SetResetUserMethod(s)
+	return acc
+}
+
+// SetNillableResetUserMethod sets the "reset_user_method" field if the given value is not nil.
+func (acc *AppControlCreate) SetNillableResetUserMethod(s *string) *AppControlCreate {
+	if s != nil {
+		acc.SetResetUserMethod(*s)
+	}
+	return acc
+}
+
 // SetID sets the "id" field.
 func (acc *AppControlCreate) SetID(u uint32) *AppControlCreate {
 	acc.mutation.SetID(u)
@@ -394,6 +408,10 @@ func (acc *AppControlCreate) defaults() error {
 		}
 		v := appcontrol.DefaultCommitButtonTargets()
 		acc.mutation.SetCommitButtonTargets(v)
+	}
+	if _, ok := acc.mutation.ResetUserMethod(); !ok {
+		v := appcontrol.DefaultResetUserMethod
+		acc.mutation.SetResetUserMethod(v)
 	}
 	return nil
 }
@@ -573,6 +591,14 @@ func (acc *AppControlCreate) createSpec() (*AppControl, *sqlgraph.CreateSpec) {
 			Column: appcontrol.FieldCommitButtonTargets,
 		})
 		_node.CommitButtonTargets = value
+	}
+	if value, ok := acc.mutation.ResetUserMethod(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: appcontrol.FieldResetUserMethod,
+		})
+		_node.ResetUserMethod = value
 	}
 	return _node, _spec
 }
@@ -913,6 +939,24 @@ func (u *AppControlUpsert) UpdateCommitButtonTargets() *AppControlUpsert {
 // ClearCommitButtonTargets clears the value of the "commit_button_targets" field.
 func (u *AppControlUpsert) ClearCommitButtonTargets() *AppControlUpsert {
 	u.SetNull(appcontrol.FieldCommitButtonTargets)
+	return u
+}
+
+// SetResetUserMethod sets the "reset_user_method" field.
+func (u *AppControlUpsert) SetResetUserMethod(v string) *AppControlUpsert {
+	u.Set(appcontrol.FieldResetUserMethod, v)
+	return u
+}
+
+// UpdateResetUserMethod sets the "reset_user_method" field to the value that was provided on create.
+func (u *AppControlUpsert) UpdateResetUserMethod() *AppControlUpsert {
+	u.SetExcluded(appcontrol.FieldResetUserMethod)
+	return u
+}
+
+// ClearResetUserMethod clears the value of the "reset_user_method" field.
+func (u *AppControlUpsert) ClearResetUserMethod() *AppControlUpsert {
+	u.SetNull(appcontrol.FieldResetUserMethod)
 	return u
 }
 
@@ -1299,6 +1343,27 @@ func (u *AppControlUpsertOne) UpdateCommitButtonTargets() *AppControlUpsertOne {
 func (u *AppControlUpsertOne) ClearCommitButtonTargets() *AppControlUpsertOne {
 	return u.Update(func(s *AppControlUpsert) {
 		s.ClearCommitButtonTargets()
+	})
+}
+
+// SetResetUserMethod sets the "reset_user_method" field.
+func (u *AppControlUpsertOne) SetResetUserMethod(v string) *AppControlUpsertOne {
+	return u.Update(func(s *AppControlUpsert) {
+		s.SetResetUserMethod(v)
+	})
+}
+
+// UpdateResetUserMethod sets the "reset_user_method" field to the value that was provided on create.
+func (u *AppControlUpsertOne) UpdateResetUserMethod() *AppControlUpsertOne {
+	return u.Update(func(s *AppControlUpsert) {
+		s.UpdateResetUserMethod()
+	})
+}
+
+// ClearResetUserMethod clears the value of the "reset_user_method" field.
+func (u *AppControlUpsertOne) ClearResetUserMethod() *AppControlUpsertOne {
+	return u.Update(func(s *AppControlUpsert) {
+		s.ClearResetUserMethod()
 	})
 }
 
@@ -1850,6 +1915,27 @@ func (u *AppControlUpsertBulk) UpdateCommitButtonTargets() *AppControlUpsertBulk
 func (u *AppControlUpsertBulk) ClearCommitButtonTargets() *AppControlUpsertBulk {
 	return u.Update(func(s *AppControlUpsert) {
 		s.ClearCommitButtonTargets()
+	})
+}
+
+// SetResetUserMethod sets the "reset_user_method" field.
+func (u *AppControlUpsertBulk) SetResetUserMethod(v string) *AppControlUpsertBulk {
+	return u.Update(func(s *AppControlUpsert) {
+		s.SetResetUserMethod(v)
+	})
+}
+
+// UpdateResetUserMethod sets the "reset_user_method" field to the value that was provided on create.
+func (u *AppControlUpsertBulk) UpdateResetUserMethod() *AppControlUpsertBulk {
+	return u.Update(func(s *AppControlUpsert) {
+		s.UpdateResetUserMethod()
+	})
+}
+
+// ClearResetUserMethod clears the value of the "reset_user_method" field.
+func (u *AppControlUpsertBulk) ClearResetUserMethod() *AppControlUpsertBulk {
+	return u.Update(func(s *AppControlUpsert) {
+		s.ClearResetUserMethod()
 	})
 }
 

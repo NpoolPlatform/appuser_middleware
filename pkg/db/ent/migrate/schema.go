@@ -52,6 +52,7 @@ var (
 		{Name: "maintaining", Type: field.TypeBool, Nullable: true, Default: false},
 		{Name: "coupon_withdraw_enable", Type: field.TypeBool, Nullable: true, Default: false},
 		{Name: "commit_button_targets", Type: field.TypeJSON, Nullable: true},
+		{Name: "reset_user_method", Type: field.TypeString, Nullable: true, Default: "Normal"},
 	}
 	// AppControlsTable holds the schema information for the "app_controls" table.
 	AppControlsTable = &schema.Table{
