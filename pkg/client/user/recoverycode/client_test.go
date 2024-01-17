@@ -87,12 +87,10 @@ func setupRecoveryCode(t *testing.T) func(*testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, app1)
 
-	id := ret.EntID
-	appID = ret.AppID
 	strVal := "AAA"
 	user, err := appusermwcli.CreateUser(context.Background(), &appusermwpb.UserReq{
-		EntID:              &id,
-		AppID:              &appID,
+		EntID:              &ret.EntID,
+		AppID:              &ret.AppID,
 		EmailAddress:       &ret.EmailAddress,
 		PhoneNO:            &ret.PhoneNO,
 		Username:           &ret.Username,
@@ -109,7 +107,7 @@ func setupRecoveryCode(t *testing.T) func(*testing.T) {
 		GoogleAuthVerified: &ret.GoogleAuthVerified,
 		SigninVerifyType:   &ret.SigninVerifyType,
 		PasswordHash:       &strVal,
-		GoogleSecret:       &appID,
+		GoogleSecret:       &ret.AppID,
 		ThirdPartyUserID:   &strVal,
 		ThirdPartyUsername: &strVal,
 		ThirdPartyAvatar:   &strVal,
@@ -120,7 +118,6 @@ func setupRecoveryCode(t *testing.T) func(*testing.T) {
 	assert.NotNil(t, user)
 	return func(*testing.T) {
 		_, _ = appmwcli.DeleteApp(context.Background(), app1.ID)
-		_, _ = appusermwcli.DeleteUser(context.Background(), app1.EntID, user.ID)
 	}
 }
 
