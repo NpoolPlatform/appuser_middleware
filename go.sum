@@ -65,6 +65,7 @@ github.com/NpoolPlatform/libent-cruder v0.0.0-20231008051607-f64457cf6ab6/go.mod
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 github.com/NpoolPlatform/message v0.0.0-20240119020142-799e25722bb0 h1:3vuRZdkRjIFhlRkKd6zBlt85wKpAP+x2TADe+YFebl4=
 github.com/NpoolPlatform/message v0.0.0-20240119020142-799e25722bb0/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
 =======
@@ -95,6 +96,10 @@ github.com/NpoolPlatform/message v0.0.0-20240115100439-28e725b9ed63/go.mod h1:Px
 github.com/NpoolPlatform/message v0.0.0-20240117093119-4001724c37a7 h1:cDj8JMCREwQcgaHsnKhPyiy/Bv3tQpJO+vsmo5PTEpU=
 github.com/NpoolPlatform/message v0.0.0-20240117093119-4001724c37a7/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
 >>>>>>> 4bfdeac (add ResetUserMethod)
+=======
+github.com/NpoolPlatform/message v0.0.0-20240117094722-abd68e6241a9 h1:71Uq6UC2v1u9hPy0M6/5vPR/0zaUQs35XwjDMmq/G+k=
+github.com/NpoolPlatform/message v0.0.0-20240117094722-abd68e6241a9/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
+>>>>>>> 2f6a11e (update commit id)
 github.com/OneOfOne/xxhash v1.2.2 h1:KMrpdQIwFcEqXDklaen+P1axHaj9BSKzvpUUfnHldSE=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/Shonminh/apollo-client v0.4.0 h1:AXGp4wOahrEKjheMXehgsG9B8dEfLQHttRLHeEefvus=
