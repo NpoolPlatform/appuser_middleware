@@ -133,6 +133,7 @@ func deleteRecoveryCodes(t *testing.T) {
 		context.Background(),
 		WithAppID(&user.AppID, true),
 		WithUserID(&user.EntID, true),
+		WithLimit(16),
 	)
 	assert.Nil(t, err)
 
