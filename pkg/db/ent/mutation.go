@@ -969,6 +969,7 @@ type AppControlMutation struct {
 	addmax_typed_coupons_per_order *int32
 	maintaining                    *bool
 	commit_button_targets          *[]string
+	reset_user_method              *string
 	clearedFields                  map[string]struct{}
 	done                           bool
 	oldValue                       func(context.Context) (*AppControl, error)
@@ -1843,6 +1844,55 @@ func (m *AppControlMutation) ResetCommitButtonTargets() {
 	delete(m.clearedFields, appcontrol.FieldCommitButtonTargets)
 }
 
+// SetResetUserMethod sets the "reset_user_method" field.
+func (m *AppControlMutation) SetResetUserMethod(s string) {
+	m.reset_user_method = &s
+}
+
+// ResetUserMethod returns the value of the "reset_user_method" field in the mutation.
+func (m *AppControlMutation) ResetUserMethod() (r string, exists bool) {
+	v := m.reset_user_method
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldResetUserMethod returns the old "reset_user_method" field's value of the AppControl entity.
+// If the AppControl object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AppControlMutation) OldResetUserMethod(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldResetUserMethod is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldResetUserMethod requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldResetUserMethod: %w", err)
+	}
+	return oldValue.ResetUserMethod, nil
+}
+
+// ClearResetUserMethod clears the value of the "reset_user_method" field.
+func (m *AppControlMutation) ClearResetUserMethod() {
+	m.reset_user_method = nil
+	m.clearedFields[appcontrol.FieldResetUserMethod] = struct{}{}
+}
+
+// ResetUserMethodCleared returns if the "reset_user_method" field was cleared in this mutation.
+func (m *AppControlMutation) ResetUserMethodCleared() bool {
+	_, ok := m.clearedFields[appcontrol.FieldResetUserMethod]
+	return ok
+}
+
+// ResetResetUserMethod resets all changes to the "reset_user_method" field.
+func (m *AppControlMutation) ResetResetUserMethod() {
+	m.reset_user_method = nil
+	delete(m.clearedFields, appcontrol.FieldResetUserMethod)
+}
+
 // Where appends a list predicates to the AppControlMutation builder.
 func (m *AppControlMutation) Where(ps ...predicate.AppControl) {
 	m.predicates = append(m.predicates, ps...)
@@ -1862,7 +1912,7 @@ func (m *AppControlMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AppControlMutation) Fields() []string {
-	fields := make([]string, 0, 15)
+	fields := make([]string, 0, 16)
 	if m.created_at != nil {
 		fields = append(fields, appcontrol.FieldCreatedAt)
 	}
@@ -1908,6 +1958,9 @@ func (m *AppControlMutation) Fields() []string {
 	if m.commit_button_targets != nil {
 		fields = append(fields, appcontrol.FieldCommitButtonTargets)
 	}
+	if m.reset_user_method != nil {
+		fields = append(fields, appcontrol.FieldResetUserMethod)
+	}
 	return fields
 }
 
@@ -1946,6 +1999,8 @@ func (m *AppControlMutation) Field(name string) (ent.Value, bool) {
 		return m.Maintaining()
 	case appcontrol.FieldCommitButtonTargets:
 		return m.CommitButtonTargets()
+	case appcontrol.FieldResetUserMethod:
+		return m.ResetUserMethod()
 	}
 	return nil, false
 }
@@ -1985,6 +2040,8 @@ func (m *AppControlMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldMaintaining(ctx)
 	case appcontrol.FieldCommitButtonTargets:
 		return m.OldCommitButtonTargets(ctx)
+	case appcontrol.FieldResetUserMethod:
+		return m.OldResetUserMethod(ctx)
 	}
 	return nil, fmt.Errorf("unknown AppControl field %s", name)
 }
@@ -2098,6 +2155,13 @@ func (m *AppControlMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCommitButtonTargets(v)
+		return nil
+	case appcontrol.FieldResetUserMethod:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetResetUserMethod(v)
 		return nil
 	}
 	return fmt.Errorf("unknown AppControl field %s", name)
@@ -2213,6 +2277,9 @@ func (m *AppControlMutation) ClearedFields() []string {
 	if m.FieldCleared(appcontrol.FieldCommitButtonTargets) {
 		fields = append(fields, appcontrol.FieldCommitButtonTargets)
 	}
+	if m.FieldCleared(appcontrol.FieldResetUserMethod) {
+		fields = append(fields, appcontrol.FieldResetUserMethod)
+	}
 	return fields
 }
 
@@ -2259,6 +2326,9 @@ func (m *AppControlMutation) ClearField(name string) error {
 		return nil
 	case appcontrol.FieldCommitButtonTargets:
 		m.ClearCommitButtonTargets()
+		return nil
+	case appcontrol.FieldResetUserMethod:
+		m.ClearResetUserMethod()
 		return nil
 	}
 	return fmt.Errorf("unknown AppControl nullable field %s", name)
@@ -2312,6 +2382,9 @@ func (m *AppControlMutation) ResetField(name string) error {
 		return nil
 	case appcontrol.FieldCommitButtonTargets:
 		m.ResetCommitButtonTargets()
+		return nil
+	case appcontrol.FieldResetUserMethod:
+		m.ResetResetUserMethod()
 		return nil
 	}
 	return fmt.Errorf("unknown AppControl field %s", name)

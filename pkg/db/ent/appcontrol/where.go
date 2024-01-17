@@ -163,6 +163,13 @@ func Maintaining(v bool) predicate.AppControl {
 	})
 }
 
+// ResetUserMethod applies equality check predicate on the "reset_user_method" field. It's identical to ResetUserMethodEQ.
+func ResetUserMethod(v string) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldResetUserMethod), v))
+	})
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v uint32) predicate.AppControl {
 	return predicate.AppControl(func(s *sql.Selector) {
@@ -952,6 +959,119 @@ func CommitButtonTargetsIsNil() predicate.AppControl {
 func CommitButtonTargetsNotNil() predicate.AppControl {
 	return predicate.AppControl(func(s *sql.Selector) {
 		s.Where(sql.NotNull(s.C(FieldCommitButtonTargets)))
+	})
+}
+
+// ResetUserMethodEQ applies the EQ predicate on the "reset_user_method" field.
+func ResetUserMethodEQ(v string) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldResetUserMethod), v))
+	})
+}
+
+// ResetUserMethodNEQ applies the NEQ predicate on the "reset_user_method" field.
+func ResetUserMethodNEQ(v string) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldResetUserMethod), v))
+	})
+}
+
+// ResetUserMethodIn applies the In predicate on the "reset_user_method" field.
+func ResetUserMethodIn(vs ...string) predicate.AppControl {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldResetUserMethod), v...))
+	})
+}
+
+// ResetUserMethodNotIn applies the NotIn predicate on the "reset_user_method" field.
+func ResetUserMethodNotIn(vs ...string) predicate.AppControl {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldResetUserMethod), v...))
+	})
+}
+
+// ResetUserMethodGT applies the GT predicate on the "reset_user_method" field.
+func ResetUserMethodGT(v string) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldResetUserMethod), v))
+	})
+}
+
+// ResetUserMethodGTE applies the GTE predicate on the "reset_user_method" field.
+func ResetUserMethodGTE(v string) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldResetUserMethod), v))
+	})
+}
+
+// ResetUserMethodLT applies the LT predicate on the "reset_user_method" field.
+func ResetUserMethodLT(v string) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldResetUserMethod), v))
+	})
+}
+
+// ResetUserMethodLTE applies the LTE predicate on the "reset_user_method" field.
+func ResetUserMethodLTE(v string) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldResetUserMethod), v))
+	})
+}
+
+// ResetUserMethodContains applies the Contains predicate on the "reset_user_method" field.
+func ResetUserMethodContains(v string) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldResetUserMethod), v))
+	})
+}
+
+// ResetUserMethodHasPrefix applies the HasPrefix predicate on the "reset_user_method" field.
+func ResetUserMethodHasPrefix(v string) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldResetUserMethod), v))
+	})
+}
+
+// ResetUserMethodHasSuffix applies the HasSuffix predicate on the "reset_user_method" field.
+func ResetUserMethodHasSuffix(v string) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldResetUserMethod), v))
+	})
+}
+
+// ResetUserMethodIsNil applies the IsNil predicate on the "reset_user_method" field.
+func ResetUserMethodIsNil() predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldResetUserMethod)))
+	})
+}
+
+// ResetUserMethodNotNil applies the NotNil predicate on the "reset_user_method" field.
+func ResetUserMethodNotNil() predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldResetUserMethod)))
+	})
+}
+
+// ResetUserMethodEqualFold applies the EqualFold predicate on the "reset_user_method" field.
+func ResetUserMethodEqualFold(v string) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldResetUserMethod), v))
+	})
+}
+
+// ResetUserMethodContainsFold applies the ContainsFold predicate on the "reset_user_method" field.
+func ResetUserMethodContainsFold(v string) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldResetUserMethod), v))
 	})
 }
 

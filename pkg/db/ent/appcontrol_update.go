@@ -301,6 +301,26 @@ func (acu *AppControlUpdate) ClearCommitButtonTargets() *AppControlUpdate {
 	return acu
 }
 
+// SetResetUserMethod sets the "reset_user_method" field.
+func (acu *AppControlUpdate) SetResetUserMethod(s string) *AppControlUpdate {
+	acu.mutation.SetResetUserMethod(s)
+	return acu
+}
+
+// SetNillableResetUserMethod sets the "reset_user_method" field if the given value is not nil.
+func (acu *AppControlUpdate) SetNillableResetUserMethod(s *string) *AppControlUpdate {
+	if s != nil {
+		acu.SetResetUserMethod(*s)
+	}
+	return acu
+}
+
+// ClearResetUserMethod clears the value of the "reset_user_method" field.
+func (acu *AppControlUpdate) ClearResetUserMethod() *AppControlUpdate {
+	acu.mutation.ClearResetUserMethod()
+	return acu
+}
+
 // Mutation returns the AppControlMutation object of the builder.
 func (acu *AppControlUpdate) Mutation() *AppControlMutation {
 	return acu.mutation
@@ -598,6 +618,19 @@ func (acu *AppControlUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: appcontrol.FieldCommitButtonTargets,
 		})
 	}
+	if value, ok := acu.mutation.ResetUserMethod(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: appcontrol.FieldResetUserMethod,
+		})
+	}
+	if acu.mutation.ResetUserMethodCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: appcontrol.FieldResetUserMethod,
+		})
+	}
 	_spec.Modifiers = acu.modifiers
 	if n, err = sqlgraph.UpdateNodes(ctx, acu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -888,6 +921,26 @@ func (acuo *AppControlUpdateOne) SetCommitButtonTargets(s []string) *AppControlU
 // ClearCommitButtonTargets clears the value of the "commit_button_targets" field.
 func (acuo *AppControlUpdateOne) ClearCommitButtonTargets() *AppControlUpdateOne {
 	acuo.mutation.ClearCommitButtonTargets()
+	return acuo
+}
+
+// SetResetUserMethod sets the "reset_user_method" field.
+func (acuo *AppControlUpdateOne) SetResetUserMethod(s string) *AppControlUpdateOne {
+	acuo.mutation.SetResetUserMethod(s)
+	return acuo
+}
+
+// SetNillableResetUserMethod sets the "reset_user_method" field if the given value is not nil.
+func (acuo *AppControlUpdateOne) SetNillableResetUserMethod(s *string) *AppControlUpdateOne {
+	if s != nil {
+		acuo.SetResetUserMethod(*s)
+	}
+	return acuo
+}
+
+// ClearResetUserMethod clears the value of the "reset_user_method" field.
+func (acuo *AppControlUpdateOne) ClearResetUserMethod() *AppControlUpdateOne {
+	acuo.mutation.ClearResetUserMethod()
 	return acuo
 }
 
@@ -1216,6 +1269,19 @@ func (acuo *AppControlUpdateOne) sqlSave(ctx context.Context) (_node *AppControl
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
 			Type:   field.TypeJSON,
 			Column: appcontrol.FieldCommitButtonTargets,
+		})
+	}
+	if value, ok := acuo.mutation.ResetUserMethod(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: appcontrol.FieldResetUserMethod,
+		})
+	}
+	if acuo.mutation.ResetUserMethodCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: appcontrol.FieldResetUserMethod,
 		})
 	}
 	_spec.Modifiers = acuo.modifiers

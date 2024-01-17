@@ -42,6 +42,8 @@ const (
 	FieldMaintaining = "maintaining"
 	// FieldCommitButtonTargets holds the string denoting the commit_button_targets field in the database.
 	FieldCommitButtonTargets = "commit_button_targets"
+	// FieldResetUserMethod holds the string denoting the reset_user_method field in the database.
+	FieldResetUserMethod = "reset_user_method"
 	// Table holds the table name of the appcontrol in the database.
 	Table = "app_controls"
 )
@@ -64,6 +66,7 @@ var Columns = []string{
 	FieldMaxTypedCouponsPerOrder,
 	FieldMaintaining,
 	FieldCommitButtonTargets,
+	FieldResetUserMethod,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -117,4 +120,6 @@ var (
 	DefaultMaintaining bool
 	// DefaultCommitButtonTargets holds the default value on creation for the "commit_button_targets" field.
 	DefaultCommitButtonTargets func() []string
+	// DefaultResetUserMethod holds the default value on creation for the "reset_user_method" field.
+	DefaultResetUserMethod string
 )

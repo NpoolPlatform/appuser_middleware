@@ -81,6 +81,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			appcontrol.FieldMaxTypedCouponsPerOrder:  {Type: field.TypeUint32, Column: appcontrol.FieldMaxTypedCouponsPerOrder},
 			appcontrol.FieldMaintaining:              {Type: field.TypeBool, Column: appcontrol.FieldMaintaining},
 			appcontrol.FieldCommitButtonTargets:      {Type: field.TypeJSON, Column: appcontrol.FieldCommitButtonTargets},
+			appcontrol.FieldResetUserMethod:          {Type: field.TypeString, Column: appcontrol.FieldResetUserMethod},
 		},
 	}
 	graph.Nodes[2] = &sqlgraph.Node{
@@ -711,6 +712,11 @@ func (f *AppControlFilter) WhereMaintaining(p entql.BoolP) {
 // WhereCommitButtonTargets applies the entql json.RawMessage predicate on the commit_button_targets field.
 func (f *AppControlFilter) WhereCommitButtonTargets(p entql.BytesP) {
 	f.Where(p.Field(appcontrol.FieldCommitButtonTargets))
+}
+
+// WhereResetUserMethod applies the entql string predicate on the reset_user_method field.
+func (f *AppControlFilter) WhereResetUserMethod(p entql.StringP) {
+	f.Where(p.Field(appcontrol.FieldResetUserMethod))
 }
 
 // addPredicate implements the predicateAdder interface.
