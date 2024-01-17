@@ -33,7 +33,7 @@ func GetRecoveryCodeOnly(ctx context.Context, conds *npool.Conds) (*npool.Recove
 		resp, err := cli.GetRecoveryCodes(ctx, &npool.GetRecoveryCodesRequest{
 			Conds:  conds,
 			Offset: 0,
-			Limit:  2, //nolint
+			Limit:  2,
 		})
 		if err != nil {
 			return nil, err
