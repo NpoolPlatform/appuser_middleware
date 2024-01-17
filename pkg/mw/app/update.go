@@ -94,6 +94,7 @@ func (h *updateHandler) updateAppCtrl(ctx context.Context, tx *ent.Tx) error {
 		Maintaining:              h.Maintaining,
 		CouponWithdrawEnable:     h.CouponWithdrawEnable,
 		CommitButtonTargets:      h.CommitButtonTargets,
+		ResetUserMethod:          h.ResetUserMethod,
 	}
 
 	if info == nil {

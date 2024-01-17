@@ -7,6 +7,7 @@ import (
 	entappctrl "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appcontrol"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 
+	appusertypes "github.com/NpoolPlatform/message/npool/basetypes/appuser/v1"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/google/uuid"
@@ -26,6 +27,7 @@ type Req struct {
 	MaxTypedCouponsPerOrder  *uint32
 	Maintaining              *bool
 	CommitButtonTargets      []string
+	ResetUserMethod          *appusertypes.ResetUserMethod
 }
 
 func CreateSet(c *ent.AppControlCreate, req *Req) *ent.AppControlCreate { //nolint
@@ -76,6 +78,9 @@ func CreateSet(c *ent.AppControlCreate, req *Req) *ent.AppControlCreate { //noli
 	if req.CouponWithdrawEnable != nil {
 		c.SetCouponWithdrawEnable(*req.CouponWithdrawEnable)
 	}
+	if req.ResetUserMethod != nil {
+		c.SetResetUserMethod(req.ResetUserMethod.String())
+	}
 	return c
 }
 
@@ -123,6 +128,9 @@ func UpdateSet(u *ent.AppControlUpdateOne, req *Req) *ent.AppControlUpdateOne {
 	}
 	if req.CouponWithdrawEnable != nil {
 		u.SetCouponWithdrawEnable(*req.CouponWithdrawEnable)
+	}
+	if req.ResetUserMethod != nil {
+		u.SetResetUserMethod(req.ResetUserMethod.String())
 	}
 	return u
 }

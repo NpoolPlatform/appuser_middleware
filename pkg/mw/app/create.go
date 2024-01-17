@@ -54,6 +54,7 @@ func (h *createHandler) createAppCtrl(ctx context.Context, tx *ent.Tx) error {
 			Maintaining:              h.Maintaining,
 			CouponWithdrawEnable:     h.CouponWithdrawEnable,
 			CommitButtonTargets:      h.CommitButtonTargets,
+			ResetUserMethod:          h.ResetUserMethod,
 		},
 	).Save(ctx); err != nil {
 		return err

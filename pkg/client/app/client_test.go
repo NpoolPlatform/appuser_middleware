@@ -18,6 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/NpoolPlatform/appuser-middleware/pkg/testinit"
+	appusertypes "github.com/NpoolPlatform/message/npool/basetypes/appuser/v1"
 
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 )
@@ -59,6 +60,8 @@ var (
 		Maintaining:                 true,
 		CommitButtonTargetsStr:      fmt.Sprintf("[\"%v\"]", commitButton),
 		CommitButtonTargets:         []string{commitButton},
+		ResetUserMethod:             appusertypes.ResetUserMethod_Normal,
+		ResetUserMethodStr:          appusertypes.ResetUserMethod_Normal.String(),
 	}
 )
 
