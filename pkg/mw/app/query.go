@@ -86,6 +86,7 @@ func (h *queryHandler) queryJoinAppCtrl(s *sql.Selector) {
 			t.C(entappctrl.FieldMaxTypedCouponsPerOrder),
 			t.C(entappctrl.FieldMaintaining),
 			t.C(entappctrl.FieldCommitButtonTargets),
+			t.C(entappctrl.FieldCouponWithdrawEnable),
 		)
 }
 

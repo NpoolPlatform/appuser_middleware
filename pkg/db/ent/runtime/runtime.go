@@ -161,8 +161,12 @@ func init() {
 	appcontrolDescMaintaining := appcontrolFields[9].Descriptor()
 	// appcontrol.DefaultMaintaining holds the default value on creation for the maintaining field.
 	appcontrol.DefaultMaintaining = appcontrolDescMaintaining.Default.(bool)
+	// appcontrolDescCouponWithdrawEnable is the schema descriptor for coupon_withdraw_enable field.
+	appcontrolDescCouponWithdrawEnable := appcontrolFields[10].Descriptor()
+	// appcontrol.DefaultCouponWithdrawEnable holds the default value on creation for the coupon_withdraw_enable field.
+	appcontrol.DefaultCouponWithdrawEnable = appcontrolDescCouponWithdrawEnable.Default.(bool)
 	// appcontrolDescCommitButtonTargets is the schema descriptor for commit_button_targets field.
-	appcontrolDescCommitButtonTargets := appcontrolFields[10].Descriptor()
+	appcontrolDescCommitButtonTargets := appcontrolFields[11].Descriptor()
 	// appcontrol.DefaultCommitButtonTargets holds the default value on creation for the commit_button_targets field.
 	appcontrol.DefaultCommitButtonTargets = appcontrolDescCommitButtonTargets.Default.(func() []string)
 	appoauththirdpartyMixin := schema.AppOAuthThirdParty{}.Mixin()

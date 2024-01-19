@@ -163,6 +163,13 @@ func Maintaining(v bool) predicate.AppControl {
 	})
 }
 
+// CouponWithdrawEnable applies equality check predicate on the "coupon_withdraw_enable" field. It's identical to CouponWithdrawEnableEQ.
+func CouponWithdrawEnable(v bool) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCouponWithdrawEnable), v))
+	})
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v uint32) predicate.AppControl {
 	return predicate.AppControl(func(s *sql.Selector) {
@@ -938,6 +945,34 @@ func MaintainingIsNil() predicate.AppControl {
 func MaintainingNotNil() predicate.AppControl {
 	return predicate.AppControl(func(s *sql.Selector) {
 		s.Where(sql.NotNull(s.C(FieldMaintaining)))
+	})
+}
+
+// CouponWithdrawEnableEQ applies the EQ predicate on the "coupon_withdraw_enable" field.
+func CouponWithdrawEnableEQ(v bool) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCouponWithdrawEnable), v))
+	})
+}
+
+// CouponWithdrawEnableNEQ applies the NEQ predicate on the "coupon_withdraw_enable" field.
+func CouponWithdrawEnableNEQ(v bool) predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldCouponWithdrawEnable), v))
+	})
+}
+
+// CouponWithdrawEnableIsNil applies the IsNil predicate on the "coupon_withdraw_enable" field.
+func CouponWithdrawEnableIsNil() predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldCouponWithdrawEnable)))
+	})
+}
+
+// CouponWithdrawEnableNotNil applies the NotNil predicate on the "coupon_withdraw_enable" field.
+func CouponWithdrawEnableNotNil() predicate.AppControl {
+	return predicate.AppControl(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldCouponWithdrawEnable)))
 	})
 }
 

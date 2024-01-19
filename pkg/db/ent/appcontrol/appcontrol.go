@@ -40,6 +40,8 @@ const (
 	FieldMaxTypedCouponsPerOrder = "max_typed_coupons_per_order"
 	// FieldMaintaining holds the string denoting the maintaining field in the database.
 	FieldMaintaining = "maintaining"
+	// FieldCouponWithdrawEnable holds the string denoting the coupon_withdraw_enable field in the database.
+	FieldCouponWithdrawEnable = "coupon_withdraw_enable"
 	// FieldCommitButtonTargets holds the string denoting the commit_button_targets field in the database.
 	FieldCommitButtonTargets = "commit_button_targets"
 	// Table holds the table name of the appcontrol in the database.
@@ -63,6 +65,7 @@ var Columns = []string{
 	FieldCreateInvitationCodeWhen,
 	FieldMaxTypedCouponsPerOrder,
 	FieldMaintaining,
+	FieldCouponWithdrawEnable,
 	FieldCommitButtonTargets,
 }
 
@@ -115,6 +118,8 @@ var (
 	DefaultMaxTypedCouponsPerOrder uint32
 	// DefaultMaintaining holds the default value on creation for the "maintaining" field.
 	DefaultMaintaining bool
+	// DefaultCouponWithdrawEnable holds the default value on creation for the "coupon_withdraw_enable" field.
+	DefaultCouponWithdrawEnable bool
 	// DefaultCommitButtonTargets holds the default value on creation for the "commit_button_targets" field.
 	DefaultCommitButtonTargets func() []string
 )

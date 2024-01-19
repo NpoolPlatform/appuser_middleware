@@ -79,6 +79,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			appcontrol.FieldCreateInvitationCodeWhen: {Type: field.TypeString, Column: appcontrol.FieldCreateInvitationCodeWhen},
 			appcontrol.FieldMaxTypedCouponsPerOrder:  {Type: field.TypeUint32, Column: appcontrol.FieldMaxTypedCouponsPerOrder},
 			appcontrol.FieldMaintaining:              {Type: field.TypeBool, Column: appcontrol.FieldMaintaining},
+			appcontrol.FieldCouponWithdrawEnable:     {Type: field.TypeBool, Column: appcontrol.FieldCouponWithdrawEnable},
 			appcontrol.FieldCommitButtonTargets:      {Type: field.TypeJSON, Column: appcontrol.FieldCommitButtonTargets},
 		},
 	}
@@ -684,6 +685,11 @@ func (f *AppControlFilter) WhereMaxTypedCouponsPerOrder(p entql.Uint32P) {
 // WhereMaintaining applies the entql bool predicate on the maintaining field.
 func (f *AppControlFilter) WhereMaintaining(p entql.BoolP) {
 	f.Where(p.Field(appcontrol.FieldMaintaining))
+}
+
+// WhereCouponWithdrawEnable applies the entql bool predicate on the coupon_withdraw_enable field.
+func (f *AppControlFilter) WhereCouponWithdrawEnable(p entql.BoolP) {
+	f.Where(p.Field(appcontrol.FieldCouponWithdrawEnable))
 }
 
 // WhereCommitButtonTargets applies the entql json.RawMessage predicate on the commit_button_targets field.
