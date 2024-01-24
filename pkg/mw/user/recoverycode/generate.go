@@ -9,6 +9,7 @@ import (
 	recoverycodecrud "github.com/NpoolPlatform/appuser-middleware/pkg/crud/user/recoverycode"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent"
+	entappuser "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/appuser"
 	entrecoverycode "github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/recoverycode"
 	redis2 "github.com/NpoolPlatform/go-service-framework/pkg/redis"
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
@@ -47,6 +48,23 @@ func (h *generateHandler) expireExistCodes(ctx context.Context, tx *ent.Tx) erro
 	}
 	h.updated = true
 	return nil
+}
+
+func (h *Handler) getUser(ctx context.Context) error {
+	return db.WithClient(ctx, func(ctx context.Context, cli *ent.Client) error {
+		if _, err := cli.
+			AppUser.
+			Query().
+			Where(
+				entappuser.AppID(*h.AppID),
+				entappuser.EntID(*h.UserID),
+				entappuser.DeletedAt(0),
+			).
+			Only(ctx); err != nil {
+			return err
+		}
+		return nil
+	})
 }
 
 func (h *generateHandler) createCode(ctx context.Context, tx *ent.Tx, code string) error {
@@ -106,6 +124,10 @@ func (h *Handler) Generate(ctx context.Context) (string, error) {
 }
 
 func (h *Handler) GenerateRecoveryCodes(ctx context.Context) ([]*npool.RecoveryCode, error) {
+	if err := h.getUser(ctx); err != nil {
+		return nil, err
+	}
+
 	key := fmt.Sprintf("%v:%v:%v", basetypes.Prefix_PrefixCreateRecoveryCode, *h.AppID, *h.UserID)
 	if err := redis2.TryLock(key, 0); err != nil {
 		return nil, err
