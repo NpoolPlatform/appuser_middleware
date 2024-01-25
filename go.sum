@@ -67,6 +67,7 @@ github.com/NpoolPlatform/libent-cruder v0.0.0-20231008051607-f64457cf6ab6/go.mod
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 github.com/NpoolPlatform/message v0.0.0-20240119020142-799e25722bb0 h1:3vuRZdkRjIFhlRkKd6zBlt85wKpAP+x2TADe+YFebl4=
 github.com/NpoolPlatform/message v0.0.0-20240119020142-799e25722bb0/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
 =======
@@ -105,6 +106,10 @@ github.com/NpoolPlatform/message v0.0.0-20240117094722-abd68e6241a9/go.mod h1:Px
 github.com/NpoolPlatform/message v0.0.0-20240124072343-e67196b8baea h1:X+7AwvCssiwI66AL83mLw4QqDjC/mWnBHs4Y3OAIwPo=
 github.com/NpoolPlatform/message v0.0.0-20240124072343-e67196b8baea/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
 >>>>>>> be15b85 (bugfix:http://47.116.78.131:10083/issues/2704)
+=======
+github.com/NpoolPlatform/message v0.0.0-20240125015821-e83c4ddf2126 h1:GTPvLFtMdSozC5GK9SpvM9D+vfeIUKbkLu6GMBBtdxg=
+github.com/NpoolPlatform/message v0.0.0-20240125015821-e83c4ddf2126/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
+>>>>>>> 1f0b8c4 (update commit id)
 github.com/OneOfOne/xxhash v1.2.2 h1:KMrpdQIwFcEqXDklaen+P1axHaj9BSKzvpUUfnHldSE=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/Shonminh/apollo-client v0.4.0 h1:AXGp4wOahrEKjheMXehgsG9B8dEfLQHttRLHeEefvus=
