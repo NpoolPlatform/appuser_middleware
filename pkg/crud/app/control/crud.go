@@ -84,7 +84,7 @@ func CreateSet(c *ent.AppControlCreate, req *Req) *ent.AppControlCreate { //noli
 	return c
 }
 
-func UpdateSet(u *ent.AppControlUpdateOne, req *Req) *ent.AppControlUpdateOne {
+func UpdateSet(u *ent.AppControlUpdateOne, req *Req) *ent.AppControlUpdateOne { //nolint
 	if req.AppID != nil {
 		u.SetAppID(*req.AppID)
 	}

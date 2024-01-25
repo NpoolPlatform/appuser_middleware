@@ -58,58 +58,8 @@ github.com/NpoolPlatform/go-service-framework v0.0.0-20230930023319-e48074d9472e
 github.com/NpoolPlatform/go-service-framework v0.0.0-20230930023319-e48074d9472e/go.mod h1:Kh7DMkWnYOMHxEKq7QfJqbxm1HaUPkhTNN74lfHQxyE=
 github.com/NpoolPlatform/libent-cruder v0.0.0-20231008051607-f64457cf6ab6 h1:zbM3Zq0qObWEiw+wYJihNFOsBfXey8mBgAhT7HzGB8Y=
 github.com/NpoolPlatform/libent-cruder v0.0.0-20231008051607-f64457cf6ab6/go.mod h1:EXCihQpRNNyWaPu1IphiZFLTyyUK/CJMZdW4My7y48Q=
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-github.com/NpoolPlatform/message v0.0.0-20240119020142-799e25722bb0 h1:3vuRZdkRjIFhlRkKd6zBlt85wKpAP+x2TADe+YFebl4=
-github.com/NpoolPlatform/message v0.0.0-20240119020142-799e25722bb0/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
-=======
-github.com/NpoolPlatform/message v0.0.0-20240115031141-027f68de409f h1:FZb0f5rDLjQ1oyK0Y0ijDrwORotw/r2j9DgWuH8V5bY=
-github.com/NpoolPlatform/message v0.0.0-20240115031141-027f68de409f/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
->>>>>>> 9e3a24d (add recovery code schema)
-=======
-github.com/NpoolPlatform/message v0.0.0-20240115034712-52a89cb535cc h1:Oq6sgGrd6jwM/u+eUzzXy9DZuZA3zvLiBMZpFPC7L50=
-github.com/NpoolPlatform/message v0.0.0-20240115034712-52a89cb535cc/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
->>>>>>> 4443156 (add crud & exist)
-=======
-github.com/NpoolPlatform/message v0.0.0-20240115064536-0049c52b4645 h1:2B60TL5pHaKwnood2NfMONZkdg533RNsnkS5LB0BsOk=
-github.com/NpoolPlatform/message v0.0.0-20240115064536-0049c52b4645/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
->>>>>>> 1941550 (update recovery code)
-=======
-github.com/NpoolPlatform/message v0.0.0-20240115082615-bd939b92872c h1:he4PXqDUU/9TpNxo+pXPQdVoJ+6bJqwWpwZ7C1b6KgQ=
-github.com/NpoolPlatform/message v0.0.0-20240115082615-bd939b92872c/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
->>>>>>> 2601d7a (add client)
-=======
-github.com/NpoolPlatform/message v0.0.0-20240115092528-106c4e2f0ee1 h1:OJRvPAHCO6rcBDv0GwotxMFMvAgnErxmBkzKYXt8TTM=
-github.com/NpoolPlatform/message v0.0.0-20240115092528-106c4e2f0ee1/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
->>>>>>> 701384c (fix ut)
-=======
-github.com/NpoolPlatform/message v0.0.0-20240115100439-28e725b9ed63 h1:jJ+HLXt6M2eeqf7naZA9wGx5JARnt0vXvoWRJ2YMWj4=
-github.com/NpoolPlatform/message v0.0.0-20240115100439-28e725b9ed63/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
->>>>>>> 19210b1 (add update)
-=======
-github.com/NpoolPlatform/message v0.0.0-20240117093119-4001724c37a7 h1:cDj8JMCREwQcgaHsnKhPyiy/Bv3tQpJO+vsmo5PTEpU=
-github.com/NpoolPlatform/message v0.0.0-20240117093119-4001724c37a7/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
->>>>>>> 4bfdeac (add ResetUserMethod)
-=======
-github.com/NpoolPlatform/message v0.0.0-20240117094722-abd68e6241a9 h1:71Uq6UC2v1u9hPy0M6/5vPR/0zaUQs35XwjDMmq/G+k=
-github.com/NpoolPlatform/message v0.0.0-20240117094722-abd68e6241a9/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
->>>>>>> 2f6a11e (update commit id)
-=======
-github.com/NpoolPlatform/message v0.0.0-20240124072343-e67196b8baea h1:X+7AwvCssiwI66AL83mLw4QqDjC/mWnBHs4Y3OAIwPo=
-github.com/NpoolPlatform/message v0.0.0-20240124072343-e67196b8baea/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
->>>>>>> be15b85 (bugfix:http://47.116.78.131:10083/issues/2704)
-=======
 github.com/NpoolPlatform/message v0.0.0-20240125015821-e83c4ddf2126 h1:GTPvLFtMdSozC5GK9SpvM9D+vfeIUKbkLu6GMBBtdxg=
 github.com/NpoolPlatform/message v0.0.0-20240125015821-e83c4ddf2126/go.mod h1:PxJpF0vSSOke+NJskbRBRQ2fK2K3SRe8zaEja+GxSHk=
->>>>>>> 1f0b8c4 (update commit id)
 github.com/OneOfOne/xxhash v1.2.2 h1:KMrpdQIwFcEqXDklaen+P1axHaj9BSKzvpUUfnHldSE=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/Shonminh/apollo-client v0.4.0 h1:AXGp4wOahrEKjheMXehgsG9B8dEfLQHttRLHeEefvus=
@@ -392,6 +342,7 @@ github.com/mattn/go-isatty v0.0.11/go.mod h1:PhnuNfih5lzO57/f3n+odYbM4JtupLOxQOA
 github.com/mattn/go-isatty v0.0.12/go.mod h1:cbi8OIDigv2wuxKPP5vlRcQ1OAZbq2CE4Kysco4FUpU=
 github.com/mattn/go-isatty v0.0.14 h1:yVuAays6BHfxijgZPzw+3Zlu5yQgKGP2/hcQbHb7S9Y=
 github.com/mattn/go-isatty v0.0.14/go.mod h1:7GGIvUiUoEMVVmxf/4nioHXj79iQHKdU27kJ6hsGG94=
+github.com/mattn/go-runewidth v0.0.9 h1:Lm995f3rfxdpd6TSmuVCHVb/QhupuXlYr8sCI/QdE+0=
 github.com/mattn/go-sqlite3 v1.14.13 h1:1tj15ngiFfcZzii7yd82foL+ks+ouQcj8j/TPq3fk1I=
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/matttproud/golang_protobuf_extensions v1.0.4 h1:mmDVorXM7PCGKw94cs5zkfA9PSy5pEvNWRP0ET0TIVo=
@@ -423,6 +374,7 @@ github.com/nxadm/tail v1.4.8 h1:nPr65rt6Y5JFSKQO7qToXr7pePgD6Gwiw05lkbyAQTE=
 github.com/nxadm/tail v1.4.8/go.mod h1:+ncqLTQzXmGhMZNUePPaPqPvBxHAIsmXswZKocGu+AU=
 github.com/oklog/ulid v1.3.1 h1:EGfNDEx6MqHz8B3uNV6QAib1UR2Lm97sHi3ocA6ESJ4=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
+github.com/olekukonko/tablewriter v0.0.5 h1:P2Ga83D34wi1o9J6Wh1mRuqd4mF/x/lgBS7N7AbDhec=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
 github.com/onsi/ginkgo v1.12.1/go.mod h1:zj2OWP4+oCPe1qIXoGWkgMRwljMUYCdkwsT2108oapk=
 github.com/onsi/ginkgo v1.16.4 h1:29JGrr5oVBm5ulCWet69zQkzWipVXIol6ygQUe/EzNc=
@@ -493,6 +445,7 @@ github.com/spf13/afero v1.8.2/go.mod h1:CtAatgMJh6bJEIs48Ay/FOnkljP3WeGUG0MC1RfA
 github.com/spf13/cast v1.2.0/go.mod h1:r2rcYCSwa1IExKTDiTfzaxqT2FNHs8hODu4LnUfgKEg=
 github.com/spf13/cast v1.4.1 h1:s0hze+J0196ZfEMTs80N7UlFt0BDuQ7Q+JDnHiMWKdA=
 github.com/spf13/cast v1.4.1/go.mod h1:Qx5cxh0v+4UWYiBimWS+eyWzqEqokIECu5etghLkUJE=
+github.com/spf13/cobra v1.5.0 h1:X+jTBEBqF0bHN+9cSMgmfuvv2VHJ9ezmFNf9Y/XstYU=
 github.com/spf13/jwalterweatherman v1.1.0 h1:ue6voC5bR5F8YxI5S67j9i582FU4Qvo2bmqnqMYADFk=
 github.com/spf13/jwalterweatherman v1.1.0/go.mod h1:aNWZUN0dPAAO/Ljvb5BEdw96iTZ0EXowPYD95IqWIGo=
 github.com/spf13/pflag v1.0.2/go.mod h1:DYY7MBk1bdzusC3SYhjObp+wFpr4gzcvqqNjLnInEg4=
@@ -808,6 +761,7 @@ golang.org/x/tools v0.0.0-20210106214847-113979e3529a/go.mod h1:emZCQorbCU4vsT4f
 golang.org/x/tools v0.0.0-20210108195828-e2f9c7f1fc8e/go.mod h1:emZCQorbCU4vsT4fOWvOPXz4eW1wZW4PmDk9uLelYpA=
 golang.org/x/tools v0.1.0/go.mod h1:xkSsbof2nBLbhDlRMhhhyNLN/zl3eTqcnHD5viDpcZ0=
 golang.org/x/tools v0.1.5/go.mod h1:o0xws9oXOQQZyjljx8fwUC0k7L1pTE6eaCbjGeHmOkk=
+golang.org/x/tools v0.6.0 h1:BOw41kyTf3PuCW1pVQf8+Cyg8pMlkYB1oo9iJ6D/lKM=
 golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 golang.org/x/xerrors v0.0.0-20191011141410-1b5146add898/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=

@@ -171,7 +171,7 @@ func init() {
 	// appcontrol.DefaultCommitButtonTargets holds the default value on creation for the commit_button_targets field.
 	appcontrol.DefaultCommitButtonTargets = appcontrolDescCommitButtonTargets.Default.(func() []string)
 	// appcontrolDescResetUserMethod is the schema descriptor for reset_user_method field.
-	appcontrolDescResetUserMethod := appcontrolFields[11].Descriptor()
+	appcontrolDescResetUserMethod := appcontrolFields[12].Descriptor()
 	// appcontrol.DefaultResetUserMethod holds the default value on creation for the reset_user_method field.
 	appcontrol.DefaultResetUserMethod = appcontrolDescResetUserMethod.Default.(string)
 	appoauththirdpartyMixin := schema.AppOAuthThirdParty{}.Mixin()

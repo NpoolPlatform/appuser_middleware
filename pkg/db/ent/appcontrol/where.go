@@ -163,17 +163,17 @@ func Maintaining(v bool) predicate.AppControl {
 	})
 }
 
-<<<<<<< HEAD
 // CouponWithdrawEnable applies equality check predicate on the "coupon_withdraw_enable" field. It's identical to CouponWithdrawEnableEQ.
 func CouponWithdrawEnable(v bool) predicate.AppControl {
 	return predicate.AppControl(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldCouponWithdrawEnable), v))
-=======
+	})
+}
+
 // ResetUserMethod applies equality check predicate on the "reset_user_method" field. It's identical to ResetUserMethodEQ.
 func ResetUserMethod(v string) predicate.AppControl {
 	return predicate.AppControl(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldResetUserMethod), v))
->>>>>>> 4bfdeac (add ResetUserMethod)
 	})
 }
 
