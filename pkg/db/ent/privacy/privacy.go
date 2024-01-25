@@ -606,6 +606,30 @@ func (f PubsubMessageMutationRuleFunc) EvalMutation(ctx context.Context, m ent.M
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.PubsubMessageMutation", m)
 }
 
+// The RecoveryCodeQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type RecoveryCodeQueryRuleFunc func(context.Context, *ent.RecoveryCodeQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f RecoveryCodeQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.RecoveryCodeQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.RecoveryCodeQuery", q)
+}
+
+// The RecoveryCodeMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type RecoveryCodeMutationRuleFunc func(context.Context, *ent.RecoveryCodeMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f RecoveryCodeMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.RecoveryCodeMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.RecoveryCodeMutation", m)
+}
+
 // The SubscriberQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type SubscriberQueryRuleFunc func(context.Context, *ent.SubscriberQuery) error
@@ -703,6 +727,8 @@ func queryFilter(q ent.Query) (Filter, error) {
 		return q.Filter(), nil
 	case *ent.PubsubMessageQuery:
 		return q.Filter(), nil
+	case *ent.RecoveryCodeQuery:
+		return q.Filter(), nil
 	case *ent.SubscriberQuery:
 		return q.Filter(), nil
 	default:
@@ -749,6 +775,8 @@ func mutationFilter(m ent.Mutation) (Filter, error) {
 	case *ent.OAuthThirdPartyMutation:
 		return m.Filter(), nil
 	case *ent.PubsubMessageMutation:
+		return m.Filter(), nil
+	case *ent.RecoveryCodeMutation:
 		return m.Filter(), nil
 	case *ent.SubscriberMutation:
 		return m.Filter(), nil

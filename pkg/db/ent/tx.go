@@ -52,6 +52,8 @@ type Tx struct {
 	OAuthThirdParty *OAuthThirdPartyClient
 	// PubsubMessage is the client for interacting with the PubsubMessage builders.
 	PubsubMessage *PubsubMessageClient
+	// RecoveryCode is the client for interacting with the RecoveryCode builders.
+	RecoveryCode *RecoveryCodeClient
 	// Subscriber is the client for interacting with the Subscriber builders.
 	Subscriber *SubscriberClient
 
@@ -208,6 +210,7 @@ func (tx *Tx) init() {
 	tx.LoginHistory = NewLoginHistoryClient(tx.config)
 	tx.OAuthThirdParty = NewOAuthThirdPartyClient(tx.config)
 	tx.PubsubMessage = NewPubsubMessageClient(tx.config)
+	tx.RecoveryCode = NewRecoveryCodeClient(tx.config)
 	tx.Subscriber = NewSubscriberClient(tx.config)
 }
 

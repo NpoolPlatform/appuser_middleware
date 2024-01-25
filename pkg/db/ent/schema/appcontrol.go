@@ -5,6 +5,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/mixin"
 	crudermixin "github.com/NpoolPlatform/libent-cruder/pkg/mixin"
+	appusertypes "github.com/NpoolPlatform/message/npool/basetypes/appuser/v1"
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 	"github.com/google/uuid"
 )
@@ -83,6 +84,10 @@ func (AppControl) Fields() []ent.Field {
 			Default(func() []string {
 				return []string{}
 			}),
+		field.
+			String("reset_user_method").
+			Optional().
+			Default(appusertypes.ResetUserMethod_Normal.String()),
 	}
 }
 

@@ -63,5 +63,8 @@ type OAuthThirdParty func(*sql.Selector)
 // PubsubMessage is the predicate function for pubsubmessage builders.
 type PubsubMessage func(*sql.Selector)
 
+// RecoveryCode is the predicate function for recoverycode builders.
+type RecoveryCode func(*sql.Selector)
+
 // Subscriber is the predicate function for subscriber builders.
 type Subscriber func(*sql.Selector)

@@ -49,6 +49,8 @@ type AppControl struct {
 	CouponWithdrawEnable bool `json:"coupon_withdraw_enable,omitempty"`
 	// CommitButtonTargets holds the value of the "commit_button_targets" field.
 	CommitButtonTargets []string `json:"commit_button_targets,omitempty"`
+	// ResetUserMethod holds the value of the "reset_user_method" field.
+	ResetUserMethod string `json:"reset_user_method,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -62,7 +64,7 @@ func (*AppControl) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullBool)
 		case appcontrol.FieldID, appcontrol.FieldCreatedAt, appcontrol.FieldUpdatedAt, appcontrol.FieldDeletedAt, appcontrol.FieldMaxTypedCouponsPerOrder:
 			values[i] = new(sql.NullInt64)
-		case appcontrol.FieldRecaptchaMethod, appcontrol.FieldCreateInvitationCodeWhen:
+		case appcontrol.FieldRecaptchaMethod, appcontrol.FieldCreateInvitationCodeWhen, appcontrol.FieldResetUserMethod:
 			values[i] = new(sql.NullString)
 		case appcontrol.FieldEntID, appcontrol.FieldAppID:
 			values[i] = new(uuid.UUID)
@@ -189,6 +191,12 @@ func (ac *AppControl) assignValues(columns []string, values []interface{}) error
 					return fmt.Errorf("unmarshal field commit_button_targets: %w", err)
 				}
 			}
+		case appcontrol.FieldResetUserMethod:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field reset_user_method", values[i])
+			} else if value.Valid {
+				ac.ResetUserMethod = value.String
+			}
 		}
 	}
 	return nil
@@ -264,6 +272,9 @@ func (ac *AppControl) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("commit_button_targets=")
 	builder.WriteString(fmt.Sprintf("%v", ac.CommitButtonTargets))
+	builder.WriteString(", ")
+	builder.WriteString("reset_user_method=")
+	builder.WriteString(ac.ResetUserMethod)
 	builder.WriteByte(')')
 	return builder.String()
 }

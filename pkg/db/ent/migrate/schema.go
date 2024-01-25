@@ -52,6 +52,7 @@ var (
 		{Name: "maintaining", Type: field.TypeBool, Nullable: true, Default: false},
 		{Name: "coupon_withdraw_enable", Type: field.TypeBool, Nullable: true, Default: false},
 		{Name: "commit_button_targets", Type: field.TypeJSON, Nullable: true},
+		{Name: "reset_user_method", Type: field.TypeString, Nullable: true, Default: "Normal"},
 	}
 	// AppControlsTable holds the schema information for the "app_controls" table.
 	AppControlsTable = &schema.Table{
@@ -544,6 +545,31 @@ var (
 			},
 		},
 	}
+	// RecoveryCodesColumns holds the columns for the "recovery_codes" table.
+	RecoveryCodesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true},
+		{Name: "created_at", Type: field.TypeUint32},
+		{Name: "updated_at", Type: field.TypeUint32},
+		{Name: "deleted_at", Type: field.TypeUint32},
+		{Name: "ent_id", Type: field.TypeUUID, Unique: true},
+		{Name: "app_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "user_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "code", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "used", Type: field.TypeBool, Nullable: true, Default: false},
+	}
+	// RecoveryCodesTable holds the schema information for the "recovery_codes" table.
+	RecoveryCodesTable = &schema.Table{
+		Name:       "recovery_codes",
+		Columns:    RecoveryCodesColumns,
+		PrimaryKey: []*schema.Column{RecoveryCodesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "recoverycode_ent_id",
+				Unique:  true,
+				Columns: []*schema.Column{RecoveryCodesColumns[4]},
+			},
+		},
+	}
 	// SubscribersColumns holds the columns for the "subscribers" table.
 	SubscribersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint32, Increment: true},
@@ -589,6 +615,7 @@ var (
 		LoginHistoriesTable,
 		OauthThirdPartiesTable,
 		PubsubMessagesTable,
+		RecoveryCodesTable,
 		SubscribersTable,
 	}
 )

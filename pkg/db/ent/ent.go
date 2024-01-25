@@ -29,6 +29,7 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/loginhistory"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/oauththirdparty"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/pubsubmessage"
+	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/recoverycode"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/subscriber"
 )
 
@@ -69,6 +70,7 @@ func columnChecker(table string) func(string) error {
 		loginhistory.Table:       loginhistory.ValidColumn,
 		oauththirdparty.Table:    oauththirdparty.ValidColumn,
 		pubsubmessage.Table:      pubsubmessage.ValidColumn,
+		recoverycode.Table:       recoverycode.ValidColumn,
 		subscriber.Table:         subscriber.ValidColumn,
 	}
 	check, ok := checks[table]
