@@ -286,7 +286,7 @@ pipeline {
           set -e
 
           if [ 0 -eq $rc -a x"$revlist" != x ]; then
-            tag=`git tag --sort=-v:refname | grep [1\\|3\\|5\\|7\\|9]$ | head -n1`
+            tag=`git tag --sort=\-v:refname | grep [1\\|3\\|5\\|7\\|9]$ | head -n1`
             set +e
             docker images | grep appuser-middleware | grep $tag
             rc=$?
@@ -311,7 +311,7 @@ pipeline {
           set -e
 
           if [ 0 -eq $rc -a x"$taglist" != x ]; then
-            tag=`git tag --sort=-v:refname | grep [0\\|2\\|4\\|6\\|8]$ | head -n1`
+            tag=`git tag --sort=\-v:refname | grep [0\\|2\\|4\\|6\\|8]$ | head -n1`
             set +e
             docker images | grep appuser-middleware | grep $tag
             rc=$?
@@ -370,7 +370,7 @@ pipeline {
           if [ ! 0 -eq $rc ]; then
             exit 0
           fi
-          tag=`git tag --sort=-v:refname | grep [1\\|3\\|5\\|7\\|9]$ | head -n1`
+          tag=`git tag --sort=\-v:refname | grep [1\\|3\\|5\\|7\\|9]$ | head -n1`
 
           git reset --hard
           git checkout $tag
@@ -395,7 +395,7 @@ pipeline {
           if [ ! 0 -eq $rc ]; then
             exit 0
           fi
-          tag=`git tag --sort=-v:refname | grep [0\\|2\\|4\\|6\\|8]$ | head -n1`
+          tag=`git tag --sort=\-v:refname | grep [0\\|2\\|4\\|6\\|8]$ | head -n1`
           git reset --hard
           git checkout $tag
           sed -i "s/appuser-middleware:latest/appuser-middleware:$tag/g" cmd/appuser-middleware/k8s/02-appuser-middleware.yaml
