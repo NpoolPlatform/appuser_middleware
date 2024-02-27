@@ -77,7 +77,7 @@ var (
 		{Name: "app_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "third_party_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "client_id", Type: field.TypeString, Nullable: true, Default: ""},
-		{Name: "client_secret", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "client_secret", Type: field.TypeString, Nullable: true, Size: 2147483647, Default: ""},
 		{Name: "callback_url", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "salt", Type: field.TypeString, Nullable: true, Default: ""},
 	}

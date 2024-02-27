@@ -40,7 +40,7 @@ func (AppOAuthThirdParty) Fields() []ent.Field {
 			Optional().
 			Default(""),
 		field.
-			String("client_secret").
+			Text("client_secret").
 			Optional().
 			Default(""),
 		field.
