@@ -28,7 +28,7 @@ func Apply(ctx context.Context, req interface{}) error {
 		ctx,
 		handler.WithEntID(_req.EntID, false),
 		handler.WithAppID(_req.AppID, true),
-		handler.WithUserID(_req.UserID, true),
+		handler.WithUserID(_req.UserID, false),
 		handler.WithResource(_req.Resource, true),
 		handler.WithMethod(_req.Method, true),
 		history1.WithAllowed(_req.Allowed, true),
