@@ -74,6 +74,8 @@ func SetQueryConds(q *ent.AppQuery, conds *Conds) (*ent.AppQuery, error) {
 		switch conds.ID.Op {
 		case cruder.EQ:
 			q.Where(entapp.ID(id))
+		case cruder.NEQ:
+			q.Where(entapp.IDNEQ(id))
 		default:
 			return nil, fmt.Errorf("invalid app field")
 		}
@@ -86,6 +88,8 @@ func SetQueryConds(q *ent.AppQuery, conds *Conds) (*ent.AppQuery, error) {
 		switch conds.EntID.Op {
 		case cruder.EQ:
 			q.Where(entapp.EntID(id))
+		case cruder.NEQ:
+			q.Where(entapp.EntIDNEQ(id))
 		default:
 			return nil, fmt.Errorf("invalid app field")
 		}
