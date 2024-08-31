@@ -61,7 +61,7 @@ type Conds struct {
 	Name      *cruder.Cond
 }
 
-//nolint:gocyclo
+//nolint:gocyclo,funlen
 func SetQueryConds(q *ent.AppQuery, conds *Conds) (*ent.AppQuery, error) {
 	if conds == nil {
 		return q, nil
