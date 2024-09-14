@@ -2,13 +2,11 @@ package schema
 
 import (
 	"entgo.io/ent"
-	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/mixin"
 	crudermixin "github.com/NpoolPlatform/libent-cruder/pkg/mixin"
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 )
 
 // AppUserExtra holds the schema definition for the AppUserExtra entity.
@@ -50,13 +48,6 @@ func (AppUserExtra) Fields() []ent.Field {
 			Default(""),
 		field.String("id_number").
 			Default(""),
-		field.
-			Other("action_credits", decimal.Decimal{}).
-			SchemaType(map[string]string{
-				dialect.MySQL: "decimal(37,18)",
-			}).
-			Optional().
-			Default(decimal.Decimal{}),
 	}
 }
 

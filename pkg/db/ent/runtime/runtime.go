@@ -28,7 +28,6 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/schema"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/subscriber"
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 
 	"entgo.io/ent"
 	"entgo.io/ent/privacy"
@@ -572,10 +571,6 @@ func init() {
 	appuserextraDescIDNumber := appuserextraFields[12].Descriptor()
 	// appuserextra.DefaultIDNumber holds the default value on creation for the id_number field.
 	appuserextra.DefaultIDNumber = appuserextraDescIDNumber.Default.(string)
-	// appuserextraDescActionCredits is the schema descriptor for action_credits field.
-	appuserextraDescActionCredits := appuserextraFields[13].Descriptor()
-	// appuserextra.DefaultActionCredits holds the default value on creation for the action_credits field.
-	appuserextra.DefaultActionCredits = appuserextraDescActionCredits.Default.(decimal.Decimal)
 	appusersecretMixin := schema.AppUserSecret{}.Mixin()
 	appusersecret.Policy = privacy.NewPolicies(appusersecretMixin[0], schema.AppUserSecret{})
 	appusersecret.Hooks[0] = func(next ent.Mutator) ent.Mutator {
