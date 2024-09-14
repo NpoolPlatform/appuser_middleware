@@ -60,7 +60,6 @@ var (
 		GoogleSecret:             appID,
 		HasGoogleSecret:          true,
 		Roles:                    []string{""},
-		ActionCredits:            "0",
 	}
 )
 
@@ -118,7 +117,6 @@ func creatUser(t *testing.T) {
 		PhoneNO:             ret.PhoneNO,
 		ImportedFromAppID:   ret.ImportedFromAppID,
 		ImportedFromAppName: ret.ImportedFromAppID,
-		ActionCredits:       ret.ActionCredits,
 		AddressFieldsString: "[]",
 		AddressFields:       []string{},
 		SigninVerifyTypeStr: basetypes.SignMethod_Email.String(),
@@ -156,7 +154,6 @@ func updateUser(t *testing.T) {
 		strVal       = "AAA"
 		kol          = true
 		kolConfirmed = true
-		credits      = "1.2342"
 		req          = npool.UserReq{
 			ID:                 &ret.ID,
 			EntID:              &ret.EntID,
@@ -187,13 +184,11 @@ func updateUser(t *testing.T) {
 			BanMessage:         &ret.BanMessage,
 			Kol:                &kol,
 			KolConfirmed:       &kolConfirmed,
-			ActionCredits:      &credits,
 		}
 	)
 
 	ret.Kol = true
 	ret.KolConfirmed = true
-	ret.ActionCredits = credits
 
 	handler, err := NewHandler(
 		context.Background(),
@@ -219,7 +214,6 @@ func updateUser(t *testing.T) {
 		WithGoogleAuthVerified(req.GoogleAuthVerified, true),
 		WithKol(req.Kol, true),
 		WithKolConfirmed(req.KolConfirmed, true),
-		WithActionCredits(req.ActionCredits, true),
 	)
 	assert.Nil(t, err)
 

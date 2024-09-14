@@ -17,7 +17,6 @@ import (
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 )
 
 type Handler struct {
@@ -51,7 +50,6 @@ type Handler struct {
 	RoleIDs            []uuid.UUID
 	Kol                *bool
 	KolConfirmed       *bool
-	ActionCredits      *decimal.Decimal
 	SelectedLangID     *uuid.UUID
 	Account            *string
 	AccountType        *basetypes.SignMethod
@@ -568,23 +566,6 @@ func WithKol(kol *bool, must bool) func(context.Context, *Handler) error {
 func WithKolConfirmed(confirmed *bool, must bool) func(context.Context, *Handler) error {
 	return func(ctx context.Context, h *Handler) error {
 		h.KolConfirmed = confirmed
-		return nil
-	}
-}
-
-func WithActionCredits(credits *string, must bool) func(context.Context, *Handler) error {
-	return func(ctx context.Context, h *Handler) error {
-		if credits == nil {
-			if must {
-				return fmt.Errorf("invalid credits")
-			}
-			return nil
-		}
-		_credits, err := decimal.NewFromString(*credits)
-		if err != nil {
-			return err
-		}
-		h.ActionCredits = &_credits
 		return nil
 	}
 }

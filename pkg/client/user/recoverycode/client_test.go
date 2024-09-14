@@ -69,7 +69,6 @@ var (
 		GoogleSecret:        appID,
 		HasGoogleSecret:     true,
 		Roles:               []string{""},
-		ActionCredits:       "0",
 		Banned:              true,
 		BanMessage:          uuid.NewString(),
 	}

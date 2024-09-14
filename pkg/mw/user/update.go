@@ -76,7 +76,6 @@ func (h *updateHandler) updateAppUserExtra(ctx context.Context, tx *ent.Tx) erro
 		Organization:  h.Organization,
 		IDNumber:      h.IDNumber,
 		AddressFields: h.AddressFields,
-		ActionCredits: h.ActionCredits,
 	}
 
 	if info == nil {
