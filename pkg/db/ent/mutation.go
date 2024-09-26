@@ -31,7 +31,6 @@ import (
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/recoverycode"
 	"github.com/NpoolPlatform/appuser-middleware/pkg/db/ent/subscriber"
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 
 	"entgo.io/ent"
 )
@@ -8122,7 +8121,6 @@ type AppUserExtraMutation struct {
 	avatar         *string
 	organization   *string
 	id_number      *string
-	action_credits *decimal.Decimal
 	clearedFields  map[string]struct{}
 	done           bool
 	oldValue       func(context.Context) (*AppUserExtra, error)
@@ -8945,55 +8943,6 @@ func (m *AppUserExtraMutation) ResetIDNumber() {
 	m.id_number = nil
 }
 
-// SetActionCredits sets the "action_credits" field.
-func (m *AppUserExtraMutation) SetActionCredits(d decimal.Decimal) {
-	m.action_credits = &d
-}
-
-// ActionCredits returns the value of the "action_credits" field in the mutation.
-func (m *AppUserExtraMutation) ActionCredits() (r decimal.Decimal, exists bool) {
-	v := m.action_credits
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldActionCredits returns the old "action_credits" field's value of the AppUserExtra entity.
-// If the AppUserExtra object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AppUserExtraMutation) OldActionCredits(ctx context.Context) (v decimal.Decimal, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldActionCredits is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldActionCredits requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldActionCredits: %w", err)
-	}
-	return oldValue.ActionCredits, nil
-}
-
-// ClearActionCredits clears the value of the "action_credits" field.
-func (m *AppUserExtraMutation) ClearActionCredits() {
-	m.action_credits = nil
-	m.clearedFields[appuserextra.FieldActionCredits] = struct{}{}
-}
-
-// ActionCreditsCleared returns if the "action_credits" field was cleared in this mutation.
-func (m *AppUserExtraMutation) ActionCreditsCleared() bool {
-	_, ok := m.clearedFields[appuserextra.FieldActionCredits]
-	return ok
-}
-
-// ResetActionCredits resets all changes to the "action_credits" field.
-func (m *AppUserExtraMutation) ResetActionCredits() {
-	m.action_credits = nil
-	delete(m.clearedFields, appuserextra.FieldActionCredits)
-}
-
 // Where appends a list predicates to the AppUserExtraMutation builder.
 func (m *AppUserExtraMutation) Where(ps ...predicate.AppUserExtra) {
 	m.predicates = append(m.predicates, ps...)
@@ -9013,7 +8962,7 @@ func (m *AppUserExtraMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AppUserExtraMutation) Fields() []string {
-	fields := make([]string, 0, 18)
+	fields := make([]string, 0, 17)
 	if m.created_at != nil {
 		fields = append(fields, appuserextra.FieldCreatedAt)
 	}
@@ -9065,9 +9014,6 @@ func (m *AppUserExtraMutation) Fields() []string {
 	if m.id_number != nil {
 		fields = append(fields, appuserextra.FieldIDNumber)
 	}
-	if m.action_credits != nil {
-		fields = append(fields, appuserextra.FieldActionCredits)
-	}
 	return fields
 }
 
@@ -9110,8 +9056,6 @@ func (m *AppUserExtraMutation) Field(name string) (ent.Value, bool) {
 		return m.Organization()
 	case appuserextra.FieldIDNumber:
 		return m.IDNumber()
-	case appuserextra.FieldActionCredits:
-		return m.ActionCredits()
 	}
 	return nil, false
 }
@@ -9155,8 +9099,6 @@ func (m *AppUserExtraMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldOrganization(ctx)
 	case appuserextra.FieldIDNumber:
 		return m.OldIDNumber(ctx)
-	case appuserextra.FieldActionCredits:
-		return m.OldActionCredits(ctx)
 	}
 	return nil, fmt.Errorf("unknown AppUserExtra field %s", name)
 }
@@ -9285,13 +9227,6 @@ func (m *AppUserExtraMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetIDNumber(v)
 		return nil
-	case appuserextra.FieldActionCredits:
-		v, ok := value.(decimal.Decimal)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetActionCredits(v)
-		return nil
 	}
 	return fmt.Errorf("unknown AppUserExtra field %s", name)
 }
@@ -9384,11 +9319,7 @@ func (m *AppUserExtraMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *AppUserExtraMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(appuserextra.FieldActionCredits) {
-		fields = append(fields, appuserextra.FieldActionCredits)
-	}
-	return fields
+	return nil
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -9401,11 +9332,6 @@ func (m *AppUserExtraMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *AppUserExtraMutation) ClearField(name string) error {
-	switch name {
-	case appuserextra.FieldActionCredits:
-		m.ClearActionCredits()
-		return nil
-	}
 	return fmt.Errorf("unknown AppUserExtra nullable field %s", name)
 }
 
@@ -9463,9 +9389,6 @@ func (m *AppUserExtraMutation) ResetField(name string) error {
 		return nil
 	case appuserextra.FieldIDNumber:
 		m.ResetIDNumber()
-		return nil
-	case appuserextra.FieldActionCredits:
-		m.ResetActionCredits()
 		return nil
 	}
 	return fmt.Errorf("unknown AppUserExtra field %s", name)

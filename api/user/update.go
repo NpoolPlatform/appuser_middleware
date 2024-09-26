@@ -44,7 +44,6 @@ func (s *Server) UpdateUser(ctx context.Context, in *npool.UpdateUserRequest) (*
 		user1.WithKol(req.Kol, false),
 		user1.WithKolConfirmed(req.KolConfirmed, false),
 		user1.WithSelectedLangID(req.SelectedLangID, false),
-		user1.WithActionCredits(req.ActionCredits, false),
 		user1.WithSigninVerifyType(req.SigninVerifyType, false),
 		user1.WithBanned(req.Banned, false),
 		user1.WithBanMessage(req.BanMessage, false),

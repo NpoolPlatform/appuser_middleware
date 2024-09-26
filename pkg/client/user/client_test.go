@@ -74,7 +74,6 @@ var (
 		GoogleSecret:        appID,
 		HasGoogleSecret:     true,
 		Roles:               []string{""},
-		ActionCredits:       "0",
 		Banned:              true,
 		BanMessage:          uuid.NewString(),
 	}
@@ -203,7 +202,6 @@ func creatUser(t *testing.T) {
 			PhoneNO:             ret.PhoneNO,
 			ImportedFromAppID:   ret.ImportedFromAppID,
 			ImportedFromAppName: ret.ImportedFromAppName,
-			ActionCredits:       ret.ActionCredits,
 			AddressFieldsString: "[]",
 			AddressFields:       nil,
 			SigninVerifyTypeStr: basetypes.SignMethod_Email.String(),
@@ -228,9 +226,8 @@ func updateUser(t *testing.T) {
 	ret.EmailAddress = fmt.Sprintf("%v@hhh.ccc", rand.Intn(100000000)+40000) //nolint
 	ret.BanAppUserID = ret.EntID
 	var (
-		appID   = ret.AppID
-		strVal  = "AAA"
-		credits = "1.234234"
+		appID  = ret.AppID
+		strVal = "AAA"
 
 		req = npool.UserReq{
 			ID:                 &ret.ID,
@@ -259,11 +256,8 @@ func updateUser(t *testing.T) {
 			ThirdPartyAvatar:   &strVal,
 			Banned:             &ret.Banned,
 			BanMessage:         &ret.BanMessage,
-			ActionCredits:      &credits,
 		}
 	)
-
-	ret.ActionCredits = credits
 
 	info, err := UpdateUser(context.Background(), &req)
 	if assert.Nil(t, err) {

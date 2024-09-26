@@ -25,7 +25,6 @@ import (
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 )
 
 type queryHandler struct {
@@ -109,7 +108,6 @@ func (h *queryHandler) queryJoinAppUserExtra(s *sql.Selector) {
 			sql.As(t.C(entextra.FieldAvatar), "avatar"),
 			sql.As(t.C(entextra.FieldOrganization), "organization"),
 			sql.As(t.C(entextra.FieldIDNumber), "id_number"),
-			sql.As(t.C(entextra.FieldActionCredits), "action_credits"),
 		)
 }
 
@@ -395,12 +393,6 @@ func (h *queryHandler) queryUserRoles(ctx context.Context) error {
 func (h *queryHandler) formalize() {
 	for _, info := range h.infos {
 		info.HasGoogleSecret = info.GoogleSecret != ""
-		credits, err := decimal.NewFromString(info.ActionCredits)
-		if err != nil {
-			info.ActionCredits = decimal.NewFromInt(0).String()
-		} else {
-			info.ActionCredits = credits.String()
-		}
 		info.SigninVerifyType = basetypes.SignMethod(basetypes.SignMethod_value[info.SigninVerifyTypeStr])
 		_ = json.Unmarshal([]byte(info.AddressFieldsString), &info.AddressFields)
 		info.Banned = info.BanAppUserID != "" && info.BanDeletedAt == 0

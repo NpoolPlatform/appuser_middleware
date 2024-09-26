@@ -60,7 +60,6 @@ var (
 		GoogleSecret:             uuid.NewString(),
 		HasGoogleSecret:          true,
 		Roles:                    []string{""},
-		ActionCredits:            "0",
 	}
 )
 

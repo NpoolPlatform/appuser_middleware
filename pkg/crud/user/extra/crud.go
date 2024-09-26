@@ -9,7 +9,6 @@ import (
 	"github.com/NpoolPlatform/libent-cruder/pkg/cruder"
 
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 )
 
 type Req struct {
@@ -27,10 +26,9 @@ type Req struct {
 	Username      *string
 	Gender        *string
 	AddressFields []string
-	ActionCredits *decimal.Decimal
 }
 
-func CreateSet(c *ent.AppUserExtraCreate, req *Req) *ent.AppUserExtraCreate { //nolint
+func CreateSet(c *ent.AppUserExtraCreate, req *Req) *ent.AppUserExtraCreate {
 	if req.EntID != nil {
 		c.SetEntID(*req.EntID)
 	}
@@ -73,9 +71,6 @@ func CreateSet(c *ent.AppUserExtraCreate, req *Req) *ent.AppUserExtraCreate { //
 	if req.AddressFields != nil {
 		c.SetAddressFields(req.AddressFields)
 	}
-	if req.ActionCredits != nil {
-		c.SetActionCredits(*req.ActionCredits)
-	}
 	return c
 }
 
@@ -115,14 +110,6 @@ func UpdateSet(ctx context.Context, u *ent.AppUserExtraUpdateOne, req *Req) (*en
 	}
 	if req.LastName != nil {
 		u.SetLastName(*req.LastName)
-	}
-	if req.ActionCredits != nil {
-		oldCredits, err := u.Mutation().OldActionCredits(ctx)
-		if err != nil {
-			return nil, err
-		}
-		credits := oldCredits.Add(*req.ActionCredits)
-		u.SetActionCredits(credits)
 	}
 
 	return u, nil

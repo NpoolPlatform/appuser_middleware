@@ -11,7 +11,6 @@ import (
 	basetypes "github.com/NpoolPlatform/message/npool/basetypes/v1"
 
 	authhistory "github.com/NpoolPlatform/appuser-middleware/pkg/pubsub/authing/history"
-	user "github.com/NpoolPlatform/appuser-middleware/pkg/pubsub/user"
 	loginhistory "github.com/NpoolPlatform/appuser-middleware/pkg/pubsub/user/login/history"
 
 	"github.com/NpoolPlatform/go-service-framework/pkg/logger"
@@ -50,8 +49,6 @@ func finish(ctx context.Context, msg *pubsub.Msg, err error) error {
 
 func prepare(mid, body string) (req interface{}, err error) {
 	switch mid {
-	case basetypes.MsgID_IncreaseUserActionCreditsReq.String():
-		req, err = user.Prepare(body)
 	case basetypes.MsgID_CreateLoginHistoryReq.String():
 		req, err = loginhistory.Prepare(body)
 	case basetypes.MsgID_CreateAuthHistoryReq.String():
@@ -114,8 +111,6 @@ func statReq(ctx context.Context, mid string, uid uuid.UUID) (bool, error) {
 //   error   error message
 func statMsg(ctx context.Context, mid string, uid uuid.UUID, rid *uuid.UUID) (bool, error) { //nolint
 	switch mid {
-	case basetypes.MsgID_IncreaseUserActionCreditsReq.String():
-		fallthrough //nolint
 	case basetypes.MsgID_CreateLoginHistoryReq.String():
 		fallthrough //nolint
 	case basetypes.MsgID_CreateAuthHistoryReq.String():
@@ -138,8 +133,6 @@ func stat(ctx context.Context, mid string, uid uuid.UUID, rid *uuid.UUID) (bool,
 //   error   reason of error, if nil, means the message should be acked
 func process(ctx context.Context, mid string, req interface{}) (err error) {
 	switch mid {
-	case basetypes.MsgID_IncreaseUserActionCreditsReq.String():
-		err = user.Apply(ctx, req)
 	case basetypes.MsgID_CreateLoginHistoryReq.String():
 		err = loginhistory.Apply(ctx, req)
 	case basetypes.MsgID_CreateAuthHistoryReq.String():
